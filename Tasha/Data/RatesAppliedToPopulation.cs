@@ -22,84 +22,83 @@ using XTMF;
 using Datastructure;
 using TMG.Functions;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation( Description =
+    @"This module is designed to apply rates to the total population of a zone." )]
+public class RatesAppliedToPopulation : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation( Description =
-        @"This module is designed to apply rates to the total population of a zone." )]
-    public class RatesAppliedToPopulation : IDataSource<SparseArray<float>>
+    private SparseArray<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation( Required = false, Description = "The rates to use for each planning district." )]
+    public IResource RatesToApply;
+
+    [SubModelInformation(Required = false, Description = "An alternative source.")]
+    public IDataSource<SparseArray<float>> RatesToApplyRaw;
+
+    [RunParameter( "PD Rates", true, "Are the rates based on planning districts (true) or zones (false)." )]
+    public bool RatesBasedOnPD;
+
+    public SparseArray<float> GiveData()
     {
-        private SparseArray<float> Data;
+        return Data;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        [SubModelInformation( Required = false, Description = "The rates to use for each planning district." )]
-        public IResource RatesToApply;
-
-        [SubModelInformation(Required = false, Description = "An alternative source.")]
-        public IDataSource<SparseArray<float>> RatesToApplyRaw;
-
-        [RunParameter( "PD Rates", true, "Are the rates based on planning districts (true) or zones (false)." )]
-        public bool RatesBasedOnPD;
-
-        public SparseArray<float> GiveData()
+    public void LoadData()
+    {
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        var zones = zoneArray.GetFlatData();
+        var data = zoneArray.CreateSimilarArray<float>();
+        var flatData = data.GetFlatData();
+        var studentRates = ModuleHelper.GetDataFromDatasourceOrResource(RatesToApplyRaw, RatesToApply, RatesToApplyRaw != null);
+        if ( RatesBasedOnPD )
         {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
-            var data = zoneArray.CreateSimilarArray<float>();
-            var flatData = data.GetFlatData();
-            var studentRates = ModuleHelper.GetDataFromDatasourceOrResource(RatesToApplyRaw, RatesToApply, RatesToApplyRaw != null);
-            if ( RatesBasedOnPD )
+            for ( int i = 0; i < zones.Length; i++ )
             {
-                for ( int i = 0; i < zones.Length; i++ )
-                {
-                    var pop = zones[i].Population;
-                    var pd = zones[i].PlanningDistrict;
-                    flatData[i] = pop * studentRates[pd];
-                }
+                var pop = zones[i].Population;
+                var pd = zones[i].PlanningDistrict;
+                flatData[i] = pop * studentRates[pd];
             }
-            else
+        }
+        else
+        {
+            for ( int i = 0; i < zones.Length; i++ )
             {
-                for ( int i = 0; i < zones.Length; i++ )
-                {
-                    var pop = zones[i].Population;
-                    var zoneNumber = zones[i].ZoneNumber;
-                    flatData[i] = pop * studentRates[zoneNumber];
-                }
+                var pop = zones[i].Population;
+                var zoneNumber = zones[i].ZoneNumber;
+                flatData[i] = pop * studentRates[zoneNumber];
             }
-            Data = data;
         }
+        Data = data;
+    }
 
-        public void UnloadData()
-        {
-            Data = null;
-        }
+    public void UnloadData()
+    {
+        Data = null;
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(RatesToApplyRaw, RatesToApply, ref error);
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(RatesToApplyRaw, RatesToApply, ref error);
     }
 }

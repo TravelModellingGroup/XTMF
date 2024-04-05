@@ -24,185 +24,184 @@ using System.Threading.Tasks;
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public class TestGatewayLock
 {
-    [TestClass]
-    public class TestGatewayLock
+    [TestMethod]
+    public void TestListWriter()
     {
-        [TestMethod]
-        public void TestListWriter()
+        GatewayLock gate = new();
+        for ( int iteration = 0; iteration < 100; iteration++ )
         {
-            GatewayLock gate = new();
-            for ( int iteration = 0; iteration < 100; iteration++ )
-            {
-                var list = new List<Entry>();
-                Parallel.For( 0, 1000, i =>
+            var list = new List<Entry>();
+            Parallel.For( 0, 1000, i =>
+                {
+                    Random r = new();
+                    for ( int j = 0; j < 100; j++ )
                     {
-                        Random r = new();
-                        for ( int j = 0; j < 100; j++ )
-                        {
-                            var num = r.Next( 10 );
-                            bool found = false;
-                            gate.PassThrough( () =>
-                                {
-                                    foreach ( var entry in list )
-                                    {
-                                        if ( entry.Number == num )
-                                        {
-                                            lock ( entry )
-                                            {
-                                                entry.TimeFound++;
-                                                found = true;
-                                                return;
-                                            }
-                                        }
-                                    }
-                                } );
-                            if ( !found )
+                        var num = r.Next( 10 );
+                        bool found = false;
+                        gate.PassThrough( () =>
                             {
-                                gate.Lock( () =>
+                                foreach ( var entry in list )
                                 {
-                                    foreach ( var entry in list )
+                                    if ( entry.Number == num )
                                     {
-                                        if ( entry.Number == num )
+                                        lock ( entry )
                                         {
                                             entry.TimeFound++;
                                             found = true;
                                             return;
                                         }
                                     }
-                                    list.Add( new Entry() { Number = num, TimeFound = 1 } );
-                                } );
-                            }
-                        }
-                    } );
-                Assert.IsTrue( list.Count <= 10 );
-            }
-        }
-
-        [TestMethod]
-        public void TestMultipleWriters()
-        {
-            GatewayLock gate = new();
-            Stopwatch watch = new();
-            watch.Start();
-            long startLock1 = 0, startLock2 = 0;
-            // ReSharper disable once NotAccessedVariable
-            long endLock1 = 0, endLock2 = 0;
-            for ( int i = 0; i < 100; i++ )
-            {
-                Parallel.Invoke(
-                    () =>
-                    {
-                        gate.Lock(
-                            () =>
-                            {
-                                startLock1 = watch.ElapsedTicks;
-                                Thread.Sleep( 10 );
-                                endLock1 = watch.ElapsedTicks;
+                                }
                             } );
-                    },
-                    () =>
-                    {
-                        gate.Lock(
-                            () =>
-                            {
-                                startLock2 = watch.ElapsedTicks;
-                                Thread.Sleep( 10 );
-                                endLock2 = watch.ElapsedTicks;
-                            } );
-                    } );
-                if ( startLock1 < startLock2 )
-                {
-                    Assert.IsTrue( endLock1 <= startLock2 );
-                }
-                else
-                {
-                    Assert.IsTrue( endLock1 >= startLock2 );
-                }
-            }
-        }
-
-        [TestMethod]
-        public void TestWriterHoldThenReaders()
-        {
-            GatewayLock gate = new();
-            Stopwatch watch = new();
-            watch.Start();
-            bool writerDone = false;
-            bool anyFails = false;
-            Task main = Task.Factory.StartNew(
-                () =>
-                {
-                    var ourTasks = new Task[10];
-                    gate.Lock( () =>
-                    {
-                        for ( int i = 0; i < ourTasks.Length; i++ )
+                        if ( !found )
                         {
-                            ourTasks[i] = Task.Factory.StartNew(
-                                () =>
+                            gate.Lock( () =>
+                            {
+                                foreach ( var entry in list )
                                 {
-                                    gate.PassThrough( () =>
-                                        {
-                                            // ReSharper disable once AccessToModifiedClosure
-                                            if ( !writerDone )
-                                            {
-                                                anyFails = true;
-                                            }
-                                        } );
-                                } );
+                                    if ( entry.Number == num )
+                                    {
+                                        entry.TimeFound++;
+                                        found = true;
+                                        return;
+                                    }
+                                }
+                                list.Add( new Entry() { Number = num, TimeFound = 1 } );
+                            } );
                         }
-                        Thread.Sleep( 1000 );
-                        writerDone = true;
-                    } );
-                    Task.WaitAll( ourTasks );
+                    }
                 } );
-            main.Wait();
-            Thread.MemoryBarrier();
-            Assert.IsFalse( anyFails );
+            Assert.IsTrue( list.Count <= 10 );
         }
+    }
 
-        [TestMethod]
-        public void TestWriterLock()
+    [TestMethod]
+    public void TestMultipleWriters()
+    {
+        GatewayLock gate = new();
+        Stopwatch watch = new();
+        watch.Start();
+        long startLock1 = 0, startLock2 = 0;
+        // ReSharper disable once NotAccessedVariable
+        long endLock1 = 0, endLock2 = 0;
+        for ( int i = 0; i < 100; i++ )
         {
-            GatewayLock gate = new();
-            Stopwatch watch = new();
-            watch.Start();
-            long finishedPassThrough = 0;
-            long inLock = 0;
-            Task secondaryTask = null;
-            var mainTask = Task.Factory.StartNew(
+            Parallel.Invoke(
                 () =>
                 {
-                    gate.PassThrough(
+                    gate.Lock(
                         () =>
                         {
-                            secondaryTask = Task.Factory.StartNew(
-                                () =>
-                                {
-                                    gate.Lock(
-                                        () =>
-                                        {
-                                            // chill
-                                            inLock = watch.ElapsedMilliseconds;
-                                        } );
-                                } );
-                            Thread.Sleep( 100 );
-                            finishedPassThrough = watch.ElapsedMilliseconds;
+                            startLock1 = watch.ElapsedTicks;
+                            Thread.Sleep( 10 );
+                            endLock1 = watch.ElapsedTicks;
+                        } );
+                },
+                () =>
+                {
+                    gate.Lock(
+                        () =>
+                        {
+                            startLock2 = watch.ElapsedTicks;
+                            Thread.Sleep( 10 );
+                            endLock2 = watch.ElapsedTicks;
                         } );
                 } );
-            mainTask.Wait();
-            secondaryTask.Wait();
-            watch.Stop();
-            Assert.IsTrue( inLock >= finishedPassThrough );
+            if ( startLock1 < startLock2 )
+            {
+                Assert.IsTrue( endLock1 <= startLock2 );
+            }
+            else
+            {
+                Assert.IsTrue( endLock1 >= startLock2 );
+            }
         }
+    }
 
-        private class Entry
-        {
-            internal int Number;
-            // Needed for testing concurrency 
-            // ReSharper disable once NotAccessedField.Local
-            internal int TimeFound;
-        }
+    [TestMethod]
+    public void TestWriterHoldThenReaders()
+    {
+        GatewayLock gate = new();
+        Stopwatch watch = new();
+        watch.Start();
+        bool writerDone = false;
+        bool anyFails = false;
+        Task main = Task.Factory.StartNew(
+            () =>
+            {
+                var ourTasks = new Task[10];
+                gate.Lock( () =>
+                {
+                    for ( int i = 0; i < ourTasks.Length; i++ )
+                    {
+                        ourTasks[i] = Task.Factory.StartNew(
+                            () =>
+                            {
+                                gate.PassThrough( () =>
+                                    {
+                                        // ReSharper disable once AccessToModifiedClosure
+                                        if ( !writerDone )
+                                        {
+                                            anyFails = true;
+                                        }
+                                    } );
+                            } );
+                    }
+                    Thread.Sleep( 1000 );
+                    writerDone = true;
+                } );
+                Task.WaitAll( ourTasks );
+            } );
+        main.Wait();
+        Thread.MemoryBarrier();
+        Assert.IsFalse( anyFails );
+    }
+
+    [TestMethod]
+    public void TestWriterLock()
+    {
+        GatewayLock gate = new();
+        Stopwatch watch = new();
+        watch.Start();
+        long finishedPassThrough = 0;
+        long inLock = 0;
+        Task secondaryTask = null;
+        var mainTask = Task.Factory.StartNew(
+            () =>
+            {
+                gate.PassThrough(
+                    () =>
+                    {
+                        secondaryTask = Task.Factory.StartNew(
+                            () =>
+                            {
+                                gate.Lock(
+                                    () =>
+                                    {
+                                        // chill
+                                        inLock = watch.ElapsedMilliseconds;
+                                    } );
+                            } );
+                        Thread.Sleep( 100 );
+                        finishedPassThrough = watch.ElapsedMilliseconds;
+                    } );
+            } );
+        mainTask.Wait();
+        secondaryTask.Wait();
+        watch.Stop();
+        Assert.IsTrue( inLock >= finishedPassThrough );
+    }
+
+    private class Entry
+    {
+        internal int Number;
+        // Needed for testing concurrency 
+        // ReSharper disable once NotAccessedField.Local
+        internal int TimeFound;
     }
 }

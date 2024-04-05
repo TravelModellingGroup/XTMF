@@ -19,10 +19,9 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IDistribution : IModule
 {
-    public interface IDistribution : IModule
-    {
-        SparseTwinIndex<float> Distribute(SparseArray<float> productions, SparseArray<float> attractions);
-    }
+    SparseTwinIndex<float> Distribute(SparseArray<float> productions, SparseArray<float> attractions);
 }

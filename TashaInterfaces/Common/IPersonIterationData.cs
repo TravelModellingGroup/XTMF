@@ -18,46 +18,45 @@
 */
 using System.Collections.Generic;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Iteration Data for a person which corresponds to a household
+/// iteration's mode choices and trip chains
+/// </summary>
+public interface IPersonIterationData
 {
     /// <summary>
-    /// Iteration Data for a person which corresponds to a household
-    /// iteration's mode choices and trip chains
+    /// Has this household iteration successfully assigned modes to all trips?
     /// </summary>
-    public interface IPersonIterationData
-    {
-        /// <summary>
-        /// Has this household iteration successfully assigned modes to all trips?
-        /// </summary>
-        bool IterationSuccessful { get; }
+    bool IterationSuccessful { get; }
 
-        /// <summary>
-        /// TripChains is a list of trip chains for this household iteration
-        /// </summary>
-        List<ITripChain> TripChains { get; set; }
+    /// <summary>
+    /// TripChains is a list of trip chains for this household iteration
+    /// </summary>
+    List<ITripChain> TripChains { get; set; }
 
-        /// <summary>
-        /// The Trip Modes represents all the persons trip and their associated mode
-        /// </summary>
-        Dictionary<ITrip, ITashaMode> TripModes { get; set; }
+    /// <summary>
+    /// The Trip Modes represents all the persons trip and their associated mode
+    /// </summary>
+    Dictionary<ITrip, ITashaMode> TripModes { get; set; }
 
-        /// <summary>
-        /// Gets the mode chosen for the specified trip
-        /// Precondition: Must not be an aux trip
-        /// </summary>
-        /// <param name="trip">The Trip to find</param>
-        /// <returns>The mode chosens</returns>
-        ITashaMode ModeChosen(ITrip trip);
+    /// <summary>
+    /// Gets the mode chosen for the specified trip
+    /// Precondition: Must not be an aux trip
+    /// </summary>
+    /// <param name="trip">The Trip to find</param>
+    /// <returns>The mode chosens</returns>
+    ITashaMode ModeChosen(ITrip trip);
 
-        /// <summary>
-        /// Populates this data with the given persons trip data
-        /// </summary>
-        /// <param name="person"></param>
-        void PopulateData(ITashaPerson person);
+    /// <summary>
+    /// Populates this data with the given persons trip data
+    /// </summary>
+    /// <param name="person"></param>
+    void PopulateData(ITashaPerson person);
 
-        /// <summary>
-        /// Recycle this object for future re-use
-        /// </summary>
-        void Recycle();
-    }
+    /// <summary>
+    /// Recycle this object for future re-use
+    /// </summary>
+    void Recycle();
 }

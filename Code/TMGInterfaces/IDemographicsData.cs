@@ -19,71 +19,70 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+/// <summary>
+/// This interface provides a basic set of Demographic needs to supplement the responsibilities of the IZoneLoader
+/// </summary>
+public interface IDemographicsData : IDataSource<IDemographicsData>
 {
     /// <summary>
-    /// This interface provides a basic set of Demographic needs to supplement the responsibilities of the IZoneLoader
+    /// The definition of the age categories used
     /// </summary>
-    public interface IDemographicsData : IDataSource<IDemographicsData>
-    {
-        /// <summary>
-        /// The definition of the age categories used
-        /// </summary>
-        SparseArray<Range> AgeCategories { get; }
+    SparseArray<Range> AgeCategories { get; }
 
-        /// <summary>
-        /// AgeRate [Zone,AgeCategory]
-        /// </summary>
-        SparseTwinIndex<float> AgeRates { get; }
+    /// <summary>
+    /// AgeRate [Zone,AgeCategory]
+    /// </summary>
+    SparseTwinIndex<float> AgeRates { get; }
 
-        /// <summary>
-        /// EmploymentRate [Zone][AgeCategory, EmploymentCategory]
-        /// </summary>
-        SparseArray<SparseTwinIndex<float>> DriversLicenseRates { get; }
+    /// <summary>
+    /// EmploymentRate [Zone][AgeCategory, EmploymentCategory]
+    /// </summary>
+    SparseArray<SparseTwinIndex<float>> DriversLicenseRates { get; }
 
-        /// <summary>
-        /// The definition of the employment status used
-        /// </summary>
-        SparseArray<string> EmploymentStatus { get; }
+    /// <summary>
+    /// The definition of the employment status used
+    /// </summary>
+    SparseArray<string> EmploymentStatus { get; }
 
-        /// <summary>
-        /// EmploymentRate [Zone][AgeCategory, EmploymentCategory]
-        /// </summary>
-        SparseArray<SparseTwinIndex<float>> EmploymentStatusRates { get; }
+    /// <summary>
+    /// EmploymentRate [Zone][AgeCategory, EmploymentCategory]
+    /// </summary>
+    SparseArray<SparseTwinIndex<float>> EmploymentStatusRates { get; }
 
-        /// <summary>
-        /// [Zone,EmploymentStatus,OccupationType]
-        /// </summary>
-        SparseTriIndex<float> JobOccupationRates { get; }
+    /// <summary>
+    /// [Zone,EmploymentStatus,OccupationType]
+    /// </summary>
+    SparseTriIndex<float> JobOccupationRates { get; }
 
-        /// <summary>
-        /// [Zone, Job Type (unemployed, full-time, part-time)]
-        /// </summary>
-        SparseTwinIndex<float> JobTypeRates { get; }
+    /// <summary>
+    /// [Zone, Job Type (unemployed, full-time, part-time)]
+    /// </summary>
+    SparseTwinIndex<float> JobTypeRates { get; }
 
-        /// <summary>
-        /// [Zone][Driver's License, AgeCategory, Number of Vehicles]
-        /// </summary>
-        SparseArray<SparseTriIndex<float>> NonWorkerVehicleRates { get; }
+    /// <summary>
+    /// [Zone][Driver's License, AgeCategory, Number of Vehicles]
+    /// </summary>
+    SparseArray<SparseTriIndex<float>> NonWorkerVehicleRates { get; }
 
-        /// <summary>
-        /// The definition of the occupations used
-        /// </summary>
-        SparseArray<string> OccupationCategories { get; }
+    /// <summary>
+    /// The definition of the occupations used
+    /// </summary>
+    SparseArray<string> OccupationCategories { get; }
 
-        /// <summary>
-        /// OccupationRate [AgeCategory, EmploymentStatus, OccupationType]
-        /// </summary>
-        SparseArray<SparseTriIndex<float>> OccupationRates { get; }
+    /// <summary>
+    /// OccupationRate [AgeCategory, EmploymentStatus, OccupationType]
+    /// </summary>
+    SparseArray<SparseTriIndex<float>> OccupationRates { get; }
 
-        /// <summary>
-        /// SchoolRate [Zone][AgeCategory, EmploymentCategory]
-        /// </summary>
-        SparseArray<SparseTwinIndex<float>> SchoolRates { get; }
+    /// <summary>
+    /// SchoolRate [Zone][AgeCategory, EmploymentCategory]
+    /// </summary>
+    SparseArray<SparseTwinIndex<float>> SchoolRates { get; }
 
-        /// <summary>
-        /// [Zone][Driver's License, Occupation, Number Of Vehicles]
-        /// </summary>
-        SparseArray<SparseTriIndex<float>> WorkerVehicleRates { get; }
-    }
+    /// <summary>
+    /// [Zone][Driver's License, Occupation, Number Of Vehicles]
+    /// </summary>
+    SparseArray<SparseTriIndex<float>> WorkerVehicleRates { get; }
 }

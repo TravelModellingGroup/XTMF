@@ -26,207 +26,206 @@ using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.ModeSplit
+namespace TMG.GTAModel.ModeSplit;
+
+public class FixedRateModeSplit : IMultiModeSplit
 {
-    public class FixedRateModeSplit : IMultiModeSplit
+    [SubModelInformation(Description = "Data to use to get data on modes.", Required = true)]
+    public List<ModeData> Data;
+
+    [RootModule]
+    public I4StepModel Root;
+
+    public string Name
     {
-        [SubModelInformation(Description = "Data to use to get data on modes.", Required = true)]
-        public List<ModeData> Data;
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get { return 0; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public List<TreeData<float[][]>> ModeSplit(IEnumerable<SparseTwinIndex<float>> flowMatrix, int numberOfCategories)
+    {
+        var ret = MirrorModeTree.CreateMirroredTree<float[][]>(Root.Modes);
+        int matrixNumber = 0;
+        foreach (var matrix in flowMatrix)
+        {
+            var flatMatrix = matrix.GetFlatData();
+            var numberOfZones = flatMatrix.Length;
+            try
+            {
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                    delegate (int i)
+                    {
+                        var modes = Root.Modes;
+                        for (int j = 0; j < numberOfZones; j++)
+                        {
+                            for (int m = ret.Count - 1; m >= 0; m--)
+                            {
+                                // ReSharper disable once AccessToModifiedClosure
+                                ProcessMode(ret[m], i, j, flatMatrix[i][j], modes[m], matrixNumber);
+                            }
+                        }
+                    });
+            }
+            catch (AggregateException e)
+            {
+                if (e.InnerException is XTMFRuntimeException)
+                {
+                    throw new XTMFRuntimeException(this, e.InnerException?.Message);
+                }
+                throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
+            }
+            matrixNumber++;
+        }
+        return ret;
+    }
+
+    public List<TreeData<float[][]>> ModeSplit(SparseTwinIndex<float> flowMatrix)
+    {
+        // no need to optimize this case since it is very rare.
+        return ModeSplit(new[] { flowMatrix }, 1);
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private void ProcessMode(TreeData<float[][]> treeData, int i, int j, float flow, IModeChoiceNode node, int matrixNumber)
+    {
+        if (node is IModeCategory cat)
+        {
+            // then go 1 level deeper
+            for (int m = cat.Children.Count - 1; m >= 0; m--)
+            {
+                ProcessMode(treeData.Children[m], i, j, flow, cat.Children[m], matrixNumber);
+            }
+            // then sum
+            var sum = 0f;
+            for (int m = cat.Children.Count - 1; m >= 0; m--)
+            {
+                var res = treeData.Children[m].Result;
+                if (res == null || res[i] == null) continue;
+                sum += res[i][j];
+            }
+            SetData(treeData.Result, i, j, sum);
+        }
+        else
+        {
+            for (int dataIndex = 0; dataIndex < Data.Count; dataIndex++)
+            {
+                if (Data[dataIndex].Mode == node)
+                {
+                    var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                    var data = Data[dataIndex].Data;
+                    if (data == null)
+                    {
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!");
+                    }
+                    if (treeData.Result == null)
+                    {
+                        lock (treeData)
+                        {
+                            Thread.MemoryBarrier();
+                            if (treeData.Result == null)
+                            {
+                                treeData.Result = new float[zones.Length][];
+                            }
+                        }
+                    }
+                    SetData(treeData.Result, i, j, flow * data.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, matrixNumber));
+                }
+            }
+        }
+    }
+
+    private void SetData(float[][] data, int i, int j, float value)
+    {
+        if (data[i] == null)
+        {
+            data[i] = new float[data.Length];
+        }
+        data[i][j] += value;
+    }
+
+    public class ModeData : IModule
+    {
+        [SubModelInformation(Description = "The data that represents this mode's share.", Required = true)]
+        public IODDataSource<float> Data;
+
+        [RunParameter("Mode Name", "Auto", "The name of the mode that the contained data will be used for.")]
+        public string ModeName;
 
         [RootModule]
         public I4StepModel Root;
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        private IModeChoiceNode _Mode;
 
-        public float Progress
+        [DoNotAutomate]
+        public IModeChoiceNode Mode
         {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public List<TreeData<float[][]>> ModeSplit(IEnumerable<SparseTwinIndex<float>> flowMatrix, int numberOfCategories)
-        {
-            var ret = MirrorModeTree.CreateMirroredTree<float[][]>(Root.Modes);
-            int matrixNumber = 0;
-            foreach (var matrix in flowMatrix)
+            get
             {
-                var flatMatrix = matrix.GetFlatData();
-                var numberOfZones = flatMatrix.Length;
-                try
+                if (_Mode == null)
                 {
-                    Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                        delegate (int i)
-                        {
-                            var modes = Root.Modes;
-                            for (int j = 0; j < numberOfZones; j++)
-                            {
-                                for (int m = ret.Count - 1; m >= 0; m--)
-                                {
-                                    // ReSharper disable once AccessToModifiedClosure
-                                    ProcessMode(ret[m], i, j, flatMatrix[i][j], modes[m], matrixNumber);
-                                }
-                            }
-                        });
+                    return LoadMode();
                 }
-                catch (AggregateException e)
-                {
-                    if (e.InnerException is XTMFRuntimeException)
-                    {
-                        throw new XTMFRuntimeException(this, e.InnerException?.Message);
-                    }
-                    throw new XTMFRuntimeException(this, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
-                }
-                matrixNumber++;
+                return _Mode;
             }
-            return ret;
         }
 
-        public List<TreeData<float[][]>> ModeSplit(SparseTwinIndex<float> flowMatrix)
+        private IModeChoiceNode LoadMode()
         {
-            // no need to optimize this case since it is very rare.
-            return ModeSplit(new[] { flowMatrix }, 1);
+            var modes = Root.Modes;
+            for (int i = 0; i < modes.Count; i++)
+            {
+                if (FindOurMode(modes[i]))
+                {
+                    return _Mode;
+                }
+            }
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '"
+                + ModeName + "', please make sure that this mode exists!");
         }
+
+        public string Name { get; set; }
+
+        public float Progress { get { return 0; } }
+
+        public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
 
         public bool RuntimeValidation(ref string error)
         {
             return true;
         }
 
-        private void ProcessMode(TreeData<float[][]> treeData, int i, int j, float flow, IModeChoiceNode node, int matrixNumber)
+        private bool FindOurMode(IModeChoiceNode node)
         {
-            if (node is IModeCategory cat)
+            if (node.ModeName == ModeName)
             {
-                // then go 1 level deeper
-                for (int m = cat.Children.Count - 1; m >= 0; m--)
-                {
-                    ProcessMode(treeData.Children[m], i, j, flow, cat.Children[m], matrixNumber);
-                }
-                // then sum
-                var sum = 0f;
-                for (int m = cat.Children.Count - 1; m >= 0; m--)
-                {
-                    var res = treeData.Children[m].Result;
-                    if (res == null || res[i] == null) continue;
-                    sum += res[i][j];
-                }
-                SetData(treeData.Result, i, j, sum);
-            }
-            else
-            {
-                for (int dataIndex = 0; dataIndex < Data.Count; dataIndex++)
-                {
-                    if (Data[dataIndex].Mode == node)
-                    {
-                        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                        var data = Data[dataIndex].Data;
-                        if (data == null)
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!");
-                        }
-                        if (treeData.Result == null)
-                        {
-                            lock (treeData)
-                            {
-                                Thread.MemoryBarrier();
-                                if (treeData.Result == null)
-                                {
-                                    treeData.Result = new float[zones.Length][];
-                                }
-                            }
-                        }
-                        SetData(treeData.Result, i, j, flow * data.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, matrixNumber));
-                    }
-                }
-            }
-        }
-
-        private void SetData(float[][] data, int i, int j, float value)
-        {
-            if (data[i] == null)
-            {
-                data[i] = new float[data.Length];
-            }
-            data[i][j] += value;
-        }
-
-        public class ModeData : IModule
-        {
-            [SubModelInformation(Description = "The data that represents this mode's share.", Required = true)]
-            public IODDataSource<float> Data;
-
-            [RunParameter("Mode Name", "Auto", "The name of the mode that the contained data will be used for.")]
-            public string ModeName;
-
-            [RootModule]
-            public I4StepModel Root;
-
-            private IModeChoiceNode _Mode;
-
-            [DoNotAutomate]
-            public IModeChoiceNode Mode
-            {
-                get
-                {
-                    if (_Mode == null)
-                    {
-                        return LoadMode();
-                    }
-                    return _Mode;
-                }
-            }
-
-            private IModeChoiceNode LoadMode()
-            {
-                var modes = Root.Modes;
-                for (int i = 0; i < modes.Count; i++)
-                {
-                    if (FindOurMode(modes[i]))
-                    {
-                        return _Mode;
-                    }
-                }
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '"
-                    + ModeName + "', please make sure that this mode exists!");
-            }
-
-            public string Name { get; set; }
-
-            public float Progress { get { return 0; } }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
-
-            public bool RuntimeValidation(ref string error)
-            {
+                _Mode = node;
                 return true;
             }
-
-            private bool FindOurMode(IModeChoiceNode node)
+            if (node is IModeCategory cat)
             {
-                if (node.ModeName == ModeName)
+                for (int i = 0; i < cat.Children.Count; i++)
                 {
-                    _Mode = node;
-                    return true;
-                }
-                if (node is IModeCategory cat)
-                {
-                    for (int i = 0; i < cat.Children.Count; i++)
+                    if (FindOurMode(cat))
                     {
-                        if (FindOurMode(cat))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
-                return false;
             }
+            return false;
         }
     }
 }

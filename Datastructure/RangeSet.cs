@@ -23,385 +23,384 @@ using System.Text;
 using static System.Char;
 using static System.String;
 
-namespace Datastructure
+namespace Datastructure;
+
+public class RangeSet : IList<Range>
 {
-    public class RangeSet : IList<Range>
+    protected readonly Range[] SetRanges;
+
+    public RangeSet(List<Range> tempRange)
     {
-        protected readonly Range[] SetRanges;
+        SetRanges = tempRange.ToArray();
+    }
 
-        public RangeSet(List<Range> tempRange)
+    /// <summary>
+    /// Creates a new RangeSet with inclusive values from the given integer set
+    /// </summary>
+    /// <param name="numbers">The numbers to use to generate the ranges</param>
+    public RangeSet(IList<int> numbers)
+    {
+        ArgumentNullException.ThrowIfNull(numbers);
+        var array = new int[numbers.Count];
+        numbers.CopyTo(array, 0);
+        Array.Sort(array);
+        var tempRange = new List<Range>();
+        var start = 0;
+        for (var i = 1; i < array.Length; i++)
         {
-            SetRanges = tempRange.ToArray();
-        }
-
-        /// <summary>
-        /// Creates a new RangeSet with inclusive values from the given integer set
-        /// </summary>
-        /// <param name="numbers">The numbers to use to generate the ranges</param>
-        public RangeSet(IList<int> numbers)
-        {
-            ArgumentNullException.ThrowIfNull(numbers);
-            var array = new int[numbers.Count];
-            numbers.CopyTo(array, 0);
-            Array.Sort(array);
-            var tempRange = new List<Range>();
-            var start = 0;
-            for (var i = 1; i < array.Length; i++)
+            if (array[i] > array[i - 1] + 1)
             {
-                if (array[i] > array[i - 1] + 1)
-                {
-                    tempRange.Add(new Range(array[start], array[i - 1]));
-                    start = i;
-                }
-            }
-            // and in the end
-            tempRange.Add(new Range(array[start], array[array.Length - 1]));
-            SetRanges = tempRange.ToArray();
-        }
-
-        public int Count => SetRanges.Length;
-
-        public bool IsReadOnly => false;
-
-        public virtual Range this[int index]
-        {
-            get
-            {
-                return SetRanges[index];
-            }
-
-            set
-            {
-                SetRanges[index] = value;
+                tempRange.Add(new Range(array[start], array[i - 1]));
+                start = i;
             }
         }
+        // and in the end
+        tempRange.Add(new Range(array[start], array[array.Length - 1]));
+        SetRanges = tempRange.ToArray();
+    }
 
-        public static bool TryParse(string rangeString, [NotNullWhen(true)] out RangeSet? output)
+    public int Count => SetRanges.Length;
+
+    public bool IsReadOnly => false;
+
+    public virtual Range this[int index]
+    {
+        get
         {
-            string? error = null;
-            return TryParse(ref error, rangeString, out output);
+            return SetRanges[index];
         }
 
-        public static bool TryParse([NotNullWhen(false)] ref string? error, string rangeString, [NotNullWhen(true)] out RangeSet? output)
+        set
         {
-            var tempRange = new List<Range>();
-            var length = rangeString.Length;
-            var str = rangeString.ToCharArray();
-            var index = 0;
-            var start = 0;
-            var end = 0;
-            output = null;
-            //Phase == 0 -> index
-            //Phase == 1 -> start
-            //Phase == 2 -> end
-            var phase = 0;
-            var lastPlus = false;
-            var tallyingInZero = false;
-            if (IsNullOrWhiteSpace(rangeString))
-            {
-                output = new RangeSet(tempRange);
-                return true;
-            }
-            for (var i = 0; i < length; i++)
-            {
-                var c = str[i];
-                if (IsWhiteSpace(c) || IsLetter(c)) continue;
-                lastPlus = false;
-                switch (phase)
-                {
-                    case 0:
-                        if (IsNumber(c))
-                        {
-                            index = ((index << 3) + (index << 1)) + (c - '0');
-                            tallyingInZero = true;
-                        }
-                        else switch (c)
-                        {
-                            case ',':
-                                tempRange.Add(new Range(index, index));
-                                index = 0;
-                                start = 0;
-                                end = 0;
-                                break;
-                            case '-':
-                                if (!tallyingInZero)
-                                {
-                                    error = "No number was inserted before a range!";
-                                    return false;
-                                }
-                                start = index;
-                                end = 0;
-                                phase = 2;
-                                break;
-                            case '+':
-                                if (!tallyingInZero)
-                                {
-                                    error = "No number was inserted before a range!";
-                                    return false;
-                                }
-                                end = int.MaxValue;
-                                tempRange.Add(new Range(start, end));
-                                index = 0;
-                                start = 0;
-                                phase = 0;
-                                tallyingInZero = false;
-                                lastPlus = true;
-                                break;
-                            default:
-                                error = "Unrecognized symbol " + c;
-                                return false;
-                        }
-                        break;
+            SetRanges[index] = value;
+        }
+    }
 
-                    case 1:
-                        if (IsNumber(c))
-                        {
-                            start = ((start << 3) + (start << 1)) + (c - '0');
-                        }
-                        else switch (c)
-                        {
-                            case '+':
-                                end = int.MaxValue;
-                                tempRange.Add(new Range(start, end));
-                                index = 0;
-                                start = 0;
-                                phase = 0;
-                                tallyingInZero = false;
-                                lastPlus = true;
-                                break;
-                            case '-':
-                                end = 0;
-                                phase = 2;
-                                break;
-                        }
-                        break;
+    public static bool TryParse(string rangeString, [NotNullWhen(true)] out RangeSet? output)
+    {
+        string? error = null;
+        return TryParse(ref error, rangeString, out output);
+    }
 
-                    case 2:
-                        if (IsNumber(c))
-                        {
-                            end = ((end << 3) + (end << 1)) + (c - '0');
-                        }
-                        else if (c == ',')
-                        {
-                            tempRange.Add(new Range(start, end));
-                            index = 0;
-                            phase = 0;
-                            start = 0;
-                            end = 0;
-                            tallyingInZero = false;
-                        }
-                        break;
-                }
-            }
-            if (phase == 2)
-            {
-                tempRange.Add(new Range(start, end));
-            }
-            else if (phase == 0 && tallyingInZero)
-            {
-                tempRange.Add(new Range(index, index));
-            }
-            else if (!lastPlus)
-            {
-                error = "Ended while reading a " + (phase == 0 ? "range's index!" : "range's start value!");
-                return false;
-            }
+    public static bool TryParse([NotNullWhen(false)] ref string? error, string rangeString, [NotNullWhen(true)] out RangeSet? output)
+    {
+        var tempRange = new List<Range>();
+        var length = rangeString.Length;
+        var str = rangeString.ToCharArray();
+        var index = 0;
+        var start = 0;
+        var end = 0;
+        output = null;
+        //Phase == 0 -> index
+        //Phase == 1 -> start
+        //Phase == 2 -> end
+        var phase = 0;
+        var lastPlus = false;
+        var tallyingInZero = false;
+        if (IsNullOrWhiteSpace(rangeString))
+        {
             output = new RangeSet(tempRange);
             return true;
         }
-
-        public void Add(Range item)
+        for (var i = 0; i < length; i++)
         {
-            throw new InvalidOperationException("Unable to add items");
-        }
-
-        public void Clear()
-        {
-            throw new InvalidOperationException("Unable to remove items");
-        }
-
-        public bool Contains(Range item)
-        {
-            return IndexOf(item) != -1;
-        }
-
-        public bool Contains(float value)
-        {
-            return IndexOf(value) != -1;
-        }
-
-        public bool Contains(int number)
-        {
-            for (var i = 0; i < SetRanges.Length; i++)
+            var c = str[i];
+            if (IsWhiteSpace(c) || IsLetter(c)) continue;
+            lastPlus = false;
+            switch (phase)
             {
-                if ((number >= SetRanges[i].Start) && (number <= SetRanges[i].Stop))
+                case 0:
+                    if (IsNumber(c))
+                    {
+                        index = ((index << 3) + (index << 1)) + (c - '0');
+                        tallyingInZero = true;
+                    }
+                    else switch (c)
+                    {
+                        case ',':
+                            tempRange.Add(new Range(index, index));
+                            index = 0;
+                            start = 0;
+                            end = 0;
+                            break;
+                        case '-':
+                            if (!tallyingInZero)
+                            {
+                                error = "No number was inserted before a range!";
+                                return false;
+                            }
+                            start = index;
+                            end = 0;
+                            phase = 2;
+                            break;
+                        case '+':
+                            if (!tallyingInZero)
+                            {
+                                error = "No number was inserted before a range!";
+                                return false;
+                            }
+                            end = int.MaxValue;
+                            tempRange.Add(new Range(start, end));
+                            index = 0;
+                            start = 0;
+                            phase = 0;
+                            tallyingInZero = false;
+                            lastPlus = true;
+                            break;
+                        default:
+                            error = "Unrecognized symbol " + c;
+                            return false;
+                    }
+                    break;
+
+                case 1:
+                    if (IsNumber(c))
+                    {
+                        start = ((start << 3) + (start << 1)) + (c - '0');
+                    }
+                    else switch (c)
+                    {
+                        case '+':
+                            end = int.MaxValue;
+                            tempRange.Add(new Range(start, end));
+                            index = 0;
+                            start = 0;
+                            phase = 0;
+                            tallyingInZero = false;
+                            lastPlus = true;
+                            break;
+                        case '-':
+                            end = 0;
+                            phase = 2;
+                            break;
+                    }
+                    break;
+
+                case 2:
+                    if (IsNumber(c))
+                    {
+                        end = ((end << 3) + (end << 1)) + (c - '0');
+                    }
+                    else if (c == ',')
+                    {
+                        tempRange.Add(new Range(start, end));
+                        index = 0;
+                        phase = 0;
+                        start = 0;
+                        end = 0;
+                        tallyingInZero = false;
+                    }
+                    break;
+            }
+        }
+        if (phase == 2)
+        {
+            tempRange.Add(new Range(start, end));
+        }
+        else if (phase == 0 && tallyingInZero)
+        {
+            tempRange.Add(new Range(index, index));
+        }
+        else if (!lastPlus)
+        {
+            error = "Ended while reading a " + (phase == 0 ? "range's index!" : "range's start value!");
+            return false;
+        }
+        output = new RangeSet(tempRange);
+        return true;
+    }
+
+    public void Add(Range item)
+    {
+        throw new InvalidOperationException("Unable to add items");
+    }
+
+    public void Clear()
+    {
+        throw new InvalidOperationException("Unable to remove items");
+    }
+
+    public bool Contains(Range item)
+    {
+        return IndexOf(item) != -1;
+    }
+
+    public bool Contains(float value)
+    {
+        return IndexOf(value) != -1;
+    }
+
+    public bool Contains(int number)
+    {
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            if ((number >= SetRanges[i].Start) && (number <= SetRanges[i].Stop))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void CopyTo(Range[] array, int arrayIndex)
+    {
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            array[arrayIndex + i] = SetRanges[i];
+        }
+    }
+
+    public override bool Equals(object? obj)
+    {
+        var other = obj as RangeSet;
+        if (other?.Count != Count) return false;
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            if (!(SetRanges[i] == other[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public IEnumerator<Range> GetEnumerator()
+    {
+        return ((ICollection<Range>)SetRanges).GetEnumerator();
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = 0;
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            hash += SetRanges.GetHashCode();
+        }
+        return hash;
+    }
+
+    public int IndexOf(Range item)
+    {
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            if (SetRanges[i] == item)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// Gives the index in the range set where this integer is first contained.
+    /// </summary>
+    /// <param name="integerToFind">The integer to find</param>
+    /// <returns>-1 if not found, otherwise the index of the Range in the rangeset that first contains this integer</returns>
+    public int IndexOf(int integerToFind)
+    {
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            if (SetRanges[i].ContainsInclusive(integerToFind))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// Gives the index in the range set where this integer is first contained.
+    /// </summary>
+    /// <param name="valueToFind">The floating point value to find.</param>
+    /// <returns>The index of the range that contains the value, -1 otherwise.</returns>
+    public int IndexOf(float valueToFind)
+    {
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            if (SetRanges[i].ContainsInclusive(valueToFind))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void Insert(int index, Range item)
+    {
+        this[index] = item;
+    }
+
+    public bool Overlaps(Range other)
+    {
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            if (SetRanges[i].Contains(other.Start) || SetRanges[i].Contains(other.Stop))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool Overlaps(RangeSet other)
+    {
+        for (var i = 0; i < SetRanges.Length; i++)
+        {
+            for (var j = 0; j < other.SetRanges.Length; j++)
+            {
+                if (SetRanges[i].Contains(other.SetRanges[j].Start) || SetRanges[i].Contains(other.SetRanges[j].Stop))
                 {
                     return true;
                 }
             }
-            return false;
         }
+        return false;
+    }
 
-        public void CopyTo(Range[] array, int arrayIndex)
+    public bool Remove(Range item)
+    {
+        throw new InvalidOperationException("Unable to remove items");
+    }
+
+    public void RemoveAt(int index)
+    {
+        throw new InvalidOperationException("Unable to remove items");
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return SetRanges.GetEnumerator();
+    }
+
+    public override string ToString()
+    {
+        var builder = new StringBuilder();
+        var first = true;
+        if (SetRanges.Length == 0)
         {
-            for (var i = 0; i < SetRanges.Length; i++)
-            {
-                array[arrayIndex + i] = SetRanges[i];
-            }
+            // do nothing we already have a blank builder
         }
-
-        public override bool Equals(object? obj)
+        else
         {
-            var other = obj as RangeSet;
-            if (other?.Count != Count) return false;
-            for (var i = 0; i < SetRanges.Length; i++)
+            foreach (var res in SetRanges)
             {
-                if (!(SetRanges[i] == other[i]))
+                if (!first)
                 {
-                    return false;
+                    builder.Append(',');
                 }
-            }
-            return true;
-        }
-
-        public IEnumerator<Range> GetEnumerator()
-        {
-            return ((ICollection<Range>)SetRanges).GetEnumerator();
-        }
-
-        public override int GetHashCode()
-        {
-            var hash = 0;
-            for (var i = 0; i < SetRanges.Length; i++)
-            {
-                hash += SetRanges.GetHashCode();
-            }
-            return hash;
-        }
-
-        public int IndexOf(Range item)
-        {
-            for (var i = 0; i < SetRanges.Length; i++)
-            {
-                if (SetRanges[i] == item)
+                if (res.Start != res.Stop)
                 {
-                    return i;
+                    builder.Append(res.Start);
+                    builder.Append('-');
+                    builder.Append(res.Stop);
                 }
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Gives the index in the range set where this integer is first contained.
-        /// </summary>
-        /// <param name="integerToFind">The integer to find</param>
-        /// <returns>-1 if not found, otherwise the index of the Range in the rangeset that first contains this integer</returns>
-        public int IndexOf(int integerToFind)
-        {
-            for (var i = 0; i < SetRanges.Length; i++)
-            {
-                if (SetRanges[i].ContainsInclusive(integerToFind))
+                else
                 {
-                    return i;
+                    builder.Append(res.Start);
                 }
+                first = false;
             }
-            return -1;
         }
-
-        /// <summary>
-        /// Gives the index in the range set where this integer is first contained.
-        /// </summary>
-        /// <param name="valueToFind">The floating point value to find.</param>
-        /// <returns>The index of the range that contains the value, -1 otherwise.</returns>
-        public int IndexOf(float valueToFind)
-        {
-            for (var i = 0; i < SetRanges.Length; i++)
-            {
-                if (SetRanges[i].ContainsInclusive(valueToFind))
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        public void Insert(int index, Range item)
-        {
-            this[index] = item;
-        }
-
-        public bool Overlaps(Range other)
-        {
-            for (var i = 0; i < SetRanges.Length; i++)
-            {
-                if (SetRanges[i].Contains(other.Start) || SetRanges[i].Contains(other.Stop))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public bool Overlaps(RangeSet other)
-        {
-            for (var i = 0; i < SetRanges.Length; i++)
-            {
-                for (var j = 0; j < other.SetRanges.Length; j++)
-                {
-                    if (SetRanges[i].Contains(other.SetRanges[j].Start) || SetRanges[i].Contains(other.SetRanges[j].Stop))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        public bool Remove(Range item)
-        {
-            throw new InvalidOperationException("Unable to remove items");
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new InvalidOperationException("Unable to remove items");
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return SetRanges.GetEnumerator();
-        }
-
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-            var first = true;
-            if (SetRanges.Length == 0)
-            {
-                // do nothing we already have a blank builder
-            }
-            else
-            {
-                foreach (var res in SetRanges)
-                {
-                    if (!first)
-                    {
-                        builder.Append(',');
-                    }
-                    if (res.Start != res.Stop)
-                    {
-                        builder.Append(res.Start);
-                        builder.Append('-');
-                        builder.Append(res.Stop);
-                    }
-                    else
-                    {
-                        builder.Append(res.Start);
-                    }
-                    first = false;
-                }
-            }
-            return builder.ToString();
-        }
+        return builder.ToString();
     }
 }

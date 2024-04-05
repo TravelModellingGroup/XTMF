@@ -22,56 +22,54 @@ using XTMF;
 using TMG.Input;
 using TMG.Functions;
 
-namespace TMG.Emme.Utilities
+namespace TMG.Emme.Utilities;
+
+// ReSharper disable once InconsistentNaming
+public class LoadEMME4BinaryMatrixInMatrixZoneSystem : IDataSource<SparseTwinIndex<float>>
 {
-    // ReSharper disable once InconsistentNaming
-    public class LoadEMME4BinaryMatrixInMatrixZoneSystem : IDataSource<SparseTwinIndex<float>>
+    public bool Loaded
     {
-        public bool Loaded
-        {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseTwinIndex<float> Data;
-
-        [SubModelInformation(Required = true, Description = "The location of the matrix file to load.")]
-        public FileLocation MatrixFile;
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            BinaryHelpers.ExecuteReader(this, (reader) =>
-            {
-                var matrix = new EmmeMatrix(reader);
-                if (matrix.Dimensions != 2)
-                {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' the matrix loaded in from '" + MatrixFile + "' was not an OD binary matrix!");
-                }
-                Data = SparseTwinIndex<float>.CreateSquareTwinIndex(matrix.Indexes[0], matrix.Indexes[1], matrix.FloatData);
-                Loaded = true;
-            }, MatrixFile);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-            Loaded = false;
-        }
+        get; set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseTwinIndex<float> Data;
+
+    [SubModelInformation(Required = true, Description = "The location of the matrix file to load.")]
+    public FileLocation MatrixFile;
+
+    public SparseTwinIndex<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        BinaryHelpers.ExecuteReader(this, (reader) =>
+        {
+            var matrix = new EmmeMatrix(reader);
+            if (matrix.Dimensions != 2)
+            {
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the matrix loaded in from '" + MatrixFile + "' was not an OD binary matrix!");
+            }
+            Data = SparseTwinIndex<float>.CreateSquareTwinIndex(matrix.Indexes[0], matrix.Indexes[1], matrix.FloatData);
+            Loaded = true;
+        }, MatrixFile);
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+        Loaded = false;
+    }
 }

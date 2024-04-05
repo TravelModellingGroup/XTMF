@@ -19,10 +19,9 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IDemographicAssignment : IModule
 {
-    public interface IDemographicAssignment : IModule
-    {
-        SparseTwinIndex<float> AssignTrips(IDemographicCategory category);
-    }
+    SparseTwinIndex<float> AssignTrips(IDemographicCategory category);
 }

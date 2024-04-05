@@ -19,20 +19,19 @@
 
 using Tasha.Common;
 
-namespace Tasha.XTMFModeChoice
-{
-    public sealed class ModeChoiceHouseholdData
-    {
-        public ModeChoicePersonData[] PersonData;
+namespace Tasha.XTMFModeChoice;
 
-        public ModeChoiceHouseholdData(ITashaHousehold household, int numberOfModes, int numberOfVehicleTypes)
+public sealed class ModeChoiceHouseholdData
+{
+    public ModeChoicePersonData[] PersonData;
+
+    public ModeChoiceHouseholdData(ITashaHousehold household, int numberOfModes, int numberOfVehicleTypes)
+    {
+        var persons = household.Persons;
+        var personData = PersonData = new ModeChoicePersonData[persons.Length];
+        for ( int i = 0; i < personData.Length; i++ )
         {
-            var persons = household.Persons;
-            var personData = PersonData = new ModeChoicePersonData[persons.Length];
-            for ( int i = 0; i < personData.Length; i++ )
-            {
-                personData[i] = new ModeChoicePersonData( persons[i].TripChains, numberOfModes, numberOfVehicleTypes );
-            }
+            personData[i] = new ModeChoicePersonData( persons[i].TripChains, numberOfModes, numberOfVehicleTypes );
         }
     }
 }

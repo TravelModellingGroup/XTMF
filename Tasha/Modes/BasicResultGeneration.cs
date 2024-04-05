@@ -23,166 +23,165 @@ using System.Threading;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Modes
+namespace Tasha.Modes;
+
+public sealed class BasicResultGeneration : IPostHousehold, IDisposable
 {
-    public sealed class BasicResultGeneration : IPostHousehold, IDisposable
+    [RunParameter("Process Observed data", false, "Process Observed data.")]
+    public bool IsObserved;
+
+    [RunParameter("Observed Mode Attachment", "ObservedMode", "The name of the attachment string from the loader")]
+    public string ObservedMode;
+
+    [RunParameter("File Name", "BasicResults.csv", "The file that we will store the results into.")]
+    public string ResultsFileName;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private StreamWriter ModesChosen;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour
     {
-        [RunParameter("Process Observed data", false, "Process Observed data.")]
-        public bool IsObserved;
+        get { return null; }
+    }
 
-        [RunParameter("Observed Mode Attachment", "ObservedMode", "The name of the attachment string from the loader")]
-        public string ObservedMode;
+    [ThreadStatic]
+    private static StringBuilder Builder;
 
-        [RunParameter("File Name", "BasicResults.csv", "The file that we will store the results into.")]
-        public string ResultsFileName;
+    private SpinLock WriteLock = new(false);
 
-        [RootModule]
-        public ITashaRuntime Root;
-
-        private StreamWriter ModesChosen;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        StringBuilder builder = Builder;
+        if(builder == null)
         {
-            get { return null; }
+            Builder = builder = new StringBuilder();
         }
-
-        [ThreadStatic]
-        private static StringBuilder Builder;
-
-        private SpinLock WriteLock = new(false);
-
-        public void Execute(ITashaHousehold household, int iteration)
+        foreach(var person in household.Persons)
         {
-            StringBuilder builder = Builder;
-            if(builder == null)
+            float expansionFactor = person.ExpansionFactor;
+            int age = person.Age;
+            foreach(var tripChain in person.TripChains)
             {
-                Builder = builder = new StringBuilder();
-            }
-            foreach(var person in household.Persons)
-            {
-                float expansionFactor = person.ExpansionFactor;
-                int age = person.Age;
-                foreach(var tripChain in person.TripChains)
+                for(int j = 0; j < tripChain.Trips.Count; j++)
                 {
-                    for(int j = 0; j < tripChain.Trips.Count; j++)
+                    var trip = tripChain.Trips[j];
+                    var nextTrip = j < tripChain.Trips.Count - 1 ? tripChain.Trips[j + 1] : null;
+                    if(trip.ActivityStartTime > Time.EndOfDay && trip.Purpose != Activity.Home)
                     {
-                        var trip = tripChain.Trips[j];
-                        var nextTrip = j < tripChain.Trips.Count - 1 ? tripChain.Trips[j + 1] : null;
-                        if(trip.ActivityStartTime > Time.EndOfDay && trip.Purpose != Activity.Home)
-                        {
-                            throw new XTMFRuntimeException(this, "PAST END OF DAY! " + trip.ActivityStartTime + "\r\n " + trip.Purpose + "\r\n " + "household ID is " + household.HouseholdId + " person ID is " + person.Id);
-                        }
-                        var householdIterations = (trip.ModesChosen == null || trip.ModesChosen.Length == 0) ? 1 : trip.ModesChosen.Length;
-                        for(int i = 0; i < householdIterations; i++)
-                        {
-                            ITashaMode mode = (ITashaMode)trip[ObservedMode];
-                            builder.Append(trip.TripChain.Person.Household.HouseholdId);
-                            builder.Append(',');
-                            builder.Append(trip.TripChain.Person.Id);
-                            builder.Append(',');
-                            builder.Append(trip.TripNumber);
-                            builder.Append(',');
-                            builder.Append(trip.TripStartTime);
-                            builder.Append(',');
-                            builder.Append(trip.ActivityStartTime);
-                            builder.Append(',');
-                            builder.Append((nextTrip != null ? nextTrip.TripStartTime - trip.ActivityStartTime : Time.Zero));
-                            builder.Append(',');
-                            builder.Append(trip.Purpose);
-                            builder.Append(',');
-                            builder.Append(age);
-                            builder.Append(',');
-                            builder.Append(trip.OriginalZone.ZoneNumber);
-                            builder.Append(',');
-                            builder.Append(trip.DestinationZone.ZoneNumber);
-                            builder.Append(',');
-                            builder.Append(IsObserved ? mode.ModeName : (trip.Mode?.ModeName));
-                            builder.Append(',');
-                            builder.Append((trip.ModesChosen == null || trip.ModesChosen.Length <= i || trip.ModesChosen[i] == null) ? "NONE" : trip.ModesChosen[i].ModeName);
-                            builder.Append(',');
-                            builder.Append(expansionFactor);
-                            builder.Append(',');
-                            builder.Append((trip.TripStartTime.Hours * 100 + (trip.TripStartTime.Minutes / 30) * 30));
-                            builder.Append(',');
-                            builder.Append(StraightLineDistance(trip.OriginalZone, trip.DestinationZone));
-                            builder.Append(',');
-                            builder.Append(ManhattanDistance(trip.OriginalZone, trip.DestinationZone));
-                            builder.AppendLine();
-                        }
+                        throw new XTMFRuntimeException(this, "PAST END OF DAY! " + trip.ActivityStartTime + "\r\n " + trip.Purpose + "\r\n " + "household ID is " + household.HouseholdId + " person ID is " + person.Id);
+                    }
+                    var householdIterations = (trip.ModesChosen == null || trip.ModesChosen.Length == 0) ? 1 : trip.ModesChosen.Length;
+                    for(int i = 0; i < householdIterations; i++)
+                    {
+                        ITashaMode mode = (ITashaMode)trip[ObservedMode];
+                        builder.Append(trip.TripChain.Person.Household.HouseholdId);
+                        builder.Append(',');
+                        builder.Append(trip.TripChain.Person.Id);
+                        builder.Append(',');
+                        builder.Append(trip.TripNumber);
+                        builder.Append(',');
+                        builder.Append(trip.TripStartTime);
+                        builder.Append(',');
+                        builder.Append(trip.ActivityStartTime);
+                        builder.Append(',');
+                        builder.Append((nextTrip != null ? nextTrip.TripStartTime - trip.ActivityStartTime : Time.Zero));
+                        builder.Append(',');
+                        builder.Append(trip.Purpose);
+                        builder.Append(',');
+                        builder.Append(age);
+                        builder.Append(',');
+                        builder.Append(trip.OriginalZone.ZoneNumber);
+                        builder.Append(',');
+                        builder.Append(trip.DestinationZone.ZoneNumber);
+                        builder.Append(',');
+                        builder.Append(IsObserved ? mode.ModeName : (trip.Mode?.ModeName));
+                        builder.Append(',');
+                        builder.Append((trip.ModesChosen == null || trip.ModesChosen.Length <= i || trip.ModesChosen[i] == null) ? "NONE" : trip.ModesChosen[i].ModeName);
+                        builder.Append(',');
+                        builder.Append(expansionFactor);
+                        builder.Append(',');
+                        builder.Append((trip.TripStartTime.Hours * 100 + (trip.TripStartTime.Minutes / 30) * 30));
+                        builder.Append(',');
+                        builder.Append(StraightLineDistance(trip.OriginalZone, trip.DestinationZone));
+                        builder.Append(',');
+                        builder.Append(ManhattanDistance(trip.OriginalZone, trip.DestinationZone));
+                        builder.AppendLine();
                     }
                 }
             }
-            if(builder.Length > 0)
+        }
+        if(builder.Length > 0)
+        {
+            var builderData = builder.ToString();
+            bool taken = false;
+            lock (ModesChosen)
             {
-                var builderData = builder.ToString();
-                bool taken = false;
-                lock (ModesChosen)
-                {
-                    WriteLock.Enter(ref taken);
-                    ModesChosen.Write(builderData);
-                    if (taken) WriteLock.Exit(false);
-                }
-                builder.Clear();
+                WriteLock.Enter(ref taken);
+                ModesChosen.Write(builderData);
+                if (taken) WriteLock.Exit(false);
+            }
+            builder.Clear();
+        }
+    }
+
+    public void IterationFinished(int iteration)
+    {
+        lock(this)
+        {
+            ModesChosen.Close();
+        }
+    }
+
+    public void Load(int maxIterations)
+    {
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        lock(this)
+        {
+            var alreadyExists = File.Exists(ResultsFileName);
+            ModesChosen = new StreamWriter(ResultsFileName, true);
+            if(!alreadyExists)
+            {
+                ModesChosen.WriteLine("HouseholdID,PersonID,TripNumber,TripStartTime,ActivityStartTime,ActivityDuration,TripPurpose,Age,Origin,Destination,Mode,ModeChoice,ExpansionFactor,RoundedTripStartTime,StraightLineDistance,ManhattanDistance");
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
-        {
-            lock(this)
-            {
-                ModesChosen.Close();
-            }
-        }
+    private float ManhattanDistance(TMG.IZone zone1, TMG.IZone zone2)
+    {
+        if(zone1 == zone2) return zone1.InternalDistance;
+        var deltaX = zone1.X - zone2.X;
+        var deltaY = zone1.Y - zone2.Y;
+        return Math.Abs(deltaX) + Math.Abs(deltaY);
+    }
 
-        public void Load(int maxIterations)
-        {
-        }
+    private float StraightLineDistance(TMG.IZone zone1, TMG.IZone zone2)
+    {
+        if(zone1 == zone2) return zone1.InternalDistance;
+        var deltaX = zone1.X - zone2.X;
+        var deltaY = zone1.Y - zone2.Y;
+        return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public void Dispose()
+    {
+        if(ModesChosen != null)
         {
-            return true;
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            lock(this)
-            {
-                var alreadyExists = File.Exists(ResultsFileName);
-                ModesChosen = new StreamWriter(ResultsFileName, true);
-                if(!alreadyExists)
-                {
-                    ModesChosen.WriteLine("HouseholdID,PersonID,TripNumber,TripStartTime,ActivityStartTime,ActivityDuration,TripPurpose,Age,Origin,Destination,Mode,ModeChoice,ExpansionFactor,RoundedTripStartTime,StraightLineDistance,ManhattanDistance");
-                }
-            }
-        }
-
-        private float ManhattanDistance(TMG.IZone zone1, TMG.IZone zone2)
-        {
-            if(zone1 == zone2) return zone1.InternalDistance;
-            var deltaX = zone1.X - zone2.X;
-            var deltaY = zone1.Y - zone2.Y;
-            return Math.Abs(deltaX) + Math.Abs(deltaY);
-        }
-
-        private float StraightLineDistance(TMG.IZone zone1, TMG.IZone zone2)
-        {
-            if(zone1 == zone2) return zone1.InternalDistance;
-            var deltaX = zone1.X - zone2.X;
-            var deltaY = zone1.Y - zone2.Y;
-            return (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-        }
-
-        public void Dispose()
-        {
-            if(ModesChosen != null)
-            {
-                ModesChosen.Dispose();
-                ModesChosen = null;
-            }
+            ModesChosen.Dispose();
+            ModesChosen = null;
         }
     }
 }

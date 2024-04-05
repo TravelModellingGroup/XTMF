@@ -16,20 +16,19 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
-{
-    /// <summary>
-    /// Defines how a shared mode class will be used by the system
-    /// to be called in the 3rd pass (ridesharing / passengers .. etc)
-    /// Warnning, this class will be called in a multi-threaded fashion
-    /// </summary>
-    public interface ISharedMode : ITashaMode
-    {
-        ITashaMode AssociatedMode { get; }
+namespace Tasha.Common;
 
-        /// <summary>
-        /// The index in the mode array
-        /// </summary>
-        byte ModeChoiceArrIndex { get; set; }
-    }
+/// <summary>
+/// Defines how a shared mode class will be used by the system
+/// to be called in the 3rd pass (ridesharing / passengers .. etc)
+/// Warnning, this class will be called in a multi-threaded fashion
+/// </summary>
+public interface ISharedMode : ITashaMode
+{
+    ITashaMode AssociatedMode { get; }
+
+    /// <summary>
+    /// The index in the mode array
+    /// </summary>
+    byte ModeChoiceArrIndex { get; set; }
 }

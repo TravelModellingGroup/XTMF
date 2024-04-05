@@ -18,37 +18,36 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface INetworkData : IDataSource<INetworkData>
 {
-    public interface INetworkData : IDataSource<INetworkData>
-    {
-        string NetworkType { get; }
+    string NetworkType { get; }
 
-        float TravelCost(IZone start, IZone end, Time time);
+    float TravelCost(IZone start, IZone end, Time time);
 
-        float TravelCost(int flatOrigin, int flatDestination, Time time);
+    float TravelCost(int flatOrigin, int flatDestination, Time time);
 
-        Time TravelTime(IZone start, IZone end, Time time);
+    Time TravelTime(IZone start, IZone end, Time time);
 
-        Time TravelTime(int flatOrigin, int flatDestination, Time time);
+    Time TravelTime(int flatOrigin, int flatDestination, Time time);
 
-        bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost);
+    bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost);
 
-        bool GetAllData(int start, int end, Time time, out float ivtt, out float cost);
+    bool GetAllData(int start, int end, Time time, out float ivtt, out float cost);
 
-        bool ValidOd(IZone start, IZone end, Time time);
+    bool ValidOd(IZone start, IZone end, Time time);
 
-        bool ValidOd(int flatOrigin, int flatDestination, Time time);
-    }
+    bool ValidOd(int flatOrigin, int flatDestination, Time time);
+}
 
-    public interface INetworkCompleteData : INetworkData
-    {
-        /// <summary>
-        /// Returns all of the data for the time period in an array with the following format.
-        /// This method is not recommended unless performance is key.
-        /// For each origin, for each destination, [time,cost]
-        /// </summary>
-        /// <returns></returns>
-        float[] GetTimePeriodData(Time time);
-    }
+public interface INetworkCompleteData : INetworkData
+{
+    /// <summary>
+    /// Returns all of the data for the time period in an array with the following format.
+    /// This method is not recommended unless performance is key.
+    /// For each origin, for each destination, [time,cost]
+    /// </summary>
+    /// <returns></returns>
+    float[] GetTimePeriodData(Time time);
 }

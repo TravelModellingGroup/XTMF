@@ -26,169 +26,168 @@ using TMG.Emme;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.GTAModel
-{
-    [ModuleInformation(Description=
-        @"This module provides a way of building a demand matrix and loading it into EMME through the Modeller Bridge.  
+namespace TMG.GTAModel;
+
+[ModuleInformation(Description=
+    @"This module provides a way of building a demand matrix and loading it into EMME through the Modeller Bridge.  
 This module requires the root module in the model system to be of type ‘I4StepModel’."
-        )]
-    public class ModeAggregationAssignment : IEmmeTool
+    )]
+public class ModeAggregationAssignment : IEmmeTool
+{
+    [RunParameter( "Assignment Parameters", "1 31 0 0 None", "The parameters to use for the assignment." )]
+    public string AssingmentParameters;
+
+    [RunParameter( "Assignment Tool Name", "TMG.TMG.RoadAssign", "Should be the name of the tool you want for the assignment." )]
+    public string AssingmentToolName;
+
+    [RunParameter( "Destination Files", "UpdatedData\\AutoTimes.311,UpdatedData\\AutoCosts.311", "The path relative to the Input Directory to copy the emme output to." )]
+    public string DestinationFiles;
+
+    [RunParameter( "Export Matrix Numbers", "12,13", "The list of matrix numbers to read from." )]
+    public string ExportMatrixNumbers;
+
+    [Parameter( "Export Matrix Tool Name", "TMG.TMG.ExportMatrix", "(Should never change from \"TMG.TMG.ExportMatrix\")" )]
+    public string ExportMatrixToolName;
+
+    [RunParameter( "Factor", 0.42f, "What should the factor for this period be?" )]
+    public float Factor;
+
+    [Parameter( "Load Matrix Tool Name", "TMG.TMG.LoadMatrix", "(Should never change from \"TMG.TMG.LoadMatrix\")" )]
+    public string LoadMatrixToolName;
+
+    [RunParameter( "Matrix Number", 10, "What is the number of the matrix that we need to store into?" )]
+    public int MatrixNumber;
+
+    [RunParameter( "Modes", "Auto", "Ex \"Auto,Taxi,Passenger\" the modes you want to process." )]
+    public string ModeNames;
+
+    [RootModule]
+    public I4StepModel Root;
+
+    [RunParameter( "Scenario Number", 1, "What scenario number should we be working with?" )]
+    public int ScenarioNumber;
+
+    [SubModelInformation( Description = "Tallies used for counting the number of trips between Origin and Destination", Required = false )]
+    public List<IModeAggregationTally> Tallies;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+
+    public string Name
     {
-        [RunParameter( "Assignment Parameters", "1 31 0 0 None", "The parameters to use for the assignment." )]
-        public string AssingmentParameters;
+        get;
+        set;
+    }
 
-        [RunParameter( "Assignment Tool Name", "TMG.TMG.RoadAssign", "Should be the name of the tool you want for the assignment." )]
-        public string AssingmentToolName;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Destination Files", "UpdatedData\\AutoTimes.311,UpdatedData\\AutoCosts.311", "The path relative to the Input Directory to copy the emme output to." )]
-        public string DestinationFiles;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        [RunParameter( "Export Matrix Numbers", "12,13", "The list of matrix numbers to read from." )]
-        public string ExportMatrixNumbers;
-
-        [Parameter( "Export Matrix Tool Name", "TMG.TMG.ExportMatrix", "(Should never change from \"TMG.TMG.ExportMatrix\")" )]
-        public string ExportMatrixToolName;
-
-        [RunParameter( "Factor", 0.42f, "What should the factor for this period be?" )]
-        public float Factor;
-
-        [Parameter( "Load Matrix Tool Name", "TMG.TMG.LoadMatrix", "(Should never change from \"TMG.TMG.LoadMatrix\")" )]
-        public string LoadMatrixToolName;
-
-        [RunParameter( "Matrix Number", 10, "What is the number of the matrix that we need to store into?" )]
-        public int MatrixNumber;
-
-        [RunParameter( "Modes", "Auto", "Ex \"Auto,Taxi,Passenger\" the modes you want to process." )]
-        public string ModeNames;
-
-        [RootModule]
-        public I4StepModel Root;
-
-        [RunParameter( "Scenario Number", 1, "What scenario number should we be working with?" )]
-        public int ScenarioNumber;
-
-        [SubModelInformation( Description = "Tallies used for counting the number of trips between Origin and Destination", Required = false )]
-        public List<IModeAggregationTally> Tallies;
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
-
-        public string Name
+    public bool Execute(Controller controller)
+    {
+        var demandFile = SetupRun();
+        // Step 1, run the matrix loading tool
+        // Step 2, once all of the demand data has been loaded run the calculation
+        // Only do the assignment step if a toolname has been selected
+        if ( controller.Run(this, LoadMatrixToolName, String.Concat( ScenarioNumber, ' ', '"', Path.GetFullPath( demandFile ), '"' ) ) &&
+            String.IsNullOrWhiteSpace( AssingmentToolName ) ? true : controller.Run(this, AssingmentToolName, AssingmentParameters ) )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var demandFile = SetupRun();
-            // Step 1, run the matrix loading tool
-            // Step 2, once all of the demand data has been loaded run the calculation
-            // Only do the assignment step if a toolname has been selected
-            if ( controller.Run(this, LoadMatrixToolName, String.Concat( ScenarioNumber, ' ', '"', Path.GetFullPath( demandFile ), '"' ) ) &&
-                String.IsNullOrWhiteSpace( AssingmentToolName ) ? true : controller.Run(this, AssingmentToolName, AssingmentParameters ) )
+            // Now that we are finished with copying the data we can go ahead and delete our demand file from
+            // temporary storage.
+            try
             {
-                // Now that we are finished with copying the data we can go ahead and delete our demand file from
-                // temporary storage.
-                try
-                {
-                    File.Delete( demandFile );
-                }
-                catch ( IOException )
-                {
-                }
-                // Now that everything has been cleaned up we should go and export the data back out of EMME
-                var numbers = ExportMatrixNumbers.Split( ',' );
-                var destFiles = DestinationFiles.Split( ',' );
-                if ( numbers.Length != destFiles.Length )
-                {
-                    throw new XTMFRuntimeException(this, "The number of matricies exported must be the same as the number of destination file names!" );
-                }
-                for ( int i = 0; i < numbers.Length; i++ )
-                {
-                    if ( String.IsNullOrWhiteSpace( numbers[i] ) || String.IsNullOrWhiteSpace( destFiles[i] ) )
-                    {
-                        continue;
-                    }
-                    if ( !controller.Run(this, ExportMatrixToolName, String.Concat( ScenarioNumber, " mf", numbers[i], " \"", Path.GetFullPath( GetPath( destFiles[i] ) ), '"' ) ) )
-                    {
-                        throw new XTMFRuntimeException(this, "Unable to export matrix mf" + numbers[i] + " to \"" + GetPath( destFiles[i] ) + "\"" );
-                    }
-                }
-                return true;
+                File.Delete( demandFile );
             }
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if ( Tallies.Count == 0 )
+            catch ( IOException )
             {
-                error = Name + " requires that you have at least one tally in order to work!";
-                return false;
+            }
+            // Now that everything has been cleaned up we should go and export the data back out of EMME
+            var numbers = ExportMatrixNumbers.Split( ',' );
+            var destFiles = DestinationFiles.Split( ',' );
+            if ( numbers.Length != destFiles.Length )
+            {
+                throw new XTMFRuntimeException(this, "The number of matricies exported must be the same as the number of destination file names!" );
+            }
+            for ( int i = 0; i < numbers.Length; i++ )
+            {
+                if ( String.IsNullOrWhiteSpace( numbers[i] ) || String.IsNullOrWhiteSpace( destFiles[i] ) )
+                {
+                    continue;
+                }
+                if ( !controller.Run(this, ExportMatrixToolName, String.Concat( ScenarioNumber, " mf", numbers[i], " \"", Path.GetFullPath( GetPath( destFiles[i] ) ), '"' ) ) )
+                {
+                    throw new XTMFRuntimeException(this, "Unable to export matrix mf" + numbers[i] + " to \"" + GetPath( destFiles[i] ) + "\"" );
+                }
             }
             return true;
         }
+        return false;
+    }
 
-        private string GetPath(string localPath)
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( Tallies.Count == 0 )
         {
-            var fullPath = localPath;
-            if ( !Path.IsPathRooted( fullPath ) )
-            {
-                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
-            }
-            return fullPath;
+            error = Name + " requires that you have at least one tally in order to work!";
+            return false;
         }
+        return true;
+    }
 
-        private string SetupRun()
+    private string GetPath(string localPath)
+    {
+        var fullPath = localPath;
+        if ( !Path.IsPathRooted( fullPath ) )
         {
-            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfZones = flatZones.Length;
-            // Load the data from the flows and save it to our temporary file
-            string outputFileName = Path.GetTempFileName();
-            float[][] tally = new float[numberOfZones][];
+            fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
+        }
+        return fullPath;
+    }
+
+    private string SetupRun()
+    {
+        var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfZones = flatZones.Length;
+        // Load the data from the flows and save it to our temporary file
+        string outputFileName = Path.GetTempFileName();
+        float[][] tally = new float[numberOfZones][];
+        for ( int i = 0; i < numberOfZones; i++ )
+        {
+            tally[i] = new float[numberOfZones];
+        }
+        for ( int i = Tallies.Count - 1; i >= 0; i-- )
+        {
+            Tallies[i].IncludeTally( tally );
+        }
+        using ( StreamWriter writer = new( outputFileName ) )
+        {
+            // We need to know what the head should look like.
+            writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", MatrixNumber );
+            // Now that the header is in place we can start to generate all of the instructions
+            StringBuilder[] builders = new StringBuilder[numberOfZones];
+            Parallel.For( 0, numberOfZones, delegate(int o)
+            {
+                var build = builders[o] = new StringBuilder();
+                var strBuilder = new StringBuilder( 10 );
+                var convertedO = flatZones[o].ZoneNumber;
+                for ( int d = 0; d < numberOfZones; d++ )
+                {
+                    Controller.ToEmmeFloat( tally[o][d], strBuilder );
+                    build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
+                        convertedO, flatZones[d].ZoneNumber, strBuilder );
+                }
+            } );
             for ( int i = 0; i < numberOfZones; i++ )
             {
-                tally[i] = new float[numberOfZones];
+                writer.Write( builders[i] );
             }
-            for ( int i = Tallies.Count - 1; i >= 0; i-- )
-            {
-                Tallies[i].IncludeTally( tally );
-            }
-            using ( StreamWriter writer = new( outputFileName ) )
-            {
-                // We need to know what the head should look like.
-                writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", MatrixNumber );
-                // Now that the header is in place we can start to generate all of the instructions
-                StringBuilder[] builders = new StringBuilder[numberOfZones];
-                Parallel.For( 0, numberOfZones, delegate(int o)
-                {
-                    var build = builders[o] = new StringBuilder();
-                    var strBuilder = new StringBuilder( 10 );
-                    var convertedO = flatZones[o].ZoneNumber;
-                    for ( int d = 0; d < numberOfZones; d++ )
-                    {
-                        Controller.ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
-                            convertedO, flatZones[d].ZoneNumber, strBuilder );
-                    }
-                } );
-                for ( int i = 0; i < numberOfZones; i++ )
-                {
-                    writer.Write( builders[i] );
-                }
-            }
-            return outputFileName;
         }
+        return outputFileName;
     }
 }

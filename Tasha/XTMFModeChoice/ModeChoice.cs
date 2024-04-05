@@ -21,326 +21,325 @@ using System.Collections.Generic;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.XTMFModeChoice
+namespace Tasha.XTMFModeChoice;
+
+[ModuleInformation(Description = "This is the primary mode choice module for GTAModel V4.0.  It provides support for passenger and rideshare modes as well as tour-dependent utility modes.")]
+public class ModeChoice : ITashaModeChoice
 {
-    [ModuleInformation(Description = "This is the primary mode choice module for GTAModel V4.0.  It provides support for passenger and rideshare modes as well as tour-dependent utility modes.")]
-    public class ModeChoice : ITashaModeChoice
+    [RunParameter("Rideshare's Base Mode Name", "Auto", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]
+    public string AutoModeName;
+
+    [RunParameter("Household Iterations", 1, "The number of household iterations to complete.")]
+    public int HouseholdIterations;
+
+    [RunParameter("Passenger Mode Name", "", "The name of the passenger mode, leave blank to not process.")]
+    public string PassengerModeName;
+
+    [SubModelInformation(Description = "The modules used for processing in between household iterations.", Required = false)]
+    public IPostHouseholdIteration[] PostHouseholdIteration;
+
+    [RunParameter("Random Seed", 12345, "The random seed for this mode choice algorithm.")]
+    public int RandomSeed;
+
+    [RunParameter("Rideshare Mode Name", "", "The name of the rideshare mode, leave blank to not process.")]
+    public string RideshareModeName;
+
+    [RunParameter("Apply RideShare Bug", true, "Keep this set to true for backwards compatibility where rideshare was assigned to both the driver and passenger during a joint tour.")]
+    public bool ApplyRideshareBug;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private ITashaMode AutoMode;
+    private ITashaPassenger PassengerMode;
+    private ISharedMode Rideshare;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter("Rideshare's Base Mode Name", "Auto", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]
-        public string AutoModeName;
+        get { return 0f; }
+    }
 
-        [RunParameter("Household Iterations", 1, "The number of household iterations to complete.")]
-        public int HouseholdIterations;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter("Passenger Mode Name", "", "The name of the passenger mode, leave blank to not process.")]
-        public string PassengerModeName;
+    private ITashaMode[] NonSharedModes;
+    private ITashaMode[] AllModes;
+    private IVehicleType[] VehicleTypes;
 
-        [SubModelInformation(Description = "The modules used for processing in between household iterations.", Required = false)]
-        public IPostHouseholdIteration[] PostHouseholdIteration;
+    public void LoadOneTimeLocalData()
+    {
+        AllModes = Root.AllModes.ToArray();
+        NonSharedModes = Root.NonSharedModes.ToArray();
+        VehicleTypes = Root.VehicleTypes.ToArray();
+    }
 
-        [RunParameter("Random Seed", 12345, "The random seed for this mode choice algorithm.")]
-        public int RandomSeed;
+    private float[] VarianceScale;
 
-        [RunParameter("Rideshare Mode Name", "", "The name of the rideshare mode, leave blank to not process.")]
-        public string RideshareModeName;
-
-        [RunParameter("Apply RideShare Bug", true, "Keep this set to true for backwards compatibility where rideshare was assigned to both the driver and passenger during a joint tour.")]
-        public bool ApplyRideshareBug;
-
-        [RootModule]
-        public ITashaRuntime Root;
-
-        private ITashaMode AutoMode;
-        private ITashaPassenger PassengerMode;
-        private ISharedMode Rideshare;
-
-        public string Name { get; set; }
-
-        public float Progress
+    public void IterationStarted(int currentIteration, int totalIterations)
+    {
+        foreach (var module in PostHouseholdIteration)
         {
-            get { return 0f; }
+            module.IterationStarting(currentIteration, totalIterations);
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
+        VarianceScale = new float[AllModes.Length];
+        for (int i = 0; i < VarianceScale.Length; i++)
         {
-            get { return null; }
+            VarianceScale[i] = (float)AllModes[i].VarianceScale;
         }
+    }
 
-        private ITashaMode[] NonSharedModes;
-        private ITashaMode[] AllModes;
-        private IVehicleType[] VehicleTypes;
+    [RunParameter("Max Trip Chain Size", 10, "The maximum trip chain size that will be processed.")]
+    public int MaxTripChainSize;
 
-        public void LoadOneTimeLocalData()
+    public bool Run(ITashaHousehold household)
+    {
+        if (MaxTripChainSize > 0)
         {
-            AllModes = Root.AllModes.ToArray();
-            NonSharedModes = Root.NonSharedModes.ToArray();
-            VehicleTypes = Root.VehicleTypes.ToArray();
-        }
-
-        private float[] VarianceScale;
-
-        public void IterationStarted(int currentIteration, int totalIterations)
-        {
-            foreach (var module in PostHouseholdIteration)
+            if (AnyOverMaxTripChainSize(household))
             {
-                module.IterationStarting(currentIteration, totalIterations);
-            }
-
-            VarianceScale = new float[AllModes.Length];
-            for (int i = 0; i < VarianceScale.Length; i++)
-            {
-                VarianceScale[i] = (float)AllModes[i].VarianceScale;
+                return false;
             }
         }
-
-        [RunParameter("Max Trip Chain Size", 10, "The maximum trip chain size that will be processed.")]
-        public int MaxTripChainSize;
-
-        public bool Run(ITashaHousehold household)
+        Random random = new(RandomSeed + household.HouseholdId);
+        ModeChoiceHouseholdData householdData = new(household, AllModes.Length, VehicleTypes.Length + 1);
+        HouseholdResourceAllocator householdResourceAllocator = new(household, AllModes);
+        PassengerMatchingAlgorithm passengerMatchingAlgorithm = null;
+        // attach this so analysis modules can look at it later
+        household.Attach("ModeChoiceData", householdData);
+        household.Attach("ResourceAllocator", householdResourceAllocator);
+        if (PassengerMode != null)
         {
-            if (MaxTripChainSize > 0)
-            {
-                if (AnyOverMaxTripChainSize(household))
-                {
-                    return false;
-                }
-            }
-            Random random = new(RandomSeed + household.HouseholdId);
-            ModeChoiceHouseholdData householdData = new(household, AllModes.Length, VehicleTypes.Length + 1);
-            HouseholdResourceAllocator householdResourceAllocator = new(household, AllModes);
-            PassengerMatchingAlgorithm passengerMatchingAlgorithm = null;
-            // attach this so analysis modules can look at it later
-            household.Attach("ModeChoiceData", householdData);
-            household.Attach("ResourceAllocator", householdResourceAllocator);
-            if (PassengerMode != null)
-            {
-                passengerMatchingAlgorithm = new PassengerMatchingAlgorithm(household, householdData, PassengerMode, AllModes);
-                household.Attach("PassengerMatchingAlgorithm", passengerMatchingAlgorithm);
-            }
+            passengerMatchingAlgorithm = new PassengerMatchingAlgorithm(household, householdData, PassengerMode, AllModes);
+            household.Attach("PassengerMatchingAlgorithm", passengerMatchingAlgorithm);
+        }
 
+        for (int i = 0; i < PostHouseholdIteration.Length; i++)
+        {
+            PostHouseholdIteration[i].HouseholdStart(household, HouseholdIterations);
+        }
+        if (!Pass1(householdData, random))
+        {
             for (int i = 0; i < PostHouseholdIteration.Length; i++)
             {
-                PostHouseholdIteration[i].HouseholdStart(household, HouseholdIterations);
+                PostHouseholdIteration[i].HouseholdComplete(household, false);
             }
-            if (!Pass1(householdData, random))
+            return false;
+        }
+        for (int householdIteration = 0; householdIteration < HouseholdIterations; householdIteration++)
+        {
+            if (householdIteration > 0)
+            {
+                RegenerateErrorTerms(householdData, random);
+            }
+            // Start of Pass 2
+            AssignBestPerVehicle(VehicleTypes, householdData);
+            var resolution = householdResourceAllocator.Resolve(householdData, VehicleTypes, householdIteration);
+            if (resolution == null)
             {
                 for (int i = 0; i < PostHouseholdIteration.Length; i++)
                 {
                     PostHouseholdIteration[i].HouseholdComplete(household, false);
                 }
+                // failure
                 return false;
             }
-            for (int householdIteration = 0; householdIteration < HouseholdIterations; householdIteration++)
-            {
-                if (householdIteration > 0)
-                {
-                    RegenerateErrorTerms(householdData, random);
-                }
-                // Start of Pass 2
-                AssignBestPerVehicle(VehicleTypes, householdData);
-                var resolution = householdResourceAllocator.Resolve(householdData, VehicleTypes, householdIteration);
-                if (resolution == null)
-                {
-                    for (int i = 0; i < PostHouseholdIteration.Length; i++)
-                    {
-                        PostHouseholdIteration[i].HouseholdComplete(household, false);
-                    }
-                    // failure
-                    return false;
-                }
-                AssignModes(random, resolution, householdData);
-                householdResourceAllocator.BuildVehicleAvailabilities(householdData, household.Vehicles);
+            AssignModes(random, resolution, householdData);
+            householdResourceAllocator.BuildVehicleAvailabilities(householdData, household.Vehicles);
 
-                // Start of Pass 3 (Passenger attaching to trip chains)
-                if (passengerMatchingAlgorithm != null)
-                {
-                    passengerMatchingAlgorithm.GeneratePotentialPassengerTrips(random);
-                    passengerMatchingAlgorithm.ResolvePassengerTrips();
-                    // Start of Pass 4 (Passenger attaching to new trips coming from home)
-                    passengerMatchingAlgorithm.GeneratePotentialPassengerTrips(random, false, householdResourceAllocator);
-                    passengerMatchingAlgorithm.ResolvePassengerTrips();
-                }
-                // Now at the end add to chosen modes (And assign joint trips)
-                FinalAssignment(householdData, householdIteration);
-                for (int i = 0; i < PostHouseholdIteration.Length; i++)
-                {
-                    PostHouseholdIteration[i].HouseholdIterationComplete(household, householdIteration, HouseholdIterations);
-                }
+            // Start of Pass 3 (Passenger attaching to trip chains)
+            if (passengerMatchingAlgorithm != null)
+            {
+                passengerMatchingAlgorithm.GeneratePotentialPassengerTrips(random);
+                passengerMatchingAlgorithm.ResolvePassengerTrips();
+                // Start of Pass 4 (Passenger attaching to new trips coming from home)
+                passengerMatchingAlgorithm.GeneratePotentialPassengerTrips(random, false, householdResourceAllocator);
+                passengerMatchingAlgorithm.ResolvePassengerTrips();
             }
+            // Now at the end add to chosen modes (And assign joint trips)
+            FinalAssignment(householdData, householdIteration);
             for (int i = 0; i < PostHouseholdIteration.Length; i++)
             {
-                PostHouseholdIteration[i].HouseholdComplete(household, true);
+                PostHouseholdIteration[i].HouseholdIterationComplete(household, householdIteration, HouseholdIterations);
             }
-            return true;
         }
-
-        private bool AnyOverMaxTripChainSize(ITashaHousehold household)
+        for (int i = 0; i < PostHouseholdIteration.Length; i++)
         {
-            ITashaPerson[] persons = household.Persons;
-            for (int i = 0; i < persons.Length; i++)
-            {
-                for (int j = 0; j < persons[i].TripChains.Count; j++)
-                {
-                    if (persons[i].TripChains[j].Trips.Count > MaxTripChainSize)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            PostHouseholdIteration[i].HouseholdComplete(household, true);
         }
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    private bool AnyOverMaxTripChainSize(ITashaHousehold household)
+    {
+        ITashaPerson[] persons = household.Persons;
+        for (int i = 0; i < persons.Length; i++)
         {
-            if (!string.IsNullOrWhiteSpace(RideshareModeName))
+            for (int j = 0; j < persons[i].TripChains.Count; j++)
             {
-                bool found = false;
-                foreach (var sharedMode in Root.SharedModes)
+                if (persons[i].TripChains[j].Trips.Count > MaxTripChainSize)
                 {
-                    if (sharedMode.ModeName == RideshareModeName)
-                    {
-                        Rideshare = sharedMode;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    error = "In '" + Name + "' we were unable to find a shared mode called '" + RideshareModeName + "' to use for rideshare";
-                    return false;
-                }
-                found = false;
-                foreach (var nonSharedMode in Root.NonSharedModes)
-                {
-                    if (nonSharedMode.ModeName == AutoModeName)
-                    {
-                        AutoMode = nonSharedMode;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    error = "In '" + Name + "' we were unable to find a non shared mode called '" + AutoModeName + "' to use replace with rideshare";
-                    return false;
-                }
-            }
-            if (!string.IsNullOrWhiteSpace(PassengerModeName))
-            {
-                foreach (var sharedMode in Root.SharedModes)
-                {
-                    if (sharedMode.ModeName == PassengerModeName)
-                    {
-                        PassengerMode = sharedMode as ITashaPassenger;
-                        break;
-                    }
-                }
-                if (PassengerMode == null)
-                {
-                    error = "In '" + Name + "' we were unable to find a shared mode called '" + PassengerModeName + "' to use for passenger";
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private void AssignBestPerVehicle(IVehicleType[] list, ModeChoiceHouseholdData householdData)
-        {
-            var modes = NonSharedModes;
-            // Go through all of the possible assignments and get the best one per vehicle
-            for (int i = 0; i < householdData.PersonData.Length; i++)
-            {
-                var person = householdData.PersonData[i];
-                for (int j = 0; j < person.TripChainData.Length; j++)
-                {
-                    var tripChain = person.TripChainData[j];
-                    ITripChain tashaTripChain = tripChain.TripChain;
-                    if (!(tashaTripChain.JointTrip && !tashaTripChain.JointTripRep))
-                    {
-                        tripChain.SelectBestPerVehicleType(modes, list);
-                    }
+                    return true;
                 }
             }
         }
+        return false;
+    }
 
-        private void AssignModes(Random random, int[][] resolution, ModeChoiceHouseholdData householdData)
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!string.IsNullOrWhiteSpace(RideshareModeName))
         {
-            var modes = NonSharedModes;
-            var numberOfPeople = resolution.Length;
-            for (int i = 0; i < numberOfPeople; i++)
+            bool found = false;
+            foreach (var sharedMode in Root.SharedModes)
             {
-                var tripChainData = householdData.PersonData[i].TripChainData;
-                var numberOfTripChains = tripChainData.Length;
-                for (int j = 0; j < numberOfTripChains; j++)
+                if (sharedMode.ModeName == RideshareModeName)
                 {
-                    if (!(tripChainData[j].TripChain.JointTrip && !tripChainData[j].TripChain.JointTripRep))
+                    Rideshare = sharedMode;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                error = "In '" + Name + "' we were unable to find a shared mode called '" + RideshareModeName + "' to use for rideshare";
+                return false;
+            }
+            found = false;
+            foreach (var nonSharedMode in Root.NonSharedModes)
+            {
+                if (nonSharedMode.ModeName == AutoModeName)
+                {
+                    AutoMode = nonSharedMode;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                error = "In '" + Name + "' we were unable to find a non shared mode called '" + AutoModeName + "' to use replace with rideshare";
+                return false;
+            }
+        }
+        if (!string.IsNullOrWhiteSpace(PassengerModeName))
+        {
+            foreach (var sharedMode in Root.SharedModes)
+            {
+                if (sharedMode.ModeName == PassengerModeName)
+                {
+                    PassengerMode = sharedMode as ITashaPassenger;
+                    break;
+                }
+            }
+            if (PassengerMode == null)
+            {
+                error = "In '" + Name + "' we were unable to find a shared mode called '" + PassengerModeName + "' to use for passenger";
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void AssignBestPerVehicle(IVehicleType[] list, ModeChoiceHouseholdData householdData)
+    {
+        var modes = NonSharedModes;
+        // Go through all of the possible assignments and get the best one per vehicle
+        for (int i = 0; i < householdData.PersonData.Length; i++)
+        {
+            var person = householdData.PersonData[i];
+            for (int j = 0; j < person.TripChainData.Length; j++)
+            {
+                var tripChain = person.TripChainData[j];
+                ITripChain tashaTripChain = tripChain.TripChain;
+                if (!(tashaTripChain.JointTrip && !tashaTripChain.JointTripRep))
+                {
+                    tripChain.SelectBestPerVehicleType(modes, list);
+                }
+            }
+        }
+    }
+
+    private void AssignModes(Random random, int[][] resolution, ModeChoiceHouseholdData householdData)
+    {
+        var modes = NonSharedModes;
+        var numberOfPeople = resolution.Length;
+        for (int i = 0; i < numberOfPeople; i++)
+        {
+            var tripChainData = householdData.PersonData[i].TripChainData;
+            var numberOfTripChains = tripChainData.Length;
+            for (int j = 0; j < numberOfTripChains; j++)
+            {
+                if (!(tripChainData[j].TripChain.JointTrip && !tripChainData[j].TripChain.JointTripRep))
+                {
+                    tripChainData[j].Assign(random, resolution[i][j], modes);
+                }
+            }
+        }
+    }
+
+    private void FinalAssignment(ModeChoiceHouseholdData householdData, int householdIteration)
+    {
+        ModeChoicePersonData[] personData = householdData.PersonData;
+        for (int i = 0; i < personData.Length; i++)
+        {
+            var tripChainData = personData[i].TripChainData;
+            for (int j = 0; j < tripChainData.Length; j++)
+            {
+                tripChainData[j].FinalAssignment(householdIteration, AutoMode, Rideshare ?? AutoMode, ApplyRideshareBug);
+            }
+        }
+    }
+
+    private bool Pass1(ModeChoiceHouseholdData householdData, Random random)
+    {
+        var nonSharedModes = NonSharedModes;
+
+        for (int i = 0; i < householdData.PersonData.Length; i++)
+        {
+            var person = householdData.PersonData[i];
+            for (int j = 0; j < person.TripChainData.Length; j++)
+            {
+                var tripChain = person.TripChainData[j];
+                if (!(tripChain.TripChain.JointTrip && !tripChain.TripChain.JointTripRep))
+                {
+                    if (!tripChain.Pass1(nonSharedModes))
                     {
-                        tripChainData[j].Assign(random, resolution[i][j], modes);
+                        return false;
                     }
+                    // now we can compute the random terms
+                    tripChain.GenerateRandomTerms(random, VarianceScale);
                 }
             }
         }
+        return true;
+    }
 
-        private void FinalAssignment(ModeChoiceHouseholdData householdData, int householdIteration)
+    private void RegenerateErrorTerms(ModeChoiceHouseholdData householdData, Random random)
+    {
+        for (int i = 0; i < householdData.PersonData.Length; i++)
         {
-            ModeChoicePersonData[] personData = householdData.PersonData;
-            for (int i = 0; i < personData.Length; i++)
+            var person = householdData.PersonData[i];
+            for (int j = 0; j < person.TripChainData.Length; j++)
             {
-                var tripChainData = personData[i].TripChainData;
-                for (int j = 0; j < tripChainData.Length; j++)
+                var tripChain = person.TripChainData[j];
+                if (!(tripChain.TripChain.JointTrip && !tripChain.TripChain.JointTripRep))
                 {
-                    tripChainData[j].FinalAssignment(householdIteration, AutoMode, Rideshare ?? AutoMode, ApplyRideshareBug);
+                    // now we can compute the random terms
+                    tripChain.GenerateRandomTerms(random, VarianceScale);
                 }
             }
         }
+    }
 
-        private bool Pass1(ModeChoiceHouseholdData householdData, Random random)
+    public void IterationFinished(int currentIteration, int totalIterations)
+    {
+        foreach (var module in PostHouseholdIteration)
         {
-            var nonSharedModes = NonSharedModes;
-
-            for (int i = 0; i < householdData.PersonData.Length; i++)
-            {
-                var person = householdData.PersonData[i];
-                for (int j = 0; j < person.TripChainData.Length; j++)
-                {
-                    var tripChain = person.TripChainData[j];
-                    if (!(tripChain.TripChain.JointTrip && !tripChain.TripChain.JointTripRep))
-                    {
-                        if (!tripChain.Pass1(nonSharedModes))
-                        {
-                            return false;
-                        }
-                        // now we can compute the random terms
-                        tripChain.GenerateRandomTerms(random, VarianceScale);
-                    }
-                }
-            }
-            return true;
-        }
-
-        private void RegenerateErrorTerms(ModeChoiceHouseholdData householdData, Random random)
-        {
-            for (int i = 0; i < householdData.PersonData.Length; i++)
-            {
-                var person = householdData.PersonData[i];
-                for (int j = 0; j < person.TripChainData.Length; j++)
-                {
-                    var tripChain = person.TripChainData[j];
-                    if (!(tripChain.TripChain.JointTrip && !tripChain.TripChain.JointTripRep))
-                    {
-                        // now we can compute the random terms
-                        tripChain.GenerateRandomTerms(random, VarianceScale);
-                    }
-                }
-            }
-        }
-
-        public void IterationFinished(int currentIteration, int totalIterations)
-        {
-            foreach (var module in PostHouseholdIteration)
-            {
-                module.IterationFinished(currentIteration, totalIterations);
-            }
+            module.IterationFinished(currentIteration, totalIterations);
         }
     }
 }

@@ -18,68 +18,67 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Defines a parameter for a model
+/// </summary>
+public interface IModuleParameter
 {
     /// <summary>
-    /// Defines a parameter for a model
+    /// The module that this parameter belongs to
     /// </summary>
-    public interface IModuleParameter
-    {
-        /// <summary>
-        /// The module that this parameter belongs to
-        /// </summary>
-        IModelSystemStructure BelongsTo { get; }
+    IModelSystemStructure BelongsTo { get; }
 
-        /// <summary>
-        /// A description of what this parameter is for
-        /// </summary>
-        string Description { get; }
+    /// <summary>
+    /// A description of what this parameter is for
+    /// </summary>
+    string Description { get; }
 
-        /// <summary>
-        /// The name of the parameter
-        /// </summary>
-        string Name { get; }
+    /// <summary>
+    /// The name of the parameter
+    /// </summary>
+    string Name { get; }
 
-        /// <summary>
-        /// True if it is on a field, false if it is on a property
-        /// </summary>
-        bool OnField { get; }
+    /// <summary>
+    /// True if it is on a field, false if it is on a property
+    /// </summary>
+    bool OnField { get; }
 
-        /// <summary>
-        /// Should this parameter be displayed in the common parameters?
-        /// </summary>
-        bool QuickParameter { get; set; }
+    /// <summary>
+    /// Should this parameter be displayed in the common parameters?
+    /// </summary>
+    bool QuickParameter { get; set; }
 
-        /// <summary>
-        /// True if this is a system level parameter and should only be
-        /// set when being edited by a model system editor
-        /// </summary>
-        bool SystemParameter { get; }
+    /// <summary>
+    /// True if this is a system level parameter and should only be
+    /// set when being edited by a model system editor
+    /// </summary>
+    bool SystemParameter { get; }
 
-        /// <summary>
-        /// The type for the parameter, might be null if not specified
-        /// </summary>
-        Type Type { get; }
+    /// <summary>
+    /// The type for the parameter, might be null if not specified
+    /// </summary>
+    Type Type { get; }
 
-        /// <summary>
-        /// The value of the parameter
-        /// </summary>
-        object Value { get; set; }
+    /// <summary>
+    /// The value of the parameter
+    /// </summary>
+    object Value { get; set; }
 
-        /// <summary>
-        /// The name of the field this is attached to
-        /// </summary>
-        string VariableName { get; }
+    /// <summary>
+    /// The name of the field this is attached to
+    /// </summary>
+    string VariableName { get; }
 
-        /// <summary>
-        /// Get whether this variable should be set aside
-        /// </summary>
-        bool IsHidden { get; }
+    /// <summary>
+    /// Get whether this variable should be set aside
+    /// </summary>
+    bool IsHidden { get; }
 
-        /// <summary>
-        /// Create a copy of this parameter
-        /// </summary>
-        /// <returns>The copy of this parameter</returns>
-        IModuleParameter Clone();
-    }
+    /// <summary>
+    /// Create a copy of this parameter
+    /// </summary>
+    /// <returns>The copy of this parameter</returns>
+    IModuleParameter Clone();
 }

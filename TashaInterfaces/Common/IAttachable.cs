@@ -18,46 +18,45 @@
 */
 using System.Collections.Generic;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Represents the interface in which to
+/// attach information to an object in
+/// Tasha#
+/// </summary>
+public interface IAttachable
 {
     /// <summary>
-    /// Represents the interface in which to
-    /// attach information to an object in
-    /// Tasha#
+    /// Gets the name of the items stored in the object
     /// </summary>
-    public interface IAttachable
-    {
-        /// <summary>
-        /// Gets the name of the items stored in the object
-        /// </summary>
-        IEnumerable<string> Keys { get; }
+    IEnumerable<string> Keys { get; }
 
-        /// <summary>
-        /// This is another way to call GetVariable
-        /// </summary>
-        /// <param name="name">The name you gave to the variable</param>
-        /// <returns>The variable with that name</returns>
-        object this[string name] { get; }
+    /// <summary>
+    /// This is another way to call GetVariable
+    /// </summary>
+    /// <param name="name">The name you gave to the variable</param>
+    /// <returns>The variable with that name</returns>
+    object this[string name] { get; }
 
-        /// <summary>
-        /// Attach the information with the
-        /// given name of...
-        /// </summary>
-        /// <param name="name">The name to attach it with</param>
-        /// <param name="value">The object to attach to that name</param>
-        void Attach(string name, object value);
+    /// <summary>
+    /// Attach the information with the
+    /// given name of...
+    /// </summary>
+    /// <param name="name">The name to attach it with</param>
+    /// <param name="value">The object to attach to that name</param>
+    void Attach(string name, object value);
 
-        /// <summary>
-        /// Gets the variable with the given name
-        /// </summary>
-        /// <param name="name">The name you attached this variable with</param>
-        /// <exception cref="System.Exception">Thrown if the variable does not exist</exception>
-        /// <returns>The variable with that name</returns>
-        object GetVariable(string name);
+    /// <summary>
+    /// Gets the variable with the given name
+    /// </summary>
+    /// <param name="name">The name you attached this variable with</param>
+    /// <exception cref="System.Exception">Thrown if the variable does not exist</exception>
+    /// <returns>The variable with that name</returns>
+    object GetVariable(string name);
 
-        /// <summary>
-        /// Call this to release all resources
-        /// </summary>
-        void Release();
-    }
+    /// <summary>
+    /// Call this to release all resources
+    /// </summary>
+    void Release();
 }

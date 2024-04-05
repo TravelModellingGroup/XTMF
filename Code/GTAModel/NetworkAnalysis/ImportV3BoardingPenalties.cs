@@ -23,67 +23,66 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation( Name = "Import V3 Boarding Penalties", Description = "Imports boarding penalties into UT3 (line attribute 3)" +
+                " from a file. The file is delimited by ';' and contain the headers 'boarding_penalty' and 'filter_expression'." +
+                " The 'boarding_penalty' column indicates an applied peanlty to be stored in UT3, while the 'filter_expression'" +
+                " indicates the expression used by the Emme Matrix Calculator to filter transit lines." )]
+public class ImportV3BoardingPenalties : IEmmeTool
 {
-    [ModuleInformation( Name = "Import V3 Boarding Penalties", Description = "Imports boarding penalties into UT3 (line attribute 3)" +
-                    " from a file. The file is delimited by ';' and contain the headers 'boarding_penalty' and 'filter_expression'." +
+    private const string ToolName = "tmg.assignment.preprocessing.import_v3_boarding_penalty";
+    private const string OldToolName = "TMG2.Assignment.PreProcessing.ImportBoardingPenalties";
+    [RunParameter( "Data File", "", typeof( FileFromInputDirectory ), "A absolute filepath to a file which specifies which boarding penalty to apply to particular filter" +
+                    " expressions. The file must be delimited by ';' and contain the headers 'boarding_penalty' and 'filter_expression'." +
                     " The 'boarding_penalty' column indicates an applied peanlty to be stored in UT3, while the 'filter_expression'" +
                     " indicates the expression used by the Emme Matrix Calculator to filter transit lines." )]
-    public class ImportV3BoardingPenalties : IEmmeTool
+    public FileFromInputDirectory InputFile;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    [RunParameter( "Scenario Number", 0, "The scenario number in which to process the calculations." )]
+    public int ScenarioNumber;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+
+    public string Name
     {
-        private const string ToolName = "tmg.assignment.preprocessing.import_v3_boarding_penalty";
-        private const string OldToolName = "TMG2.Assignment.PreProcessing.ImportBoardingPenalties";
-        [RunParameter( "Data File", "", typeof( FileFromInputDirectory ), "A absolute filepath to a file which specifies which boarding penalty to apply to particular filter" +
-                        " expressions. The file must be delimited by ';' and contain the headers 'boarding_penalty' and 'filter_expression'." +
-                        " The 'boarding_penalty' column indicates an applied peanlty to be stored in UT3, while the 'filter_expression'" +
-                        " indicates the expression used by the Emme Matrix Calculator to filter transit lines." )]
-        public FileFromInputDirectory InputFile;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public IModelSystemTemplate Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Scenario Number", 0, "The scenario number in which to process the calculations." )]
-        public int ScenarioNumber;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController;
+        if ( mc == null )
+            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
-        public string Name
+        var sb = new StringBuilder();
+        sb.AppendFormat( "{0} {1}",
+            ScenarioNumber, InputFile.GetFileName( Root.InputBaseDirectory ) );
+        string result = null;
+        if(mc.CheckToolExists(this, ToolName))
         {
-            get;
-            set;
+            return mc.Run(this, ToolName, sb.ToString(), (p => Progress = p), ref result);
         }
+        return mc.Run(this, OldToolName, sb.ToString(), (p => Progress = p), ref result);
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
-            var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1}",
-                ScenarioNumber, InputFile.GetFileName( Root.InputBaseDirectory ) );
-            string result = null;
-            if(mc.CheckToolExists(this, ToolName))
-            {
-                return mc.Run(this, ToolName, sb.ToString(), (p => Progress = p), ref result);
-            }
-            return mc.Run(this, OldToolName, sb.ToString(), (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

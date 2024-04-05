@@ -18,38 +18,37 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// This allows for a plug-in to
+/// do something after a household has been finished processing
+/// </summary>
+public interface IPostHousehold : IModule
 {
     /// <summary>
-    /// This allows for a plug-in to
-    /// do something after a household has been finished processing
+    /// This gets called what TASHA finishes processing a household
     /// </summary>
-    public interface IPostHousehold : IModule
-    {
-        /// <summary>
-        /// This gets called what TASHA finishes processing a household
-        /// </summary>
-        /// <param name="household"></param>
-        /// <param name="iteration"></param>
-        void Execute(ITashaHousehold household, int iteration);
+    /// <param name="household"></param>
+    /// <param name="iteration"></param>
+    void Execute(ITashaHousehold household, int iteration);
 
-        /// <summary>
-        /// Called when an iteration is complete
-        /// </summary>
-        /// <param name="iteration"></param>
-        void IterationFinished(int iteration);
+    /// <summary>
+    /// Called when an iteration is complete
+    /// </summary>
+    /// <param name="iteration"></param>
+    void IterationFinished(int iteration);
 
-        /// <summary>
-        /// Loads the module, with configuration
-        /// information
-        /// </summary>
-        /// <param name="maxIterations">The number of iterations</param>
-        void Load(int maxIterations);
+    /// <summary>
+    /// Loads the module, with configuration
+    /// information
+    /// </summary>
+    /// <param name="maxIterations">The number of iterations</param>
+    void Load(int maxIterations);
 
-        /// <summary>
-        /// This will be called before a new iteration begins
-        /// </summary>
-        /// <param name="iteration"></param>
-        void IterationStarting(int iteration);
-    }
+    /// <summary>
+    /// This will be called before a new iteration begins
+    /// </summary>
+    /// <param name="iteration"></param>
+    void IterationStarting(int iteration);
 }

@@ -17,12 +17,11 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace ViewCacheData
+namespace ViewCacheData;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App
-    {
-    }
 }

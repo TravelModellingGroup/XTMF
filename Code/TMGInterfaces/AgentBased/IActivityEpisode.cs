@@ -18,32 +18,31 @@
 */
 using XTMF;
 
-namespace TMG.AgentBased.Tours
+namespace TMG.AgentBased.Tours;
+
+/// <summary>
+/// An activity episode defines a particular instance of
+/// an activity in a person's schedule
+/// </summary>
+public interface IActivityEpisode
 {
     /// <summary>
-    /// An activity episode defines a particular instance of
-    /// an activity in a person's schedule
+    /// What type of activity is this?
     /// </summary>
-    public interface IActivityEpisode
-    {
-        /// <summary>
-        /// What type of activity is this?
-        /// </summary>
-        IActivity Activity { get; }
+    IActivity Activity { get; }
 
-        /// <summary>
-        /// The end time of the activity
-        /// </summary>
-        Time End { get; set; }
+    /// <summary>
+    /// The end time of the activity
+    /// </summary>
+    Time End { get; set; }
 
-        /// <summary>
-        /// The duration that this activity originally had
-        /// </summary>
-        Time OriginalDuration { get; }
+    /// <summary>
+    /// The duration that this activity originally had
+    /// </summary>
+    Time OriginalDuration { get; }
 
-        /// <summary>
-        /// The start time of the activity
-        /// </summary>
-        Time Start { get; set; }
-    }
+    /// <summary>
+    /// The start time of the activity
+    /// </summary>
+    Time Start { get; set; }
 }

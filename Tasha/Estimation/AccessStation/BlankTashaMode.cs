@@ -21,107 +21,106 @@ using Tasha.Common;
 using TMG;
 using XTMF;
 
-namespace Tasha.Estimation.AccessStation
+namespace Tasha.Estimation.AccessStation;
+
+[ModuleInformation(Description = "Do not use this module as a real mode, this is used for testing purposes only.")]
+public class BlankTashaMode : ITashaMode
 {
-    [ModuleInformation(Description = "Do not use this module as a real mode, this is used for testing purposes only.")]
-    public class BlankTashaMode : ITashaMode
+    public float CurrentlyFeasible
     {
-        public float CurrentlyFeasible
+        get; set;
+    }
+
+    [RunParameter("Mode Name", "Blank", "The name for this blank mode.")]
+    public string ModeName { get; set; }
+
+
+    public string Name { get; set; }
+
+    public string NetworkType
+    {
+        get
         {
-            get; set;
+            throw new NotImplementedException();
         }
+    }
 
-        [RunParameter("Mode Name", "Blank", "The name for this blank mode.")]
-        public string ModeName { get; set; }
-
-
-        public string Name { get; set; }
-
-        public string NetworkType
+    public bool NonPersonalVehicle
+    {
+        get
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
+    }
 
-        public bool NonPersonalVehicle
+    public float Progress
+    {
+        get
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
+    }
 
-        public float Progress
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+    public IVehicleType RequiresVehicle { get; set; }
 
-        public IVehicleType RequiresVehicle { get; set; }
-
-        public double VarianceScale
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public double CalculateV(ITrip trip)
+    public double VarianceScale
+    {
+        get
         {
             throw new NotImplementedException();
         }
 
-        public float CalculateV(IZone origin, IZone destination, Time time)
+        set
         {
             throw new NotImplementedException();
         }
+    }
 
-        public float Cost(IZone origin, IZone destination, Time time)
-        {
-            throw new NotImplementedException();
-        }
+    public double CalculateV(ITrip trip)
+    {
+        throw new NotImplementedException();
+    }
 
-        public bool Feasible(ITripChain tripChain)
-        {
-            throw new NotImplementedException();
-        }
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        throw new NotImplementedException();
+    }
 
-        public bool Feasible(ITrip trip)
-        {
-            throw new NotImplementedException();
-        }
+    public float Cost(IZone origin, IZone destination, Time time)
+    {
+        throw new NotImplementedException();
+    }
 
-        public bool Feasible(IZone origin, IZone destination, Time time)
-        {
-            throw new NotImplementedException();
-        }
+    public bool Feasible(ITripChain tripChain)
+    {
+        throw new NotImplementedException();
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool Feasible(ITrip trip)
+    {
+        throw new NotImplementedException();
+    }
 
-        public Time TravelTime(IZone origin, IZone destination, Time time)
-        {
-            throw new NotImplementedException();
-        }
+    public bool Feasible(IZone origin, IZone destination, Time time)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public Time TravelTime(IZone origin, IZone destination, Time time)
+    {
+        throw new NotImplementedException();
     }
 }

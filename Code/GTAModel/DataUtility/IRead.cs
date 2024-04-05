@@ -16,10 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG.GTAModel.DataUtility
+namespace TMG.GTAModel.DataUtility;
+
+public interface IRead<TDestination, TSource>
 {
-    public interface IRead<TDestination, TSource>
-    {
-        bool Read(TSource readFrom, out TDestination result);
-    }
+    bool Read(TSource readFrom, out TDestination result);
 }

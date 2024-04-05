@@ -16,26 +16,25 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Which time period we are using
+/// </summary>
+public enum TravelTimePeriod
 {
     /// <summary>
-    /// Which time period we are using
+    ///
     /// </summary>
-    public enum TravelTimePeriod
-    {
-        /// <summary>
-        ///
-        /// </summary>
-        Morning,
+    Morning,
 
-        /// <summary>
-        ///
-        /// </summary>
-        Afternoon,
+    /// <summary>
+    ///
+    /// </summary>
+    Afternoon,
 
-        /// <summary>
-        ///
-        /// </summary>
-        Offpeak
-    }
+    /// <summary>
+    ///
+    /// </summary>
+    Offpeak
 }

@@ -20,44 +20,43 @@
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public class TestMinHeap
 {
-    [TestClass]
-    public class TestMinHeap
+    [TestMethod]
+    public void TestConstructor()
     {
-        [TestMethod]
-        public void TestConstructor()
+        int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
+        int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
+        var heap = new MinHeap<int>( testMe );
+        for ( int i = 0; i < sorted.Length; i++ )
         {
-            int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
-            int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
-            var heap = new MinHeap<int>( testMe );
-            for ( int i = 0; i < sorted.Length; i++ )
+            var newItem = heap.Pop();
+            if ( newItem != sorted[i] )
             {
-                var newItem = heap.Pop();
-                if ( newItem != sorted[i] )
-                {
-                    Assert.Fail( "Not in order!" );
-                }
+                Assert.Fail( "Not in order!" );
             }
         }
+    }
 
-        [TestMethod]
-        public void TestAdd()
+    [TestMethod]
+    public void TestAdd()
+    {
+        int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
+        int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
+        var heap = new MinHeap<int>();
+        for ( int i = 0; i < testMe.Length; i++ )
         {
-            int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
-            int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
-            var heap = new MinHeap<int>();
-            for ( int i = 0; i < testMe.Length; i++ )
+            heap.Add( testMe[i] );
+        }
+        for ( int i = 0; i < sorted.Length; i++ )
+        {
+            var newItem = heap.Pop();
+            if ( newItem != sorted[i] )
             {
-                heap.Add( testMe[i] );
-            }
-            for ( int i = 0; i < sorted.Length; i++ )
-            {
-                var newItem = heap.Pop();
-                if ( newItem != sorted[i] )
-                {
-                    Assert.Fail( "Not in order!" );
-                }
+                Assert.Fail( "Not in order!" );
             }
         }
     }

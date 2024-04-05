@@ -20,87 +20,86 @@ using System.IO;
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public class CommentedCSVReaderTest
 {
-    [TestClass]
-    public class CommentedCSVReaderTest
+    private const int ExpectedNumberOfLines = 100;
+    private const int FailNumberOfLines = 5;
+
+    [TestInitialize]
+    public void CreateTestEnvironment()
     {
-        private const int ExpectedNumberOfLines = 100;
-        private const int FailNumberOfLines = 5;
-
-        [TestInitialize]
-        public void CreateTestEnvironment()
+        if ( !IsEnvironmentLoaded() )
         {
-            if ( !IsEnvironmentLoaded() )
+            using ( StreamWriter writer = new( "CommentedCSVReaderTest.csv" ) )
             {
-                using ( StreamWriter writer = new( "CommentedCSVReaderTest.csv" ) )
+                writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
+                for ( int i = 0; i < ExpectedNumberOfLines; i++ )
                 {
-                    writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
-                    for ( int i = 0; i < ExpectedNumberOfLines; i++ )
-                    {
-                        writer.WriteLine( "1,2,3,4,5" );
-                    }
-                }
-
-                using ( StreamWriter writer = new( "CommentedCSVReaderTestFail.csv" ) )
-                {
-                    writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
-                    for ( int i = 0; i < FailNumberOfLines; i++ )
-                    {
-                        writer.WriteLine( "1,2,3,4,5" );
-                    }
-                    writer.WriteLine( "1,2,3,4" );
+                    writer.WriteLine( "1,2,3,4,5" );
                 }
             }
-        }
 
-        public bool IsEnvironmentLoaded()
-        {
-            return File.Exists( "CommentedCSVReaderTest.csv" ) & File.Exists( "CommentedCSVReaderTestFail.csv" );
-        }
-
-        [TestMethod]
-        public void TestLoad()
-        {
-            using ( var reader = new CommentedCsvReader( "CommentedCSVReaderTest.csv" ) )
+            using ( StreamWriter writer = new( "CommentedCSVReaderTestFail.csv" ) )
             {
-                /*
-                string[] truth = new string[] {"Zone", "Age", "EmpStat", "OccGroup", "Value"};
-                for (int i = 0; i < reader.Headers.Length; i++)
-                {
-                    Assert.IsTrue(truth[i] == reader.Headers[i]);
-                }*/
-                int lines = 0;
-                while ( reader.NextLine() )
-                {
-                    if ( reader.NumberOfCurrentCells > 0 )
-                    {
-                        Assert.AreEqual( 5, reader.NumberOfCurrentCells );
-                        reader.Get(out float val, 5);
-                        lines++;
-                    }
-                }
-                Assert.AreEqual( ExpectedNumberOfLines, lines );
-            }
-            using ( var reader = new CommentedCsvReader( "CommentedCSVReaderTestFail.csv" ) )
-            {
+                writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
                 for ( int i = 0; i < FailNumberOfLines; i++ )
                 {
-                    reader.NextLine();
+                    writer.WriteLine( "1,2,3,4,5" );
                 }
-
-                bool failed = false;
-                try
-                {
-                    reader.NextLine();
-                }
-                catch ( IOException )
-                {
-                    failed = true;
-                }
-
-                Assert.IsTrue( failed );
+                writer.WriteLine( "1,2,3,4" );
             }
+        }
+    }
+
+    public bool IsEnvironmentLoaded()
+    {
+        return File.Exists( "CommentedCSVReaderTest.csv" ) & File.Exists( "CommentedCSVReaderTestFail.csv" );
+    }
+
+    [TestMethod]
+    public void TestLoad()
+    {
+        using ( var reader = new CommentedCsvReader( "CommentedCSVReaderTest.csv" ) )
+        {
+            /*
+            string[] truth = new string[] {"Zone", "Age", "EmpStat", "OccGroup", "Value"};
+            for (int i = 0; i < reader.Headers.Length; i++)
+            {
+                Assert.IsTrue(truth[i] == reader.Headers[i]);
+            }*/
+            int lines = 0;
+            while ( reader.NextLine() )
+            {
+                if ( reader.NumberOfCurrentCells > 0 )
+                {
+                    Assert.AreEqual( 5, reader.NumberOfCurrentCells );
+                    reader.Get(out float val, 5);
+                    lines++;
+                }
+            }
+            Assert.AreEqual( ExpectedNumberOfLines, lines );
+        }
+        using ( var reader = new CommentedCsvReader( "CommentedCSVReaderTestFail.csv" ) )
+        {
+            for ( int i = 0; i < FailNumberOfLines; i++ )
+            {
+                reader.NextLine();
+            }
+
+            bool failed = false;
+            try
+            {
+                reader.NextLine();
+            }
+            catch ( IOException )
+            {
+                failed = true;
+            }
+
+            Assert.IsTrue( failed );
         }
     }
 }

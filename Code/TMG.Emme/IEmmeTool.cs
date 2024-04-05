@@ -18,10 +18,9 @@
 */
 using XTMF;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+public interface IEmmeTool : IModule
 {
-    public interface IEmmeTool : IModule
-    {
-        bool Execute(Controller controller);
-    }
+    bool Execute(Controller controller);
 }

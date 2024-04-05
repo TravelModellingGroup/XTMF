@@ -22,118 +22,117 @@ using System.Linq;
 using TMG.Input;
 using XTMF;
 using Datastructure;
-namespace TMG.Estimation.AI
-{
-    [ModuleInformation( Description =
-        @"This module is designed to go through a TMG Result file and process all of parameters and execute them on remote clients.  This 
+namespace TMG.Estimation.AI;
+
+[ModuleInformation( Description =
+    @"This module is designed to go through a TMG Result file and process all of parameters and execute them on remote clients.  This 
 can be useful for post processing the results of an estimation to gather more detailed information that you wouldn't want to do for every
 parameter set.  This is best combined by using ExecuteGivenParameters in order to select the best results before running." )]
-    public class ExecuteGivenParameters : IEstimationAI
+public class ExecuteGivenParameters : IEstimationAI
+{
+    [RootModule]
+    public IEstimationHost Root;
+
+    [SubModelInformation( Required = true, Description = "The location of the result file to read in." )]
+    public FileLocation ResultFile;
+
+    [RunParameter("Rows", 0, "The number of rows to run, 0 means all.")]
+    public int NumberOfRows;
+
+    public List<Job> CreateJobsForIteration()
     {
-        [RootModule]
-        public IEstimationHost Root;
-
-        [SubModelInformation( Required = true, Description = "The location of the result file to read in." )]
-        public FileLocation ResultFile;
-
-        [RunParameter("Rows", 0, "The number of rows to run, 0 means all.")]
-        public int NumberOfRows;
-
-        public List<Job> CreateJobsForIteration()
+        var ret = new List<Job>();
+        var parameters = Root.Parameters.ToArray();
+        int totalParameters = parameters.Sum(p => p.Names.Length);
+        using ( CsvReader reader = new( ResultFile.GetFilePath() ) )
         {
-            var ret = new List<Job>();
-            var parameters = Root.Parameters.ToArray();
-            int totalParameters = parameters.Sum(p => p.Names.Length);
-            using ( CsvReader reader = new( ResultFile.GetFilePath() ) )
+            int[] headerToParameterIndex = ProcessHeader(parameters, reader, reader.LoadLine());
+            while (reader.LoadLine(out int columns))
             {
-                int[] headerToParameterIndex = ProcessHeader(parameters, reader, reader.LoadLine());
-                while (reader.LoadLine(out int columns))
+                //+2 for generation and value
+                if (columns >= totalParameters + 2)
                 {
-                    //+2 for generation and value
-                    if (columns >= totalParameters + 2)
+                    var jobParameters = new ParameterSetting[parameters.Length];
+                    var job = new Job()
                     {
-                        var jobParameters = new ParameterSetting[parameters.Length];
-                        var job = new Job()
+                        ProcessedBy = null,
+                        Processing = false,
+                        Processed = false,
+                        Value = float.NaN,
+                        Parameters = jobParameters
+                    };
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        jobParameters[i] = new ParameterSetting()
                         {
-                            ProcessedBy = null,
-                            Processing = false,
-                            Processed = false,
-                            Value = float.NaN,
-                            Parameters = jobParameters
+                            Names = parameters[i].Names,
+                            Minimum = parameters[i].Minimum,
+                            Maximum = parameters[i].Maximum
                         };
-                        for (int i = 0; i < parameters.Length; i++)
+                    }
+                    for (int i = 0; i < headerToParameterIndex.Length; i++)
+                    {
+                        if(headerToParameterIndex[i] >= 0)
                         {
-                            jobParameters[i] = new ParameterSetting()
-                            {
-                                Names = parameters[i].Names,
-                                Minimum = parameters[i].Minimum,
-                                Maximum = parameters[i].Maximum
-                            };
-                        }
-                        for (int i = 0; i < headerToParameterIndex.Length; i++)
-                        {
-                            if(headerToParameterIndex[i] >= 0)
-                            {
-                                reader.Get(out jobParameters[headerToParameterIndex[i]].Current, i + 2);
-                            }
-                        }
-                        ret.Add(job);
-                        if (NumberOfRows > 0 & ret.Count >= NumberOfRows)
-                        {
-                            break;
+                            reader.Get(out jobParameters[headerToParameterIndex[i]].Current, i + 2);
                         }
                     }
-                }
-            }
-            return ret;
-        }
-
-        private int[] ProcessHeader(ParameterSetting[] parameters, CsvReader reader, int numberOfColumns)
-        {
-            if(numberOfColumns <= 2)
-            {
-                throw new XTMFRuntimeException(this, "There are no parameters found in the header of the parameter file!");
-            }
-            var ret = new int[numberOfColumns - 2];
-            for (int i = 0; i < ret.Length; i++)
-            {
-                ret[i] = -1;
-            }
-            for (int i = 2; i < numberOfColumns; i++)
-            {
-                reader.Get(out string header, i);
-                for (int j = 0; j < parameters.Length; j++)
-                {
-                    if(parameters[j].Names.Contains(header))
+                    ret.Add(job);
+                    if (NumberOfRows > 0 & ret.Count >= NumberOfRows)
                     {
-                        ret[i - 2] = j;
                         break;
                     }
                 }
             }
-            return ret;
         }
+        return ret;
+    }
 
-        public void IterationComplete()
+    private int[] ProcessHeader(ParameterSetting[] parameters, CsvReader reader, int numberOfColumns)
+    {
+        if(numberOfColumns <= 2)
         {
-
+            throw new XTMFRuntimeException(this, "There are no parameters found in the header of the parameter file!");
         }
-
-        public string Name { get; set; }
-
-        public float Progress
+        var ret = new int[numberOfColumns - 2];
+        for (int i = 0; i < ret.Length; i++)
         {
-            get { return 0f; }
+            ret[i] = -1;
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        for (int i = 2; i < numberOfColumns; i++)
         {
-            get { return null; }
+            reader.Get(out string header, i);
+            for (int j = 0; j < parameters.Length; j++)
+            {
+                if(parameters[j].Names.Contains(header))
+                {
+                    ret[i - 2] = j;
+                    break;
+                }
+            }
         }
+        return ret;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public void IterationComplete()
+    {
+
+    }
+
+    public string Name { get; set; }
+
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

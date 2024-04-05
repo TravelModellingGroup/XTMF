@@ -22,107 +22,106 @@ using Datastructure;
 using TMG.Functions;
 using TMG;
 
-namespace Tasha.Data
-{
-    [ModuleInformation(
-        Description =
+namespace Tasha.Data;
+
+[ModuleInformation(
+    Description =
 @"This module is designed to take in two resources and normalize the input data by row so that it will sum to the row total of the second resource.  The resource that we are going
 to normalize to can be either a SparseTwinIndex<float> (matrix) or a SparseArray<float> (vector).  Both resources must be the same size.  The result will be stored in a new matrix
 the same size as the input data to normalize."
-        )]
-    public class NormalizeByRow : IDataSource<SparseTwinIndex<float>>
+    )]
+public class NormalizeByRow : IDataSource<SparseTwinIndex<float>>
+{
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public bool Loaded
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        get; set;
+    }
 
-        public bool Loaded
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseTwinIndex<float> Data;
+
+    [SubModelInformation(Required = true, Description = "The data to normalize to.  Either SparseArray<float> or SparseTwinIndex<float>.")]
+    public IResource DataToNormalizeTo;
+
+    [SubModelInformation(Required = true, Description = "The data that will be normalized.  Either SparseArray<float> or SparseTwinIndex<float>.")]
+    public IResource DataToNormalize;
+
+    public SparseTwinIndex<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        // Get totals by row
+        var totalToNormalizeTo = GetRowTotalsFromResource(DataToNormalizeTo);
+        var inputMatrix = DataToNormalize.AcquireResource<SparseTwinIndex<float>>();
+        var ourMatrix = inputMatrix.GetFlatData();
+        var ourTotalByRow = GetRowTotalsFromResource(DataToNormalize);
+        // create inverse
+        VectorHelper.Divide(ourTotalByRow, 0, totalToNormalizeTo, 0, ourTotalByRow, 0, ourTotalByRow.Length);
+        // apply inverse
+        var data = inputMatrix.CreateSimilarArray<float>();
+        var flatData = data.GetFlatData();
+        for (int i = 0; i < ourTotalByRow.Length; i++)
         {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseTwinIndex<float> Data;
-
-        [SubModelInformation(Required = true, Description = "The data to normalize to.  Either SparseArray<float> or SparseTwinIndex<float>.")]
-        public IResource DataToNormalizeTo;
-
-        [SubModelInformation(Required = true, Description = "The data that will be normalized.  Either SparseArray<float> or SparseTwinIndex<float>.")]
-        public IResource DataToNormalize;
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            // Get totals by row
-            var totalToNormalizeTo = GetRowTotalsFromResource(DataToNormalizeTo);
-            var inputMatrix = DataToNormalize.AcquireResource<SparseTwinIndex<float>>();
-            var ourMatrix = inputMatrix.GetFlatData();
-            var ourTotalByRow = GetRowTotalsFromResource(DataToNormalize);
-            // create inverse
-            VectorHelper.Divide(ourTotalByRow, 0, totalToNormalizeTo, 0, ourTotalByRow, 0, ourTotalByRow.Length);
-            // apply inverse
-            var data = inputMatrix.CreateSimilarArray<float>();
-            var flatData = data.GetFlatData();
-            for (int i = 0; i < ourTotalByRow.Length; i++)
+            // if it is infinity or NAN, that means that we had zero elements
+            // thusly we can just leave the matrix alone to its default value of zero.
+            if (!(float.IsInfinity(ourTotalByRow[i]) || float.IsNaN(ourTotalByRow[i])))
             {
-                // if it is infinity or NAN, that means that we had zero elements
-                // thusly we can just leave the matrix alone to its default value of zero.
-                if (!(float.IsInfinity(ourTotalByRow[i]) || float.IsNaN(ourTotalByRow[i])))
-                {
-                    VectorHelper.Multiply(flatData[i], 0, ourMatrix[i], 0, ourTotalByRow[i], flatData[i].Length);
-                }
+                VectorHelper.Multiply(flatData[i], 0, ourMatrix[i], 0, ourTotalByRow[i], flatData[i].Length);
             }
-            Data = data;
-            Loaded = true;
         }
+        Data = data;
+        Loaded = true;
+    }
 
-        private float[] GetRowTotalsFromResource(IResource resource)
+    private float[] GetRowTotalsFromResource(IResource resource)
+    {
+        float[] totalByRow;
+        if (resource.CheckResourceType<SparseArray<float>>())
         {
-            float[] totalByRow;
-            if (resource.CheckResourceType<SparseArray<float>>())
-            {
-                totalByRow = resource.AcquireResource<SparseArray<float>>().GetFlatData();
-            }
-            else
-            {
-                var matrix = resource.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-                totalByRow = new float[matrix.Length];
-                for (int i = 0; i < totalByRow.Length; i++)
-                {
-                    totalByRow[i] = VectorHelper.Sum(matrix[i], 0, matrix[i].Length);
-                }
-            }
-            return totalByRow;
+            totalByRow = resource.AcquireResource<SparseArray<float>>().GetFlatData();
         }
-
-        public bool RuntimeValidation(ref string error)
+        else
         {
-            if (!DataToNormalize.CheckResourceType<SparseTwinIndex<float>>())
+            var matrix = resource.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            totalByRow = new float[matrix.Length];
+            for (int i = 0; i < totalByRow.Length; i++)
             {
-                error = "In '" + Name + "' the DataToNormalize must be of type SparseTwinIndex<float>!";
-                return false;
+                totalByRow[i] = VectorHelper.Sum(matrix[i], 0, matrix[i].Length);
             }
-
-            if (!(DataToNormalizeTo.CheckResourceType<SparseTwinIndex<float>>() || DataToNormalizeTo.CheckResourceType<SparseArray<float>>()))
-            {
-                error = "In '" + Name + "' the DataToNormalizeTo must be of type SparseTwinIndex<float> or SparseArray<float>!";
-                return false;
-            }
-            return true;
         }
+        return totalByRow;
+    }
 
-        public void UnloadData()
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!DataToNormalize.CheckResourceType<SparseTwinIndex<float>>())
         {
-            Loaded = false;
-            Data = null;
+            error = "In '" + Name + "' the DataToNormalize must be of type SparseTwinIndex<float>!";
+            return false;
         }
+
+        if (!(DataToNormalizeTo.CheckResourceType<SparseTwinIndex<float>>() || DataToNormalizeTo.CheckResourceType<SparseArray<float>>()))
+        {
+            error = "In '" + Name + "' the DataToNormalizeTo must be of type SparseTwinIndex<float> or SparseArray<float>!";
+            return false;
+        }
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+        Data = null;
     }
 }

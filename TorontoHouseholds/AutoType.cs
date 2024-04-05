@@ -21,71 +21,70 @@ using System.Linq;
 using Tasha.Common;
 using XTMF;
 
-namespace TashaModes
+namespace TashaModes;
+
+[ModuleInformation(Description = "This module represents a physical auto vehicle in a TASHA simulation.")]
+public class AutoType : IVehicleType
 {
-    [ModuleInformation(Description = "This module represents a physical auto vehicle in a TASHA simulation.")]
-    public class AutoType : IVehicleType
+    #region IVehicleType Members
+
+    public bool Finite
     {
-        #region IVehicleType Members
+        get { return true; }
+    }
 
-        public bool Finite
+
+    /// <summary>
+    /// The name of the type of vehicle
+    /// </summary>
+    [RunParameter("Vehicle Name", "Auto", "The name of the vehicle type")]
+    public string VehicleName
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Tests to see if a person can use a vehicle of this type
+    /// </summary>
+    /// <param name="person">The person to test for</param>
+    /// <returns>If they can use it or not</returns>
+    public bool CanUse(ITashaPerson person)
+    {
+        if (person.Licence)
         {
-            get { return true; }
-        }
-
-
-        /// <summary>
-        /// The name of the type of vehicle
-        /// </summary>
-        [RunParameter("Vehicle Name", "Auto", "The name of the vehicle type")]
-        public string VehicleName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Tests to see if a person can use a vehicle of this type
-        /// </summary>
-        /// <param name="person">The person to test for</param>
-        /// <returns>If they can use it or not</returns>
-        public bool CanUse(ITashaPerson person)
-        {
-            if (person.Licence)
+            var vehicles = person.Household.Vehicles;
+            for (int i = 0; i < vehicles.Length; i++)
             {
-                var vehicles = person.Household.Vehicles;
-                for (int i = 0; i < vehicles.Length; i++)
+                if (vehicles[i].VehicleType == this)
                 {
-                    if (vehicles[i].VehicleType == this)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
-            return false;
         }
+        return false;
+    }
 
-        #endregion IVehicleType Members
+    #endregion IVehicleType Members
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        public float Progress
-        {
-            get { return 0; }
-        }
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

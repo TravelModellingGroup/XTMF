@@ -24,71 +24,70 @@ using TMG.GTAModel.DataUtility;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+public class StaticAssignment : IAssignment
 {
-    public class StaticAssignment : IAssignment
+    [SubModelInformation( Description = "The static data sources to assign.", Required = false )]
+    public List<IReadODData<float>> DataSources;
+
+    [RootModule]
+    public IDemographic4StepModelSystemTemplate Root;
+
+    [RunParameter( "Demographic Index Selection", "1", typeof( NumberList ), "A list of demographic parameters to use, in order for the data sources.  There must be the same number of mode choice selections as there are Data Sources!" )]
+    public NumberList SelectedDemographicChoices;
+
+    [RunParameter( "Mode Choice Selection", "1", typeof( NumberList ), "A list of mode choice parameter selections to use, in order for the data sources.  There must be the same number of mode choice selections as there are Data Sources!" )]
+    public NumberList SelectedModeChoices;
+
+    public string Name
     {
-        [SubModelInformation( Description = "The static data sources to assign.", Required = false )]
-        public List<IReadODData<float>> DataSources;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public IDemographic4StepModelSystemTemplate Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Demographic Index Selection", "1", typeof( NumberList ), "A list of demographic parameters to use, in order for the data sources.  There must be the same number of mode choice selections as there are Data Sources!" )]
-        public NumberList SelectedDemographicChoices;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Mode Choice Selection", "1", typeof( NumberList ), "A list of mode choice parameter selections to use, in order for the data sources.  There must be the same number of mode choice selections as there are Data Sources!" )]
-        public NumberList SelectedModeChoices;
-
-        public string Name
+    public IEnumerable<SparseTwinIndex<float>> Assign()
+    {
+        int length = DataSources.Count;
+        for ( int i = 0; i < length; i++ )
         {
-            get;
-            set;
+            yield return BuildOD( DataSources[i], SelectedModeChoices[i], SelectedDemographicChoices[i] );
         }
+    }
 
-        public float Progress
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( SelectedModeChoices.Count != DataSources.Count )
         {
-            get;
-            set;
+            error = "In " + Name + " the number of mode choice parameter set options is not the same as the number of data sources!";
+            return false;
         }
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    private SparseTwinIndex<float> BuildOD(IReadODData<float> dataSource, int modeChoiceIndex, int demographicIndex)
+    {
+        // Setup the mode choice to have the right parameters
+        Root.ModeParameterDatabase.ApplyParameterSet( modeChoiceIndex, demographicIndex );
+        // build a matrix to store
+        var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        // there is no point trying to do this in parallel since most likely everything is being streamed off of disk anyways
+        foreach ( var dataPoint in dataSource.Read() )
         {
-            get { return null; }
+            // no point trying to use the flat structure since we are dealing with entries from sparse space
+            ret[dataPoint.O, dataPoint.D] = dataPoint.Data;
         }
-
-        public IEnumerable<SparseTwinIndex<float>> Assign()
-        {
-            int length = DataSources.Count;
-            for ( int i = 0; i < length; i++ )
-            {
-                yield return BuildOD( DataSources[i], SelectedModeChoices[i], SelectedDemographicChoices[i] );
-            }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if ( SelectedModeChoices.Count != DataSources.Count )
-            {
-                error = "In " + Name + " the number of mode choice parameter set options is not the same as the number of data sources!";
-                return false;
-            }
-            return true;
-        }
-
-        private SparseTwinIndex<float> BuildOD(IReadODData<float> dataSource, int modeChoiceIndex, int demographicIndex)
-        {
-            // Setup the mode choice to have the right parameters
-            Root.ModeParameterDatabase.ApplyParameterSet( modeChoiceIndex, demographicIndex );
-            // build a matrix to store
-            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            // there is no point trying to do this in parallel since most likely everything is being streamed off of disk anyways
-            foreach ( var dataPoint in dataSource.Read() )
-            {
-                // no point trying to use the flat structure since we are dealing with entries from sparse space
-                ret[dataPoint.O, dataPoint.D] = dataPoint.Data;
-            }
-            return ret;
-        }
+        return ret;
     }
 }

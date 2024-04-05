@@ -25,228 +25,227 @@ using Tasha.Common;
 using Tasha.Internal;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+public class DistributionAnalysis : IModelSystemTemplate, IDisposable
 {
-    public class DistributionAnalysis : IModelSystemTemplate, IDisposable
+    public static string FrequencyDistributionsFile;
+    public static bool Gender;
+    public static int MaxFrequency;
+    public static int MinWorkingAge;
+    public static int NumberOfAdultDistributions;
+    public static int NumberOfAdultFrequencies;
+
+    [RunParameter( "AdultDistributionFile", "AdultDistributions.zfc", "The file containing all of the adult distributions." )]
+    public string AdultDistributionsFileLocal;
+
+    [RunParameter( "Distributions", "Distributions.csv", "For Zoey" )]
+    public string Distributions1;
+
+    [RunParameter( "Frequency Distribution File", "FrequencyDistributions.zfc", "The location of the frequency distribution file." )]
+    public string FrequencyDistributionsFileLocal;
+
+    [RunParameter( "Is the person male?", true, "Is the person male (true or false)?" )]
+    public bool GenderLocal;
+
+    [RunParameter( "Max Frequency", 10, "The highest frequency number." )]
+    public int MaxFrequencyLocal;
+
+    [RunParameter( "MinWorkingAge", 11, "The youngest a person is allowed to work at." )]
+    public int MinWorkingAgeLocal;
+
+    [RunParameter( "NumberOfAdultDistributions", 6, "The total number of distributions for adults." )]
+    public int NumberOfAdultDistributionsLocal;
+
+    [RunParameter( "NumberOfAdultFrequencies", 9, "The total number of frequencies for adults." )]
+    public int NumberOfAdultFrequenciesLocal;
+
+    [RunParameter( "#OfDistributions", 262, "The number of distributions" )]
+    public int NumberOfDistributionsLocal;
+
+    [RunParameter( "Start Time Quantums", 96, "The number of different discreet time options" )]
+    public int StartTimeQuantums;
+
+    private StreamWriter Writer;
+
+    [RunParameter( "Input Directory", "../../TashaInput", "The root input directory" )]
+    public string InputBaseDirectory
     {
-        public static string FrequencyDistributionsFile;
-        public static bool Gender;
-        public static int MaxFrequency;
-        public static int MinWorkingAge;
-        public static int NumberOfAdultDistributions;
-        public static int NumberOfAdultFrequencies;
+        get;
+        set;
+    }
 
-        [RunParameter( "AdultDistributionFile", "AdultDistributions.zfc", "The file containing all of the adult distributions." )]
-        public string AdultDistributionsFileLocal;
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Distributions", "Distributions.csv", "For Zoey" )]
-        public string Distributions1;
+    public string OutputBaseDirectory
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Frequency Distribution File", "FrequencyDistributions.zfc", "The location of the frequency distribution file." )]
-        public string FrequencyDistributionsFileLocal;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Is the person male?", true, "Is the person male (true or false)?" )]
-        public bool GenderLocal;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+    }
 
-        [RunParameter( "Max Frequency", 10, "The highest frequency number." )]
-        public int MaxFrequencyLocal;
+    public bool ExitRequest()
+    {
+        return false;
+    }
 
-        [RunParameter( "MinWorkingAge", 11, "The youngest a person is allowed to work at." )]
-        public int MinWorkingAgeLocal;
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        [RunParameter( "NumberOfAdultDistributions", 6, "The total number of distributions for adults." )]
-        public int NumberOfAdultDistributionsLocal;
-
-        [RunParameter( "NumberOfAdultFrequencies", 9, "The total number of frequencies for adults." )]
-        public int NumberOfAdultFrequenciesLocal;
-
-        [RunParameter( "#OfDistributions", 262, "The number of distributions" )]
-        public int NumberOfDistributionsLocal;
-
-        [RunParameter( "Start Time Quantums", 96, "The number of different discreet time options" )]
-        public int StartTimeQuantums;
-
-        private StreamWriter Writer;
-
-        [RunParameter( "Input Directory", "../../TashaInput", "The root input directory" )]
-        public string InputBaseDirectory
+    public void Start()
+    {
+        if ( !File.Exists( Distributions1 ) )
         {
-            get;
-            set;
+            Writer = new StreamWriter( Distributions1 );
         }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        SimulateScheduler();
+        Distribution.InitializeDistributions();
+        var distributionData = Distribution.Distributions.GetFlatData();
+        GraphTripPurpose( distributionData );
+        Dispose( true );
+    }
 
-        public string OutputBaseDirectory
-        {
-            get;
-            set;
-        }
+    public override string ToString()
+    {
+        return "Analysing Distribution Data";
+    }
 
-        public float Progress
+    private static void LoadDistributionNumbers(TashaPerson person, List<int> primaryWork, Occupation[] occupations)
+    {
+        foreach ( Occupation current in occupations )
         {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
-        }
-
-        public bool ExitRequest()
-        {
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            if ( !File.Exists( Distributions1 ) )
+            person.Occupation = current;
+            for ( person.Age = 11; person.Age < 100; person.Age++ )
             {
-                Writer = new StreamWriter( Distributions1 );
-            }
-
-            SimulateScheduler();
-            Distribution.InitializeDistributions();
-            var distributionData = Distribution.Distributions.GetFlatData();
-            GraphTripPurpose( distributionData );
-            Dispose( true );
-        }
-
-        public override string ToString()
-        {
-            return "Analysing Distribution Data";
-        }
-
-        private static void LoadDistributionNumbers(TashaPerson person, List<int> primaryWork, Occupation[] occupations)
-        {
-            foreach ( Occupation current in occupations )
-            {
-                person.Occupation = current;
-                for ( person.Age = 11; person.Age < 100; person.Age++ )
+                if ( person.Age >= 16 && person.Licence == false )
                 {
-                    if ( person.Age >= 16 && person.Licence == false )
-                    {
-                        person.Licence = true;
-                    }
+                    person.Licence = true;
+                }
 
-                    if ( primaryWork.Contains( Distribution.GetDistributionID( person, Activity.PrimaryWork ) ) )
-                    {
-                    }
+                if ( primaryWork.Contains( Distribution.GetDistributionID( person, Activity.PrimaryWork ) ) )
+                {
+                }
 
-                    else
-                    {
-                        primaryWork.Add( Distribution.GetDistributionID( person, Activity.PrimaryWork ) );
-                    }
+                else
+                {
+                    primaryWork.Add( Distribution.GetDistributionID( person, Activity.PrimaryWork ) );
+                }
+            }
+        }
+    }
+
+    private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
+    {
+        using Chart chart = new();
+        chart.Width = 1024;
+        chart.Height = 728;
+        using ChartArea area = new("Start Times");
+        using Series series = new();
+        series.ChartType = SeriesChartType.Bar;
+        for (int i = 0; i < values.Length; i++)
+        {
+            series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * (1440 / StartTimeQuantums))).ToString() });
+        }
+        area.AxisX.Title = xAxisName;// "Start Time ";
+        area.AxisY.Title = yAxisName;// "#Episodes";
+        area.AxisX.Interval = 3;
+        chart.Series.Add(series);
+        chart.ChartAreas.Add(area);
+        area.Visible = true;
+        chart.SaveImage(fileName, ChartImageFormat.Png);
+    }
+
+    private string GetFullPath(string localPath)
+    {
+        if ( !Path.IsPathRooted( localPath ) )
+        {
+            return Path.Combine( InputBaseDirectory, localPath );
+        }
+        return localPath;
+    }
+
+    private void GraphTripPurpose(Distribution.DistributionInformation[] distributionData)
+    {
+        TashaHousehold household = new();
+        TashaPerson person = new();
+        List<int> primaryWork = [];
+        person.Licence = false;
+        person.Male = GenderLocal;
+
+        SchedulerHousehold.CreateHouseholdProjects( household );
+        SchedulerPerson.InitializePersonalProjects( person );
+        SchedulerPerson.GenerateWorkSchoolSchedule( person, null );
+        SchedulerTripChain.GetTripChain( person );
+
+        Occupation[] occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
+
+        LoadDistributionNumbers( person, primaryWork, occupations );
+
+        float[] data = new float[StartTimeQuantums];
+        foreach ( int id in primaryWork )
+        {
+            var table = distributionData[id].StartTimeFrequency;
+            for ( int i = 0; i < StartTimeQuantums; i++ )
+            {
+                for ( int j = 0; j < MaxFrequencyLocal; j++ )
+                {
+                    data[i] += table[i][j];
                 }
             }
         }
 
-        private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
+        // Make all data in terms of percentages of total.
+
+        float sum = data.Sum();
+        for ( int number = 0; number < data.Length; number++ )
         {
-            using Chart chart = new();
-            chart.Width = 1024;
-            chart.Height = 728;
-            using ChartArea area = new("Start Times");
-            using Series series = new();
-            series.ChartType = SeriesChartType.Bar;
-            for (int i = 0; i < values.Length; i++)
-            {
-                series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * (1440 / StartTimeQuantums))).ToString() });
-            }
-            area.AxisX.Title = xAxisName;// "Start Time ";
-            area.AxisY.Title = yAxisName;// "#Episodes";
-            area.AxisX.Interval = 3;
-            chart.Series.Add(series);
-            chart.ChartAreas.Add(area);
-            area.Visible = true;
-            chart.SaveImage(fileName, ChartImageFormat.Png);
+            data[number] = data[number] / sum * 100;
+            Writer.WriteLine( "{0}, {1}", ( Time.FromMinutes( ( 60 * 4 ) + number * ( 1440 / StartTimeQuantums ) ) ), data[number] );
         }
 
-        private string GetFullPath(string localPath)
+        GenerateChart( "OfficeDur.png", data, "Time of Day", "Probability" );
+    }
+
+    private void SimulateScheduler()
+    {
+        Scheduler.MaxFrequency = MaxFrequencyLocal;
+        Scheduler.NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
+        Scheduler.NumberOfAdultFrequencies = NumberOfAdultFrequenciesLocal;
+        Scheduler.NumberOfDistributions = NumberOfDistributionsLocal;
+        Scheduler.StartTimeQuanta = StartTimeQuantums;
+        Scheduler.FrequencyDistributionsFile = GetFullPath( FrequencyDistributionsFileLocal );
+        Scheduler.AdultDistributionsFile = GetFullPath( AdultDistributionsFileLocal );
+    }
+
+    public void Dispose()
+    {
+        Dispose( true );
+        GC.SuppressFinalize( this );
+    }
+
+    protected virtual void Dispose(bool all)
+    {
+        if ( Writer != null )
         {
-            if ( !Path.IsPathRooted( localPath ) )
-            {
-                return Path.Combine( InputBaseDirectory, localPath );
-            }
-            return localPath;
-        }
-
-        private void GraphTripPurpose(Distribution.DistributionInformation[] distributionData)
-        {
-            TashaHousehold household = new();
-            TashaPerson person = new();
-            List<int> primaryWork = [];
-            person.Licence = false;
-            person.Male = GenderLocal;
-
-            SchedulerHousehold.CreateHouseholdProjects( household );
-            SchedulerPerson.InitializePersonalProjects( person );
-            SchedulerPerson.GenerateWorkSchoolSchedule( person, null );
-            SchedulerTripChain.GetTripChain( person );
-
-            Occupation[] occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
-
-            LoadDistributionNumbers( person, primaryWork, occupations );
-
-            float[] data = new float[StartTimeQuantums];
-            foreach ( int id in primaryWork )
-            {
-                var table = distributionData[id].StartTimeFrequency;
-                for ( int i = 0; i < StartTimeQuantums; i++ )
-                {
-                    for ( int j = 0; j < MaxFrequencyLocal; j++ )
-                    {
-                        data[i] += table[i][j];
-                    }
-                }
-            }
-
-            // Make all data in terms of percentages of total.
-
-            float sum = data.Sum();
-            for ( int number = 0; number < data.Length; number++ )
-            {
-                data[number] = data[number] / sum * 100;
-                Writer.WriteLine( "{0}, {1}", ( Time.FromMinutes( ( 60 * 4 ) + number * ( 1440 / StartTimeQuantums ) ) ), data[number] );
-            }
-
-            GenerateChart( "OfficeDur.png", data, "Time of Day", "Probability" );
-        }
-
-        private void SimulateScheduler()
-        {
-            Scheduler.MaxFrequency = MaxFrequencyLocal;
-            Scheduler.NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
-            Scheduler.NumberOfAdultFrequencies = NumberOfAdultFrequenciesLocal;
-            Scheduler.NumberOfDistributions = NumberOfDistributionsLocal;
-            Scheduler.StartTimeQuanta = StartTimeQuantums;
-            Scheduler.FrequencyDistributionsFile = GetFullPath( FrequencyDistributionsFileLocal );
-            Scheduler.AdultDistributionsFile = GetFullPath( AdultDistributionsFileLocal );
-        }
-
-        public void Dispose()
-        {
-            Dispose( true );
-            GC.SuppressFinalize( this );
-        }
-
-        protected virtual void Dispose(bool all)
-        {
-            if ( Writer != null )
-            {
-                Writer.Dispose();
-                Writer = null;
-            }
+            Writer.Dispose();
+            Writer = null;
         }
     }
 }

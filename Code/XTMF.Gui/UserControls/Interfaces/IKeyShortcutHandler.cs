@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace XTMF.Gui.UserControls.Interfaces
-{
-    public interface IKeyShortcutHandler
-    {
+namespace XTMF.Gui.UserControls.Interfaces;
 
-        void HandleKeyPreviewDown(object sender, KeyEventArgs e);
-    }
+public interface IKeyShortcutHandler
+{
+
+    void HandleKeyPreviewDown(object sender, KeyEventArgs e);
 }

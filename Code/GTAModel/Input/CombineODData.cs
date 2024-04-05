@@ -23,67 +23,66 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+[ModuleInformation( Description = "This module allows you to combine several IReadODData<float> sources and add their data together into the travel demand model's zone system." )]
+public class CombineODData : IReadODData<float>
 {
-    [ModuleInformation( Description = "This module allows you to combine several IReadODData<float> sources and add their data together into the travel demand model's zone system." )]
-    public class CombineODData : IReadODData<float>
+    [SubModelInformation( Description = "The ODData to read from", Required = false )]
+    public List<IReadODData<float>> DataSources;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name
     {
-        [SubModelInformation( Description = "The ODData to read from", Required = false )]
-        public List<IReadODData<float>> DataSources;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public IEnumerable<ODData<float>> Read()
+    {
+        var zones = Root.ZoneSystem.ZoneArray;
+        var matrix = zones.CreateSquareTwinArray<float>().GetFlatData();
+        CombineData( zones, matrix );
+        var zoneIndexes = zones.ValidIndexArray();
+        ODData<float> currentData = new();
+        for ( int i = 0; i < matrix.Length; i++ )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public IEnumerable<ODData<float>> Read()
-        {
-            var zones = Root.ZoneSystem.ZoneArray;
-            var matrix = zones.CreateSquareTwinArray<float>().GetFlatData();
-            CombineData( zones, matrix );
-            var zoneIndexes = zones.ValidIndexArray();
-            ODData<float> currentData = new();
-            for ( int i = 0; i < matrix.Length; i++ )
+            currentData.O = zoneIndexes[i];
+            for ( int j = 0; j < matrix[i].Length; j++ )
             {
-                currentData.O = zoneIndexes[i];
-                for ( int j = 0; j < matrix[i].Length; j++ )
-                {
-                    currentData.D = zoneIndexes[j];
-                    currentData.Data = matrix[i][j];
-                    yield return currentData;
-                }
+                currentData.D = zoneIndexes[j];
+                currentData.Data = matrix[i][j];
+                yield return currentData;
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        private void CombineData(SparseArray<IZone> zones, float[][] matrix)
+    private void CombineData(SparseArray<IZone> zones, float[][] matrix)
+    {
+        foreach ( var source in DataSources )
         {
-            foreach ( var source in DataSources )
+            foreach ( var dataPoint in source.Read() )
             {
-                foreach ( var dataPoint in source.Read() )
-                {
-                    var o = zones.GetFlatIndex( dataPoint.O );
-                    var d = zones.GetFlatIndex( dataPoint.D );
-                    matrix[o][d] += dataPoint.Data;
-                }
+                var o = zones.GetFlatIndex( dataPoint.O );
+                var d = zones.GetFlatIndex( dataPoint.D );
+                matrix[o][d] += dataPoint.Data;
             }
         }
     }

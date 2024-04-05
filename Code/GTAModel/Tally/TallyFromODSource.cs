@@ -21,57 +21,56 @@ using System;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Tally
+namespace TMG.GTAModel.Tally;
+
+[ModuleInformation( Description =
+    "This module is designed to facilitate the loading of data straight into a tally from any applicable IReadODData<float> compatible source, such as .311 file or an ordered 'O,D,Data' CSV file"
+    )]
+public class TallyFromODSource : IModeAggregationTally
 {
-    [ModuleInformation( Description =
-        "This module is designed to facilitate the loading of data straight into a tally from any applicable IReadODData<float> compatible source, such as .311 file or an ordered 'O,D,Data' CSV file"
-        )]
-    public class TallyFromODSource : IModeAggregationTally
+    [SubModelInformation( Description = "The source to read in the data to apply to the tally.", Required = true )]
+    public IReadODData<float> DataSource;
+
+    [RootModule]
+    public I4StepModel Root;
+
+    public string Name
     {
-        [SubModelInformation( Description = "The source to read in the data to apply to the tally.", Required = true )]
-        public IReadODData<float> DataSource;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public I4StepModel Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
+
+    public void IncludeTally(float[][] currentTally)
+    {
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        foreach ( var point in DataSource.Read() )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-            set;
-        }
-
-        public void IncludeTally(float[][] currentTally)
-        {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            foreach ( var point in DataSource.Read() )
+            var o = zoneArray.GetFlatIndex( point.O );
+            var d = zoneArray.GetFlatIndex( point.D );
+            if ( ( o >= 0 ) & ( o < currentTally.Length ) )
             {
-                var o = zoneArray.GetFlatIndex( point.O );
-                var d = zoneArray.GetFlatIndex( point.D );
-                if ( ( o >= 0 ) & ( o < currentTally.Length ) )
+                if ( ( d >= 0 ) & ( d < currentTally[o].Length ) )
                 {
-                    if ( ( d >= 0 ) & ( d < currentTally[o].Length ) )
-                    {
-                        currentTally[o][d] += point.Data;
-                    }
+                    currentTally[o][d] += point.Data;
                 }
             }
         }
+    }
 
-        public virtual bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public virtual bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -19,26 +19,25 @@
 using TMG;
 using XTMF;
 using System;
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ILocationChoiceModel : IModule
 {
-    public interface ILocationChoiceModel : IModule
-    {
-        IZone GetLocationHomeBased(IEpisode episode, ITashaPerson person, Random random);
+    IZone GetLocationHomeBased(IEpisode episode, ITashaPerson person, Random random);
 
-        IZone GetLocationHomeBased(Activity activity, IZone zone, Random random);
+    IZone GetLocationHomeBased(Activity activity, IZone zone, Random random);
 
-        IZone GetLocationWorkBased(IZone primaryWorkZone, ITashaPerson person, Random random);
+    IZone GetLocationWorkBased(IZone primaryWorkZone, ITashaPerson person, Random random);
 
-        void LoadLocationChoiceCache();
+    void LoadLocationChoiceCache();
 
-        IZone GetLocation(IEpisode ep, Random random);
+    IZone GetLocation(IEpisode ep, Random random);
 
-        /// <summary>
-        /// This method will return the probabilities of selecting each zone.  The array will be reused upon the next call of the location choice
-        /// model by the current thread.
-        /// </summary>
-        /// <param name="ep">The episode to find the probabilities of</param>
-        /// <returns>An array of probabilities for the episode</returns>
-        float[] GetLocationProbabilities(IEpisode ep);
-    }
+    /// <summary>
+    /// This method will return the probabilities of selecting each zone.  The array will be reused upon the next call of the location choice
+    /// model by the current thread.
+    /// </summary>
+    /// <param name="ep">The episode to find the probabilities of</param>
+    /// <returns>An array of probabilities for the episode</returns>
+    float[] GetLocationProbabilities(IEpisode ep);
 }

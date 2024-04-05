@@ -19,62 +19,61 @@
 using System;
 using System.Threading.Tasks;
 
-namespace TMG.Functions
+namespace TMG.Functions;
+
+public static partial class VectorHelper
 {
-    public static partial class VectorHelper
+    public static void Pow(float[] flat, float[] lhs, float rhs)
     {
-        public static void Pow(float[] flat, float[] lhs, float rhs)
+        // Vectorize this when possible
+        for (int i = 0; i < flat.Length; i++)
         {
-            // Vectorize this when possible
-            for (int i = 0; i < flat.Length; i++)
-            {
-                flat[i] = (float)Math.Pow(lhs[i], rhs);
-            }
+            flat[i] = (float)Math.Pow(lhs[i], rhs);
         }
+    }
 
-        public static void Pow(float[] flat, float lhs, float[] rhs)
+    public static void Pow(float[] flat, float lhs, float[] rhs)
+    {
+        // Vectorize this when possible
+        for (int i = 0; i < flat.Length; i++)
         {
-            // Vectorize this when possible
-            for (int i = 0; i < flat.Length; i++)
-            {
-                flat[i] = (float)Math.Pow(lhs, rhs[i]);
-            }
+            flat[i] = (float)Math.Pow(lhs, rhs[i]);
         }
+    }
 
-        public static void Pow(float[] flat, float[] lhs, float[] rhs)
+    public static void Pow(float[] flat, float[] lhs, float[] rhs)
+    {
+        // Vectorize this when possible
+        for (int i = 0; i < flat.Length; i++)
         {
-            // Vectorize this when possible
-            for (int i = 0; i < flat.Length; i++)
-            {
-                flat[i] = (float)Math.Pow(lhs[i], rhs[i]);
-            }
+            flat[i] = (float)Math.Pow(lhs[i], rhs[i]);
         }
+    }
 
-        public static void Pow(float[][] flat, float[][] lhs, float[][] rhs)
+    public static void Pow(float[][] flat, float[][] lhs, float[][] rhs)
+    {
+        // Vectorize this when possible
+        Parallel.For(0, flat.Length, i =>
         {
-            // Vectorize this when possible
-            Parallel.For(0, flat.Length, i =>
-            {
-                Pow(flat[i], lhs[i], rhs[i]);
-            });
-        }
+            Pow(flat[i], lhs[i], rhs[i]);
+        });
+    }
 
-        public static void Pow(float[][] flat, float[][] lhs, float rhs)
+    public static void Pow(float[][] flat, float[][] lhs, float rhs)
+    {
+        // Vectorize this when possible
+        Parallel.For(0, flat.Length, i =>
         {
-            // Vectorize this when possible
-            Parallel.For(0, flat.Length, i =>
-            {
-                Pow(flat[i], lhs[i], rhs);
-            });
-        }
+            Pow(flat[i], lhs[i], rhs);
+        });
+    }
 
-        public static void Pow(float[][] flat, float lhs, float[][] rhs)
+    public static void Pow(float[][] flat, float lhs, float[][] rhs)
+    {
+        // Vectorize this when possible
+        Parallel.For(0, flat.Length, i =>
         {
-            // Vectorize this when possible
-            Parallel.For(0, flat.Length, i =>
-            {
-                Pow(flat[i], lhs, rhs[i]);
-            });
-        }
+            Pow(flat[i], lhs, rhs[i]);
+        });
     }
 }

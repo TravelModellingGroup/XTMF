@@ -18,37 +18,36 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+[Serializable]
+public class XTMFRuntimeException : Exception
 {
-    [Serializable]
-    public class XTMFRuntimeException : Exception
+    /// <summary>
+    /// The module that caused the error.
+    /// Check for null.
+    /// </summary>
+    public IModule? Module { get; }
+
+    public XTMFRuntimeException()
     {
-        /// <summary>
-        /// The module that caused the error.
-        /// Check for null.
-        /// </summary>
-        public IModule? Module { get; }
+    }
 
-        public XTMFRuntimeException()
-        {
-        }
+    [System.Obsolete("Use XTMFRuntimeException(IModule module, string message) instead.")]
+    public XTMFRuntimeException(string message)
+    {
 
-        [System.Obsolete("Use XTMFRuntimeException(IModule module, string message) instead.")]
-        public XTMFRuntimeException(string message)
-        {
+    }
 
-        }
+    public XTMFRuntimeException(IModule? module, string message)
+        : base(message)
+    {
+        Module = module;
+    }
 
-        public XTMFRuntimeException(IModule? module, string message)
-            : base(message)
-        {
-            Module = module;
-        }
-
-        public XTMFRuntimeException(IModule? module, Exception? wrappedException, string? message = null)
-            : base(String.IsNullOrWhiteSpace(message) ? wrappedException?.Message ?? "No Message" : message, wrappedException)
-        {
-            Module = module;
-        }
+    public XTMFRuntimeException(IModule? module, Exception? wrappedException, string? message = null)
+        : base(String.IsNullOrWhiteSpace(message) ? wrappedException?.Message ?? "No Message" : message, wrappedException)
+    {
+        Module = module;
     }
 }

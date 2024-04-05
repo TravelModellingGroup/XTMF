@@ -22,68 +22,67 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Output
+namespace TMG.GTAModel.Output;
+
+public class SaveODSeries : ISaveODDataSeries<float>
 {
-    public class SaveODSeries : ISaveODDataSeries<float>
+    [RunParameter("Input File Format", "BinaryData%X.bin", "The file series to be read in and sumed.  The %X will be replaced by the index number")]
+    public FileFromOutputDirectory InputFileBase;
+
+    [RunParameter("Starting Index", 0, "The index of the files to start at.")]
+    public int StartingIndex;
+
+    [SubModelInformation(Required = true, Description = "The module to write the data.")]
+    public ISaveODData<float> Writer;
+
+    private int CurrentIndex;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter("Input File Format", "BinaryData%X.bin", "The file series to be read in and sumed.  The %X will be replaced by the index number")]
-        public FileFromOutputDirectory InputFileBase;
+        get { return 0f; }
+    }
 
-        [RunParameter("Starting Index", 0, "The index of the files to start at.")]
-        public int StartingIndex;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [SubModelInformation(Required = true, Description = "The module to write the data.")]
-        public ISaveODData<float> Writer;
+    public void Reset()
+    {
+        CurrentIndex = StartingIndex;
+    }
 
-        private int CurrentIndex;
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public string Name { get; set; }
+    public void SaveMatrix(SparseTwinIndex<float> matrix)
+    {
+        Writer.SaveMatrix(matrix, GetFilename(CurrentIndex++));
+    }
 
-        public float Progress
+    public void SaveMatrix(float[][] data)
+    {
+        Writer.SaveMatrix(data, GetFilename(CurrentIndex++));
+    }
+
+    public void SaveMatrix(float[] data)
+    {
+        Writer.SaveMatrix(data, GetFilename(CurrentIndex++));
+    }
+
+    private string GetFilename(int index)
+    {
+        var fileNameWithIndexing = InputFileBase.GetFileName();
+        int indexOfInsert = fileNameWithIndexing.IndexOf("%X", StringComparison.InvariantCulture);
+        if (indexOfInsert == -1)
         {
-            get { return 0f; }
+            throw new XTMFRuntimeException(this, "In '" + Name
+                + "' the parameter 'Input File Format' does not contain a substitution '%X' in order to progress through the series!  Please update the parameter to include the substitution.");
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Reset()
-        {
-            CurrentIndex = StartingIndex;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void SaveMatrix(SparseTwinIndex<float> matrix)
-        {
-            Writer.SaveMatrix(matrix, GetFilename(CurrentIndex++));
-        }
-
-        public void SaveMatrix(float[][] data)
-        {
-            Writer.SaveMatrix(data, GetFilename(CurrentIndex++));
-        }
-
-        public void SaveMatrix(float[] data)
-        {
-            Writer.SaveMatrix(data, GetFilename(CurrentIndex++));
-        }
-
-        private string GetFilename(int index)
-        {
-            var fileNameWithIndexing = InputFileBase.GetFileName();
-            int indexOfInsert = fileNameWithIndexing.IndexOf("%X", StringComparison.InvariantCulture);
-            if (indexOfInsert == -1)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name
-                    + "' the parameter 'Input File Format' does not contain a substitution '%X' in order to progress through the series!  Please update the parameter to include the substitution.");
-            }
-            return fileNameWithIndexing.Insert(indexOfInsert, index.ToString()).Replace("%X", "");
-        }
+        return fileNameWithIndexing.Insert(indexOfInsert, index.ToString()).Replace("%X", "");
     }
 }

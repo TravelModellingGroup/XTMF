@@ -18,35 +18,34 @@
 */
 using System.IO;
 
-namespace XTMF.Networking
+namespace XTMF.Networking;
+
+internal enum MessageType
 {
-    internal enum MessageType
-    {
-        Quit = 0,
-        PostProgess = 1,
-        PostCancel = 2,
-        PostResource = 3,
-        PostComplete = 4,
-        PostMachineName = 5,
-        RequestProgress = 6,
-        RequestResource = 7,
-        ReturningResource = 8,
-        SendModelSystem = 9,
-        SendCustomMessage = 10,
-        ReceiveCustomMessage = 11,
-        WriteToHostConsole = 12,
-        Length = 13
-    }
+    Quit = 0,
+    PostProgess = 1,
+    PostCancel = 2,
+    PostResource = 3,
+    PostComplete = 4,
+    PostMachineName = 5,
+    RequestProgress = 6,
+    RequestResource = 7,
+    ReturningResource = 8,
+    SendModelSystem = 9,
+    SendCustomMessage = 10,
+    ReceiveCustomMessage = 11,
+    WriteToHostConsole = 12,
+    Length = 13
+}
 
-    internal class ReceiveCustomMessageMessage
-    {
-        internal int CustomMessageNumber;
-        internal MemoryStream Stream;
-    }
+internal class ReceiveCustomMessageMessage
+{
+    internal int CustomMessageNumber;
+    internal MemoryStream Stream;
+}
 
-    internal class SendCustomMessageMessage
-    {
-        internal int CustomMessageNumber;
-        internal object Data;
-    }
+internal class SendCustomMessageMessage
+{
+    internal int CustomMessageNumber;
+    internal object Data;
 }

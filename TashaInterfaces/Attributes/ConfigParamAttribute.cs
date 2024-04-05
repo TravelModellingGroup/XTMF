@@ -18,33 +18,32 @@
 */
 using System;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// This attribute should be placed over any variable in a plugin
+/// that should be appear in the associated directory in the configuration
+/// file
+/// </summary>
+[AttributeUsage( AttributeTargets.Field )]
+public class ConfigParamAttribute : Attribute
 {
-    /// <summary>
-    /// This attribute should be placed over any variable in a plugin
-    /// that should be appear in the associated directory in the configuration
-    /// file
-    /// </summary>
-    [AttributeUsage( AttributeTargets.Field )]
-    public class ConfigParamAttribute : Attribute
+    public ConfigParamAttribute(ParamType type, object defaultVal)
     {
-        public ConfigParamAttribute(ParamType type, object defaultVal)
-        {
-            DefaultValue = defaultVal;
-            Type = type;
-            Description = "";
-        }
-
-        public ConfigParamAttribute(ParamType type, object defaultVal, string description)
-            : this( type, defaultVal )
-        {
-            Description = description;
-        }
-
-        public object DefaultValue { get; private set; }
-
-        public string Description { get; private set; }
-
-        public ParamType Type { get; private set; }
+        DefaultValue = defaultVal;
+        Type = type;
+        Description = "";
     }
+
+    public ConfigParamAttribute(ParamType type, object defaultVal, string description)
+        : this( type, defaultVal )
+    {
+        Description = description;
+    }
+
+    public object DefaultValue { get; private set; }
+
+    public string Description { get; private set; }
+
+    public ParamType Type { get; private set; }
 }

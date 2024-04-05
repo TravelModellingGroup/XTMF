@@ -24,119 +24,118 @@ using TMG.Input;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation.PerformanceMeasures
+namespace Tasha.Validation.PerformanceMeasures;
+
+public class TripChainMeasure : IPostHousehold
 {
-    public class TripChainMeasure : IPostHousehold
+    [RootModule]        
+    public ITashaRuntime Root;
+
+    [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
+    public bool ExpandedTrips;
+
+    [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]
+    public FileLocation TripChainResults;
+
+    [RunParameter("Max trip chain length", 5, "The maximum trip chain length to analyze (anything over this length will be aggregated under the same bin)")]
+    public int MaxTripChainLength;
+
+    private ConcurrentDictionary<int,float> ResultsDictionary = new();
+
+    public void Execute(ITashaHousehold household, int iteration)
     {
-        [RootModule]        
-        public ITashaRuntime Root;
-
-        [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
-        public bool ExpandedTrips;
-
-        [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]
-        public FileLocation TripChainResults;
-
-        [RunParameter("Max trip chain length", 5, "The maximum trip chain length to analyze (anything over this length will be aggregated under the same bin)")]
-        public int MaxTripChainLength;
-
-        private ConcurrentDictionary<int,float> ResultsDictionary = new();
-
-        public void Execute(ITashaHousehold household, int iteration)
+        float expFactor;
+        if (iteration == Root.TotalIterations - 1)
         {
-            float expFactor;
-            if (iteration == Root.TotalIterations - 1)
+            foreach (var person in household.Persons)
             {
-                foreach (var person in household.Persons)
+                if (ExpandedTrips)
                 {
-                    if (ExpandedTrips)
-                    {
-                        expFactor = household.ExpansionFactor;
-                    }
-                    else
-                    {
-                        expFactor = 1.0f;
-                    }                    
-
-                    foreach (var tripChain in person.TripChains)
-                    {
-                        AddToResults(tripChain.Trips.Count, expFactor); 
-                    }
+                    expFactor = household.ExpansionFactor;
                 }
-            } 
-        }
-
-        public void AddToResults(int tripChainLength, float expFactor)
-        {
-            int countBin;
-            if (tripChainLength > MaxTripChainLength)
-            {
-                countBin = MaxTripChainLength;
-            }
-            else
-            {
-                countBin = tripChainLength; 
-            }
-            if (!ResultsDictionary.TryGetValue(countBin, out float data))
-            {
-                lock (ResultsDictionary)
+                else
                 {
-                    if (!ResultsDictionary.TryGetValue(countBin, out data))
-                    {
-                        data = 0;
-                        ResultsDictionary[countBin] = data;
-                    }
+                    expFactor = 1.0f;
+                }                    
+
+                foreach (var tripChain in person.TripChains)
+                {
+                    AddToResults(tripChain.Trips.Count, expFactor); 
                 }
             }
-            // we need to lock here in order to make sure we don't have a race condition between the read and write
-            lock (this)
-            {
-                ResultsDictionary[countBin] = data + expFactor;
-            }
-        }
+        } 
+    }
 
-        public void IterationFinished(int iteration)
+    public void AddToResults(int tripChainLength, float expFactor)
+    {
+        int countBin;
+        if (tripChainLength > MaxTripChainLength)
         {
-            using (StreamWriter writer = new(TripChainResults))
+            countBin = MaxTripChainLength;
+        }
+        else
+        {
+            countBin = tripChainLength; 
+        }
+        if (!ResultsDictionary.TryGetValue(countBin, out float data))
+        {
+            lock (ResultsDictionary)
             {
-                writer.WriteLine("Trip Chain Length,Number of Trips");
-                
-                foreach (var pair in ResultsDictionary)
+                if (!ResultsDictionary.TryGetValue(countBin, out data))
                 {
-                    writer.WriteLine("{0}, {1}", pair.Key, pair.Value);                    
+                    data = 0;
+                    ResultsDictionary[countBin] = data;
                 }
             }
-            ResultsDictionary.Clear();
         }
-
-        public void Load(int maxIterations)
-        {            
-        }
-
-        public void IterationStarting(int iteration)
-        {            
-        }
-
-        public string Name
+        // we need to lock here in order to make sure we don't have a race condition between the read and write
+        lock (this)
         {
-            get;
-            set;
+            ResultsDictionary[countBin] = data + expFactor;
         }
+    }
 
-        public float Progress
+    public void IterationFinished(int iteration)
+    {
+        using (StreamWriter writer = new(TripChainResults))
         {
-            get;
-            set;
+            writer.WriteLine("Trip Chain Length,Number of Trips");
+            
+            foreach (var pair in ResultsDictionary)
+            {
+                writer.WriteLine("{0}, {1}", pair.Key, pair.Value);                    
+            }
         }
+        ResultsDictionary.Clear();
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
-        }
+    public void Load(int maxIterations)
+    {            
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public void IterationStarting(int iteration)
+    {            
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

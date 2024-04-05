@@ -22,95 +22,94 @@ using Datastructure;
 using TMG.Functions;
 using TMG;
 
-namespace Tasha.V4Modes
+namespace Tasha.V4Modes;
+
+[ModuleInformation(Description = "This module provides the ability to apply constants to a utility function depending on the trip origin and destinations of the trip.")]
+public sealed class SpatialConstant : IModule
 {
-    [ModuleInformation(Description = "This module provides the ability to apply constants to a utility function depending on the trip origin and destinations of the trip.")]
-    public sealed class SpatialConstant : IModule
+    [RunParameter("Origins", "", typeof(RangeSet), "The rangeset for the accepted origins")]
+    public RangeSet Origins;
+
+    [RunParameter("Destinations", "", typeof(RangeSet), "The rangeset for the accepted destinations")]
+    public RangeSet Destinations;
+
+    [RunParameter("Constant", 0f, "The constant to apply if the if is within these origins.")]
+    public float Constant;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-        [RunParameter("Origins", "", typeof(RangeSet), "The rangeset for the accepted origins")]
-        public RangeSet Origins;
+        return true;
+    }
+}
 
-        [RunParameter("Destinations", "", typeof(RangeSet), "The rangeset for the accepted destinations")]
-        public RangeSet Destinations;
+[ModuleInformation(Description = "This module provides the ability to apply constants to the utility function of modes depending on the time of day, origin, and destination for the trip.")]
+public sealed class TimePeriodSpatialConstant : IModule
+{
+    [RootModule]
+    public ITravelDemandModel Root;
 
-        [RunParameter("Constant", 0f, "The constant to apply if the if is within these origins.")]
-        public float Constant;
+    public SpatialConstant[] SpatialConstants;
 
-        public string Name { get; set; }
+    private SparseTwinIndex<float> PlanningDistrictConstants;
 
-        public float Progress { get; set; }
+    [RunParameter("Start Time", "6:00AM", typeof(Time), "The start time for this time period, inclusive.", Index = 0)]
+    public Time StartTime;
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+    [RunParameter("End Time", "9:00AM", typeof(Time), "The end time for this time period, exclusive.", Index = 1)]
+    public Time EndTime;
 
-        public bool RuntimeValidation(ref string error)
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(StartTime >= EndTime)
         {
-            return true;
+            error = "In '" + Name + "' the Start Time is greater than or the same to the end time!";
+            return false;
+        }
+        return true;
+    }
+
+    public void BuildMatrix()
+    {
+        //build the region constants
+        var planningDistricts = ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
+        var pdIndexes = planningDistricts.ValidIndexArray();
+        PlanningDistrictConstants = planningDistricts.CreateSquareTwinArray<float>();
+        var data = PlanningDistrictConstants.GetFlatData();
+        for(int i = 0; i < data.Length; i++)
+        {
+            for(int j = 0; j < data[i].Length; j++)
+            {
+                data[i][j] = GetPDConstant(pdIndexes[i], pdIndexes[j]);
+            }
         }
     }
 
-    [ModuleInformation(Description = "This module provides the ability to apply constants to the utility function of modes depending on the time of day, origin, and destination for the trip.")]
-    public sealed class TimePeriodSpatialConstant : IModule
+    private float GetPDConstant(int originRegion, int destinationRegion)
     {
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public SpatialConstant[] SpatialConstants;
-
-        private SparseTwinIndex<float> PlanningDistrictConstants;
-
-        [RunParameter("Start Time", "6:00AM", typeof(Time), "The start time for this time period, inclusive.", Index = 0)]
-        public Time StartTime;
-
-        [RunParameter("End Time", "9:00AM", typeof(Time), "The end time for this time period, exclusive.", Index = 1)]
-        public Time EndTime;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
+        for(int i = 0; i < SpatialConstants.Length; i++)
         {
-            if(StartTime >= EndTime)
+            if(SpatialConstants[i].Origins.Contains(originRegion) && SpatialConstants[i].Destinations.Contains(destinationRegion))
             {
-                error = "In '" + Name + "' the Start Time is greater than or the same to the end time!";
-                return false;
-            }
-            return true;
-        }
-
-        public void BuildMatrix()
-        {
-            //build the region constants
-            var planningDistricts = ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
-            var pdIndexes = planningDistricts.ValidIndexArray();
-            PlanningDistrictConstants = planningDistricts.CreateSquareTwinArray<float>();
-            var data = PlanningDistrictConstants.GetFlatData();
-            for(int i = 0; i < data.Length; i++)
-            {
-                for(int j = 0; j < data[i].Length; j++)
-                {
-                    data[i][j] = GetPDConstant(pdIndexes[i], pdIndexes[j]);
-                }
+                return SpatialConstants[i].Constant;
             }
         }
+        return 0f;
+    }
 
-        private float GetPDConstant(int originRegion, int destinationRegion)
-        {
-            for(int i = 0; i < SpatialConstants.Length; i++)
-            {
-                if(SpatialConstants[i].Origins.Contains(originRegion) && SpatialConstants[i].Destinations.Contains(destinationRegion))
-                {
-                    return SpatialConstants[i].Constant;
-                }
-            }
-            return 0f;
-        }
-
-        public float GetConstant(int pdO, int pdD)
-        {
-            return PlanningDistrictConstants[pdO, pdD];
-        }
+    public float GetConstant(int pdO, int pdD)
+    {
+        return PlanningDistrictConstants[pdO, pdD];
     }
 }

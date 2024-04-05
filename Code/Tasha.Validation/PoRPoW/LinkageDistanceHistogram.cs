@@ -26,122 +26,121 @@ using TMG;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation.PoRPoW
+namespace Tasha.Validation.PoRPoW;
+
+public class LinkageDistanceHistogram : IPostHousehold
 {
-    public class LinkageDistanceHistogram : IPostHousehold
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Bins", "0-5,5-10,10-15,15-20,20-30,30-40", typeof(RangeSet), "")]
+    public RangeSet HistogramBins;
+
+    [SubModelInformation(Description = "Save file location", Required = true)]
+    public FileLocation SaveFile;
+
+    [RunParameter("Coordinate Factor", 0.001f, "Convert from coordinate units to length units. For example, enter 0.001 to convert from coordinate meters to km.")]
+    public float CoordinateFactor;
+
+    private SparseTwinIndex<float> _ZoneDistances;
+    SpinLock WriteLock = new(false);
+    private float[][] _BinData;
+
+    public string Name
     {
+        get; set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress { get; } = 0.0f;
 
-        [RunParameter("Bins", "0-5,5-10,10-15,15-20,20-30,30-40", typeof(RangeSet), "")]
-        public RangeSet HistogramBins;
-
-        [SubModelInformation(Description = "Save file location", Required = true)]
-        public FileLocation SaveFile;
-
-        [RunParameter("Coordinate Factor", 0.001f, "Convert from coordinate units to length units. For example, enter 0.001 to convert from coordinate meters to km.")]
-        public float CoordinateFactor;
-
-        private SparseTwinIndex<float> _ZoneDistances;
-        SpinLock WriteLock = new(false);
-        private float[][] _BinData;
-
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get; set;
+            return null;
+        }
+    }
+
+
+
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        //Determine the worker category
+        int nVehicles = household.Vehicles.Length;
+        int nDrivers = household.Persons.Count(p => p.Licence);
+
+        int wcat;
+        if (nVehicles == 0)
+        {
+            wcat = 0;
+        }
+        else
+        {
+            wcat = (nVehicles > nDrivers) ? 2 : 1;
         }
 
-        public float Progress { get; } = 0.0f;
-
-        public Tuple<byte, byte, byte> ProgressColour
+        foreach (var person in household.Persons)
         {
-            get
+            var empStat = person.EmploymentStatus;
+            if (empStat == TTSEmploymentStatus.FullTime | empStat == TTSEmploymentStatus.PartTime) continue; //Skip unemployed persons
+            IZone employmentZone = person.EmploymentZone;
+            if ( employmentZone == null ) continue;
+            var distance = (int) (_ZoneDistances[household.HomeZone.ZoneNumber, employmentZone.ZoneNumber] * CoordinateFactor);
+            int index = HistogramBins.IndexOf(distance);
+            if (index < 0)
             {
-                return null;
+                index = HistogramBins.Count;
             }
+            bool taken = false;
+            WriteLock.Enter(ref taken);
+            _BinData[index][wcat] += person.ExpansionFactor;
+            if (taken) WriteLock.Exit(true);
         }
+    }
 
-
-
-        public void Execute(ITashaHousehold household, int iteration)
+    public void IterationFinished(int iteration)
+    {
+        using (var writer = new StreamWriter(SaveFile.GetFilePath()))
         {
-            //Determine the worker category
-            int nVehicles = household.Vehicles.Length;
-            int nDrivers = household.Persons.Count(p => p.Licence);
+            writer.WriteLine("Distance,WCAT 0,WCAT 1,WCAT 2");
 
-            int wcat;
-            if (nVehicles == 0)
+            for (int i = 0; i < HistogramBins.Count; i++)
             {
-                wcat = 0;
-            }
-            else
-            {
-                wcat = (nVehicles > nDrivers) ? 2 : 1;
-            }
-
-            foreach (var person in household.Persons)
-            {
-                var empStat = person.EmploymentStatus;
-                if (empStat == TTSEmploymentStatus.FullTime | empStat == TTSEmploymentStatus.PartTime) continue; //Skip unemployed persons
-                IZone employmentZone = person.EmploymentZone;
-                if ( employmentZone == null ) continue;
-                var distance = (int) (_ZoneDistances[household.HomeZone.ZoneNumber, employmentZone.ZoneNumber] * CoordinateFactor);
-                int index = HistogramBins.IndexOf(distance);
-                if (index < 0)
-                {
-                    index = HistogramBins.Count;
-                }
-                bool taken = false;
-                WriteLock.Enter(ref taken);
-                _BinData[index][wcat] += person.ExpansionFactor;
-                if (taken) WriteLock.Exit(true);
-            }
-        }
-
-        public void IterationFinished(int iteration)
-        {
-            using (var writer = new StreamWriter(SaveFile.GetFilePath()))
-            {
-                writer.WriteLine("Distance,WCAT 0,WCAT 1,WCAT 2");
-
-                for (int i = 0; i < HistogramBins.Count; i++)
-                {
-                    var range = HistogramBins[i];
-                    var distances = _BinData[i];
-                    var line = string.Join(",", range.Start + " - " + range.Stop,
-                                            distances[0], distances[1], distances[2]);
-                    writer.WriteLine(line);
-                }
-
-                var lastdistances = _BinData[HistogramBins.Count];
-                var lastline = string.Join(",", HistogramBins[HistogramBins.Count - 1] + "+",
-                                            lastdistances[0], lastdistances[1], lastdistances[2]);
-                writer.WriteLine(lastline);
+                var range = HistogramBins[i];
+                var distances = _BinData[i];
+                var line = string.Join(",", range.Start + " - " + range.Stop,
+                                        distances[0], distances[1], distances[2]);
+                writer.WriteLine(line);
             }
 
-            Console.WriteLine("Exported PoRPoW linkage distance histogram to " + SaveFile.GetFilePath());
+            var lastdistances = _BinData[HistogramBins.Count];
+            var lastline = string.Join(",", HistogramBins[HistogramBins.Count - 1] + "+",
+                                        lastdistances[0], lastdistances[1], lastdistances[2]);
+            writer.WriteLine(lastline);
         }
 
-        public void Load(int maxIterations)
+        Console.WriteLine("Exported PoRPoW linkage distance histogram to " + SaveFile.GetFilePath());
+    }
+
+    public void Load(int maxIterations)
+    {
+        _ZoneDistances = Root.ZoneSystem.Distances;
+
+        _BinData = new float[1 + HistogramBins.Count][]; //Extra bin for outside of the array
+        for (int i = 0; i < _BinData.Length; i++)
         {
-            _ZoneDistances = Root.ZoneSystem.Distances;
-
-            _BinData = new float[1 + HistogramBins.Count][]; //Extra bin for outside of the array
-            for (int i = 0; i < _BinData.Length; i++)
-            {
-                _BinData[i] = new float[3]; 
-            }
-            
+            _BinData[i] = new float[3]; 
         }
+        
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-        }
+    public void IterationStarting(int iteration)
+    {
     }
 }

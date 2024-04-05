@@ -23,83 +23,82 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadFlatODMatrix : IReadODData<float>
 {
-    public class ReadFlatODMatrix : IReadODData<float>
+    [RunParameter("File Name", "Data.bin", "The flat binary file containing a matrix to load in.")]
+    public string FileName;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Load from Input Directory", false, "Load from the model system's input directory?  False means use the run directory.")]
+    public bool UseInputDirectory;
+
+    public string Name
     {
-        [RunParameter("File Name", "Data.bin", "The flat binary file containing a matrix to load in.")]
-        public string FileName;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [RunParameter("Load from Input Directory", false, "Load from the model system's input directory?  False means use the run directory.")]
-        public bool UseInputDirectory;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name
+    public IEnumerable<ODData<float>> Read()
+    {
+        IZone[] zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfZones = zones.Length;
+        Stream s = null;
+        var f = UseInputDirectory ? GetFileLocation(FileName) : FileName;
+        try
         {
-            get;
-            set;
+            s = File.OpenRead(f);
+        }
+        catch (IOException e)
+        {
+            s?.Close();
+            throw new XTMFRuntimeException(this, e, $"Unable to read file {f}\r\n{e.Message}");
         }
 
-        public float Progress
+        if (s.Length < (numberOfZones * numberOfZones) * 4)
         {
-            get { return 0f; }
+            throw new XTMFRuntimeException(this, "The file '" + f + "' does not contain enough data to be used as a flat OD matrix!");
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        ODData<float> ret = new();
+        // this will close the file at the end of reading it
+        using BinaryReader reader = new(s);
+        for (int i = 0; i < numberOfZones; i++)
         {
-            get { return null; }
-        }
-
-        public IEnumerable<ODData<float>> Read()
-        {
-            IZone[] zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfZones = zones.Length;
-            Stream s = null;
-            var f = UseInputDirectory ? GetFileLocation(FileName) : FileName;
-            try
+            ret.O = zones[i].ZoneNumber;
+            for (int j = 0; j < numberOfZones; j++)
             {
-                s = File.OpenRead(f);
-            }
-            catch (IOException e)
-            {
-                s?.Close();
-                throw new XTMFRuntimeException(this, e, $"Unable to read file {f}\r\n{e.Message}");
-            }
-
-            if (s.Length < (numberOfZones * numberOfZones) * 4)
-            {
-                throw new XTMFRuntimeException(this, "The file '" + f + "' does not contain enough data to be used as a flat OD matrix!");
-            }
-            ODData<float> ret = new();
-            // this will close the file at the end of reading it
-            using BinaryReader reader = new(s);
-            for (int i = 0; i < numberOfZones; i++)
-            {
-                ret.O = zones[i].ZoneNumber;
-                for (int j = 0; j < numberOfZones; j++)
-                {
-                    ret.D = zones[j].ZoneNumber;
-                    ret.Data = reader.ReadSingle();
-                    yield return ret;
-                }
+                ret.D = zones[j].ZoneNumber;
+                ret.Data = reader.ReadSingle();
+                yield return ret;
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        private string GetFileLocation(string fileName)
+    private string GetFileLocation(string fileName)
+    {
+        var fullPath = fileName;
+        if (!Path.IsPathRooted(fullPath))
         {
-            var fullPath = fileName;
-            if (!Path.IsPathRooted(fullPath))
-            {
-                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
-            }
-            return fullPath;
+            fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
         }
+        return fullPath;
     }
 }

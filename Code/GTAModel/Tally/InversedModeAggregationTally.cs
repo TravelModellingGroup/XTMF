@@ -20,38 +20,37 @@
 using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.GTAModel
-{
-    [ModuleInformation( Description =
-        @"The goal of this module is to provide the ability to create a purpose that is in fact 
+namespace TMG.GTAModel;
+
+[ModuleInformation( Description =
+    @"The goal of this module is to provide the ability to create a purpose that is in fact 
 just an O-D mirror of another purpose.  In order to use this, make sure that this purpose is 
 processed after the purpose that it is going to be copying.  This can usually be done by having 
 it farther down the list of purposes."
-        )]
-    public class InversedModeAggregationTally : DirectModeAggregationTally
+    )]
+public class InversedModeAggregationTally : DirectModeAggregationTally
+{
+    public override void IncludeTally(float[][] currentTally)
     {
-        public override void IncludeTally(float[][] currentTally)
+        var purposes = Root.Purpose;
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfZones = zones.Length;
+        for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
         {
-            var purposes = Root.Purpose;
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfZones = zones.Length;
-            for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
+            var purpose = purposes[purp];
+            for ( int m = 0; m < ModeIndexes.Length; m++ )
             {
-                var purpose = purposes[purp];
-                for ( int m = 0; m < ModeIndexes.Length; m++ )
+                var data = GetResult( purpose.Flows, ModeIndexes[m] );
+                // if there is no data continue on to the next mode
+                if ( data == null ) continue;
+                Parallel.For( 0, numberOfZones, delegate(int o)
                 {
-                    var data = GetResult( purpose.Flows, ModeIndexes[m] );
-                    // if there is no data continue on to the next mode
-                    if ( data == null ) continue;
-                    Parallel.For( 0, numberOfZones, delegate(int o)
+                    if ( data[o] == null ) return;
+                    for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        if ( data[o] == null ) return;
-                        for ( int d = 0; d < numberOfZones; d++ )
-                        {
-                            currentTally[d][o] += data[o][d];
-                        }
-                    } );
-                }
+                        currentTally[d][o] += data[o][d];
+                    }
+                } );
             }
         }
     }

@@ -26,26 +26,25 @@ using System.Threading.Tasks;
 using XTMF.Editing;
 using XTMF.Gui.Annotations;
 
-namespace XTMF.Gui.Models
+namespace XTMF.Gui.Models;
+
+public sealed class CommandDisplayModel : INotifyPropertyChanged
 {
-    public sealed class CommandDisplayModel : INotifyPropertyChanged
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public string Name { get; private set; }
+
+    internal XTMFCommand Command { get; private set; }
+
+    public CommandDisplayModel(XTMFCommand command)
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        Command = command;
+        Name = command.Name;
+    }
 
-        public string Name { get; private set; }
-
-        internal XTMFCommand Command { get; private set; }
-
-        public CommandDisplayModel(XTMFCommand command)
-        {
-            Command = command;
-            Name = command.Name;
-        }
-
-        [NotifyPropertyChangedInvocator]
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

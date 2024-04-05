@@ -24,9 +24,9 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
-{
-    [ModuleInformation(Description = @"Produces a report of various transit line attributes, saved to a
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation(Description = @"Produces a report of various transit line attributes, saved to a
                      comma-separated-values (CSV) table format. Transit line results can be optionally
                      aggregated using a two-column correspondence table, with the first column
                      referenced to Emme transit line IDs.
@@ -37,73 +37,72 @@ namespace TMG.GTAModel.NetworkAnalysis
                      <li>Line peak volume</li>
                      <li>Line peak volume/capacity ratio</li>
                      <li>Weighted average of volume/capacity ratio</ul>")]
-    public class ExtractTransitLineResults : IEmmeTool
+public class ExtractTransitLineResults : IEmmeTool
+{
+    [RunParameter("Aggregation file", "", "Optional: A two-column table (.txt or .csv) matching Emme network transit line IDs to that of some external source" +
+                    " (e.g., TTS data). The first column is assumed to be Emme transit line IDs. No header.")]
+    public FileFromInputDirectory AggregationFile;
+
+    [RunParameter("Line filter expression", "all", "Optional: expression for filtering transit lines, in the format of the Emme Network Calculator tool." +
+                    "For example, an expression to export results for streetcar and bus lines would be 'mode=bs'. See Emme help for further details.")]
+    public string LineFilterExpression;
+
+    [RunParameter("Output file", "*.csv", "The name & location of the file to save transit line data to. Output file format is Commented CSV.")]
+    public FileFromOutputDirectory OutputFile;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    [RunParameter("Scenario", 1, "The number of the Emme scenario with transit assignment results.")]
+    public int ScenarioNumber;
+
+    private Tuple<byte, byte, byte> _progressColour = new(255, 173, 28);
+    private const string ToolName = "tmg.analysis.transit.export_boardings";
+    private const string AlternateToolName = "TMG2.Analysis.Transit.ExportLineResults";
+
+    public string Name
     {
-        [RunParameter("Aggregation file", "", "Optional: A two-column table (.txt or .csv) matching Emme network transit line IDs to that of some external source" +
-                        " (e.g., TTS data). The first column is assumed to be Emme transit line IDs. No header.")]
-        public FileFromInputDirectory AggregationFile;
+        get;
+        set;
+    }
 
-        [RunParameter("Line filter expression", "all", "Optional: expression for filtering transit lines, in the format of the Emme Network Calculator tool." +
-                        "For example, an expression to export results for streetcar and bus lines would be 'mode=bs'. See Emme help for further details.")]
-        public string LineFilterExpression;
+    public float Progress
+    {
+        get;
+        private set;
+    }
 
-        [RunParameter("Output file", "*.csv", "The name & location of the file to save transit line data to. Output file format is Commented CSV.")]
-        public FileFromOutputDirectory OutputFile;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _progressColour; }
+    }
 
-        [RootModule]
-        public IModelSystemTemplate Root;
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController;
+        if (mc == null)
+            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
 
-        [RunParameter("Scenario", 1, "The number of the Emme scenario with transit assignment results.")]
-        public int ScenarioNumber;
+        string aggregationPath = Path.GetFullPath(AggregationFile.GetFileName(Root.InputBaseDirectory));
+        string outputPath = Path.GetFullPath(OutputFile.GetFileName());
 
-        private Tuple<byte, byte, byte> _progressColour = new(255, 173, 28);
-        private const string ToolName = "tmg.analysis.transit.export_boardings";
-        private const string AlternateToolName = "TMG2.Analysis.Transit.ExportLineResults";
+        // ScenarioNumber, OutputFile, LineSelectorExpression, AggregationFile
 
-        public string Name
+        var builder = new StringBuilder();
+        builder.AppendFormat("{0} {1} {2} {3}", ScenarioNumber, outputPath, LineFilterExpression, aggregationPath);
+        string result = null;
+
+        var toolName = ToolName;
+        if (!mc.CheckToolExists(this, toolName))
         {
-            get;
-            set;
+            toolName = AlternateToolName;
         }
 
-        public float Progress
-        {
-            get;
-            private set;
-        }
+        return mc.Run(this, toolName, builder.ToString(), (p => Progress = p), ref result);
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _progressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
-
-            string aggregationPath = Path.GetFullPath(AggregationFile.GetFileName(Root.InputBaseDirectory));
-            string outputPath = Path.GetFullPath(OutputFile.GetFileName());
-
-            // ScenarioNumber, OutputFile, LineSelectorExpression, AggregationFile
-
-            var builder = new StringBuilder();
-            builder.AppendFormat("{0} {1} {2} {3}", ScenarioNumber, outputPath, LineFilterExpression, aggregationPath);
-            string result = null;
-
-            var toolName = ToolName;
-            if (!mc.CheckToolExists(this, toolName))
-            {
-                toolName = AlternateToolName;
-            }
-
-            return mc.Run(this, toolName, builder.ToString(), (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

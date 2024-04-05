@@ -18,39 +18,38 @@
 */
 using System;
 
-namespace XTMF.Testing.Modules.Editing
+namespace XTMF.Testing.Modules.Editing;
+
+public class TestSpecificGenericModuleMST : IModelSystemTemplate
 {
-    public class TestSpecificGenericModuleMST : IModelSystemTemplate
+    [RunParameter("Input Directory", "../../Input", "The input directory.")]
+    public string InputBaseDirectory { get; set; } = string.Empty;
+
+    [RunParameter("SecondaryString", "", "Another string parameter")]
+    public string SecondaryString = string.Empty;
+
+    public IGenericInterface<float,float, float, float>? MyChild;
+
+    public string Name { get; set; } = string.Empty;
+
+    public string OutputBaseDirectory { get; set; } = string.Empty;
+
+    public float Progress { get; } = 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+    public bool ExitRequest()
     {
-        [RunParameter("Input Directory", "../../Input", "The input directory.")]
-        public string InputBaseDirectory { get; set; } = string.Empty;
+        return false;
+    }
 
-        [RunParameter("SecondaryString", "", "Another string parameter")]
-        public string SecondaryString = string.Empty;
+    public bool RuntimeValidation(ref string? error)
+    {
+        return true;
+    }
 
-        public IGenericInterface<float,float, float, float>? MyChild;
-
-        public string Name { get; set; } = string.Empty;
-
-        public string OutputBaseDirectory { get; set; } = string.Empty;
-
-        public float Progress { get; } = 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        public bool ExitRequest()
-        {
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string? error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            
-        }
+    public void Start()
+    {
+        
     }
 }

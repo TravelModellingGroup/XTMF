@@ -25,213 +25,212 @@ using TMG;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.PopulationSynthesis
+namespace Tasha.PopulationSynthesis;
+
+public class ExtractPersonData : IPostHousehold
 {
-    public class ExtractPersonData : IPostHousehold
+    [RunParameter( "Age Sets", "0-10,11-15,16-18,19-25,26-30,31-100", typeof( RangeSet ), "The different age categories to break the population into." )]
+    public RangeSet AgeSets;
+
+    [RunParameter( "File Name", "HouseholdData.csv", typeof( FileFromOutputDirectory ), "The location to save our data to." )]
+    public FileFromOutputDirectory SaveFile;
+
+    private PersonData Data;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter( "Age Sets", "0-10,11-15,16-18,19-25,26-30,31-100", typeof( RangeSet ), "The different age categories to break the population into." )]
-        public RangeSet AgeSets;
+        get { return 0; }
+    }
 
-        [RunParameter( "File Name", "HouseholdData.csv", typeof( FileFromOutputDirectory ), "The location to save our data to." )]
-        public FileFromOutputDirectory SaveFile;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        private PersonData Data;
-
-        public string Name { get; set; }
-
-        public float Progress
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var persons = household.Persons;
+        var pd = household.HomeZone.PlanningDistrict;
+        var expFactor = household.ExpansionFactor;
+        for ( int i = 0; i < persons.Length; i++ )
         {
-            get { return 0; }
+            Data.AddEntry( persons[i], pd, expFactor );
+        }
+    }
+
+    public void IterationFinished(int iteration)
+    {
+        Data.Save();
+        Data = null;
+    }
+
+    public void Load(int maxIterations)
+    {
+        // We will handel this at the start of an iteration
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        Data = new PersonData( this );
+    }
+
+    private class PersonData
+    {
+        private List<PersonEntry> EntryList;
+
+        private GatewayLock EntryLock;
+
+        private ExtractPersonData self;
+
+        public PersonData(ExtractPersonData self)
+        {
+            this.self = self;
+            EntryList = new List<PersonEntry>( 25 );
+            EntryLock = new GatewayLock();
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
+        internal void AddEntry(ITashaPerson tashaPerson, int pd, float expFactor)
         {
-            get { return null; }
-        }
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            var persons = household.Persons;
-            var pd = household.HomeZone.PlanningDistrict;
-            var expFactor = household.ExpansionFactor;
-            for ( int i = 0; i < persons.Length; i++ )
+            bool success = false;
+            var ageCat = self.AgeSets.IndexOf( tashaPerson.Age );
+            var occ = tashaPerson.Occupation;
+            var empStat = tashaPerson.EmploymentStatus;
+            var female = tashaPerson.Female;
+            var dlic = tashaPerson.Licence;
+            EntryLock.PassThrough( () =>
             {
-                Data.AddEntry( persons[i], pd, expFactor );
-            }
-        }
-
-        public void IterationFinished(int iteration)
-        {
-            Data.Save();
-            Data = null;
-        }
-
-        public void Load(int maxIterations)
-        {
-            // We will handel this at the start of an iteration
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            Data = new PersonData( this );
-        }
-
-        private class PersonData
-        {
-            private List<PersonEntry> EntryList;
-
-            private GatewayLock EntryLock;
-
-            private ExtractPersonData self;
-
-            public PersonData(ExtractPersonData self)
+                for ( int i = 0; i < EntryList.Count; i++ )
+                {
+                    if ( EntryList[i].AddIfEquals( ageCat, occ, empStat, dlic, female, expFactor ) )
+                    {
+                        success = true;
+                        return;
+                    }
+                }
+            } );
+            if ( !success )
             {
-                this.self = self;
-                EntryList = new List<PersonEntry>( 25 );
-                EntryLock = new GatewayLock();
-            }
-
-            internal void AddEntry(ITashaPerson tashaPerson, int pd, float expFactor)
-            {
-                bool success = false;
-                var ageCat = self.AgeSets.IndexOf( tashaPerson.Age );
-                var occ = tashaPerson.Occupation;
-                var empStat = tashaPerson.EmploymentStatus;
-                var female = tashaPerson.Female;
-                var dlic = tashaPerson.Licence;
-                EntryLock.PassThrough( () =>
+                EntryLock.Lock( () =>
                 {
                     for ( int i = 0; i < EntryList.Count; i++ )
                     {
                         if ( EntryList[i].AddIfEquals( ageCat, occ, empStat, dlic, female, expFactor ) )
                         {
-                            success = true;
                             return;
                         }
                     }
-                } );
-                if ( !success )
-                {
-                    EntryLock.Lock( () =>
+                    // if we get here it doesn't exist yet
+                    // we don't need to lock here since the writer is always unique
+                    EntryList.Add( new PersonEntry()
                     {
-                        for ( int i = 0; i < EntryList.Count; i++ )
-                        {
-                            if ( EntryList[i].AddIfEquals( ageCat, occ, empStat, dlic, female, expFactor ) )
-                            {
-                                return;
-                            }
-                        }
-                        // if we get here it doesn't exist yet
-                        // we don't need to lock here since the writer is always unique
-                        EntryList.Add( new PersonEntry()
-                        {
-                            AgeCat = ageCat,
-                            Occupation = occ,
-                            EmploymentStatus = empStat,
-                            DriversLicense = dlic,
-                            Female = female,
-                            ExpansionFactor = expFactor,
-                            PlaningDistrict = pd
-                        } );
+                        AgeCat = ageCat,
+                        Occupation = occ,
+                        EmploymentStatus = empStat,
+                        DriversLicense = dlic,
+                        Female = female,
+                        ExpansionFactor = expFactor,
+                        PlaningDistrict = pd
                     } );
-                }
+                } );
             }
+        }
 
-            internal void Save()
+        internal void Save()
+        {
+            using StreamWriter writer = new(self.SaveFile.GetFileName());
+            WriterHeader(writer);
+            for (int entry = 0; entry < EntryList.Count; entry++)
             {
-                using StreamWriter writer = new(self.SaveFile.GetFileName());
-                WriterHeader(writer);
-                for (int entry = 0; entry < EntryList.Count; entry++)
+                var personType = EntryList[entry];
+                writer.Write(personType.PlaningDistrict);
+                writer.Write(',');
+                writer.Write(personType.AgeCat);
+                writer.Write(',');
+                writer.Write(personType.Female ? 'F' : 'M');
+                writer.Write(',');
+                writer.Write(personType.DriversLicense ? 'Y' : 'N');
+                writer.Write(',');
+                switch (personType.EmploymentStatus)
                 {
-                    var personType = EntryList[entry];
-                    writer.Write(personType.PlaningDistrict);
-                    writer.Write(',');
-                    writer.Write(personType.AgeCat);
-                    writer.Write(',');
-                    writer.Write(personType.Female ? 'F' : 'M');
-                    writer.Write(',');
-                    writer.Write(personType.DriversLicense ? 'Y' : 'N');
-                    writer.Write(',');
-                    switch (personType.EmploymentStatus)
-                    {
-                        case TTSEmploymentStatus.FullTime:
-                            writer.Write('F');
-                            break;
+                    case TTSEmploymentStatus.FullTime:
+                        writer.Write('F');
+                        break;
 
-                        case TTSEmploymentStatus.PartTime:
-                            writer.Write('P');
-                            break;
+                    case TTSEmploymentStatus.PartTime:
+                        writer.Write('P');
+                        break;
 
-                        default:
-                            writer.Write('O');
-                            break;
-                    }
-                    writer.Write(',');
-                    switch (personType.Occupation)
-                    {
-                        case Occupation.Professional:
-                            writer.Write('P');
-                            break;
-
-                        case Occupation.Office:
-                            writer.Write('G');
-                            break;
-
-                        case Occupation.Retail:
-                            writer.Write('S');
-                            break;
-
-                        case Occupation.Manufacturing:
-                            writer.Write('M');
-                            break;
-
-                        default:
-                            writer.Write('O');
-                            break;
-                    }
-                    writer.Write(',');
-                    writer.WriteLine(personType.ExpansionFactor);
+                    default:
+                        writer.Write('O');
+                        break;
                 }
-            }
-
-            private void WriterHeader(StreamWriter writer)
-            {
-                writer.WriteLine( "PD,AgeCategory,Gender,License,EmploymentStatus,Occupation,ExpansionFactor" );
-            }
-
-            private class PersonEntry
-            {
-                internal int AgeCat;
-                internal bool DriversLicense;
-                internal TTSEmploymentStatus EmploymentStatus;
-                internal float ExpansionFactor;
-                internal bool Female;
-                internal Occupation Occupation;
-                internal int PlaningDistrict;
-
-                internal bool AddIfEquals(int ageCat, Occupation occ, TTSEmploymentStatus empStat, bool dlic, bool female, float expFac)
+                writer.Write(',');
+                switch (personType.Occupation)
                 {
-                    if (
-                            AgeCat == ageCat
-                        & Female == female
-                        & Occupation == occ
-                        & EmploymentStatus == empStat
-                        & DriversLicense == dlic
-                            )
-                    {
-                        lock ( this )
-                        {
-                            ExpansionFactor += expFac;
-                        }
-                        return true;
-                    }
-                    return false;
+                    case Occupation.Professional:
+                        writer.Write('P');
+                        break;
+
+                    case Occupation.Office:
+                        writer.Write('G');
+                        break;
+
+                    case Occupation.Retail:
+                        writer.Write('S');
+                        break;
+
+                    case Occupation.Manufacturing:
+                        writer.Write('M');
+                        break;
+
+                    default:
+                        writer.Write('O');
+                        break;
                 }
+                writer.Write(',');
+                writer.WriteLine(personType.ExpansionFactor);
+            }
+        }
+
+        private void WriterHeader(StreamWriter writer)
+        {
+            writer.WriteLine( "PD,AgeCategory,Gender,License,EmploymentStatus,Occupation,ExpansionFactor" );
+        }
+
+        private class PersonEntry
+        {
+            internal int AgeCat;
+            internal bool DriversLicense;
+            internal TTSEmploymentStatus EmploymentStatus;
+            internal float ExpansionFactor;
+            internal bool Female;
+            internal Occupation Occupation;
+            internal int PlaningDistrict;
+
+            internal bool AddIfEquals(int ageCat, Occupation occ, TTSEmploymentStatus empStat, bool dlic, bool female, float expFac)
+            {
+                if (
+                        AgeCat == ageCat
+                    & Female == female
+                    & Occupation == occ
+                    & EmploymentStatus == empStat
+                    & DriversLicense == dlic
+                        )
+                {
+                    lock ( this )
+                    {
+                        ExpansionFactor += expFac;
+                    }
+                    return true;
+                }
+                return false;
             }
         }
     }

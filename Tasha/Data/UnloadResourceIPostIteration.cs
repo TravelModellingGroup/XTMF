@@ -19,33 +19,32 @@
 using System;
 using XTMF;
 using Tasha.Common;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module will unload the given resource when executed.")]
+public class UnloadResourceIPostIteration : IPostIteration
 {
-    [ModuleInformation(Description = "This module will unload the given resource when executed.")]
-    public class UnloadResourceIPostIteration : IPostIteration
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = true, Description = "The resource to unload")]
+    public ResourceLookup Resource;
+
+    public void Execute(int iterationNumber, int totalIterations)
     {
-        public string Name { get; set; }
+        Resource.ReleaseResource();
+    }
 
-        public float Progress { get; set; }
+    public void Load(IConfiguration config, int totalIterations)
+    {
+        
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = true, Description = "The resource to unload")]
-        public ResourceLookup Resource;
-
-        public void Execute(int iterationNumber, int totalIterations)
-        {
-            Resource.ReleaseResource();
-        }
-
-        public void Load(IConfiguration config, int totalIterations)
-        {
-            
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

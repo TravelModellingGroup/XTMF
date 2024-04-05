@@ -24,21 +24,20 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace XTMF.Gui.Models
+namespace XTMF.Gui.Models;
+
+public class ModelSystemInfoTemplateSelector : DataTemplateSelector
 {
-    public class ModelSystemInfoTemplateSelector : DataTemplateSelector
+    public DataTemplate ModuleDisabled { get; set; }
+
+    public DataTemplate ModuleEnabled { get; set; }
+
+    public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
-        public DataTemplate ModuleDisabled { get; set; }
-
-        public DataTemplate ModuleEnabled { get; set; }
-
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        if (item is ModelSystemStructureDisplayModel param)
         {
-            if (item is ModelSystemStructureDisplayModel param)
-            {
-                return !param.IsDisabled ? ModuleEnabled : ModuleDisabled;
-            }
-            return ModuleDisabled;
+            return !param.IsDisabled ? ModuleEnabled : ModuleDisabled;
         }
+        return ModuleDisabled;
     }
 }

@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
-{
-    public interface IIterativeModel
-    {
-        int CurrentIteration { get; }
+namespace TMG;
 
-        int TotalIterations { get; }
-    }
+public interface IIterativeModel
+{
+    int CurrentIteration { get; }
+
+    int TotalIterations { get; }
 }

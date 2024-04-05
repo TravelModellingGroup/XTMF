@@ -19,28 +19,27 @@
 using System;
 using System.Collections.Generic;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Provides an implementation of an IModelSystemRepository
+/// </summary>
+public class ModelSystemTemplateRepository : IModelSystemTemplateRepository
 {
-    /// <summary>
-    /// Provides an implementation of an IModelSystemRepository
-    /// </summary>
-    public class ModelSystemTemplateRepository : IModelSystemTemplateRepository
+    public List<Type> ModelSystemTemplates { get; } = [];
+
+    public void Add(Type type)
     {
-        public List<Type> ModelSystemTemplates { get; } = [];
-
-        public void Add(Type type)
-        {
-            ModelSystemTemplates.Add(type);
-            ModelSystemTemplates.Sort((first, second) =>
-           {
-               return first.FullName.CompareTo(second.FullName);
-           });
-        }
-
-        public IEnumerator<Type> GetEnumerator() => ModelSystemTemplates.GetEnumerator();
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ModelSystemTemplates.GetEnumerator();
-
-        public void Unload(Type type) => ModelSystemTemplates.Remove(type);
+        ModelSystemTemplates.Add(type);
+        ModelSystemTemplates.Sort((first, second) =>
+       {
+           return first.FullName.CompareTo(second.FullName);
+       });
     }
+
+    public IEnumerator<Type> GetEnumerator() => ModelSystemTemplates.GetEnumerator();
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ModelSystemTemplates.GetEnumerator();
+
+    public void Unload(Type type) => ModelSystemTemplates.Remove(type);
 }

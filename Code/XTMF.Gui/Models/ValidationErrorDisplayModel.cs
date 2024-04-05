@@ -23,45 +23,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF.Gui.Models
+namespace XTMF.Gui.Models;
+
+public class ValidationErrorDisplayModel : INotifyPropertyChanged
 {
-    public class ValidationErrorDisplayModel : INotifyPropertyChanged
+    #pragma warning disable CS0067
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public string ErrorString { get; private set; }
+
+    public string ModuleName => DisplayModule?.Name ?? "Unknown Module";
+
+    public ModelSystemStructureDisplayModel DisplayModule { get; }
+
+    public ValidationErrorDisplayModel(ModelSystemStructureDisplayModel root, string error, IReadOnlyList<int> path)
     {
-        #pragma warning disable CS0067
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string ErrorString { get; private set; }
-
-        public string ModuleName => DisplayModule?.Name ?? "Unknown Module";
-
-        public ModelSystemStructureDisplayModel DisplayModule { get; }
-
-        public ValidationErrorDisplayModel(ModelSystemStructureDisplayModel root, string error, IReadOnlyList<int> path)
+        ErrorString = error;
+        if(path == null)
         {
-            ErrorString = error;
-            if(path == null)
-            {
-                DisplayModule = null;
-            }
-            else if(path.Count == 0)
-            {
-                DisplayModule = root;
-            }
-            else
-            {
-                // make a copy of the path in case something else is also going to use it
-                DisplayModule = MapModuleWithPath(root, path.ToList());
-            }
+            DisplayModule = null;
         }
-
-        private ModelSystemStructureDisplayModel MapModuleWithPath(ModelSystemStructureDisplayModel root, List<int> path)
+        else if(path.Count == 0)
         {
-            var current = root;
-            for (int i = 0; i < path.Count; i++)
-            {
-                current = current.Children[path[i]];
-            }
-            return current;
+            DisplayModule = root;
         }
+        else
+        {
+            // make a copy of the path in case something else is also going to use it
+            DisplayModule = MapModuleWithPath(root, path.ToList());
+        }
+    }
+
+    private ModelSystemStructureDisplayModel MapModuleWithPath(ModelSystemStructureDisplayModel root, List<int> path)
+    {
+        var current = root;
+        for (int i = 0; i < path.Count; i++)
+        {
+            current = current.Children[path[i]];
+        }
+        return current;
     }
 }

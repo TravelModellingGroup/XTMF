@@ -24,55 +24,54 @@ using XTMF;
 using XTMF.Logging;
 using Timer = System.Timers.Timer;
 
-namespace TMG.Frameworks.Testing
+namespace TMG.Frameworks.Testing;
+
+/// <summary>
+///     A simple test module that simulates a module that requires an extended period of time to finish executing.
+/// </summary>
+///
+[ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.", Name = "Test Required Module", IconURI = "TestTube")]
+public class TestRequiredModule : ISelfContainedModule
 {
+    private readonly ILogger _logger;
+
+
     /// <summary>
-    ///     A simple test module that simulates a module that requires an extended period of time to finish executing.
+    /// 
     /// </summary>
-    ///
-    [ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.", Name = "Test Required Module", IconURI = "TestTube")]
-    public class TestRequiredModule : ISelfContainedModule
+    /// <param name="configuration"></param>
+    /// <param name="logger"></param>
+    public TestRequiredModule(IConfiguration configuration,
+        ILogger logger)
     {
-        private readonly ILogger _logger;
+        _logger = logger;
+    }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="logger"></param>
-        public TestRequiredModule(IConfiguration configuration,
-            ILogger logger)
-        {
-            _logger = logger;
-        }
-
-        [SubModelInformation(Description ="Description",Required =true)]
-        public IModule ARequiredModule { get; set; }
+    [SubModelInformation(Description ="Description",Required =true)]
+    public IModule ARequiredModule { get; set; }
 
 
 
-        [RunParameter("Test Boolean", false, "Just a simple test boolean")]
-        public bool TestBool { get; set; }
+    [RunParameter("Test Boolean", false, "Just a simple test boolean")]
+    public bool TestBool { get; set; }
 
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress { get; private set; }
+    public float Progress { get; private set; }
 
-        public Tuple<byte, byte, byte> ProgressColour { get; } = new Tuple<byte, byte, byte>(100, 120, 200);
+    public Tuple<byte, byte, byte> ProgressColour { get; } = new Tuple<byte, byte, byte>(100, 120, 200);
 
-        public bool RuntimeValidation(ref string error)
-        {
+    public bool RuntimeValidation(ref string error)
+    {
 
-            return true;
-        }
+        return true;
+    }
 
-        public void Start()
-        {
-            
-
-        }
+    public void Start()
+    {
+        
 
     }
+
 }

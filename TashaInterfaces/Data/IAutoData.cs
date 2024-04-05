@@ -18,12 +18,11 @@
 */
 using TMG;
 
-namespace Tasha.Common
-{
-    public interface IAutoData : ITravelData
-    {
-        float GetCost(IZone origin, IZone destination, float time);
+namespace Tasha.Common;
 
-        float GetTravelTime(IZone origin, IZone destination, float time);
-    }
+public interface IAutoData : ITravelData
+{
+    float GetCost(IZone origin, IZone destination, float time);
+
+    float GetTravelTime(IZone origin, IZone destination, float time);
 }

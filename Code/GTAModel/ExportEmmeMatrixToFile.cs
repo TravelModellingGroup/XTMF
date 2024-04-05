@@ -1,6 +1,5 @@
-﻿namespace TMG.GTAModel
+﻿namespace TMG.GTAModel;
+
+class ExportEmmeMatrixToFile
 {
-    class ExportEmmeMatrixToFile
-    {
-    }
 }

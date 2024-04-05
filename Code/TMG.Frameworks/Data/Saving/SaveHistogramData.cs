@@ -23,96 +23,95 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Saving
+namespace TMG.Frameworks.Data.Saving;
+
+[ModuleInformation(Description = "This module takes in a 2 OD matrices, one representing a reference to category, the second an amount to assign to that category and aggregates them into a CSV file.")]
+public class SaveHistogramData : ISelfContainedModule
 {
-    [ModuleInformation(Description = "This module takes in a 2 OD matrices, one representing a reference to category, the second an amount to assign to that category and aggregates them into a CSV file.")]
-    public class SaveHistogramData : ISelfContainedModule
+    public string Name { get; set; }
+    public float Progress => 0f;
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+    [SubModelInformation(Required = true, Description = "The category value for each cell.")]
+    public IDataSource<SparseTwinIndex<float>> Values;
+
+    [SubModelInformation(Required = true, Description = "The amount of values at this cell.")]
+    public IDataSource<SparseTwinIndex<float>> Amount;
+
+    [RunParameter("Categories", "{0-5} {6+}", typeof(RangeSetSeries), "The categories to process the data into.")]
+    public RangeSetSeries Categories;
+
+    [SubModelInformation(Required = false, Description = "Read CSV for Histogram bins (Lower,Upper)")]
+    public FileLocation BinsFile;
+
+    [SubModelInformation(Required = true, Description = "The output file location CSV(Category,Amount)")]
+    public FileLocation OutputFile;
+
+    public bool RuntimeValidation(ref string error)
     {
-        public string Name { get; set; }
-        public float Progress => 0f;
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+        return true;
+    }
 
-        [SubModelInformation(Required = true, Description = "The category value for each cell.")]
-        public IDataSource<SparseTwinIndex<float>> Values;
-
-        [SubModelInformation(Required = true, Description = "The amount of values at this cell.")]
-        public IDataSource<SparseTwinIndex<float>> Amount;
-
-        [RunParameter("Categories", "{0-5} {6+}", typeof(RangeSetSeries), "The categories to process the data into.")]
-        public RangeSetSeries Categories;
-
-        [SubModelInformation(Required = false, Description = "Read CSV for Histogram bins (Lower,Upper)")]
-        public FileLocation BinsFile;
-
-        [SubModelInformation(Required = true, Description = "The output file location CSV(Category,Amount)")]
-        public FileLocation OutputFile;
-
-        public bool RuntimeValidation(ref string error)
+    private static float[][] LoadDataSource(IDataSource<SparseTwinIndex<float>> source)
+    {
+        var preloaded = source.Loaded;
+        if (!preloaded)
         {
-            return true;
+            source.LoadData();
         }
-
-        private static float[][] LoadDataSource(IDataSource<SparseTwinIndex<float>> source)
+        var ret = source.GiveData().GetFlatData();
+        if (!preloaded)
         {
-            var preloaded = source.Loaded;
-            if (!preloaded)
-            {
-                source.LoadData();
-            }
-            var ret = source.GiveData().GetFlatData();
-            if (!preloaded)
-            {
-                source.UnloadData();
-            }
-            return ret;
+            source.UnloadData();
         }
+        return ret;
+    }
 
-        public void Start()
+    public void Start()
+    {
+        var values = LoadDataSource(Values);
+        var accumulation = LoadDataSource(Amount);
+        var bins = BinsFile is not null ? LoadBinsFromFile() : Categories;
+        var acc = new float[bins.Count];
+        for (int i = 0; i < values.Length; i++)
         {
-            var values = LoadDataSource(Values);
-            var accumulation = LoadDataSource(Amount);
-            var bins = BinsFile is not null ? LoadBinsFromFile() : Categories;
-            var acc = new float[bins.Count];
-            for (int i = 0; i < values.Length; i++)
+            for (int j = 0; j < values[i].Length; j++)
             {
-                for (int j = 0; j < values[i].Length; j++)
+                var index = bins.IndexOf(values[i][j]);
+                if (index >= 0)
                 {
-                    var index = bins.IndexOf(values[i][j]);
-                    if (index >= 0)
-                    {
-                        acc[index] += accumulation[i][j];
-                    }
+                    acc[index] += accumulation[i][j];
                 }
             }
-            using var writer = new StreamWriter(OutputFile);
-            writer.WriteLine("Category,Amount");
-            for (int i = 0; i < acc.Length; i++)
-            {
-                writer.Write('"');
-                writer.Write('\'');
-                writer.Write(bins[i].ToString());
-                writer.Write('"');
-                writer.Write(',');
-                writer.WriteLine(acc[i]);
-            }
         }
-
-        private RangeSetSeries LoadBinsFromFile()
+        using var writer = new StreamWriter(OutputFile);
+        writer.WriteLine("Category,Amount");
+        for (int i = 0; i < acc.Length; i++)
         {
-            using CsvReader reader = new(BinsFile, true);
-            List<RangeSet> list = [];
-            // burn header
-            reader.LoadLine();
-            while (reader.LoadLine(out var columns))
-            {
-                if (columns >= 2)
-                {
-                    reader.Get(out int lower, 0);
-                    reader.Get(out int upper, 1);
-                    list.Add(new RangeSet([new Datastructure.Range(lower, upper)]));
-                }
-            }
-            return new RangeSetSeries(list);
+            writer.Write('"');
+            writer.Write('\'');
+            writer.Write(bins[i].ToString());
+            writer.Write('"');
+            writer.Write(',');
+            writer.WriteLine(acc[i]);
         }
+    }
+
+    private RangeSetSeries LoadBinsFromFile()
+    {
+        using CsvReader reader = new(BinsFile, true);
+        List<RangeSet> list = [];
+        // burn header
+        reader.LoadLine();
+        while (reader.LoadLine(out var columns))
+        {
+            if (columns >= 2)
+            {
+                reader.Get(out int lower, 0);
+                reader.Get(out int upper, 1);
+                list.Add(new RangeSet([new Datastructure.Range(lower, upper)]));
+            }
+        }
+        return new RangeSetSeries(list);
     }
 }

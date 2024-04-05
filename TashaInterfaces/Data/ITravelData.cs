@@ -18,14 +18,13 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ITravelData : IModule
 {
-    public interface ITravelData : IModule
-    {
-        //void Load(IConfiguration config);
+    //void Load(IConfiguration config);
 
-        void Release();
+    void Release();
 
-        void Reload();
-    }
+    void Reload();
 }

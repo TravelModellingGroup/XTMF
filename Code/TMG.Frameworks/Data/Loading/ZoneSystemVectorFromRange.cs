@@ -20,61 +20,60 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Loading
+namespace TMG.Frameworks.Data.Loading;
+
+[ModuleInformation(Description = "This module is designed to allow the user to define a vector of true and flase float values depending on the range.")]
+public sealed class ZoneSystemVectorFromRange : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description = "This module is designed to allow the user to define a vector of true and flase float values depending on the range.")]
-    public sealed class ZoneSystemVectorFromRange : IDataSource<SparseArray<float>>
+    [RunParameter("If True", 1.0f, "The value to assign if true.")]
+    public float IfTrue;
+
+    [RunParameter("If False", 0.0f, "The value to assign if false.")]
+    public float IfFalse;
+
+    [RunParameter("True Range", "0-1000", typeof(RangeSet), "The range of zone numbers that invoke true.")]
+    public RangeSet Range;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseArray<float> Data;
+
+    public SparseArray<float> GiveData()
     {
-        [RunParameter("If True", 1.0f, "The value to assign if true.")]
-        public float IfTrue;
+        return Data;
+    }
 
-        [RunParameter("If False", 0.0f, "The value to assign if false.")]
-        public float IfFalse;
+    public string Name { get; set; }
+    public float Progress => 0f;
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
-        [RunParameter("True Range", "0-1000", typeof(RangeSet), "The range of zone numbers that invoke true.")]
-        public RangeSet Range;
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public bool Loaded => Data != null;
 
-        private SparseArray<float> Data;
-
-        public SparseArray<float> GiveData()
+    public void LoadData()
+    {
+        var zoneSystem = Root.ZoneSystem;
+        if (!zoneSystem.Loaded)
         {
-            return Data;
+            zoneSystem.LoadData();
         }
-
-        public string Name { get; set; }
-        public float Progress => 0f;
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        public bool RuntimeValidation(ref string error)
+        var zones = zoneSystem.ZoneArray.GetFlatData();
+        var data = zoneSystem.ZoneArray.CreateSimilarArray<float>();
+        var flatData = data.GetFlatData();
+        for (int i = 0; i < flatData.Length; i++)
         {
-            return true;
+            flatData[i] = Range.Contains(zones[i].ZoneNumber) ? IfTrue : IfFalse;
         }
+        Data = data;
+    }
 
-        public bool Loaded => Data != null;
-
-        public void LoadData()
-        {
-            var zoneSystem = Root.ZoneSystem;
-            if (!zoneSystem.Loaded)
-            {
-                zoneSystem.LoadData();
-            }
-            var zones = zoneSystem.ZoneArray.GetFlatData();
-            var data = zoneSystem.ZoneArray.CreateSimilarArray<float>();
-            var flatData = data.GetFlatData();
-            for (int i = 0; i < flatData.Length; i++)
-            {
-                flatData[i] = Range.Contains(zones[i].ZoneNumber) ? IfTrue : IfFalse;
-            }
-            Data = data;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-        }
+    public void UnloadData()
+    {
+        Data = null;
     }
 }

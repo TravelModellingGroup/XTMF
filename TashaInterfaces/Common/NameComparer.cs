@@ -16,39 +16,38 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public abstract class NameComparer : INamedType
 {
-    public abstract class NameComparer : INamedType
+    public static bool operator !=(NameComparer a, NameComparer b)
     {
-        public static bool operator !=(NameComparer a, NameComparer b)
-        {
-            return !( a == b );
-        }
-
-        public static bool operator ==(NameComparer a, NameComparer b)
-        {
-            return a?.Name == b?.Name;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if ( obj is INamedType )
-            {
-                return ( (INamedType)obj ).Name == Name;
-            }
-
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
-        #region INamedObject Members
-
-        public abstract string Name { get; }
-
-        #endregion INamedObject Members
+        return !( a == b );
     }
+
+    public static bool operator ==(NameComparer a, NameComparer b)
+    {
+        return a?.Name == b?.Name;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if ( obj is INamedType )
+        {
+            return ( (INamedType)obj ).Name == Name;
+        }
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return Name.GetHashCode();
+    }
+
+    #region INamedObject Members
+
+    public abstract string Name { get; }
+
+    #endregion INamedObject Members
 }

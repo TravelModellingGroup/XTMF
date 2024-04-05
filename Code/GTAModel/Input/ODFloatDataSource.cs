@@ -23,102 +23,101 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ODFloatDataSource : IODDataSource<float>
 {
-    public class ODFloatDataSource : IODDataSource<float>
+    [SubModelInformation(Description = "The data source for this module.", Required = true)]
+    public IDataSource<SparseTriIndex<float>> DataSource;
+
+    [RunParameter("Default Value", 0f, "The value to use if the data does not exist.")]
+    public float DefaultValue;
+
+    [RunParameter("Reason Offset", 0, "Offset the reason variables to help match to the data.")]
+    public int ReasonOffset;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Use Planning Districts", true, "The given data references planning districts.")]
+    public bool UsePlanningDistricts;
+
+    private SparseTriIndex<float> Data;
+
+    public string Name
     {
-        [SubModelInformation(Description = "The data source for this module.", Required = true)]
-        public IDataSource<SparseTriIndex<float>> DataSource;
+        get;
+        set;
+    }
 
-        [RunParameter("Default Value", 0f, "The value to use if the data does not exist.")]
-        public float DefaultValue;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("Reason Offset", 0, "Offset the reason variables to help match to the data.")]
-        public int ReasonOffset;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [RunParameter("Use Planning Districts", true, "The given data references planning districts.")]
-        public bool UsePlanningDistricts;
-
-        private SparseTriIndex<float> Data;
-
-        public string Name
+    public float GetDataFrom(int origin, int destination, int reason = 0)
+    {
+        EnsureDataIsLoaded();
+        reason += ReasonOffset;
+        if (UsePlanningDistricts)
         {
-            get;
-            set;
+            ConvertToPlanningDistricts(ref origin, ref destination);
         }
-
-        public float Progress
+        if (!Data.ContainsIndex(origin, destination, reason))
         {
-            get { return 0; }
+            return DefaultValue;
         }
+        var res = Data[origin, destination, reason];
+        return res;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public float GetDataFrom(int origin, int destination, int reason = 0)
+    private void ConvertToPlanningDistricts(ref int origin, ref int destination)
+    {
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        origin = GetPlanningDistrict(zoneArray, origin);
+        destination = GetPlanningDistrict(zoneArray, destination);
+    }
+
+    private void EnsureDataIsLoaded()
+    {
+        if (Data == null)
         {
-            EnsureDataIsLoaded();
-            reason += ReasonOffset;
-            if (UsePlanningDistricts)
+            lock (this)
             {
-                ConvertToPlanningDistricts(ref origin, ref destination);
-            }
-            if (!Data.ContainsIndex(origin, destination, reason))
-            {
-                return DefaultValue;
-            }
-            var res = Data[origin, destination, reason];
-            return res;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        private void ConvertToPlanningDistricts(ref int origin, ref int destination)
-        {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            origin = GetPlanningDistrict(zoneArray, origin);
-            destination = GetPlanningDistrict(zoneArray, destination);
-        }
-
-        private void EnsureDataIsLoaded()
-        {
-            if (Data == null)
-            {
-                lock (this)
+                Thread.MemoryBarrier();
+                if (Data == null)
                 {
+                    LoadData();
                     Thread.MemoryBarrier();
-                    if (Data == null)
-                    {
-                        LoadData();
-                        Thread.MemoryBarrier();
-                    }
                 }
             }
         }
+    }
 
-        private int GetPlanningDistrict(SparseArray<IZone> zoneArray, int zoneNumber)
+    private int GetPlanningDistrict(SparseArray<IZone> zoneArray, int zoneNumber)
+    {
+        var zone = zoneArray[zoneNumber];
+        if (zone == null)
         {
-            var zone = zoneArray[zoneNumber];
-            if (zone == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!");
-            }
-            return zone.PlanningDistrict;
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!");
         }
+        return zone.PlanningDistrict;
+    }
 
-        private void LoadData()
-        {
-            DataSource.LoadData();
-            Data = DataSource.GiveData();
-            DataSource.UnloadData();
-        }
+    private void LoadData()
+    {
+        DataSource.LoadData();
+        Data = DataSource.GiveData();
+        DataSource.UnloadData();
     }
 }

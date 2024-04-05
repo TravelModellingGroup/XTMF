@@ -18,28 +18,27 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+public class RunParameterAttribute : ParameterAttribute
 {
-    public class RunParameterAttribute : ParameterAttribute
+    public RunParameterAttribute(string name, object defaultValue, string description)
+        : base( name, defaultValue, description )
     {
-        public RunParameterAttribute(string name, object defaultValue, string description)
-            : base( name, defaultValue, description )
-        {
-        }
+    }
 
-        public RunParameterAttribute(string name, string defaultValue, Type type, string description)
-            : base( name, defaultValue, type, description )
-        {
-        }
+    public RunParameterAttribute(string name, string defaultValue, Type type, string description)
+        : base( name, defaultValue, type, description )
+    {
+    }
 
-        public RunParameterAttribute(string name, object defaultValue, int index, string description)
-    : base(name, defaultValue, index, description)
-        {
-        }
+    public RunParameterAttribute(string name, object defaultValue, int index, string description)
+: base(name, defaultValue, index, description)
+    {
+    }
 
-        public RunParameterAttribute(string name, string defaultValue, Type type, int index, string description)
-            : base(name, defaultValue, type, index, description)
-        {
-        }
+    public RunParameterAttribute(string name, string defaultValue, Type type, int index, string description)
+        : base(name, defaultValue, type, index, description)
+    {
     }
 }

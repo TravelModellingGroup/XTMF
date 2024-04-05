@@ -23,91 +23,90 @@ using Tasha.Common;
 using Tasha.XTMFModeChoice;
 using XTMF;
 
-namespace Tasha.Validation.ValidateModeChoice
+namespace Tasha.Validation.ValidateModeChoice;
+
+public class PrintingConflicts : IPostHouseholdIteration
 {
-    public class PrintingConflicts : IPostHouseholdIteration
+    [RunParameter( "Output File", "NumberOfConflicts.csv", "The file where we can store the household utilities." )]
+    public string OutputFile;
+
+    private ConcurrentDictionary<int, int[]> Conflicts = new();
+
+    public string Name
     {
-        [RunParameter( "Output File", "NumberOfConflicts.csv", "The file where we can store the household utilities." )]
-        public string OutputFile;
+        get;
+        set;
+    }
 
-        private ConcurrentDictionary<int, int[]> Conflicts = new();
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
+
+    public void HouseholdComplete(ITashaHousehold household, bool success)
+    {
+        if ( success )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-            set;
-        }
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
-        {
-            if ( success )
+            lock ( this )
             {
-                lock ( this )
+                var writeHeader = !File.Exists( OutputFile );
+                using StreamWriter writer = new(OutputFile, true);
+                if (writeHeader)
                 {
-                    var writeHeader = !File.Exists( OutputFile );
-                    using StreamWriter writer = new(OutputFile, true);
-                    if (writeHeader)
-                    {
-                        writer.WriteLine("HouseholdID, Iteration, Number of Conflicts");
-                    }
+                    writer.WriteLine("HouseholdID, Iteration, Number of Conflicts");
+                }
 
-                    var householdConflicts = Conflicts[household.HouseholdId];
-                    for (int i = 0; i < householdConflicts.Length; i++)
-                    {
-                        writer.Write(household.HouseholdId);
-                        writer.Write(',');
-                        writer.Write(i);
-                        writer.Write(',');
-                        writer.WriteLine(householdConflicts[i]);
-                    }
+                var householdConflicts = Conflicts[household.HouseholdId];
+                for (int i = 0; i < householdConflicts.Length; i++)
+                {
+                    writer.Write(household.HouseholdId);
+                    writer.Write(',');
+                    writer.Write(i);
+                    writer.Write(',');
+                    writer.WriteLine(householdConflicts[i]);
                 }
             }
         }
+    }
 
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+        var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
+        if ( resource.Conflicts != null )
         {
-            var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
-            if ( resource.Conflicts != null )
-            {
-                var iterationConflicts = resource.Conflicts.Count;
-                Conflicts[household.HouseholdId][hhldIteration] = iterationConflicts;
-            }
-            else
-            {
-                Conflicts[household.HouseholdId][hhldIteration] = 0;
-            }
+            var iterationConflicts = resource.Conflicts.Count;
+            Conflicts[household.HouseholdId][hhldIteration] = iterationConflicts;
         }
+        else
+        {
+            Conflicts[household.HouseholdId][hhldIteration] = 0;
+        }
+    }
 
-        public void HouseholdStart(ITashaHousehold household, int householdIterations)
-        {
-            Conflicts.TryAdd( household.HouseholdId, new int[householdIterations] );
-        }
+    public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    {
+        Conflicts.TryAdd( household.HouseholdId, new int[householdIterations] );
+    }
 
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-            
-        }
+    public void IterationFinished(int iteration, int totalIterations)
+    {
+        
+    }
 
-        public void IterationStarting(int iteration, int totalIterations)
-        {
-            
-        }
+    public void IterationStarting(int iteration, int totalIterations)
+    {
+        
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

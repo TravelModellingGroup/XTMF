@@ -20,60 +20,58 @@
 using System;
 using XTMF;
 
-namespace TMG.Emme.XTMF_Internal
+namespace TMG.Emme.XTMF_Internal;
+
+[ModuleInformation(
+    Description = "This tool will allow you to be able to copy a scenario to a given other scenario number."
+    )]
+public class CopyScenario : IEmmeTool
 {
-    [ModuleInformation(
-        Description = "This tool will allow you to be able to copy a scenario to a given other scenario number."
-        )]
-    public class CopyScenario : IEmmeTool
+    [RunParameter("Base Scenario", 1, "The scenario to copy from.")]
+    public int BaseScenario;
+
+    [RunParameter("Destination Scenario", 2, "The scenario to copy to.")]
+    public int DestinationScenario;
+
+    [RunParameter("Copy Assignments", false, "Copy the results from assignments as well.")]
+    public bool CopyAssignments;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool Execute(Controller controller)
     {
-        [RunParameter("Base Scenario", 1, "The scenario to copy from.")]
-        public int BaseScenario;
-
-        [RunParameter("Destination Scenario", 2, "The scenario to copy to.")]
-        public int DestinationScenario;
-
-        [RunParameter("Copy Assignments", false, "Copy the results from assignments as well.")]
-        public bool CopyAssignments;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool Execute(Controller controller)
+        var mc = controller as ModellerController;
+        if (mc == null)
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            }
-            return mc.Run(this, "tmg.XTMF_internal.copy_scenario",
-                new[]
-                {
-                    new ModellerControllerParameter("FromScenario", BaseScenario.ToString()),
-                    new ModellerControllerParameter("ToScenario", DestinationScenario.ToString()),
-                    new ModellerControllerParameter("CopyStrategy", CopyAssignments.ToString()),
-                });
+            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (BaseScenario <= 0)
+        return mc.Run(this, "tmg.XTMF_internal.copy_scenario",
+            new[]
             {
-                error = "The scenario number '" + BaseScenario
-                    + "' is an invalid scenario number!";
-                return false;
-            }
-            if (DestinationScenario <= 0)
-            {
-                error = "The scenario number '" + BaseScenario
-                    + "' is an invalid scenario number!";
-                return false;
-            }
-            return true;
-        }
+                new ModellerControllerParameter("FromScenario", BaseScenario.ToString()),
+                new ModellerControllerParameter("ToScenario", DestinationScenario.ToString()),
+                new ModellerControllerParameter("CopyStrategy", CopyAssignments.ToString()),
+            });
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        if (BaseScenario <= 0)
+        {
+            error = "The scenario number '" + BaseScenario
+                + "' is an invalid scenario number!";
+            return false;
+        }
+        if (DestinationScenario <= 0)
+        {
+            error = "The scenario number '" + BaseScenario
+                + "' is an invalid scenario number!";
+            return false;
+        }
+        return true;
+    }
 }

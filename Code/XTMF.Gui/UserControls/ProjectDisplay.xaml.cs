@@ -39,306 +39,288 @@ using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+///     Interaction logic for ProjectDisplay.xaml
+/// </summary>
+public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabCloseListener
 {
-    /// <summary>
-    ///     Interaction logic for ProjectDisplay.xaml
-    /// </summary>
-    public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabCloseListener
+    public static readonly DependencyProperty ProjectProperty = DependencyProperty.Register("Project",
+        typeof(Project), typeof(ProjectDisplay),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectChanged));
+
+    public static readonly DependencyProperty ProjectModelProperty = DependencyProperty.Register("Model",
+        typeof(ProjectModel), typeof(ProjectDisplay),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectModelChanged));
+
+    private ProjectEditingSession _session;
+
+    public ProjectDisplay()
     {
-        public static readonly DependencyProperty ProjectProperty = DependencyProperty.Register("Project",
-            typeof(Project), typeof(ProjectDisplay),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectChanged));
+        InitializeComponent();
+        Loaded += ProjectDisplay_Loaded;
+        // ContextMenu.PlacementTarget = ModelSystemDisplay;
+    }
 
-        public static readonly DependencyProperty ProjectModelProperty = DependencyProperty.Register("Model",
-            typeof(ProjectModel), typeof(ProjectDisplay),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectModelChanged));
+    private Project Project
+    {
+        get => GetValue(ProjectProperty) as Project;
+        set => SetValue(ProjectProperty, value);
+    }
 
-        private ProjectEditingSession _session;
-
-        public ProjectDisplay()
+    public ProjectEditingSession Session
+    {
+        get => _session;
+        set
         {
-            InitializeComponent();
-            Loaded += ProjectDisplay_Loaded;
-            // ContextMenu.PlacementTarget = ModelSystemDisplay;
+            _session = value;
+            Project = _session.Project;
         }
+    }
 
-        private Project Project
-        {
-            get => GetValue(ProjectProperty) as Project;
-            set => SetValue(ProjectProperty, value);
-        }
+    public ProjectModel Model
+    {
+        get => GetValue(ProjectModelProperty) as ProjectModel;
+        set => SetValue(ProjectModelProperty, value);
+    }
 
-        public ProjectEditingSession Session
+    public bool IsRenameActive { get; set; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    /// </summary>
+    /// <returns></returns>
+    public bool HandleTabClose()
+    {
+        _session.EndSession();
+        return true;
+    }
+
+    public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
+
+
+    private static void OnProjectChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+    {
+        var us = source as ProjectDisplay;
+        us.DataContext = us.Project;
+        us.Model = new ProjectModel(us.Project, us.Session);
+        us.Session.ModelSystemNameChanged += us.Session_ModelSystemNameChanged;
+        us.Session.ModelSystemSaved += us.Session_ModelSystemSaved;
+    }
+
+    private void RefreshModelSystems()
+    {
+        Dispatcher.BeginInvoke(new Action(() => 
         {
-            get => _session;
-            set
+            Model.RefreshModelSystems();
+        }));
+    }
+
+    private void Session_ModelSystemSaved(object sender, EventArgs e)
+    {
+        RefreshModelSystems();
+    }
+
+    private void Session_ModelSystemNameChanged(object sender, EventArgs e)
+    {
+        RefreshModelSystems();
+    }
+
+    private bool FilterMS(object e, string text)
+    {
+        var element = e as ProjectModel.ContainedModelSystemModel;
+        return CheckString(element.Name, text) | CheckString(element.Description, text);
+    }
+
+    private bool FilterRuns(object e, string text)
+    {
+        var element = e as ProjectModel.PreviousRun;
+        return CheckString(element.Name, text) | CheckString(element.TimeStamp, text);
+    }
+
+    private static bool CheckString(string str, string filter)
+    {
+        return str == null ? false : str.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0;
+    }
+
+    private static void OnProjectModelChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+    {
+        var us = source as ProjectDisplay;
+        us.DataContext = us.Project;
+        us.Model.PropertyChanged += (obj, ev) =>
+        {
+            us.Dispatcher.BeginInvoke(new Action(() =>
             {
-                _session = value;
-                Project = _session.Project;
-            }
-        }
-
-        public ProjectModel Model
-        {
-            get => GetValue(ProjectModelProperty) as ProjectModel;
-            set => SetValue(ProjectModelProperty, value);
-        }
-
-        public bool IsRenameActive { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
-        public bool HandleTabClose()
-        {
-            _session.EndSession();
-            return true;
-        }
-
-        public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
-
-
-        private static void OnProjectChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-            var us = source as ProjectDisplay;
-            us.DataContext = us.Project;
-            us.Model = new ProjectModel(us.Project, us.Session);
-            us.Session.ModelSystemNameChanged += us.Session_ModelSystemNameChanged;
-            us.Session.ModelSystemSaved += us.Session_ModelSystemSaved;
-        }
-
-        private void RefreshModelSystems()
-        {
-            Dispatcher.BeginInvoke(new Action(() => 
-            {
-                Model.RefreshModelSystems();
-            }));
-        }
-
-        private void Session_ModelSystemSaved(object sender, EventArgs e)
-        {
-            RefreshModelSystems();
-        }
-
-        private void Session_ModelSystemNameChanged(object sender, EventArgs e)
-        {
-            RefreshModelSystems();
-        }
-
-        private bool FilterMS(object e, string text)
-        {
-            var element = e as ProjectModel.ContainedModelSystemModel;
-            return CheckString(element.Name, text) | CheckString(element.Description, text);
-        }
-
-        private bool FilterRuns(object e, string text)
-        {
-            var element = e as ProjectModel.PreviousRun;
-            return CheckString(element.Name, text) | CheckString(element.TimeStamp, text);
-        }
-
-        private static bool CheckString(string str, string filter)
-        {
-            return str == null ? false : str.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0;
-        }
-
-        private static void OnProjectModelChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-            var us = source as ProjectDisplay;
-            us.DataContext = us.Project;
-            us.Model.PropertyChanged += (obj, ev) =>
-            {
-                us.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
-                    // us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
-                    us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
-                    us.FilterModelSystemsBox.RefreshFilter();
-                    us.FilterPastRunsBox.RefreshFilter();
-                }));
-            };
-            lock (us.Model.ContainedModelSystems)
-            {
-                // us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
                 us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
-            }
-
-            lock (us.Model.PreviousRuns)
-            {
+                // us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
                 us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
-            }
-
-            us.FilterModelSystemsBox.Display = us.ModelSystemsDataGrid;
-            us.FilterModelSystemsBox.Filter = us.FilterMS;
-            us.FilterPastRunsBox.Display = us.PastRunDisplay;
-            us.FilterPastRunsBox.Filter = us.FilterRuns;
+                us.FilterModelSystemsBox.RefreshFilter();
+                us.FilterPastRunsBox.RefreshFilter();
+            }));
+        };
+        lock (us.Model.ContainedModelSystems)
+        {
+            // us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
+            us.ModelSystemsDataGrid.ItemsSource = us.Model.ContainedModelSystems;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnGotFocus(RoutedEventArgs e)
+        lock (us.Model.PreviousRuns)
         {
-            base.OnGotFocus(e);
-            FilterModelSystemsBox.Focus();
+            us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
+        us.FilterModelSystemsBox.Display = us.ModelSystemsDataGrid;
+        us.FilterModelSystemsBox.Filter = us.FilterMS;
+        us.FilterPastRunsBox.Display = us.PastRunDisplay;
+        us.FilterPastRunsBox.Filter = us.FilterRuns;
+    }
 
-            if (true)
+    /// <summary>
+    /// </summary>
+    /// <param name="e"></param>
+    protected override void OnGotFocus(RoutedEventArgs e)
+    {
+        base.OnGotFocus(e);
+        FilterModelSystemsBox.Focus();
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="e"></param>
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+
+        if (true)
+        {
+            switch (e.Key)
             {
-                switch (e.Key)
-                {
-                    case Key.W:
-                        if (EditorController.IsControlDown())
-                        {
-                            Close();
-                            e.Handled = true;
-                        }
-
-                        break;
-                    case Key.E:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
-                        {
-                            Keyboard.Focus(FilterModelSystemsBox);
-                            e.Handled = true;
-                        }
-
-                        break;
-                    case Key.O:
-                        if (EditorController.IsControlDown())
-                        {
-                            OpenProjectFolder();
-                            e.Handled = true;
-                        }
-
-                        break;
-                    case Key.Enter:
-                        {
-                            if (!IsRenameActive)
-                            {
-                                LoadModelSystem();
-                                e.Handled = true;
-                            }
-                            else
-                            {
-                                IsRenameActive = false;
-                            }
-
-                        }
-                        break;
-                    case Key.F2:
-                        {
-                            RenameCurrentModelSystem();
-                            e.Handled = true;
-                        }
-                        break;
-                    case Key.C:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
-                        {
-                            CloneCurrentModelSystem();
-                        }
-
-                        break;
-                    case Key.Delete:
-                        DeleteCurrentModelSystem();
-                        break;
-                    case Key.N:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
-                        {
-                            CreateNewModelSystem();
-                        }
-
-                        break;
-                    case Key.S:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
-                        {
-                            SaveCurrentAsModelSystem(true);
-                        }
-
-                        break;
-                    case Key.V:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
-                        {
-                            PasteModelSystem_OnClick(null, null);
-                            e.Handled = true;
-                        }
-
-                        break;
-                }
-            }
-        }
-
-        public event Action<object> RequestClose;
-
-        private void Close()
-        {
-            var e = RequestClose;
-            if (e != null)
-            {
-                if (MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?",
-                        MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    Dispatcher.BeginInvoke(new Action(() => { e(this); }));
-                }
-            }
-        }
-
-        private void LoadModelSystem()
-        {
-            var selected = ModelSystemsDataGrid.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            LoadModelSystem(selected);
-        }
-
-        private void LoadModelSystem(ProjectModel.ContainedModelSystemModel selected)
-        {
-            if (selected != null)
-            {
-                var invoke = InitiateModelSystemEditingSession;
-                if (invoke != null)
-                {
-                    var index = selected.RealIndex;
-                    invoke(Session.EditModelSystem(index));
-                }
-
-                ModelSystemsDataGrid.SelectedItem = null;
-            }
-        }
-
-
-        private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
-        {
-            var previousRun = (ProjectModel.PreviousRun)PastRunDisplay.SelectedItem;
-            if (previousRun != null)
-            {
-                var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name,
-                    previousRun.Name);
-                try
-                {
-                    if (Project != null && Directory.Exists(directoryName))
+                case Key.W:
+                    if (EditorController.IsControlDown())
                     {
-                        Process.Start(new ProcessStartInfo() { FileName = directoryName, UseShellExecute = true });
+                        Close();
+                        e.Handled = true;
                     }
-                }
-                catch
-                {
-                    MessageBox.Show(MainWindow.Us, "We were unable to open the run directory '" + directoryName + "'!",
-                        "Unable to Open");
-                }
+
+                    break;
+                case Key.E:
+                    if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                    {
+                        Keyboard.Focus(FilterModelSystemsBox);
+                        e.Handled = true;
+                    }
+
+                    break;
+                case Key.O:
+                    if (EditorController.IsControlDown())
+                    {
+                        OpenProjectFolder();
+                        e.Handled = true;
+                    }
+
+                    break;
+                case Key.Enter:
+                    {
+                        if (!IsRenameActive)
+                        {
+                            LoadModelSystem();
+                            e.Handled = true;
+                        }
+                        else
+                        {
+                            IsRenameActive = false;
+                        }
+
+                    }
+                    break;
+                case Key.F2:
+                    {
+                        RenameCurrentModelSystem();
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.C:
+                    if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                    {
+                        CloneCurrentModelSystem();
+                    }
+
+                    break;
+                case Key.Delete:
+                    DeleteCurrentModelSystem();
+                    break;
+                case Key.N:
+                    if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                    {
+                        CreateNewModelSystem();
+                    }
+
+                    break;
+                case Key.S:
+                    if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                    {
+                        SaveCurrentAsModelSystem(true);
+                    }
+
+                    break;
+                case Key.V:
+                    if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                    {
+                        PasteModelSystem_OnClick(null, null);
+                        e.Handled = true;
+                    }
+
+                    break;
             }
         }
+    }
 
-        private void OpenProjectFolder()
+    public event Action<object> RequestClose;
+
+    private void Close()
+    {
+        var e = RequestClose;
+        if (e != null)
         {
-            var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
+            if (MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                Dispatcher.BeginInvoke(new Action(() => { e(this); }));
+            }
+        }
+    }
+
+    private void LoadModelSystem()
+    {
+        var selected = ModelSystemsDataGrid.SelectedItem as ProjectModel.ContainedModelSystemModel;
+        LoadModelSystem(selected);
+    }
+
+    private void LoadModelSystem(ProjectModel.ContainedModelSystemModel selected)
+    {
+        if (selected != null)
+        {
+            var invoke = InitiateModelSystemEditingSession;
+            if (invoke != null)
+            {
+                var index = selected.RealIndex;
+                invoke(Session.EditModelSystem(index));
+            }
+
+            ModelSystemsDataGrid.SelectedItem = null;
+        }
+    }
+
+
+    private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
+    {
+        var previousRun = (ProjectModel.PreviousRun)PastRunDisplay.SelectedItem;
+        if (previousRun != null)
+        {
+            var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name,
+                previousRun.Name);
             try
             {
                 if (Project != null && Directory.Exists(directoryName))
@@ -348,204 +330,59 @@ namespace XTMF.Gui.UserControls
             }
             catch
             {
-                MessageBox.Show(MainWindow.Us, "We were unable to open the project directory '" + directoryName + "'!",
+                MessageBox.Show(MainWindow.Us, "We were unable to open the run directory '" + directoryName + "'!",
                     "Unable to Open");
             }
         }
+    }
 
-        private Window GetWindow()
+    private void OpenProjectFolder()
+    {
+        var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
+        try
         {
-            var current = this as DependencyObject;
-            while (current != null && !(current is Window))
+            if (Project != null && Directory.Exists(directoryName))
             {
-                current = VisualTreeHelper.GetParent(current);
-            }
-
-            return current as Window;
-        }
-
-
-        private void DeleteModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            DeleteCurrentModelSystem();
-        }
-
-        private void DeleteCurrentModelSystem()
-        {
-            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
-            {
-                var index = selected.RealIndex;
-                string error = null;
-                if (MessageBox.Show("Are you sure you wish to delete '" + selected.Name + "'?  This can not be undone!",
-                        "Confirm Delete!",
-                        MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
-                {
-                    if (!Session.RemoveModelSystem(index, ref error))
-                    {
-                        MessageBox.Show(error, "Unable to Delete Model System", MessageBoxButton.OK,
-                            MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Model.RefreshModelSystems();
-                    }
-                }
+                Process.Start(new ProcessStartInfo() { FileName = directoryName, UseShellExecute = true });
             }
         }
-
-        private void DeletePreviousRun_Click(object sender, RoutedEventArgs e)
+        catch
         {
-            if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun previousRun)
+            MessageBox.Show(MainWindow.Us, "We were unable to open the project directory '" + directoryName + "'!",
+                "Unable to Open");
+        }
+    }
+
+    private Window GetWindow()
+    {
+        var current = this as DependencyObject;
+        while (current != null && !(current is Window))
+        {
+            current = VisualTreeHelper.GetParent(current);
+        }
+
+        return current as Window;
+    }
+
+
+    private void DeleteModelSystem_Click(object sender, RoutedEventArgs e)
+    {
+        DeleteCurrentModelSystem();
+    }
+
+    private void DeleteCurrentModelSystem()
+    {
+        if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+        {
+            var index = selected.RealIndex;
+            string error = null;
+            if (MessageBox.Show("Are you sure you wish to delete '" + selected.Name + "'?  This can not be undone!",
+                    "Confirm Delete!",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
-                try
+                if (!Session.RemoveModelSystem(index, ref error))
                 {
-                    var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name,
-                        previousRun.Name);
-                    var dir = new DirectoryInfo(directoryName);
-                    if (dir.Exists)
-                    {
-                        dir.Delete(true);
-                    }
-
-                    Model.RefreshPastRuns(Session);
-                }
-                catch (IOException error)
-                {
-                    MessageBox.Show(error.Message, "Unable to Delete Previous Run", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-
-        private async void RenameCurrentModelSystem()
-        {
-            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
-            {
-                var dialog = new StringRequestDialog(RootDialogHost, "Rename Model System", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
-                await dialog.ShowAsync();
-                if (dialog.DidComplete)
-                {
-                    string error = null;
-                    if (!selected.SetName(dialog.UserInput, ref error))
-                    {
-                        MessageBox.Show(error, "Unable to Rename Model System", MessageBoxButton.OK,
-                            MessageBoxImage.Error);
-                    }
-                }
-            }
-        }
-
-        private void RenameModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            RenameCurrentModelSystem();
-        }
-
-        private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e)
-        {
-            SaveCurrentAsModelSystem(false);
-        }
-
-        private void ExportModelSystemAs_Click(object sender, RoutedEventArgs e)
-        {
-            SaveCurrentAsModelSystem(true);
-        }
-
-        private async void SaveCurrentAsModelSystem(bool exportToFile)
-        {
-            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
-            {
-                if (exportToFile)
-                {
-                    // save as a model system in an external file
-                    var fileName = MainWindow.OpenFile(selected.Name,
-                        new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
-                    if (!string.IsNullOrWhiteSpace(fileName))
-                    {
-                        string error = null;
-                        if (!selected.ExportModelSystem(fileName, ref error))
-                        {
-                            MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System",
-                                MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                        }
-                    }
-                }
-                else
-                {
-                    var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?",
-                    newName => { return Session.ValidateModelSystemName(newName); },
-                    selected.Name);
-                    var result = await dialog.ShowAsync(true);
-
-                    if (dialog.DidComplete)
-                    {
-                        string error = null;
-
-                        if (!selected.CloneModelSystem(dialog.UserInput, ref error))
-                        {
-                            MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CopyModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
-            // ModelSystemsDataGrid.IsCanPasteModelSystem = true;
-
-            CloneCurrentModelSystem();
-
-            foreach (var m in Model.ContainedModelSystems)
-            {
-                m.IsCanPasteModelSystem = true;
-            }
-
-            // ((ProjectModel) this.DataContext)IsCanPasteModelSystem = true;
-        }
-
-        private void CloneCurrentModelSystem()
-        {
-            if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
-            {
-                selected.EnsureIsLoaded();
-                MainWindow.Us.ClipboardModel = selected;
-            }
-        }
-
-        private void NewModelSystem_Click(object sender, RoutedEventArgs e)
-        {
-            CreateNewModelSystem();
-        }
-
-        private void CreateNewModelSystem_Clicked(object obj)
-        {
-            CreateNewModelSystem();
-        }
-
-        /// <summary>
-        ///     Attempts to create a new model system
-        /// </summary>
-        private async void CreateNewModelSystem()
-        {
-            var dialog = new StringRequestDialog(RootDialogHost, "Name of New Model System",
-                newName => { return Session.ValidateModelSystemName(newName); }, null);
-            var result = await dialog.ShowAsync(true);
-            if (dialog.DidComplete)
-            {
-                string error = null;
-                if (!Session.AddModelSystem(dialog.UserInput, ref error))
-                {
-                    MessageBox.Show(error, "Unable to create New Model System", MessageBoxButton.OK,
+                    MessageBox.Show(error, "Unable to Delete Model System", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
                 else
@@ -554,547 +391,709 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+    }
 
-        private ProjectModel.ContainedModelSystemModel GetFirstItem()
+    private void DeletePreviousRun_Click(object sender, RoutedEventArgs e)
+    {
+        if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun previousRun)
         {
-            return ModelSystemsDataGrid.ItemContainerGenerator.Items.Any()
-                ? ModelSystemsDataGrid.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel
-                : null;
-        }
-
-        private void FilterModelSystemsBox_EnterPressed(object sender, EventArgs e)
-        {
-            if (!(ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected))
+            try
             {
-                selected = GetFirstItem();
-            }
-            LoadModelSystem(selected);
-        }
-
-
-        private void PastRuns_MouseButton(object sender, MouseButtonEventArgs e)
-        {
-            if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun selected)
-            {
-                var invoke = InitiateModelSystemEditingSession;
-                if (invoke != null)
+                var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name,
+                    previousRun.Name);
+                var dir = new DirectoryInfo(directoryName);
+                if (dir.Exists)
                 {
-                    string error = null;
-                    if (Session.LoadPreviousRun(selected.Path, ref error, out var newSession))
-                    {
-                        if (newSession != null)
-                        {
-                            newSession.PreviousRunName = selected.Name;
-                            invoke(newSession);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK,
-                            MessageBoxImage.Error);
-                    }
+                    dir.Delete(true);
                 }
 
-                PastRunDisplay.SelectedItem = null;
+                Model.RefreshPastRuns(Session);
+            }
+            catch (IOException error)
+            {
+                MessageBox.Show(error.Message, "Unable to Delete Previous Run", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
+    }
 
-        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    /// <summary>
+    /// 
+    /// </summary>
+
+    private async void RenameCurrentModelSystem()
+    {
+        if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
         {
-            LoadModelSystem();
-        }
-
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
-        {
-            string error = null;
-            if (MainWindow.Us.ClipboardModel != null)
+            var dialog = new StringRequestDialog(RootDialogHost, "Rename Model System", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
+            await dialog.ShowAsync();
+            if (dialog.DidComplete)
             {
-                var cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
-
-                var dialog = new StringRequestDialog(RootDialogHost, "Paste: Model System's Name?",
-                    newName => Session.ValidateModelSystemName(newName), cloned.Name);
-
-                _ = await dialog.ShowAsync(false);
-
-                if (dialog.DidComplete)
+                string error = null;
+                if (!selected.SetName(dialog.UserInput, ref error))
                 {
-                    if (!Session.AddExternalModelSystem(cloned, dialog.UserInput, ref error))
+                    MessageBox.Show(error, "Unable to Rename Model System", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+    }
+
+    private void RenameModelSystem_Click(object sender, RoutedEventArgs e)
+    {
+        RenameCurrentModelSystem();
+    }
+
+    private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e)
+    {
+        SaveCurrentAsModelSystem(false);
+    }
+
+    private void ExportModelSystemAs_Click(object sender, RoutedEventArgs e)
+    {
+        SaveCurrentAsModelSystem(true);
+    }
+
+    private async void SaveCurrentAsModelSystem(bool exportToFile)
+    {
+        if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+        {
+            if (exportToFile)
+            {
+                // save as a model system in an external file
+                var fileName = MainWindow.OpenFile(selected.Name,
+                    new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    string error = null;
+                    if (!selected.ExportModelSystem(fileName, ref error))
                     {
-                        MessageBox.Show(error, "Unable to Paste Model System", MessageBoxButton.OK,
-                            MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Model.RefreshModelSystems();
+                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System",
+                            MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                 }
             }
             else
             {
-                MessageBox.Show(GetWindow(), "A model system was not selected to copy.", "Unable to Paste Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+                var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?",
+                newName => { return Session.ValidateModelSystemName(newName); },
+                selected.Name);
+                var result = await dialog.ShowAsync(true);
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemDisplay_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (!(ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected))
-            {
-                selected = GetFirstItem();
-            }
-            LoadModelSystem(selected);
-        }
-
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-        {
-            OpenProjectFolder();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            var xtmf = Session.GetRuntime();
-            var openMS = new OpenWindow
-            {
-                Owner = GetWindow()
-            };
-            using var modelSystemSession = openMS.OpenModelSystem(xtmf);
-            var loading = openMS.LoadTask;
-            if (loading != null)
-            {
-                loading.Wait();
-                using var realSession = openMS.ModelSystemSession;
-                if (realSession != null)
+                if (dialog.DidComplete)
                 {
                     string error = null;
 
-                    var dialog = new StringRequestDialog(RootDialogHost, "Model System Name",
-                        newName => Session.ValidateModelSystemName(newName), realSession.Name);
+                    if (!selected.CloneModelSystem(dialog.UserInput, ref error))
+                    {
+                        MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+    }
 
-                    var result = await dialog.ShowAsync(false);
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void CopyModelSystem_Click(object sender, RoutedEventArgs e)
+    {
+        // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
+        // ModelSystemsDataGrid.IsCanPasteModelSystem = true;
+
+        CloneCurrentModelSystem();
+
+        foreach (var m in Model.ContainedModelSystems)
+        {
+            m.IsCanPasteModelSystem = true;
+        }
+
+        // ((ProjectModel) this.DataContext)IsCanPasteModelSystem = true;
+    }
+
+    private void CloneCurrentModelSystem()
+    {
+        if (ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected)
+        {
+            selected.EnsureIsLoaded();
+            MainWindow.Us.ClipboardModel = selected;
+        }
+    }
+
+    private void NewModelSystem_Click(object sender, RoutedEventArgs e)
+    {
+        CreateNewModelSystem();
+    }
+
+    private void CreateNewModelSystem_Clicked(object obj)
+    {
+        CreateNewModelSystem();
+    }
+
+    /// <summary>
+    ///     Attempts to create a new model system
+    /// </summary>
+    private async void CreateNewModelSystem()
+    {
+        var dialog = new StringRequestDialog(RootDialogHost, "Name of New Model System",
+            newName => { return Session.ValidateModelSystemName(newName); }, null);
+        var result = await dialog.ShowAsync(true);
+        if (dialog.DidComplete)
+        {
+            string error = null;
+            if (!Session.AddModelSystem(dialog.UserInput, ref error))
+            {
+                MessageBox.Show(error, "Unable to create New Model System", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            else
+            {
+                Model.RefreshModelSystems();
+            }
+        }
+    }
+
+    private ProjectModel.ContainedModelSystemModel GetFirstItem()
+    {
+        return ModelSystemsDataGrid.ItemContainerGenerator.Items.Any()
+            ? ModelSystemsDataGrid.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel
+            : null;
+    }
+
+    private void FilterModelSystemsBox_EnterPressed(object sender, EventArgs e)
+    {
+        if (!(ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected))
+        {
+            selected = GetFirstItem();
+        }
+        LoadModelSystem(selected);
+    }
+
+
+    private void PastRuns_MouseButton(object sender, MouseButtonEventArgs e)
+    {
+        if (PastRunDisplay.SelectedItem is ProjectModel.PreviousRun selected)
+        {
+            var invoke = InitiateModelSystemEditingSession;
+            if (invoke != null)
+            {
+                string error = null;
+                if (Session.LoadPreviousRun(selected.Path, ref error, out var newSession))
+                {
+                    if (newSession != null)
+                    {
+                        newSession.PreviousRunName = selected.Name;
+                        invoke(newSession);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+
+            PastRunDisplay.SelectedItem = null;
+        }
+    }
+
+    private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        LoadModelSystem();
+    }
+
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
+    {
+        string error = null;
+        if (MainWindow.Us.ClipboardModel != null)
+        {
+            var cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
+
+            var dialog = new StringRequestDialog(RootDialogHost, "Paste: Model System's Name?",
+                newName => Session.ValidateModelSystemName(newName), cloned.Name);
+
+            _ = await dialog.ShowAsync(false);
+
+            if (dialog.DidComplete)
+            {
+                if (!Session.AddExternalModelSystem(cloned, dialog.UserInput, ref error))
+                {
+                    MessageBox.Show(error, "Unable to Paste Model System", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+                else
+                {
+                    Model.RefreshModelSystems();
+                }
+            }
+        }
+        else
+        {
+            MessageBox.Show(GetWindow(), "A model system was not selected to copy.", "Unable to Paste Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ModelSystemDisplay_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (!(ModelSystemsDataGrid.SelectedItem is ProjectModel.ContainedModelSystemModel selected))
+        {
+            selected = GetFirstItem();
+        }
+        LoadModelSystem(selected);
+    }
+
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        OpenProjectFolder();
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var xtmf = Session.GetRuntime();
+        var openMS = new OpenWindow
+        {
+            Owner = GetWindow()
+        };
+        using var modelSystemSession = openMS.OpenModelSystem(xtmf);
+        var loading = openMS.LoadTask;
+        if (loading != null)
+        {
+            loading.Wait();
+            using var realSession = openMS.ModelSystemSession;
+            if (realSession != null)
+            {
+                string error = null;
+
+                var dialog = new StringRequestDialog(RootDialogHost, "Model System Name",
+                    newName => Session.ValidateModelSystemName(newName), realSession.Name);
+
+                var result = await dialog.ShowAsync(false);
+                if (dialog.DidComplete)
+                {
+                    if (!Session.AddModelSystem(realSession.ModelSystemModel, dialog.UserInput, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Unable to Import Model System",
+                            MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        return;
+                    }
+
+                    Model.RefreshModelSystems();
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void ImportFromFileButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var fileDialog = new OpenFileDialog();
+        var result = fileDialog.ShowDialog();
+        switch (result)
+        {
+            case DialogResult.OK:
+                string error = null;
+                try
+                {
+                    var modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(),
+                        EditorController.Runtime.Configuration,
+                        ref error);
+                    var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?",
+                        newName => Session.ValidateModelSystemName(newName), modelSystem?.ModelSystemStructure?.Name);
+                    var aresult = await dialog.ShowAsync(false);
                     if (dialog.DidComplete)
                     {
-                        if (!Session.AddModelSystem(realSession.ModelSystemModel, dialog.UserInput, ref error))
+                        if (!Session.AddModelSystem(modelSystem, dialog.UserInput, ref error))
                         {
                             MessageBox.Show(GetWindow(), error, "Unable to Import Model System",
-                                MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error, MessageBoxResult.OK);
                             return;
                         }
 
                         Model.RefreshModelSystems();
                     }
                 }
-            }
+                catch
+                {
+                    MessageBox.Show(GetWindow(), "There was an error importing the model system.",
+                        "Unable to Import Model System", MessageBoxButton.OK,
+                        MessageBoxImage.Error, MessageBoxResult.OK);
+                }
+
+                break;
+        }
+    }
+
+    private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        OpenProjectFolder();
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ImportModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        ImportButton_OnClick(sender, e);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ImportModelSystemFileStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        ImportFromFileButton_OnClick(sender, e);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void CreateNewModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        NewModelSystem_Click(sender, e);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void RefreshRunsStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        Model.RefreshPastRuns(Session);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void RefreshPastRunsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        Model.RefreshPastRuns(Session);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void PopupBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ModelSystemDisplay_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
+    {
+        // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
+        Dispatcher.BeginInvoke(new Action(() => { FilterModelSystemsBox.Focus(); }));
+    }
+
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void EventSetter_OnHandler(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ModelSystemsDataGrid_OnKeyDown(object sender, KeyEventArgs e)
+    {
+        OnKeyDown(e);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ModelSystemsDataGrid_OnPreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        OnKeyDown(e);
+    }
+
+    public class ProjectModel : INotifyPropertyChanged
+    {
+        private readonly ProjectEditingSession Session;
+
+        public List<ContainedModelSystemModel> ContainedModelSystems;
+
+        public List<PreviousRun> PreviousRuns = [];
+
+        private Project Project;
+
+        public ProjectModel(Project project, ProjectEditingSession session)
+        {
+            Session = session;
+            Project = project;
+            session.ProjectWasExternallySaved += Session_ProjectWasExternallySaved;
+            RefreshModelSystems();
+            RefreshPastRuns(session);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void ImportFromFileButton_OnClick(object sender, RoutedEventArgs e)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void Session_ProjectWasExternallySaved(object sender, EventArgs e)
         {
-            var fileDialog = new OpenFileDialog();
-            var result = fileDialog.ShowDialog();
-            switch (result)
+            // re-setup the page for the new project
+            Project = Session.Project;
+            RefreshModelSystems();
+        }
+
+        public void RefreshPastRuns(ProjectEditingSession session)
+        {
+            lock (PreviousRuns)
             {
-                case DialogResult.OK:
-                    string error = null;
-                    try
+                PreviousRuns.Clear();
+            }
+
+            Task.Factory.StartNew(() =>
+            {
+                lock (PreviousRuns)
+                {
+                    var list = new List<PreviousRun>();
+                    PreviousRuns.Clear();
+                    foreach (var pastRun in session.GetPreviousRunPaths())
                     {
-                        var modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(),
-                            EditorController.Runtime.Configuration,
-                            ref error);
-                        var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?",
-                            newName => Session.ValidateModelSystemName(newName), modelSystem?.ModelSystemStructure?.Name);
-                        var aresult = await dialog.ShowAsync(false);
-                        if (dialog.DidComplete)
+                        var info = new DirectoryInfo(pastRun);
+                        var fileInfo = new FileInfo(Path.Combine(pastRun, "RunParameters.xml"));
+                        list.Add(new PreviousRun
                         {
-                            if (!Session.AddModelSystem(modelSystem, dialog.UserInput, ref error))
-                            {
-                                MessageBox.Show(GetWindow(), error, "Unable to Import Model System",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Error, MessageBoxResult.OK);
-                                return;
-                            }
-
-                            Model.RefreshModelSystems();
-                        }
-                    }
-                    catch
-                    {
-                        MessageBox.Show(GetWindow(), "There was an error importing the model system.",
-                            "Unable to Import Model System", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                            Name = info.Name,
+                            Path = pastRun,
+                            Time = fileInfo.LastWriteTime
+                        });
                     }
 
-                    break;
-            }
+                    PreviousRuns.AddRange(from entry in list
+                                          orderby entry.Time descending
+                                          select entry);
+                }
+
+                ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
+            });
         }
 
-        private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        internal void RefreshModelSystems()
         {
-            OpenProjectFolder();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ImportModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            ImportButton_OnClick(sender, e);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ImportModelSystemFileStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            ImportFromFileButton_OnClick(sender, e);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CreateNewModelSystemStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            NewModelSystem_Click(sender, e);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RefreshRunsStackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Model.RefreshPastRuns(Session);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RefreshPastRunsButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            Model.RefreshPastRuns(Session);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PopupBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
-        {
-            e.Handled = true;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemDisplay_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
-        {
-            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-            Dispatcher.BeginInvoke(new Action(() => { FilterModelSystemsBox.Focus(); }));
-        }
-
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EventSetter_OnHandler(object sender, RoutedEventArgs e)
-        {
-            e.Handled = true;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemsDataGrid_OnKeyDown(object sender, KeyEventArgs e)
-        {
-            OnKeyDown(e);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ModelSystemsDataGrid_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            OnKeyDown(e);
-        }
-
-        public class ProjectModel : INotifyPropertyChanged
-        {
-            private readonly ProjectEditingSession Session;
-
-            public List<ContainedModelSystemModel> ContainedModelSystems;
-
-            public List<PreviousRun> PreviousRuns = [];
-
-            private Project Project;
-
-            public ProjectModel(Project project, ProjectEditingSession session)
+            if (ContainedModelSystems == null)
             {
-                Session = session;
-                Project = project;
-                session.ProjectWasExternallySaved += Session_ProjectWasExternallySaved;
-                RefreshModelSystems();
-                RefreshPastRuns(session);
+                ContainedModelSystems = [];
+            }
+            else
+            {
+                lock (ContainedModelSystems)
+                {
+                    ContainedModelSystems.Clear();
+                }
+            }
+
+            Task.Factory.StartNew(() =>
+            {
+                lock (ContainedModelSystems)
+                {
+                    ContainedModelSystems.AddRange(Enumerable.Range(0, Project.ProjectModelSystems.Count)
+                        .OrderBy(index => Project.ProjectModelSystems[index].Name)
+                        .Select(index => new ContainedModelSystemModel(Session, Project.ProjectModelSystems[index], index, Project)));
+                }
+
+                ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
+            });
+        }
+
+        public void Unload()
+        {
+            Session.ProjectWasExternallySaved -= Session_ProjectWasExternallySaved;
+        }
+
+        public class ContainedModelSystemModel : INotifyPropertyChanged
+        {
+            private bool _IsSelected;
+
+            private readonly IProject _project;
+            private readonly ProjectEditingSession _session;
+            private readonly ProjectModelSystem _projectModelSystem;
+
+            public ContainedModelSystemModel(ProjectEditingSession session, ProjectModelSystem pms, int index,
+                IProject project)
+            {
+                _projectModelSystem = pms;
+                ModelSystemStructure = pms.Root;
+                RealIndex = index;
+                _project = project;
+                _session = session;
+            }
+
+            public IModelSystemStructure ModelSystemStructure { get; private set; }
+
+            public string Name => _projectModelSystem.Name;
+
+            public string StatusText => IsMissingModules
+                ? "This module requires additional setup, or a required module is not present."
+                : null;
+
+            public string Description => _projectModelSystem.Description;
+
+            public bool IsMissingModules { get; private set; }
+
+            public int RealIndex { get; }
+
+            /// <summary>
+            ///     Returns a string representation of the last modified date. N/A is returned if last modified
+            ///     information is missing.
+            /// </summary>
+            public string LastModified
+            {
+                get
+                {
+                    var lm = _projectModelSystem.LastModified;
+                    return lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";
+                }
+            }
+
+            public string LastModifiedTime
+            {
+                get
+                {
+                    var lm = _projectModelSystem.LastModified;
+                    return lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
+                }
+            }
+
+            public bool IsCanPasteModelSystem
+            {
+                get => MainWindow.Us.ClipboardModel != null;
+                set => OnPropertyChanged(nameof(IsCanPasteModelSystem));
+            }
+
+            public bool IsSelected
+            {
+                get => _IsSelected;
+                set
+                {
+                    if (_IsSelected != value)
+                    {
+                        _IsSelected = value;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsSelected));
+                    }
+                }
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void Session_ProjectWasExternallySaved(object sender, EventArgs e)
+            [Annotations.NotifyPropertyChangedInvocator]
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
-                // re-setup the page for the new project
-                Project = Session.Project;
-                RefreshModelSystems();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
 
-            public void RefreshPastRuns(ProjectEditingSession session)
+            internal bool SetName(string newName, ref string error)
             {
-                lock (PreviousRuns)
-                {
-                    PreviousRuns.Clear();
-                }
-
-                Task.Factory.StartNew(() =>
-                {
-                    lock (PreviousRuns)
-                    {
-                        var list = new List<PreviousRun>();
-                        PreviousRuns.Clear();
-                        foreach (var pastRun in session.GetPreviousRunPaths())
-                        {
-                            var info = new DirectoryInfo(pastRun);
-                            var fileInfo = new FileInfo(Path.Combine(pastRun, "RunParameters.xml"));
-                            list.Add(new PreviousRun
-                            {
-                                Name = info.Name,
-                                Path = pastRun,
-                                Time = fileInfo.LastWriteTime
-                            });
-                        }
-
-                        PreviousRuns.AddRange(from entry in list
-                                              orderby entry.Time descending
-                                              select entry);
-                    }
-
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
-                });
+                var ret = _session.RenameModelSystem(_projectModelSystem, newName, ref error);
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+                return ret;
             }
 
-            internal void RefreshModelSystems()
+            internal bool CloneModelSystem(string name, ref string error)
             {
-                if (ContainedModelSystems == null)
-                {
-                    ContainedModelSystems = [];
-                }
-                else
-                {
-                    lock (ContainedModelSystems)
-                    {
-                        ContainedModelSystems.Clear();
-                    }
-                }
-
-                Task.Factory.StartNew(() =>
-                {
-                    lock (ContainedModelSystems)
-                    {
-                        ContainedModelSystems.AddRange(Enumerable.Range(0, Project.ProjectModelSystems.Count)
-                            .OrderBy(index => Project.ProjectModelSystems[index].Name)
-                            .Select(index => new ContainedModelSystemModel(Session, Project.ProjectModelSystems[index], index, Project)));
-                    }
-
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
-                });
+                return _session.CloneModelSystemAs(_projectModelSystem, name, ref error);
             }
 
-            public void Unload()
+            internal bool CloneModelSystemToProject(string name, ref string error)
             {
-                Session.ProjectWasExternallySaved -= Session_ProjectWasExternallySaved;
+                return _session.CloneModelSystemToProjectAs(_projectModelSystem, name, ref error);
             }
 
-            public class ContainedModelSystemModel : INotifyPropertyChanged
+
+            internal bool ExportModelSystem(string fileName, ref string error)
             {
-                private bool _IsSelected;
-
-                private readonly IProject _project;
-                private readonly ProjectEditingSession _session;
-                private readonly ProjectModelSystem _projectModelSystem;
-
-                public ContainedModelSystemModel(ProjectEditingSession session, ProjectModelSystem pms, int index,
-                    IProject project)
-                {
-                    _projectModelSystem = pms;
-                    ModelSystemStructure = pms.Root;
-                    RealIndex = index;
-                    _project = project;
-                    _session = session;
-                }
-
-                public IModelSystemStructure ModelSystemStructure { get; private set; }
-
-                public string Name => _projectModelSystem.Name;
-
-                public string StatusText => IsMissingModules
-                    ? "This module requires additional setup, or a required module is not present."
-                    : null;
-
-                public string Description => _projectModelSystem.Description;
-
-                public bool IsMissingModules { get; private set; }
-
-                public int RealIndex { get; }
-
-                /// <summary>
-                ///     Returns a string representation of the last modified date. N/A is returned if last modified
-                ///     information is missing.
-                /// </summary>
-                public string LastModified
-                {
-                    get
-                    {
-                        var lm = _projectModelSystem.LastModified;
-                        return lm.Year > 1 ? lm.ToString("dddd, dd MMMM yyyy") : "N/A";
-                    }
-                }
-
-                public string LastModifiedTime
-                {
-                    get
-                    {
-                        var lm = _projectModelSystem.LastModified;
-                        return lm.Year > 1 ? lm.ToString("H:mm tt") : String.Empty;
-                    }
-                }
-
-                public bool IsCanPasteModelSystem
-                {
-                    get => MainWindow.Us.ClipboardModel != null;
-                    set => OnPropertyChanged(nameof(IsCanPasteModelSystem));
-                }
-
-                public bool IsSelected
-                {
-                    get => _IsSelected;
-                    set
-                    {
-                        if (_IsSelected != value)
-                        {
-                            _IsSelected = value;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsSelected));
-                        }
-                    }
-                }
-
-                public event PropertyChangedEventHandler PropertyChanged;
-
-                [Annotations.NotifyPropertyChangedInvocator]
-                protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                }
-
-                internal bool SetName(string newName, ref string error)
-                {
-                    var ret = _session.RenameModelSystem(_projectModelSystem, newName, ref error);
-                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
-                    return ret;
-                }
-
-                internal bool CloneModelSystem(string name, ref string error)
-                {
-                    return _session.CloneModelSystemAs(_projectModelSystem, name, ref error);
-                }
-
-                internal bool CloneModelSystemToProject(string name, ref string error)
-                {
-                    return _session.CloneModelSystemToProjectAs(_projectModelSystem, name, ref error);
-                }
-
-
-                internal bool ExportModelSystem(string fileName, ref string error)
-                {
-                    return _session.ExportModelSystem(RealIndex, fileName, ref error);
-                }
-
-                internal void EnsureIsLoaded()
-                {
-                    ((Project)_project).EnsureModelSystemLoaded(_projectModelSystem);
-                    ModelSystemStructure = _projectModelSystem.Root;
-                }
+                return _session.ExportModelSystem(RealIndex, fileName, ref error);
             }
 
-            public class PreviousRun : INotifyPropertyChanged
+            internal void EnsureIsLoaded()
             {
-                public string Name { get; internal set; }
-
-                public string Path { get; internal set; }
-
-                internal DateTime Time { get; set; }
-
-                public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
-
-                public event PropertyChangedEventHandler PropertyChanged;
-
-                [Annotations.NotifyPropertyChangedInvocator]
-                protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                }
+                ((Project)_project).EnsureModelSystemLoaded(_projectModelSystem);
+                ModelSystemStructure = _projectModelSystem.Root;
             }
         }
 
-        private void ContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        public class PreviousRun : INotifyPropertyChanged
         {
-            if(ModelSystemsDataGrid.SelectedItem == null)
+            public string Name { get; internal set; }
+
+            public string Path { get; internal set; }
+
+            internal DateTime Time { get; set; }
+
+            public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            [Annotations.NotifyPropertyChangedInvocator]
+            protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null)
             {
-                e.Handled = true;
-                if(e.Source is FrameworkElement fe)
-                {
-                    fe.ContextMenu.IsOpen = false;
-                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+
+    private void ContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        if(ModelSystemsDataGrid.SelectedItem == null)
+        {
+            e.Handled = true;
+            if(e.Source is FrameworkElement fe)
+            {
+                fe.ContextMenu.IsOpen = false;
             }
         }
     }

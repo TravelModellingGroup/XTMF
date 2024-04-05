@@ -23,72 +23,71 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation( Name = "Report Screenline Results",
+                Description = "This tool loads Screenlines from a shapefile and then determines" +
+                            "which links intersect the screenline's geometry. This tool then exports the volume " +
+                            "crossing each element of the screenline and in each direction on that link into a " +
+                            "CSV file. The shapefile's attribute table must contain fields labeled 'Id', 'Descr' " +
+                            "'PosDirName' and 'NegDirName'. Results are written to a text file. Results will only " +
+                            "be reported for the modes selected by the user." )]
+public class ReportScreenlineResults : IEmmeTool
 {
-    [ModuleInformation( Name = "Report Screenline Results",
-                    Description = "This tool loads Screenlines from a shapefile and then determines" +
-                                "which links intersect the screenline's geometry. This tool then exports the volume " +
-                                "crossing each element of the screenline and in each direction on that link into a " +
-                                "CSV file. The shapefile's attribute table must contain fields labeled 'Id', 'Descr' " +
-                                "'PosDirName' and 'NegDirName'. Results are written to a text file. Results will only " +
-                                "be reported for the modes selected by the user." )]
-    public class ReportScreenlineResults : IEmmeTool
+    [RunParameter( "Modes", "", "A string of mode character IDs. This tool will report results for these modes ONLY." )]
+    public string Modes;
+
+    [RunParameter( "Report File", "*.txt", typeof( FileFromOutputDirectory ), "A name and location to save the reported results to." )]
+    public FileFromOutputDirectory ReportFile;
+
+    [RunParameter( "Scenario Number", 0, "The number of the Emme scenario with assignment results to analyze" )]
+    public int ScenarioNumber;
+
+    [RunParameter( "Screenline File", "*.shp", typeof( FileFromInputDirectory ), "The shapefile with screenline data. Its attribute table must include fields labelled"
+        + " 'Id', 'Descr', 'PosDirName', and 'NegDirName'." )]
+    public FileFromInputDirectory ScreenlineFile; //Input file
+
+    //Output file
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+
+    public string Name
     {
-        [RunParameter( "Modes", "", "A string of mode character IDs. This tool will report results for these modes ONLY." )]
-        public string Modes;
+        get;
+        set;
+    }
 
-        [RunParameter( "Report File", "*.txt", typeof( FileFromOutputDirectory ), "A name and location to save the reported results to." )]
-        public FileFromOutputDirectory ReportFile;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Scenario Number", 0, "The number of the Emme scenario with assignment results to analyze" )]
-        public int ScenarioNumber;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        [RunParameter( "Screenline File", "*.shp", typeof( FileFromInputDirectory ), "The shapefile with screenline data. Its attribute table must include fields labelled"
-            + " 'Id', 'Descr', 'PosDirName', and 'NegDirName'." )]
-        public FileFromInputDirectory ScreenlineFile; //Input file
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController;
+        if ( mc == null )
+            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
 
-        //Output file
+        var sb = new StringBuilder();
+        sb.AppendFormat( "{0} {1} {2} {3}",
+            ScenarioNumber, Modes, ScreenlineFile, ReportFile );
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+        /*
+         * ScrenarioNumner, ModesStr, OpenPath, SavePath
+         * */
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        string result = null;
+        return mc.Run(this, "tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => Progress = p ), ref result );
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
-            var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1} {2} {3}",
-                ScenarioNumber, Modes, ScreenlineFile, ReportFile );
-
-            /*
-             * ScrenarioNumner, ModesStr, OpenPath, SavePath
-             * */
-
-            string result = null;
-            return mc.Run(this, "tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => Progress = p ), ref result );
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

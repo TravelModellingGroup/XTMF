@@ -21,58 +21,56 @@ using Datastructure;
 using TMG;
 using XTMF;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description =
+    "This module is designed to convert internal distances into zonal areas using the formula <p></p>")]
+public class ZonalAreaFromInternalTripDistance : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description =
-        "This module is designed to convert internal distances into zonal areas using the formula <p></p>")]
-    public class ZonalAreaFromInternalTripDistance : IDataSource<SparseArray<float>>
+    public bool Loaded
     {
-        public bool Loaded
-        {
-            get;set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        SparseArray<float> Data;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public void LoadData()
-        {
-            var zoneSystem = Root.ZoneSystem.ZoneArray;
-            Data = zoneSystem.CreateSimilarArray<float>();
-            var data = Data.GetFlatData();
-            var zones = zoneSystem.GetFlatData();
-            for(int i = 0; i < data.Length; i++)
-            {
-                // internal distance = (sqrt(area)/6) <=> area = (6*internal distance)^2
-                var iDistance = zones[i].InternalDistance * 6;
-                data[i] = iDistance * iDistance;
-            }
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
-            Data = null;
-        }
+        get;set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    SparseArray<float> Data;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public void LoadData()
+    {
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        Data = zoneSystem.CreateSimilarArray<float>();
+        var data = Data.GetFlatData();
+        var zones = zoneSystem.GetFlatData();
+        for(int i = 0; i < data.Length; i++)
+        {
+            // internal distance = (sqrt(area)/6) <=> area = (6*internal distance)^2
+            var iDistance = zones[i].InternalDistance * 6;
+            data[i] = iDistance * iDistance;
+        }
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+        Data = null;
+    }
 }

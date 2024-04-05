@@ -17,13 +17,12 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace TMG.Estimation
+namespace TMG.Estimation;
+
+public class ClientTask
 {
-    public class ClientTask
-    {
-        public int Generation;
-        public int Index;
-        public float[] ParameterValues;
-        public float Result;
-    }
+    public int Generation;
+    public int Index;
+    public float[] ParameterValues;
+    public float Result;
 }

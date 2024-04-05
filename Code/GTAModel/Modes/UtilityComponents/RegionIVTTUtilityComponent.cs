@@ -19,51 +19,50 @@
 
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+public sealed class RegionIVTTUtilityComponent : RegionUtilityComponent
 {
-    public sealed class RegionIVTTUtilityComponent : RegionUtilityComponent
+    [RunParameter( "ivtt", 0f, "The factor to apply against the in vehicle travel time between the zones" )]
+    public float IVTT;
+
+    private ITripComponentData NetworkData;
+
+    [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
+    public string NetworkType { get; set; }
+
+    public override float CalculateV(IZone origin, IZone destination, Time time)
     {
-        [RunParameter( "ivtt", 0f, "The factor to apply against the in vehicle travel time between the zones" )]
-        public float IVTT;
-
-        private ITripComponentData NetworkData;
-
-        [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
-        public string NetworkType { get; set; }
-
-        public override float CalculateV(IZone origin, IZone destination, Time time)
+        if ( IsContained( origin, destination ) )
         {
-            if ( IsContained( origin, destination ) )
-            {
-                return NetworkData.InVehicleTravelTime( origin, destination, time ).ToMinutes() * IVTT;
-            }
-            return 0f;
+            return NetworkData.InVehicleTravelTime( origin, destination, time ).ToMinutes() * IVTT;
         }
+        return 0f;
+    }
 
-        protected override bool SubRuntimeValidation(ref string error)
+    protected override bool SubRuntimeValidation(ref string error)
+    {
+        // Load in the network data
+        LoadNetworkData();
+        if ( NetworkData == null )
         {
-            // Load in the network data
-            LoadNetworkData();
-            if ( NetworkData == null )
-            {
-                error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
-                return false;
-            }
-            return true;
+            error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
+            return false;
         }
+        return true;
+    }
 
-        /// <summary>
-        /// Find and Load in the network data
-        /// </summary>
-        private void LoadNetworkData()
+    /// <summary>
+    /// Find and Load in the network data
+    /// </summary>
+    private void LoadNetworkData()
+    {
+        foreach ( var dataSource in Root.NetworkData )
         {
-            foreach ( var dataSource in Root.NetworkData )
+            if (dataSource is ITripComponentData ds && dataSource.NetworkType == NetworkType)
             {
-                if (dataSource is ITripComponentData ds && dataSource.NetworkType == NetworkType)
-                {
-                    NetworkData = ds;
-                    return;
-                }
+                NetworkData = ds;
+                return;
             }
         }
     }

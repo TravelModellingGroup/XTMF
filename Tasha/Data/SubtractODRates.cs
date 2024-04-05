@@ -21,75 +21,74 @@ using TMG;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description =
+    @"This module is designed to subtract two rates together for each OD.")]
+public class SubtractODRates : IDataSource<SparseTwinIndex<float>>
 {
-    [ModuleInformation(Description =
-        @"This module is designed to subtract two rates together for each OD.")]
-    public class SubtractODRates : IDataSource<SparseTwinIndex<float>>
+    private SparseTwinIndex<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
+    public IResource FirstRateToApply;
+
+    [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
+    public IDataSource<SparseTwinIndex<float>> FirstRateToApplyRaw;
+
+    [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
+    public IResource SecondRateToApply;
+
+    [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
+    public IDataSource<SparseTwinIndex<float>> SecondRateToApplyRaw;
+
+    public SparseTwinIndex<float> GiveData()
     {
-        private SparseTwinIndex<float> Data;
+        return Data;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
-        public IResource FirstRateToApply;
-
-        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
-        public IDataSource<SparseTwinIndex<float>> FirstRateToApplyRaw;
-
-        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
-        public IResource SecondRateToApply;
-
-        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
-        public IDataSource<SparseTwinIndex<float>> SecondRateToApplyRaw;
-
-        public SparseTwinIndex<float> GiveData()
+    public void LoadData()
+    {
+        var first = ModuleHelper.GetDataFromDatasourceOrResource(FirstRateToApplyRaw, FirstRateToApply, FirstRateToApplyRaw != null);
+        var firstRate = first.GetFlatData();
+        var secondRate = ModuleHelper.GetDataFromDatasourceOrResource(SecondRateToApplyRaw, SecondRateToApply, FirstRateToApplyRaw != null).GetFlatData();
+        SparseTwinIndex<float> data;
+        data = first.CreateSimilarArray<float>();
+        var flatData = data.GetFlatData();
+        for (int i = 0; i < flatData.Length; i++)
         {
-            return Data;
+            VectorHelper.Subtract(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
         }
+        Data = data;
+    }
 
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
+    public void UnloadData()
+    {
+        Data = null;
+    }
 
-        public void LoadData()
-        {
-            var first = ModuleHelper.GetDataFromDatasourceOrResource(FirstRateToApplyRaw, FirstRateToApply, FirstRateToApplyRaw != null);
-            var firstRate = first.GetFlatData();
-            var secondRate = ModuleHelper.GetDataFromDatasourceOrResource(SecondRateToApplyRaw, SecondRateToApply, FirstRateToApplyRaw != null).GetFlatData();
-            SparseTwinIndex<float> data;
-            data = first.CreateSimilarArray<float>();
-            var flatData = data.GetFlatData();
-            for (int i = 0; i < flatData.Length; i++)
-            {
-                VectorHelper.Subtract(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
-            }
-            Data = data;
-        }
+    public string Name { get; set; }
 
-        public void UnloadData()
-        {
-            Data = null;
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public string Name { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(FirstRateToApplyRaw, FirstRateToApply, ref error)
-                && this.EnsureExactlyOneAndOfSameType(SecondRateToApplyRaw, SecondRateToApply, ref error);
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(FirstRateToApplyRaw, FirstRateToApply, ref error)
+            && this.EnsureExactlyOneAndOfSameType(SecondRateToApplyRaw, SecondRateToApply, ref error);
     }
 }

@@ -18,33 +18,17 @@
 */
 using System.Collections.Generic;
 
-namespace TMG.Functions
-{
-    public static class MirrorModeTree
-    {
-        public static List<TreeData<T>> CreateMirroredTree<T>(List<IModeChoiceNode> modes)
-        {
-            List<TreeData<T>> ret = [];
-            for ( int i = 0; i < modes.Count; i++ )
-            {
-                TreeData<T> node = new();
-                if (modes[i] is IModeCategory asCat && asCat.Children != null)
-                {
-                    node.Children = new TreeData<T>[asCat.Children.Count];
-                    for (int j = 0; j < node.Children.Length; j++)
-                    {
-                        node.Children[j] = new TreeData<T>();
-                        CreateMirroredTree(node.Children[j], asCat.Children[j]);
-                    }
-                }
-                ret.Add( node );
-            }
-            return ret;
-        }
+namespace TMG.Functions;
 
-        private static void CreateMirroredTree<T>(TreeData<T> node, IModeChoiceNode mode)
+public static class MirrorModeTree
+{
+    public static List<TreeData<T>> CreateMirroredTree<T>(List<IModeChoiceNode> modes)
+    {
+        List<TreeData<T>> ret = [];
+        for ( int i = 0; i < modes.Count; i++ )
         {
-            if (mode is IModeCategory asCat && asCat.Children != null)
+            TreeData<T> node = new();
+            if (modes[i] is IModeCategory asCat && asCat.Children != null)
             {
                 node.Children = new TreeData<T>[asCat.Children.Count];
                 for (int j = 0; j < node.Children.Length; j++)
@@ -53,44 +37,59 @@ namespace TMG.Functions
                     CreateMirroredTree(node.Children[j], asCat.Children[j]);
                 }
             }
+            ret.Add( node );
         }
+        return ret;
+    }
 
-        public static TreeData<T> GetLeafNodeWithIndex<T>(List<TreeData<T>> list, int index)
+    private static void CreateMirroredTree<T>(TreeData<T> node, IModeChoiceNode mode)
+    {
+        if (mode is IModeCategory asCat && asCat.Children != null)
         {
-            int currentIndex = 0;
-            for ( int i = 0; i < list.Count; i++ )
+            node.Children = new TreeData<T>[asCat.Children.Count];
+            for (int j = 0; j < node.Children.Length; j++)
             {
-                var ret = GetLeafNodeWithIndex( list[i], index, ref currentIndex );
+                node.Children[j] = new TreeData<T>();
+                CreateMirroredTree(node.Children[j], asCat.Children[j]);
+            }
+        }
+    }
+
+    public static TreeData<T> GetLeafNodeWithIndex<T>(List<TreeData<T>> list, int index)
+    {
+        int currentIndex = 0;
+        for ( int i = 0; i < list.Count; i++ )
+        {
+            var ret = GetLeafNodeWithIndex( list[i], index, ref currentIndex );
+            if ( ret != null )
+            {
+                return ret;
+            }
+        }
+        return null;
+    }
+
+    private static TreeData<T> GetLeafNodeWithIndex<T>(TreeData<T> treeData, int index, ref int currentIndex)
+    {
+        if ( treeData.Children == null || treeData.Children.Length == 0 )
+        {
+            if ( index <= currentIndex )
+            {
+                return treeData;
+            }
+            currentIndex++;
+        }
+        else
+        {
+            for ( int i = 0; i < treeData.Children.Length; i++ )
+            {
+                var ret = GetLeafNodeWithIndex( treeData.Children[i], index, ref currentIndex );
                 if ( ret != null )
                 {
                     return ret;
                 }
             }
-            return null;
         }
-
-        private static TreeData<T> GetLeafNodeWithIndex<T>(TreeData<T> treeData, int index, ref int currentIndex)
-        {
-            if ( treeData.Children == null || treeData.Children.Length == 0 )
-            {
-                if ( index <= currentIndex )
-                {
-                    return treeData;
-                }
-                currentIndex++;
-            }
-            else
-            {
-                for ( int i = 0; i < treeData.Children.Length; i++ )
-                {
-                    var ret = GetLeafNodeWithIndex( treeData.Children[i], index, ref currentIndex );
-                    if ( ret != null )
-                    {
-                        return ret;
-                    }
-                }
-            }
-            return null;
-        }
+        return null;
     }
 }

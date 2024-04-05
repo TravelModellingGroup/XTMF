@@ -18,110 +18,110 @@
 */
 using System;
 
-namespace Datastructure
+namespace Datastructure;
+
+/// <summary>
+/// Allows for you to be able to get the closest element to the one you want to search for.
+/// The Comparison method must be fine grained.
+/// Int32 only will return 1, 0 and -1 and thus will not give the correct results
+/// </summary>
+/// <typeparam name="TK">The Key to use for this datastructure</typeparam>
+public class ClosestAvl<TK> : AvlTree<TK> where TK : IComparable<TK>
 {
     /// <summary>
-    /// Allows for you to be able to get the closest element to the one you want to search for.
-    /// The Comparison method must be fine grained.
-    /// Int32 only will return 1, 0 and -1 and thus will not give the correct results
+    /// Finds the closest item to the given item.
     /// </summary>
-    /// <typeparam name="TK">The Key to use for this datastructure</typeparam>
-    public class ClosestAvl<TK> : AvlTree<TK> where TK : IComparable<TK>
+    /// <param name="item">The item we wish to find something close to</param>
+    /// <returns>The data for that item, or the default value if there is no data in the tree.</returns>
+    public TK? FindClosest(TK item)
     {
-        /// <summary>
-        /// Finds the closest item to the given item.
-        /// </summary>
-        /// <param name="item">The item we wish to find something close to</param>
-        /// <returns>The data for that item, or the default value if there is no data in the tree.</returns>
-        public TK? FindClosest(TK item)
+        Node? current;
+        IncreaseReaders();
+        current = Root;
+        while ( current != null )
         {
-            Node? current;
-            IncreaseReaders();
-            current = Root;
-            while ( current != null )
+            var diff = current.Data.CompareTo( item );
+            if ( diff > 0 )
             {
-                var diff = current.Data.CompareTo( item );
-                if ( diff > 0 )
+                var closestLeft = GetRightmost( current.Left );
+                if ( closestLeft == null )
                 {
-                    var closestLeft = GetRightmost( current.Left );
-                    if ( closestLeft == null )
-                    {
-                        DecreaseReaders();
-                        return current.Data;
-                    }
-                    var closeDiff = closestLeft.Data.CompareTo( item );
-                    if ( closeDiff <= 0 )
-                    {
-                        DecreaseReaders();
-                        var absDiff = Math.Abs( diff );
-                        return ( Math.Min( absDiff, Math.Abs( closeDiff ) ) == absDiff ) ? current.Data : closestLeft.Data;
-                    }
-                    else
-                    {
-                        current = current.Left;
-                    }
-                }
-                else if ( diff < 0 )
-                {
-                    var closestRight = GetLeftmost( current.Right );
-                    if ( closestRight == null )
-                    {
-                        DecreaseReaders();
-                        return current.Data;
-                    }
-                    var closeDiff = closestRight.Data.CompareTo( item );
-                    if ( closeDiff >= 0 )
-                    {
-                        DecreaseReaders();
-                        var absDiff = Math.Abs( diff );
-                        return ( Math.Min( absDiff, Math.Abs( closeDiff ) ) == absDiff ) ? current.Data : closestRight.Data;
-                    }
-                    else
-                    {
-                        current = current.Right;
-                    }
-                }
-                else
-                {
-                    // if we found it, we are done
                     DecreaseReaders();
                     return current.Data;
                 }
+                var closeDiff = closestLeft.Data.CompareTo( item );
+                if ( closeDiff <= 0 )
+                {
+                    DecreaseReaders();
+                    var absDiff = Math.Abs( diff );
+                    return ( Math.Min( absDiff, Math.Abs( closeDiff ) ) == absDiff ) ? current.Data : closestLeft.Data;
+                }
+                else
+                {
+                    current = current.Left;
+                }
             }
-            DecreaseReaders();
-            return default( TK );
-        }//end FindClosest
-
-        /// <summary>
-        /// Grabs the node that is the farthest left of the given node
-        /// </summary>
-        /// <param name="node">The node that we start on</param>
-        /// <returns>Null if the node doesn't exist, otherwise the leftmost node</returns>
-        private Node? GetLeftmost(Node? node)
-        {
-            var prev = node;
-            while ( node != null )
+            else if ( diff < 0 )
             {
-                prev = node;
-                node = node.Left;
+                var closestRight = GetLeftmost( current.Right );
+                if ( closestRight == null )
+                {
+                    DecreaseReaders();
+                    return current.Data;
+                }
+                var closeDiff = closestRight.Data.CompareTo( item );
+                if ( closeDiff >= 0 )
+                {
+                    DecreaseReaders();
+                    var absDiff = Math.Abs( diff );
+                    return ( Math.Min( absDiff, Math.Abs( closeDiff ) ) == absDiff ) ? current.Data : closestRight.Data;
+                }
+                else
+                {
+                    current = current.Right;
+                }
             }
-            return prev;
-        }
-
-        /// <summary>
-        /// Grabs the node that is the farthest right of the given node
-        /// </summary>
-        /// <param name="node">The node that we start on</param>
-        /// <returns>Null if the node doesn't exist, otherwise the rightmost node</returns>
-        private Node? GetRightmost(Node? node)
-        {
-            var prev = node;
-            while ( node != null )
+            else
             {
-                prev = node;
-                node = node.Right;
+                // if we found it, we are done
+                DecreaseReaders();
+                return current.Data;
             }
-            return prev;
         }
-    }//end class
-}//end namespace
+        DecreaseReaders();
+        return default( TK );
+    }//end FindClosest
+
+    /// <summary>
+    /// Grabs the node that is the farthest left of the given node
+    /// </summary>
+    /// <param name="node">The node that we start on</param>
+    /// <returns>Null if the node doesn't exist, otherwise the leftmost node</returns>
+    private Node? GetLeftmost(Node? node)
+    {
+        var prev = node;
+        while ( node != null )
+        {
+            prev = node;
+            node = node.Left;
+        }
+        return prev;
+    }
+
+    /// <summary>
+    /// Grabs the node that is the farthest right of the given node
+    /// </summary>
+    /// <param name="node">The node that we start on</param>
+    /// <returns>Null if the node doesn't exist, otherwise the rightmost node</returns>
+    private Node? GetRightmost(Node? node)
+    {
+        var prev = node;
+        while ( node != null )
+        {
+            prev = node;
+            node = node.Right;
+        }
+        return prev;
+    }
+}//end class
+//end namespace

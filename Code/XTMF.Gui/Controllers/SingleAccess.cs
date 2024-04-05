@@ -21,25 +21,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace XTMF.Gui.Controllers
+namespace XTMF.Gui.Controllers;
+
+internal sealed class SingleAccess<T>
 {
-    internal sealed class SingleAccess<T>
+    private readonly object _lockObject = new();
+
+    private readonly T _target;
+
+    public SingleAccess(T toAccess)
     {
-        private readonly object _lockObject = new();
+        _target = toAccess;
+    }
 
-        private readonly T _target;
-
-        public SingleAccess(T toAccess)
+    internal void Run(Action<T> toRun)
+    {
+        lock (_lockObject)
         {
-            _target = toAccess;
-        }
-
-        internal void Run(Action<T> toRun)
-        {
-            lock (_lockObject)
-            {
-                toRun(_target);
-            }
+            toRun(_target);
         }
     }
 }

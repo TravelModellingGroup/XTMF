@@ -23,140 +23,139 @@ using Datastructure;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAssignment
+namespace TMG.GTAModel.NetworkAssignment;
+
+public class AssignV4BoardingPenalty : IEmmeTool
 {
-    public class AssignV4BoardingPenalty : IEmmeTool
+
+    [RunParameter("Scenario", "0", typeof(RangeSet), "The number of the Emme Scenario which to apply boarding penalties.")]
+    public RangeSet ScenarioNumbers;
+
+    [RunParameter("Subway Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float SubwayBoardingPenalty;
+
+    [RunParameter("GO Train Boarding Penalty", 1.0f, "Boarding penalty applied to GO train lines")]
+    public float GoTrainBoardingPenalty;
+
+    [RunParameter("GO Bus Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float GoBusBoardingPenalty;
+
+    [RunParameter("Streetcar XROW Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float StreetcarXROWBoardingPenalty;
+
+    [RunParameter("Streetcar Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float StreetcarBoardingPenalty;
+
+    [RunParameter("TTC Bus Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float TTCBusBoardingPenalty;
+
+    [RunParameter("YRT Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float YRTBoardingPenalty;
+
+    [RunParameter("VIVA Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float VIVABoardingPenalty;
+
+    [RunParameter("Brampton Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float BramptonBoardingPenalty;
+
+    [RunParameter("ZUM Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float ZUMBoardingPenalty;
+
+    [RunParameter("MiWay Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float MiWayBoardingPenalty;
+
+    [RunParameter("Durham Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float DurhamBoardingPenalty;
+
+    [RunParameter("Halton Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float HaltonBoardingPenalty;
+
+    [RunParameter("Hamilton Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
+    public float HSRBoardingPenalty;
+
+
+    private const string ToolName = "tmg.assignment.preprocessing.assign_v4_boarding_penalty";
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+    public bool Execute(Controller controller)
     {
-
-        [RunParameter("Scenario", "0", typeof(RangeSet), "The number of the Emme Scenario which to apply boarding penalties.")]
-        public RangeSet ScenarioNumbers;
-
-        [RunParameter("Subway Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float SubwayBoardingPenalty;
-
-        [RunParameter("GO Train Boarding Penalty", 1.0f, "Boarding penalty applied to GO train lines")]
-        public float GoTrainBoardingPenalty;
-
-        [RunParameter("GO Bus Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float GoBusBoardingPenalty;
-
-        [RunParameter("Streetcar XROW Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float StreetcarXROWBoardingPenalty;
-
-        [RunParameter("Streetcar Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float StreetcarBoardingPenalty;
-
-        [RunParameter("TTC Bus Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float TTCBusBoardingPenalty;
-
-        [RunParameter("YRT Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float YRTBoardingPenalty;
-
-        [RunParameter("VIVA Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float VIVABoardingPenalty;
-
-        [RunParameter("Brampton Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float BramptonBoardingPenalty;
-
-        [RunParameter("ZUM Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float ZUMBoardingPenalty;
-
-        [RunParameter("MiWay Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float MiWayBoardingPenalty;
-
-        [RunParameter("Durham Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float DurhamBoardingPenalty;
-
-        [RunParameter("Halton Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float HaltonBoardingPenalty;
-
-        [RunParameter("Hamilton Boarding Penalty", 1.0f, "Boarding penalty applied to subway lines")]
-        public float HSRBoardingPenalty;
-
-
-        private const string ToolName = "tmg.assignment.preprocessing.assign_v4_boarding_penalty";
-        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
-
-        public bool Execute(Controller controller)
+        var mc = controller as ModellerController;
+        if (mc == null)
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
+            throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
+        }
+
+        /*
+        def __call__(self, xtmf_ScenarioNumber,
+             SubwayBoardingPenalty,
+             GoTrainBoardingPenalty,
+             GoBusBoardingPenalty,
+             StreetcarXROWBoardingPenalty,
+             StreetcarBoardingPenalty,
+             TTCBusBoardingPenalty,
+             YRTBoardingPenalty,
+             VIVABoardingPenalty,
+             BramptonBoardingPenalty,
+             ZUMBoardingPenalty,
+             MiWayBoardingPenalty,
+             DurhamBoardingPenalty,
+             HaltonBoardingPenalty,
+             HSRBoardingPenalty
+        */
+
+        List<int> scenarioList = [];
+        foreach (var range in ScenarioNumbers)
+        {
+            for (int i = range.Start; i <= range.Stop; i++)
             {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
+                scenarioList.Add(i);
             }
-
-            /*
-            def __call__(self, xtmf_ScenarioNumber,
-                 SubwayBoardingPenalty,
-                 GoTrainBoardingPenalty,
-                 GoBusBoardingPenalty,
-                 StreetcarXROWBoardingPenalty,
-                 StreetcarBoardingPenalty,
-                 TTCBusBoardingPenalty,
-                 YRTBoardingPenalty,
-                 VIVABoardingPenalty,
-                 BramptonBoardingPenalty,
-                 ZUMBoardingPenalty,
-                 MiWayBoardingPenalty,
-                 DurhamBoardingPenalty,
-                 HaltonBoardingPenalty,
-                 HSRBoardingPenalty
-            */
-
-            List<int> scenarioList = [];
-            foreach (var range in ScenarioNumbers)
-            {
-                for (int i = range.Start; i <= range.Stop; i++)
-                {
-                    scenarioList.Add(i);
-                }
-            }
-            string scenarios = "\"" + string.Join(",", scenarioList) + "\"";
-
-            var args = string.Join(" ", scenarios,
-                                     Controller.ToEmmeFloat(SubwayBoardingPenalty),
-                                     Controller.ToEmmeFloat(GoTrainBoardingPenalty),
-                                     Controller.ToEmmeFloat(GoBusBoardingPenalty),
-                                     Controller.ToEmmeFloat(StreetcarXROWBoardingPenalty),
-                                     Controller.ToEmmeFloat(StreetcarBoardingPenalty),
-                                     Controller.ToEmmeFloat(TTCBusBoardingPenalty),
-                                     Controller.ToEmmeFloat(YRTBoardingPenalty),
-                                     Controller.ToEmmeFloat(VIVABoardingPenalty),
-                                     Controller.ToEmmeFloat(BramptonBoardingPenalty),
-                                     Controller.ToEmmeFloat(ZUMBoardingPenalty),
-                                     Controller.ToEmmeFloat(MiWayBoardingPenalty),
-                                     Controller.ToEmmeFloat(DurhamBoardingPenalty),
-                                     Controller.ToEmmeFloat(HaltonBoardingPenalty),
-                                     Controller.ToEmmeFloat(HSRBoardingPenalty));
-            string result = "";
-            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-
         }
+        string scenarios = "\"" + string.Join(",", scenarioList) + "\"";
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        var args = string.Join(" ", scenarios,
+                                 Controller.ToEmmeFloat(SubwayBoardingPenalty),
+                                 Controller.ToEmmeFloat(GoTrainBoardingPenalty),
+                                 Controller.ToEmmeFloat(GoBusBoardingPenalty),
+                                 Controller.ToEmmeFloat(StreetcarXROWBoardingPenalty),
+                                 Controller.ToEmmeFloat(StreetcarBoardingPenalty),
+                                 Controller.ToEmmeFloat(TTCBusBoardingPenalty),
+                                 Controller.ToEmmeFloat(YRTBoardingPenalty),
+                                 Controller.ToEmmeFloat(VIVABoardingPenalty),
+                                 Controller.ToEmmeFloat(BramptonBoardingPenalty),
+                                 Controller.ToEmmeFloat(ZUMBoardingPenalty),
+                                 Controller.ToEmmeFloat(MiWayBoardingPenalty),
+                                 Controller.ToEmmeFloat(DurhamBoardingPenalty),
+                                 Controller.ToEmmeFloat(HaltonBoardingPenalty),
+                                 Controller.ToEmmeFloat(HSRBoardingPenalty));
+        string result = "";
+        return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        // ReSharper disable once RedundantAssignment
-        public bool RuntimeValidation(ref string error)
-        {
-            error = Name + " is currently using the now obsolete module TMG.GTAModel.NetworkAssignmentAssignV4BoardingPenalty. " +
-                "This module has since been replaced by TMG.Emme.NetworkAssignment.PreProcessing.AssignBoardingPenalties. " +
-                "Please contact your model system provider to help you update your model system, or contact TMG.";
-            return false;
-        }
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    // ReSharper disable once RedundantAssignment
+    public bool RuntimeValidation(ref string error)
+    {
+        error = Name + " is currently using the now obsolete module TMG.GTAModel.NetworkAssignmentAssignV4BoardingPenalty. " +
+            "This module has since been replaced by TMG.Emme.NetworkAssignment.PreProcessing.AssignBoardingPenalties. " +
+            "Please contact your model system provider to help you update your model system, or contact TMG.";
+        return false;
     }
 }

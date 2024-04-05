@@ -22,80 +22,79 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+[ModuleInformation(
+    Description = @"This data source provides access to emme modeller.")]
+public class ModellerControllerDataSource : IDataSource<ModellerController>, IDisposable
 {
-    [ModuleInformation(
-        Description = @"This data source provides access to emme modeller.")]
-    public class ModellerControllerDataSource : IDataSource<ModellerController>, IDisposable
+    [SubModelInformation(Required = true, Description = "The location of the Emme project file.")]
+    public FileLocation ProjectFolder;
+
+    [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+    public string EmmeDatabank;
+
+    [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+    public string EmmePath;
+
+    [RunParameter("Check Unconsolidated Tools", true, "Check that all unconsolidated tools exist after establishing connection.")]
+    public bool CheckUnconsolidatedTools;
+
+    private ModellerController Data;
+
+    public ModellerController GiveData() => Data;
+
+    public bool Loaded => Data != null;
+
+    public void LoadData()
     {
-        [SubModelInformation(Required = true, Description = "The location of the Emme project file.")]
-        public FileLocation ProjectFolder;
-
-        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
-        public string EmmeDatabank;
-
-        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
-        public string EmmePath;
-
-        [RunParameter("Check Unconsolidated Tools", true, "Check that all unconsolidated tools exist after establishing connection.")]
-        public bool CheckUnconsolidatedTools;
-
-        private ModellerController Data;
-
-        public ModellerController GiveData() => Data;
-
-        public bool Loaded => Data != null;
-
-        public void LoadData()
+        if (Data == null)
         {
-            if (Data == null)
+            lock (this)
             {
-                lock (this)
+                if (Data == null)
                 {
-                    if (Data == null)
+                    GC.ReRegisterForFinalize(this);
+                    Data = new ModellerController(this, ProjectFolder, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath);
+                    if(CheckUnconsolidatedTools)
                     {
-                        GC.ReRegisterForFinalize(this);
-                        Data = new ModellerController(this, ProjectFolder, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath);
-                        if(CheckUnconsolidatedTools)
-                        {
-                            Data.CheckAllToolsExist(this);
-                        }
+                        Data.CheckAllToolsExist(this);
                     }
                 }
             }
         }
+    }
 
-        public void UnloadData()
-        {
-            Dispose();
-        }
+    public void UnloadData()
+    {
+        Dispose();
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress => 0f;
+    public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => null;
+    public Tuple<byte, byte, byte> ProgressColour => null;
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        ~ModellerControllerDataSource()
-        {
-            Dispose(true);
-        }
+    ~ModellerControllerDataSource()
+    {
+        Dispose(true);
+    }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        protected virtual void Dispose(bool all)
-        {
-            Data?.Dispose();
-            Data = null;
-        }
+    protected virtual void Dispose(bool all)
+    {
+        Data?.Dispose();
+        Data = null;
     }
 }

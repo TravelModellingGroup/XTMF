@@ -23,128 +23,127 @@ using System.Linq;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+public class TripStartTime : IPostHousehold
 {
-    public class TripStartTime : IPostHousehold
+    [RunParameter( "Output File", "TripStartTimesDir", "The directory that will contain the results" )]
+    public string OutputFile;
+
+    [RunParameter( "Real Data?", false, "Are you using this to get the real data?" )]
+    public bool RealData;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private Dictionary<Activity, float[]> StartTime = [];
+    private string Status = "Initializing!";
+
+    public string Name
     {
-        [RunParameter( "Output File", "TripStartTimesDir", "The directory that will contain the results" )]
-        public string OutputFile;
+        get;
+        set;
+    }
 
-        [RunParameter( "Real Data?", false, "Are you using this to get the real data?" )]
-        public bool RealData;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
+    }
 
-        private Dictionary<Activity, float[]> StartTime = [];
-        private string Status = "Initializing!";
-
-        public string Name
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        lock ( this )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
-        }
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            lock ( this )
+            float expansionFactor = household.ExpansionFactor;
+            foreach ( var person in household.Persons )
             {
-                float expansionFactor = household.ExpansionFactor;
-                foreach ( var person in household.Persons )
+                foreach ( var tripChain in person.TripChains )
                 {
-                    foreach ( var tripChain in person.TripChains )
+                    foreach ( var trip in tripChain.Trips )
                     {
-                        foreach ( var trip in tripChain.Trips )
+                        var currentMode = trip.Mode;
+                        trip.Mode = Root.AutoMode;
+                        var hours = trip.ActivityStartTime.Hours;
+                        if ( hours > 28 )
                         {
-                            var currentMode = trip.Mode;
-                            trip.Mode = Root.AutoMode;
-                            var hours = trip.ActivityStartTime.Hours;
-                            if ( hours > 28 )
+                            trip.Mode = currentMode;
+                            continue;
+                        }
+                        else
+                        {
+                            if ( StartTime.ContainsKey( trip.Purpose ) )
                             {
-                                trip.Mode = currentMode;
-                                continue;
+                                StartTime[trip.Purpose][hours] += expansionFactor;
                             }
                             else
                             {
-                                if ( StartTime.ContainsKey( trip.Purpose ) )
-                                {
-                                    StartTime[trip.Purpose][hours] += expansionFactor;
-                                }
-                                else
-                                {
-                                    StartTime.Add( trip.Purpose, new float[29] );
-                                    StartTime[trip.Purpose][hours] += expansionFactor;
-                                }
+                                StartTime.Add( trip.Purpose, new float[29] );
+                                StartTime[trip.Purpose][hours] += expansionFactor;
                             }
-                            trip.Mode = currentMode;
                         }
+                        trip.Mode = currentMode;
                     }
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        lock (this)
         {
-            lock (this)
+            foreach ( var pair in StartTime )
             {
-                foreach ( var pair in StartTime )
+                string fileName;
+                var sum = pair.Value.Sum();
+                for ( int i = 0; i < pair.Value.Length; i++ )
                 {
-                    string fileName;
-                    var sum = pair.Value.Sum();
-                    for ( int i = 0; i < pair.Value.Length; i++ )
-                    {
-                        pair.Value[i] = pair.Value[i] / sum;
-                    }
-                    if ( RealData )
-                    {
-                        fileName = Path.Combine( OutputFile, pair.Key + "StartTimesData.csv" );
-                    }
-                    else
-                    {
-                        fileName = Path.Combine( OutputFile, pair.Key + "StartTimesTasha.csv" );
-                    }
-                    var dir = Path.GetDirectoryName( fileName );
-                    if ( !Directory.Exists( dir ) )
-                    {
-                        Directory.CreateDirectory( dir );
-                    }
-                    using StreamWriter writer = new(fileName);
-                    writer.WriteLine("Start Hour, Number of Occurrences");
-                    for (int i = 0; i < pair.Value.Length; i++)
-                    {
-                        writer.WriteLine("{0}, {1}", i, pair.Value[i]);
-                    }
+                    pair.Value[i] = pair.Value[i] / sum;
+                }
+                if ( RealData )
+                {
+                    fileName = Path.Combine( OutputFile, pair.Key + "StartTimesData.csv" );
+                }
+                else
+                {
+                    fileName = Path.Combine( OutputFile, pair.Key + "StartTimesTasha.csv" );
+                }
+                var dir = Path.GetDirectoryName( fileName );
+                if ( !Directory.Exists( dir ) )
+                {
+                    Directory.CreateDirectory( dir );
+                }
+                using StreamWriter writer = new(fileName);
+                writer.WriteLine("Start Hour, Number of Occurrences");
+                for (int i = 0; i < pair.Value.Length; i++)
+                {
+                    writer.WriteLine("{0}, {1}", i, pair.Value[i]);
                 }
             }
         }
+    }
 
-        public void Load(int maxIterations)
-        {
-        }
+    public void Load(int maxIterations)
+    {
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-        }
+    public void IterationStarting(int iteration)
+    {
+    }
 
-        public override string ToString()
-        {
-            return Status;
-        }
+    public override string ToString()
+    {
+        return Status;
     }
 }

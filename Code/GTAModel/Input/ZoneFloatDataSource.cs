@@ -22,65 +22,64 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ZoneFloatDataSource : IDataSource<SparseTwinIndex<float>>
 {
-    public class ZoneFloatDataSource : IDataSource<SparseTwinIndex<float>>
+    [SubModelInformation( Required = true, Description = "The module that reads in the data that will aggregate." )]
+    public IReadODData<float> Reader;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseTwinIndex<float> Data;
+
+    public string Name
     {
-        [SubModelInformation( Required = true, Description = "The module that reads in the data that will aggregate." )]
-        public IReadODData<float> Reader;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        private SparseTwinIndex<float> Data;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name
+    public SparseTwinIndex<float> GiveData()
+    {
+        return Data;
+    }
+
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
+
+    public void LoadData()
+    {
+        var temp = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        foreach ( var point in Reader.Read() )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            var temp = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            foreach ( var point in Reader.Read() )
+            if ( temp.ContainsIndex( point.O, point.D ) )
             {
-                if ( temp.ContainsIndex( point.O, point.D ) )
-                {
-                    temp[point.O, point.D] = point.Data;
-                }
+                temp[point.O, point.D] = point.Data;
             }
-            Data = temp;
         }
+        Data = temp;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void UnloadData()
-        {
-            Data = null;
-        }
+    public void UnloadData()
+    {
+        Data = null;
     }
 }

@@ -21,64 +21,63 @@ using System.IO;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+public class AutoSanityCheck : IPostHousehold, IDisposable
 {
-    public class AutoSanityCheck : IPostHousehold, IDisposable
+    public int Count;
+
+    [RunParameter("Results File", "AutoSanityResults.csv", "Where do you want us to store the results")]
+    public string FileName;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private StreamWriter Validate1;
+
+    public string Name
     {
-        public int Count;
+        get;
+        set;
+    }
 
-        [RunParameter("Results File", "AutoSanityResults.csv", "Where do you want us to store the results")]
-        public string FileName;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+    }
 
-        private StreamWriter Validate1;
-
-        public string Name
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        lock (this)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
-        }
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            lock (this)
+            foreach (var person in household.Persons)
             {
-                foreach (var person in household.Persons)
+                foreach (var tripChain in person.TripChains)
                 {
-                    foreach (var tripChain in person.TripChains)
+                    foreach (var trip in tripChain.Trips)
                     {
-                        foreach (var trip in tripChain.Trips)
+                        var householdIterations = trip.ModesChosen == null ? 1 : trip.ModesChosen.Length;
+                        for (int i = 0; i < householdIterations; i++)
                         {
-                            var householdIterations = trip.ModesChosen == null ? 1 : trip.ModesChosen.Length;
-                            for (int i = 0; i < householdIterations; i++)
+                            if (trip.ModesChosen?[i] == null)
                             {
-                                if (trip.ModesChosen?[i] == null)
+                                Validate1.Write("UnsolvedModeChoice,Household#=");
+                                Validate1.WriteLine(household.HouseholdId);
+                            }
+                            else
+                            {
+                                if (trip.ModesChosen[i].ModeName == "Auto" && !person.Licence)
                                 {
-                                    Validate1.Write("UnsolvedModeChoice,Household#=");
-                                    Validate1.WriteLine(household.HouseholdId);
-                                }
-                                else
-                                {
-                                    if (trip.ModesChosen[i].ModeName == "Auto" && !person.Licence)
-                                    {
-                                        Validate1.Write("NoLicenseAutoSelected,Household#=");
-                                        Validate1.Write(household.HouseholdId);
-                                        Validate1.Write("Person#=");
-                                        Validate1.WriteLine(Array.IndexOf(household.Persons, person));
-                                    }
+                                    Validate1.Write("NoLicenseAutoSelected,Household#=");
+                                    Validate1.Write(household.HouseholdId);
+                                    Validate1.Write("Person#=");
+                                    Validate1.WriteLine(Array.IndexOf(household.Persons, person));
                                 }
                             }
                         }
@@ -86,43 +85,43 @@ namespace Tasha.Validation
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        Dispose(true);
+    }
+
+    public void Load(int maxIterations)
+    {
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        var exist = File.Exists(FileName);
+        if (Validate1 == null || !exist)
         {
-            Dispose(true);
+            Validate1 = new StreamWriter(FileName);
         }
+    }
 
-        public void Load(int maxIterations)
-        {
-        }
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        public bool RuntimeValidation(ref string error)
+    protected virtual void Dispose(bool all)
+    {
+        if (Validate1 != null)
         {
-            return true;
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            var exist = File.Exists(FileName);
-            if (Validate1 == null || !exist)
-            {
-                Validate1 = new StreamWriter(FileName);
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool all)
-        {
-            if (Validate1 != null)
-            {
-                Validate1.Dispose();
-                Validate1 = null;
-            }
+            Validate1.Dispose();
+            Validate1 = null;
         }
     }
 }

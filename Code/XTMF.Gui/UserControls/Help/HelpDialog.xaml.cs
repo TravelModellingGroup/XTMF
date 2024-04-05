@@ -27,243 +27,242 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace XTMF.Gui.UserControls.Help
+namespace XTMF.Gui.UserControls.Help;
+
+/// <summary>
+/// Interaction logic for HelpDialog.xaml
+/// </summary>
+public partial class HelpDialog : UserControl
 {
     /// <summary>
-    /// Interaction logic for HelpDialog.xaml
+    /// Our link back into XTMF
     /// </summary>
-    public partial class HelpDialog : UserControl
+    private IConfiguration Config;
+
+    private SpinLock FullyLoaded = new(false);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="xtmfConfiguration"></param>
+    public HelpDialog(IConfiguration xtmfConfiguration)
     {
-        /// <summary>
-        /// Our link back into XTMF
-        /// </summary>
-        private IConfiguration Config;
+        DataContext = this;
+        Config = xtmfConfiguration;
+        SearchedItems = [];
+        InitializeComponent();
+        //SearchBox += SearchBox_TextChanged;
+        SearchBox.PreviewKeyDown += SearchBox_PreviewKeyDown;
+        SearchBox.Filter = Filter;
+        SearchBox.RefreshFilter();
 
-        private SpinLock FullyLoaded = new(false);
+        SearchBox.Box.TextChanged += SearchBox_TextChanged;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="xtmfConfiguration"></param>
-        public HelpDialog(IConfiguration xtmfConfiguration)
+        UpdateSearch(true);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="o"></param>
+    /// <param name="s"></param>
+    /// <returns></returns>
+    private bool Filter(object o, string s)
+    {
+        UpdateSearch(true);
+        return true;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
         {
-            DataContext = this;
-            Config = xtmfConfiguration;
-            SearchedItems = [];
-            InitializeComponent();
-            //SearchBox += SearchBox_TextChanged;
-            SearchBox.PreviewKeyDown += SearchBox_PreviewKeyDown;
-            SearchBox.Filter = Filter;
-            SearchBox.RefreshFilter();
-
-            SearchBox.Box.TextChanged += SearchBox_TextChanged;
-
-            UpdateSearch(true);
+            e.Handled = true;
+            SearchBox.Box.Text = String.Empty;
         }
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="o"></param>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        private bool Filter(object o, string s)
-        {
-            UpdateSearch(true);
-            return true;
-        }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        UpdateSearch(true);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="async"></param>
+    private void UpdateSearch(bool async)
+    {
+        //search
+        try
         {
-            if (e.Key == Key.Escape)
+            string text = null;
+            Dispatcher.Invoke(() =>
             {
-                e.Handled = true;
-                SearchBox.Box.Text = String.Empty;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            UpdateSearch(true);
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="async"></param>
-        private void UpdateSearch(bool async)
-        {
-            //search
-            try
+                text = SearchBox.Box.Text;
+            });
+            Regex searchFor = new(text, RegexOptions.IgnoreCase);
+            var loadTask = Task.Run(() =>
             {
-                string text = null;
-                Dispatcher.Invoke(() =>
+                try
                 {
-                    text = SearchBox.Box.Text;
-                });
-                Regex searchFor = new(text, RegexOptions.IgnoreCase);
-                var loadTask = Task.Run(() =>
-                {
-                    try
+                    var results = ((from module in Config.ModelRepository.AsParallel()
+                                    where searchFor.IsMatch(module.FullName)
+                                    select CreateContentReference(module))).OrderBy(c => c.ToString()).ToArray();
+                    Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        var results = ((from module in Config.ModelRepository.AsParallel()
-                                        where searchFor.IsMatch(module.FullName)
-                                        select CreateContentReference(module))).OrderBy(c => c.ToString()).ToArray();
-                        Dispatcher.BeginInvoke(new Action(() =>
+                        SearchedItems.Clear();
+                        foreach (var result in results)
                         {
-                            SearchedItems.Clear();
-                            foreach (var result in results)
-                            {
-                                SearchedItems.Add(result);
-                            }
-                        }));
-                    }
-                    catch (Exception error)
+                            SearchedItems.Add(result);
+                        }
+                    }));
+                }
+                catch (Exception error)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            MessageBox.Show(error.Message);
-                        }));
-                    }
-                });
-                if (!async)
-                {
-                    loadTask.Wait();
+                        MessageBox.Show(error.Message);
+                    }));
                 }
-            }
-            catch
+            });
+            if (!async)
             {
+                loadTask.Wait();
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="module"></param>
-        /// <returns></returns>
-        private static ContentReference CreateContentReference(Type module)
+        catch
         {
-            foreach (var at in module.GetCustomAttributes(true))
-            {
-                if (at is ModuleInformationAttribute mi)
-                {
-                    return new ContentReference(module.FullName, module, mi.DocURL);
-                }
-            }
-            return new ContentReference(module.FullName, module);
         }
+    }
 
-        public BindingList<ContentReference> SearchedItems { get; private set; }
-
-
-        public ContentReference CurrentContent
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="module"></param>
+    /// <returns></returns>
+    private static ContentReference CreateContentReference(Type module)
+    {
+        foreach (var at in module.GetCustomAttributes(true))
         {
-            get { return (ContentReference)GetValue(CurrentContentProperty); }
-            set { SetValue(CurrentContentProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for CurrentContent.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty CurrentContentProperty =
-            DependencyProperty.Register("CurrentContent", typeof(ContentReference), typeof(HelpDialog), new PropertyMetadata(null, OnCurrentContentChanged));
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="d"></param>
-        /// <param name="e"></param>
-        private static void OnCurrentContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var us = d as HelpDialog;
-            var newContent = e.NewValue as ContentReference;
-            us.ContentPresenter.Content = null;
-            if (newContent == null) return;
-            if (!String.IsNullOrWhiteSpace(newContent.DocURL))
+            if (at is ModuleInformationAttribute mi)
             {
-                var browser = new WebBrowser();
-                browser.Navigate(newContent.DocURL);
-                us.ContentPresenter.Content = browser;
-            }
-            else
-            {
-                if (newContent != null)
-                {
-                    var content = newContent.Content;
-                    us.ContentPresenter.Content = content;
-                }
+                return new ContentReference(module.FullName, module, mi.DocURL);
             }
         }
+        return new ContentReference(module.FullName, module);
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ResultBox_Selected(object sender, SelectionChangedEventArgs e)
+    public BindingList<ContentReference> SearchedItems { get; private set; }
+
+
+    public ContentReference CurrentContent
+    {
+        get { return (ContentReference)GetValue(CurrentContentProperty); }
+        set { SetValue(CurrentContentProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for CurrentContent.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty CurrentContentProperty =
+        DependencyProperty.Register("CurrentContent", typeof(ContentReference), typeof(HelpDialog), new PropertyMetadata(null, OnCurrentContentChanged));
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="d"></param>
+    /// <param name="e"></param>
+    private static void OnCurrentContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var us = d as HelpDialog;
+        var newContent = e.NewValue as ContentReference;
+        us.ContentPresenter.Content = null;
+        if (newContent == null) return;
+        if (!String.IsNullOrWhiteSpace(newContent.DocURL))
         {
-            if (ResultBox.SelectedItem is ContentReference cr)
+            var browser = new WebBrowser();
+            browser.Navigate(newContent.DocURL);
+            us.ContentPresenter.Content = browser;
+        }
+        else
+        {
+            if (newContent != null)
             {
-                CurrentContent = cr;
+                var content = newContent.Content;
+                us.ContentPresenter.Content = content;
             }
         }
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="module"></param>
-        public void SelectModuleContent(ModelSystemStructureModel module)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ResultBox_Selected(object sender, SelectionChangedEventArgs e)
+    {
+        if (ResultBox.SelectedItem is ContentReference cr)
         {
-            Task.Run(() =>
+            CurrentContent = cr;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="module"></param>
+    public void SelectModuleContent(ModelSystemStructureModel module)
+    {
+        Task.Run(() =>
+       {
+           if (module != null)
            {
-               if (module != null)
+               var type = module.Type;
+               var selectCorrectDocument = Task.Run(() =>
                {
-                   var type = module.Type;
-                   var selectCorrectDocument = Task.Run(() =>
-                   {
-                       UpdateSearch(false);
-                       Dispatcher.BeginInvoke(new Action(() =>
+                   UpdateSearch(false);
+                   Dispatcher.BeginInvoke(new Action(() =>
+                  {
+                      var foundElement = SearchedItems.FirstOrDefault(element => element.Module == type);
+                      if (foundElement != null)
                       {
-                          var foundElement = SearchedItems.FirstOrDefault(element => element.Module == type);
-                          if (foundElement != null)
-                          {
-                              ResultBox.SelectedItem = foundElement;
-                          }
-                      }));
-                   });
-                   OperationProgressing progressing = null;
-                   Dispatcher.Invoke(() =>
+                          ResultBox.SelectedItem = foundElement;
+                      }
+                  }));
+               });
+               OperationProgressing progressing = null;
+               Dispatcher.Invoke(() =>
+               {
+                   progressing = new OperationProgressing
                    {
-                       progressing = new OperationProgressing
-                       {
-                           Owner = MainWindow.Us
-                       };
-                   });
-                   Dispatcher.BeginInvoke(new Action(() =>
-                   {
-                       progressing.ShowDialog();
-                   }));
-                   selectCorrectDocument.Wait();
-                   Dispatcher.BeginInvoke(new Action(() =>
-                   {
-                       progressing.Close();
-                   }));
-               }
-           });
-        }
+                       Owner = MainWindow.Us
+                   };
+               });
+               Dispatcher.BeginInvoke(new Action(() =>
+               {
+                   progressing.ShowDialog();
+               }));
+               selectCorrectDocument.Wait();
+               Dispatcher.BeginInvoke(new Action(() =>
+               {
+                   progressing.Close();
+               }));
+           }
+       });
+    }
 
-        private void FilterModelSystemsBox_OnEnterPressed(object sender, EventArgs e)
-        {
-            //throw new NotImplementedException();
-        }
+    private void FilterModelSystemsBox_OnEnterPressed(object sender, EventArgs e)
+    {
+        //throw new NotImplementedException();
     }
 }

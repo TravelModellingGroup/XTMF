@@ -19,10 +19,9 @@
 using System.Collections.Generic;
 using Datastructure;
 
-namespace TMG
+namespace TMG;
+
+public interface IMultiModeSplit : IModeSplit
 {
-    public interface IMultiModeSplit : IModeSplit
-    {
-        List<TreeData<float[][]>> ModeSplit(IEnumerable<SparseTwinIndex<float>> flowMatrix, int numberOfCategories);
-    }
+    List<TreeData<float[][]>> ModeSplit(IEnumerable<SparseTwinIndex<float>> flowMatrix, int numberOfCategories);
 }

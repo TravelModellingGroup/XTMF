@@ -19,41 +19,40 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XTMF.Testing.Editing
-{
-    [TestClass]
-    public class TestModelSystemController
-    {
-        [TestMethod]
-        public void TestNoDeleteDuringSession()
-        {
-            var runtime = TestXTMFCore.CreateRuntime();
-            var controller = runtime.ModelSystemController;
-            var msName = "TestModelSystem";
-            controller.Delete( msName );
-            var ms = controller.LoadOrCreate( msName );
-            Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            string? error = null;
-            Assert.IsTrue( controller.Delete( ms, ref error ), "We were unable to delete a model system that should have existed!" );
-            ms = controller.LoadOrCreate( msName );
-            using (controller.EditModelSystem( ms ))
-            {
-                Assert.IsFalse( controller.Delete( ms, ref error ), "Even though the model system had an editing session it was deleted!" );
-            }
-            Assert.IsTrue( controller.Delete( ms, ref error ), "Even though the model system was no longer being editing it was not deleted!" );
-        }
+namespace XTMF.Testing.Editing;
 
-        [TestMethod]
-        public void TestImportModelSystem()
+[TestClass]
+public class TestModelSystemController
+{
+    [TestMethod]
+    public void TestNoDeleteDuringSession()
+    {
+        var runtime = TestXTMFCore.CreateRuntime();
+        var controller = runtime.ModelSystemController;
+        var msName = "TestModelSystem";
+        controller.Delete( msName );
+        var ms = controller.LoadOrCreate( msName );
+        Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
+        string? error = null;
+        Assert.IsTrue( controller.Delete( ms, ref error ), "We were unable to delete a model system that should have existed!" );
+        ms = controller.LoadOrCreate( msName );
+        using (controller.EditModelSystem( ms ))
         {
-            var runtime = TestXTMFCore.CreateRuntime();
-            var controller = runtime.ModelSystemController;
-            var importName = "TestImportModelSystem";
-            string? error = null;
-            controller.Delete( importName );
-            Assert.IsNull( controller.Load( importName ) );
-            Assert.IsTrue( controller.ImportModelSystem( "TestImportModelSystem.xml", false, ref error ), error );
-            Assert.IsNotNull( controller.Load( importName ) );
+            Assert.IsFalse( controller.Delete( ms, ref error ), "Even though the model system had an editing session it was deleted!" );
         }
+        Assert.IsTrue( controller.Delete( ms, ref error ), "Even though the model system was no longer being editing it was not deleted!" );
+    }
+
+    [TestMethod]
+    public void TestImportModelSystem()
+    {
+        var runtime = TestXTMFCore.CreateRuntime();
+        var controller = runtime.ModelSystemController;
+        var importName = "TestImportModelSystem";
+        string? error = null;
+        controller.Delete( importName );
+        Assert.IsNull( controller.Load( importName ) );
+        Assert.IsTrue( controller.ImportModelSystem( "TestImportModelSystem.xml", false, ref error ), error );
+        Assert.IsNotNull( controller.Load( importName ) );
     }
 }

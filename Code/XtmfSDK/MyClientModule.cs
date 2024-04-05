@@ -22,80 +22,79 @@ using System.IO;
 using XTMF;
 using XTMF.Networking;
 
-namespace XtmfSDK
+namespace XtmfSDK;
+
+[ModuleInformation(Description =
+    @"This is where you would describe what your client should be used for or other information about it.  It can handle <b>HTML</b> tags.")]
+public class MyClientModule : IModelSystemTemplate
 {
-    [ModuleInformation(Description =
-        @"This is where you would describe what your client should be used for or other information about it.  It can handle <b>HTML</b> tags.")]
-    public class MyClientModule : IModelSystemTemplate
+    public IClient Client;
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
+
+    public string InputBaseDirectory
     {
-        public IClient Client;
-        private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
+        get;
+        set;
+    }
 
-        public string InputBaseDirectory
+    public string Name { get; set; }
+
+    public string OutputBaseDirectory
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool ExitRequest()
+    {
+        return false;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( Client == null )
         {
-            get;
-            set;
-        }
-
-        public string Name { get; set; }
-
-        public string OutputBaseDirectory
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool ExitRequest()
-        {
+            error = "MyClientModule requires an XTMF that supports XTMF.Networking.IClient";
             return false;
         }
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            if ( Client == null )
-            {
-                error = "MyClientModule requires an XTMF that supports XTMF.Networking.IClient";
-                return false;
-            }
-            return true;
-        }
+    public void Start()
+    {
+        // Your Code goes here
+        InitializeCustomMessages();
+    }
 
-        public void Start()
-        {
-            // Your Code goes here
-            InitializeCustomMessages();
-        }
+    private void CustomMessageHandler(object data)
+    {
+    }
 
-        private void CustomMessageHandler(object data)
-        {
-        }
+    private object CustomMessageReceiver(Stream inputStream)
+    {
+        return null;
+    }
 
-        private object CustomMessageReceiver(Stream inputStream)
-        {
-            return null;
-        }
+    private void CustomMessageSender(object data, Stream outputStream)
+    {
 
-        private void CustomMessageSender(object data, Stream outputStream)
-        {
+    }
 
-        }
-
-        private void InitializeCustomMessages()
-        {
-            Client.RegisterCustomSender( 2, CustomMessageSender );
-            Client.RegisterCustomReceiver( 1, CustomMessageReceiver );
-            Client.RegisterCustomMessageHandler( 1, CustomMessageHandler );
-        }
+    private void InitializeCustomMessages()
+    {
+        Client.RegisterCustomSender( 2, CustomMessageSender );
+        Client.RegisterCustomReceiver( 1, CustomMessageReceiver );
+        Client.RegisterCustomMessageHandler( 1, CustomMessageHandler );
     }
 }

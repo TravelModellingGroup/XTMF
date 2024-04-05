@@ -21,85 +21,84 @@ using XTMF;
 using TMG.Input;
 using System.IO;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+// ReSharper disable InconsistentNaming
+public enum FunctionConflictOption
 {
-    // ReSharper disable InconsistentNaming
-    public enum FunctionConflictOption
+    RAISE,
+    PRESERVE,
+    OVERWRITE
+}
+
+public class ImportNetworkPackage : IEmmeTool
+{
+    [RunParameter("Scenario Id", 0, "The number of the new Emme scenario to create.")]
+    public int ScenarioId;
+
+    [RunParameter("Scenario Name", "", "The name of the Emme scenario to create.")]
+    public string ScenarioName;
+
+    [RunParameter("Function Conflict Option", FunctionConflictOption.RAISE, "Option to deal with function definition conflicts. For example, if "
+        + "FT1 is defined as 'length / speed * 60' in the current Emmebank, but defined as 'length / us1 * 60' in the NWP's functions file."
+        + "One of RAISE, PRESERVE or OVERWRITE. RAISE (default) raises an error if "
+        + "any conflict is detected. PRESERVE keeps the definitions that already exist in the Emmebank (no modification). OVERWRITE modifies "
+        + "the definitions to match what is given in the NWP file.")]
+    public FunctionConflictOption ConflictOption;
+
+    [SubModelInformation(Required = true, Description = "Network Package File")]
+    public FileLocation NetworkPackage;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+    private const string _ToolName = "tmg.input_output.import_network_package";
+
+
+    [RunParameter("Add Functions", true, "Flag to specify whether non-conflicting functions should be added on import.")]
+    public bool AddFunctions;
+
+    public bool Execute(Controller controller)
     {
-        RAISE,
-        PRESERVE,
-        OVERWRITE
+        var mc = controller as ModellerController;
+        if (mc == null)
+        {
+            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
+        }
+
+        Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
+
+
+        return mc.Run(this, _ToolName,
+            new[]
+            {
+                new ModellerControllerParameter("NetworkPackageFile", Path.GetFullPath(NetworkPackage.GetFilePath())),
+                new ModellerControllerParameter("ScenarioId", ScenarioId.ToString()),
+                new ModellerControllerParameter("ConflictOption", ConflictOption.ToString()),
+                new ModellerControllerParameter("AddFunction", AddFunctions.ToString()),
+                new ModellerControllerParameter("ScenarioName", ScenarioName.ToString())
+            });
     }
 
-    public class ImportNetworkPackage : IEmmeTool
+    public string Name
     {
-        [RunParameter("Scenario Id", 0, "The number of the new Emme scenario to create.")]
-        public int ScenarioId;
+        get;
+        set;
+    }
 
-        [RunParameter("Scenario Name", "", "The name of the Emme scenario to create.")]
-        public string ScenarioName;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("Function Conflict Option", FunctionConflictOption.RAISE, "Option to deal with function definition conflicts. For example, if "
-            + "FT1 is defined as 'length / speed * 60' in the current Emmebank, but defined as 'length / us1 * 60' in the NWP's functions file."
-            + "One of RAISE, PRESERVE or OVERWRITE. RAISE (default) raises an error if "
-            + "any conflict is detected. PRESERVE keeps the definitions that already exist in the Emmebank (no modification). OVERWRITE modifies "
-            + "the definitions to match what is given in the NWP file.")]
-        public FunctionConflictOption ConflictOption;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        [SubModelInformation(Required = true, Description = "Network Package File")]
-        public FileLocation NetworkPackage;
-
-        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
-        private const string _ToolName = "tmg.input_output.import_network_package";
-
-
-        [RunParameter("Add Functions", true, "Flag to specify whether non-conflicting functions should be added on import.")]
-        public bool AddFunctions;
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            }
-
-            Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
-
-
-            return mc.Run(this, _ToolName,
-                new[]
-                {
-                    new ModellerControllerParameter("NetworkPackageFile", Path.GetFullPath(NetworkPackage.GetFilePath())),
-                    new ModellerControllerParameter("ScenarioId", ScenarioId.ToString()),
-                    new ModellerControllerParameter("ConflictOption", ConflictOption.ToString()),
-                    new ModellerControllerParameter("AddFunction", AddFunctions.ToString()),
-                    new ModellerControllerParameter("ScenarioName", ScenarioName.ToString())
-                });
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (ScenarioName == "")
-                ScenarioName = " ";
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        if (ScenarioName == "")
+            ScenarioName = " ";
+        return true;
     }
 }

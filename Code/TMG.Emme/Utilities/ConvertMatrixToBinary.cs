@@ -19,49 +19,47 @@
 using System;
 using XTMF;
 using TMG.Input;
-namespace TMG.Emme.Utilities
+namespace TMG.Emme.Utilities;
+
+[ModuleInformation(
+    Description = "This module is designed to facilitate the conversion of different matrix formats into the EMME 4+ binary matrix format."
+    )]
+public class ConvertMatrixToBinary : ISelfContainedModule
 {
-    [ModuleInformation(
-        Description = "This module is designed to facilitate the conversion of different matrix formats into the EMME 4+ binary matrix format."
-        )]
-    public class ConvertMatrixToBinary : ISelfContainedModule
+    [SubModelInformation(Required = true, Description = "The location to save the binary matrix.")]
+    public FileLocation OutputLocation;
+
+    [SubModelInformation(Description = "The source to load the data in from.", Required = true)]
+    public IReadODData<float> SourceData;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-        [SubModelInformation(Required = true, Description = "The location to save the binary matrix.")]
-        public FileLocation OutputLocation;
-
-        [SubModelInformation(Description = "The source to load the data in from.", Required = true)]
-        public IReadODData<float> SourceData;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            if(!Root.ZoneSystem.Loaded)
-            {
-                Root.ZoneSystem.LoadData();
-            }
-            var tempMatrix = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            foreach(var point in SourceData.Read())
-            {
-                if(tempMatrix.ContainsIndex(point.O, point.D))
-                {
-                    tempMatrix[point.O, point.D] = point.Data;
-                }
-            }
-            new EmmeMatrix(Root.ZoneSystem.ZoneArray,tempMatrix.GetFlatData()).Save(OutputLocation, false);
-        }
+        return true;
     }
 
+    public void Start()
+    {
+        if(!Root.ZoneSystem.Loaded)
+        {
+            Root.ZoneSystem.LoadData();
+        }
+        var tempMatrix = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        foreach(var point in SourceData.Read())
+        {
+            if(tempMatrix.ContainsIndex(point.O, point.D))
+            {
+                tempMatrix[point.O, point.D] = point.Data;
+            }
+        }
+        new EmmeMatrix(Root.ZoneSystem.ZoneArray,tempMatrix.GetFlatData()).Save(OutputLocation, false);
+    }
 }

@@ -16,23 +16,22 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+/// <summary>
+/// A base for model system templates that have a population and demographic information
+/// </summary>
+public interface IDemographicsModelSystemTemplate : ITravelDemandModel
 {
     /// <summary>
-    /// A base for model system templates that have a population and demographic information
+    /// A Module containing data regarding demographics
+    /// for the model system
     /// </summary>
-    public interface IDemographicsModelSystemTemplate : ITravelDemandModel
-    {
-        /// <summary>
-        /// A Module containing data regarding demographics
-        /// for the model system
-        /// </summary>
-        IDemographicsData Demographics { get; }
+    IDemographicsData Demographics { get; }
 
-        /// <summary>
-        /// A module containing the population that we are
-        /// processing in the model system
-        /// </summary>
-        IPopulation Population { get; }
-    }
+    /// <summary>
+    /// A module containing the population that we are
+    /// processing in the model system
+    /// </summary>
+    IPopulation Population { get; }
 }

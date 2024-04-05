@@ -18,36 +18,35 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+[AttributeUsage( AttributeTargets.Field | AttributeTargets.Property )]
+public class SubModelInformation : Attribute
 {
-    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Property )]
-    public class SubModelInformation : Attribute
+    /// <summary>
+    ///
+    /// </summary>
+    public SubModelInformation()
     {
-        /// <summary>
-        ///
-        /// </summary>
-        public SubModelInformation()
-        {
-            Description = String.Empty;
-        }
-
-        /// <summary>
-        /// What this model does, or should do
-        /// </summary>
-        public string Description { get; set; }
-
-        /// <summary>
-        /// Is this model required to execute?
-        /// </summary>
-        public bool Required { get; set; }
-
-        /// <summary>
-        /// Provides a hint for the order in which sub-models should be ordered
-        /// when being displayed to the user.
-        /// </summary>
-        /// <remarks><
-        /// If multiple submodules have the same index they will be ordered in alphabetical order.
-        /// </remarks>
-        public int Index { get; set; } = int.MaxValue;
+        Description = String.Empty;
     }
+
+    /// <summary>
+    /// What this model does, or should do
+    /// </summary>
+    public string Description { get; set; }
+
+    /// <summary>
+    /// Is this model required to execute?
+    /// </summary>
+    public bool Required { get; set; }
+
+    /// <summary>
+    /// Provides a hint for the order in which sub-models should be ordered
+    /// when being displayed to the user.
+    /// </summary>
+    /// <remarks><
+    /// If multiple submodules have the same index they will be ordered in alphabetical order.
+    /// </remarks>
+    public int Index { get; set; } = int.MaxValue;
 }

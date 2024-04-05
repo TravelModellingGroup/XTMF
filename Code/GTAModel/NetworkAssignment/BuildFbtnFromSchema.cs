@@ -22,87 +22,86 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAssignment
+namespace TMG.GTAModel.NetworkAssignment;
+
+[ModuleInformation(Description = "Generates a hyper-network to support fare-based transit " +
+                 "assignment(FBTA), from an XML schema file.Links and segments with negative " +
+                 "fare values will be reported to the Logbook for further inspection. " +
+                 "For fare schema specification, please consult TMG documentation." +
+                 "<br><br><b> Temporary storage requirements:</b> one transit line extra " +
+                 "attribute, one node extra attribute.",
+    Name = "Build Fare Based Transit Network From Schema")]
+public class BuildFbtnFromSchema : IEmmeTool
 {
-    [ModuleInformation(Description = "Generates a hyper-network to support fare-based transit " +
-                     "assignment(FBTA), from an XML schema file.Links and segments with negative " +
-                     "fare values will be reported to the Logbook for further inspection. " +
-                     "For fare schema specification, please consult TMG documentation." +
-                     "<br><br><b> Temporary storage requirements:</b> one transit line extra " +
-                     "attribute, one node extra attribute.",
-        Name = "Build Fare Based Transit Network From Schema")]
-    public class BuildFbtnFromSchema : IEmmeTool
+    [SubModelInformation(Description = "Fare Schema File", Required = true)]
+    public FileLocation SchemaFile;
+
+    [RunParameter("Base Scenario", 0, "The number of the Emme BASE (i.e. non-FBTN-enabled) scenario.")]
+    public int BaseScenarioNumber;
+
+    [RunParameter("New Scenario", 0, "The number of the scenario to be created.")]
+    public int NewScenarioNumber;
+
+    [RunParameter("Transfer Mode", 't', "The mode ID to assign to new virtual connector links.")]
+    public char TransferModeId;
+
+    [Parameter("Segment Fare Attribute", "@sfare", "A TRANSIT SEGMENT extra attribute in which to store the in-line fares.")]
+    public string SegmentFareAttribute;
+
+    [Parameter("Link Fare Attribute", "@lfare", "A LINK extra attribute in which to store the transfer and boarding fares.")]
+    public string LinkFareAttribute;
+
+    [Parameter("Virtual Node Domain", 100000, "All created virtual nodes will have IDs higher than this number. This tool will never override and existing node.")]
+    public int VirtualNodeDomain;
+
+    [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
+    public bool StationConnectorFlag;
+
+    [RunParameter("IgnoreSameGroupsForStations", true, "Set this to true to maintain backwards compatibility?  Set this to false to allow the hyper network generator to properly create transfer nodes within an agency to a rail station.")]
+    public bool IgnoreSameGroupsForStations;
+
+    private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
+
+    private const string ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
+
+    public bool Execute(Controller controller)
     {
-        [SubModelInformation(Description = "Fare Schema File", Required = true)]
-        public FileLocation SchemaFile;
+        var mc = controller as ModellerController;
+        if (mc == null)
+            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
-        [RunParameter("Base Scenario", 0, "The number of the Emme BASE (i.e. non-FBTN-enabled) scenario.")]
-        public int BaseScenarioNumber;
+        var args = string.Join(" ", "\"" + SchemaFile.GetFilePath() + "\"",
+                                    BaseScenarioNumber,
+                                    NewScenarioNumber,
+                                    TransferModeId,
+                                    SegmentFareAttribute,
+                                    LinkFareAttribute,
+                                    VirtualNodeDomain,
+                                    StationConnectorFlag,
+                                    IgnoreSameGroupsForStations);
+        var result = "";
+        return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+    }
 
-        [RunParameter("New Scenario", 0, "The number of the scenario to be created.")]
-        public int NewScenarioNumber;
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("Transfer Mode", 't', "The mode ID to assign to new virtual connector links.")]
-        public char TransferModeId;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [Parameter("Segment Fare Attribute", "@sfare", "A TRANSIT SEGMENT extra attribute in which to store the in-line fares.")]
-        public string SegmentFareAttribute;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _progressColour; }
+    }
 
-        [Parameter("Link Fare Attribute", "@lfare", "A LINK extra attribute in which to store the transfer and boarding fares.")]
-        public string LinkFareAttribute;
-
-        [Parameter("Virtual Node Domain", 100000, "All created virtual nodes will have IDs higher than this number. This tool will never override and existing node.")]
-        public int VirtualNodeDomain;
-
-        [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
-        public bool StationConnectorFlag;
-
-        [RunParameter("IgnoreSameGroupsForStations", true, "Set this to true to maintain backwards compatibility?  Set this to false to allow the hyper network generator to properly create transfer nodes within an agency to a rail station.")]
-        public bool IgnoreSameGroupsForStations;
-
-        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
-
-        private const string ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
-            var args = string.Join(" ", "\"" + SchemaFile.GetFilePath() + "\"",
-                                        BaseScenarioNumber,
-                                        NewScenarioNumber,
-                                        TransferModeId,
-                                        SegmentFareAttribute,
-                                        LinkFareAttribute,
-                                        VirtualNodeDomain,
-                                        StationConnectorFlag,
-                                        IgnoreSameGroupsForStations);
-            var result = "";
-            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _progressColour; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -16,15 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace XTMF
+namespace XTMF;
+
+// ReSharper disable once UnusedTypeParameter
+public interface IDatachainLoader<TGiven, TProduced> : IModule
 {
-    // ReSharper disable once UnusedTypeParameter
-    public interface IDatachainLoader<TGiven, TProduced> : IModule
-    {
-        bool Load(TGiven data);
+    bool Load(TGiven data);
 
-        void Reset();
+    void Reset();
 
-        void Unload();
-    }
+    void Unload();
 }

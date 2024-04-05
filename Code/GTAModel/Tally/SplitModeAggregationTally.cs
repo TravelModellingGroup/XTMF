@@ -21,60 +21,59 @@ using System;
 using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+public class SplitModeAggregationTally : DirectModeAggregationTally
 {
-    public class SplitModeAggregationTally : DirectModeAggregationTally
+    [RunParameter( "Count From Origin", true, "Should we be tallying from the origin to the intermediate zone" +
+        "\r\nor should we be counting from the intermediate zone to the destination?" )]
+    public bool CountFromOrigin;
+
+    [RunParameter( "Intermediate Zone", 7000, "Which zone should we use as the intermediate?" )]
+    public int IntermediateZone;
+
+    public override void IncludeTally(float[][] currentTally)
     {
-        [RunParameter( "Count From Origin", true, "Should we be tallying from the origin to the intermediate zone" +
-            "\r\nor should we be counting from the intermediate zone to the destination?" )]
-        public bool CountFromOrigin;
-
-        [RunParameter( "Intermediate Zone", 7000, "Which zone should we use as the intermediate?" )]
-        public int IntermediateZone;
-
-        public override void IncludeTally(float[][] currentTally)
+        var purposes = Root.Purpose;
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfZones = zones.Length;
+        int modeFlatZone = Root.ZoneSystem.ZoneArray.GetFlatIndex( IntermediateZone );
+        if ( modeFlatZone == -1 )
         {
-            var purposes = Root.Purpose;
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfZones = zones.Length;
-            int modeFlatZone = Root.ZoneSystem.ZoneArray.GetFlatIndex( IntermediateZone );
-            if ( modeFlatZone == -1 )
+            throw new XTMFRuntimeException(this, "The intermediate zone '" + IntermediateZone + " does not exist in the zone system!" );
+        }
+        for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
+        {
+            var purpose = purposes[purp];
+            for ( int m = 0; m < ModeIndexes.Length; m++ )
             {
-                throw new XTMFRuntimeException(this, "The intermediate zone '" + IntermediateZone + " does not exist in the zone system!" );
-            }
-            for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
-            {
-                var purpose = purposes[purp];
-                for ( int m = 0; m < ModeIndexes.Length; m++ )
+                var data = GetResult( purpose.Flows, ModeIndexes[m] );
+                // if there is no data continue on to the next mode
+                if ( data == null ) continue;
+                if ( CountFromOrigin )
                 {
-                    var data = GetResult( purpose.Flows, ModeIndexes[m] );
-                    // if there is no data continue on to the next mode
-                    if ( data == null ) continue;
-                    if ( CountFromOrigin )
-                    {
-                        Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                            delegate(int o)
+                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        delegate(int o)
+                        {
+                            if ( data[o] == null ) return;
+                            for ( int d = 0; d < numberOfZones; d++ )
                             {
-                                if ( data[o] == null ) return;
-                                for ( int d = 0; d < numberOfZones; d++ )
-                                {
-                                    currentTally[o][modeFlatZone] += data[o][d];
-                                }
-                            } );
-                    }
-                    else
-                    {
-                        // we have to go parallel on the destination or we will have overlap in parallel
-                        Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                            delegate(int d)
+                                currentTally[o][modeFlatZone] += data[o][d];
+                            }
+                        } );
+                }
+                else
+                {
+                    // we have to go parallel on the destination or we will have overlap in parallel
+                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        delegate(int d)
+                        {
+                            for ( int o = 0; o < numberOfZones; o++ )
                             {
-                                for ( int o = 0; o < numberOfZones; o++ )
-                                {
-                                    if ( data[o] == null ) continue;
-                                    currentTally[modeFlatZone][d] += data[o][d];
-                                }
-                            } );
-                    }
+                                if ( data[o] == null ) continue;
+                                currentTally[modeFlatZone][d] += data[o][d];
+                            }
+                        } );
                 }
             }
         }

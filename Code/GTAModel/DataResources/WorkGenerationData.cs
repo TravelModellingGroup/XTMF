@@ -21,92 +21,91 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.DataResources
+namespace TMG.GTAModel.DataResources;
+
+[ModuleInformation(Description=
+    @"Provides a way of storing work related data in for the format [zone][EmploymentCategoryRange,MobilityRange,AgeRange]."
+    )]
+public class WorkGenerationData : IDataSource<SparseArray<SparseTriIndex<float>>>
 {
-    [ModuleInformation(Description=
-        @"Provides a way of storing work related data in for the format [zone][EmploymentCategoryRange,MobilityRange,AgeRange]."
-        )]
-    public class WorkGenerationData : IDataSource<SparseArray<SparseTriIndex<float>>>
+    [RootModule]
+    public ITravelDemandModel Root;
+    [Parameter( "Employment Categories", "1-2", typeof( RangeSet ), "The ranges of employment categories." )]
+    public RangeSet EmploymentCategoryRange;
+    [Parameter( "Mobility Categories", "0-5", typeof( RangeSet ), "The ranges of mobility categories." )]
+    public RangeSet MobilityRange;
+    [Parameter( "Age Categories", "1-6", typeof( RangeSet ), "The ranges of age categories." )]
+    public RangeSet AgeRange;
+
+
+    private SparseArray<SparseTriIndex<float>> Data;
+    public SparseArray<SparseTriIndex<float>> GiveData()
     {
-        [RootModule]
-        public ITravelDemandModel Root;
-        [Parameter( "Employment Categories", "1-2", typeof( RangeSet ), "The ranges of employment categories." )]
-        public RangeSet EmploymentCategoryRange;
-        [Parameter( "Mobility Categories", "0-5", typeof( RangeSet ), "The ranges of mobility categories." )]
-        public RangeSet MobilityRange;
-        [Parameter( "Age Categories", "1-6", typeof( RangeSet ), "The ranges of age categories." )]
-        public RangeSet AgeRange;
+        return Data;
+    }
 
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        private SparseArray<SparseTriIndex<float>> Data;
-        public SparseArray<SparseTriIndex<float>> GiveData()
+    public void LoadData()
+    {
+        // get a replica of the zone system
+        SparseArray<SparseTriIndex<float>> temp = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
+        var total = ( EmploymentCategoryRange[0].Stop - EmploymentCategoryRange[0].Start + 1 )
+            * ( MobilityRange[0].Stop - MobilityRange[0].Start + 1 )
+            * ( AgeRange[0].Stop - AgeRange[0].Start + 1 );
+        int[] first = new int[total];
+        int[] second = new int[total];
+        int[] third = new int[total];
+        float[] data = new float[total];
+        int pos = 0;
+        for ( int i = EmploymentCategoryRange[0].Start; i <= EmploymentCategoryRange[0].Stop; i++ )
         {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            // get a replica of the zone system
-            SparseArray<SparseTriIndex<float>> temp = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            var total = ( EmploymentCategoryRange[0].Stop - EmploymentCategoryRange[0].Start + 1 )
-                * ( MobilityRange[0].Stop - MobilityRange[0].Start + 1 )
-                * ( AgeRange[0].Stop - AgeRange[0].Start + 1 );
-            int[] first = new int[total];
-            int[] second = new int[total];
-            int[] third = new int[total];
-            float[] data = new float[total];
-            int pos = 0;
-            for ( int i = EmploymentCategoryRange[0].Start; i <= EmploymentCategoryRange[0].Stop; i++ )
+            for ( int j = MobilityRange[0].Start; j <= MobilityRange[0].Stop; j++ )
             {
-                for ( int j = MobilityRange[0].Start; j <= MobilityRange[0].Stop; j++ )
+                for ( int k = AgeRange[0].Start; k <= AgeRange[0].Stop; k++ )
                 {
-                    for ( int k = AgeRange[0].Start; k <= AgeRange[0].Stop; k++ )
-                    {
-                        first[pos] = i;
-                        second[pos] = j;
-                        third[pos] = k;
-                        data[pos] = 0f;
-                        pos++;
-                    }
+                    first[pos] = i;
+                    second[pos] = j;
+                    third[pos] = k;
+                    data[pos] = 0f;
+                    pos++;
                 }
             }
-            var flatTemp = temp.GetFlatData();
-            // initialize the first one, and use it for the first zone
-            flatTemp[0] = SparseTriIndex<float>.CreateSparseTriIndex( first, second, third, data );
-            //release memory resources before we allocate a bunch more
-            // now create a clone of this for each zone [i starts at 1 since 0 has already been set]
-            for ( int i = 1; i < flatTemp.Length; i++ )
-            {
-                flatTemp[i] = flatTemp[0].CreateSimilarArray<float>();
-            }
-            Data = temp;
         }
-
-        public void UnloadData()
+        var flatTemp = temp.GetFlatData();
+        // initialize the first one, and use it for the first zone
+        flatTemp[0] = SparseTriIndex<float>.CreateSparseTriIndex( first, second, third, data );
+        //release memory resources before we allocate a bunch more
+        // now create a clone of this for each zone [i starts at 1 since 0 has already been set]
+        for ( int i = 1; i < flatTemp.Length; i++ )
         {
-            Data = null;
+            flatTemp[i] = flatTemp[0].CreateSimilarArray<float>();
         }
+        Data = temp;
+    }
 
-        public string Name { get; set; }
+    public void UnloadData()
+    {
+        Data = null;
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public string Name { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

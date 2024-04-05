@@ -18,19 +18,18 @@
 */
 using System;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+[AttributeUsage( AttributeTargets.Class )]
+public class ModeVarianceAttribute : Attribute
 {
-    [AttributeUsage( AttributeTargets.Class )]
-    public class ModeVarianceAttribute : Attribute
+    public ModeVarianceAttribute(string name, double defaultVal)
     {
-        public ModeVarianceAttribute(string name, double defaultVal)
-        {
-            Name = name;
-            DefaultVal = defaultVal;
-        }
-
-        public double DefaultVal { get; private set; }
-
-        public string Name { get; private set; }
+        Name = name;
+        DefaultVal = defaultVal;
     }
+
+    public double DefaultVal { get; private set; }
+
+    public string Name { get; private set; }
 }

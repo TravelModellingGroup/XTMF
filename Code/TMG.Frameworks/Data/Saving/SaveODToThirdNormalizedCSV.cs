@@ -22,37 +22,36 @@ using TMG.Input;
 using TMG.Functions;
 using Datastructure;
 
-namespace TMG.Frameworks.Data.Saving
+namespace TMG.Frameworks.Data.Saving;
+
+[ModuleInformation(
+    Description = "This module is designed to save OD data into a csv file with the headers (Origin,Destination,Data)."
+    )]
+// ReSharper disable once InconsistentNaming
+public class SaveODToThirdNormalizedCSV : ISelfContainedModule
 {
-    [ModuleInformation(
-        Description = "This module is designed to save OD data into a csv file with the headers (Origin,Destination,Data)."
-        )]
-    // ReSharper disable once InconsistentNaming
-    public class SaveODToThirdNormalizedCSV : ISelfContainedModule
+    [SubModelInformation(Required = false, Description = "The OD Data to save, this or the Raw Data Source need to be filled out.")]
+    public IResource ResourceToSave;
+
+    [SubModelInformation(Required = false, Description = "The OD Data to save, this or the Resource To Save need to be filled out.")]
+    public IDataSource<SparseTwinIndex<float>> RawDataSourceToSave;
+
+    [SubModelInformation(Required = true, Description = "The location to save the file to.")]
+    public FileLocation SaveTo;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-        [SubModelInformation(Required = false, Description = "The OD Data to save, this or the Raw Data Source need to be filled out.")]
-        public IResource ResourceToSave;
+        return ModuleHelper.EnsureExactlyOneAndOfSameType(this, RawDataSourceToSave, ResourceToSave, ref error);
+    }
 
-        [SubModelInformation(Required = false, Description = "The OD Data to save, this or the Resource To Save need to be filled out.")]
-        public IDataSource<SparseTwinIndex<float>> RawDataSourceToSave;
-
-        [SubModelInformation(Required = true, Description = "The location to save the file to.")]
-        public FileLocation SaveTo;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return ModuleHelper.EnsureExactlyOneAndOfSameType(this, RawDataSourceToSave, ResourceToSave, ref error);
-        }
-
-        public void Start()
-        {
-            SaveData.SaveMatrixThirdNormalized(ModuleHelper.GetDataFromDatasourceOrResource(RawDataSourceToSave, ResourceToSave, RawDataSourceToSave != null), SaveTo);
-        }
+    public void Start()
+    {
+        SaveData.SaveMatrixThirdNormalized(ModuleHelper.GetDataFromDatasourceOrResource(RawDataSourceToSave, ResourceToSave, RawDataSourceToSave != null), SaveTo);
     }
 }

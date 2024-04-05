@@ -19,81 +19,80 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using XTMF.Editing;
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public class TestEditingStack
 {
-    [TestClass]
-    public class TestEditingStack
+    private class TestCommand : XTMFCommand
     {
-        private class TestCommand : XTMFCommand
+        public TestCommand(string name = "") : base(name)
         {
-            public TestCommand(string name = "") : base(name)
-            {
 
-            }
-
-            public override bool CanUndo()
-            {
-                return false;
-            }
-
-            public override bool Do(ref string error)
-            {
-                return true;
-            }
-
-            public override bool Redo(ref string error)
-            {
-                return true;
-            }
-
-            public override bool Undo(ref string error)
-            {
-                return true;
-            }
         }
 
-        [TestMethod]
-        public void TestEditingStackOperations()
+        public override bool CanUndo()
         {
-            var commands = new XTMFCommand[20];
-            for ( int i = 0; i < commands.Length; i++ )
+            return false;
+        }
+
+        public override bool Do(ref string error)
+        {
+            return true;
+        }
+
+        public override bool Redo(ref string error)
+        {
+            return true;
+        }
+
+        public override bool Undo(ref string error)
+        {
+            return true;
+        }
+    }
+
+    [TestMethod]
+    public void TestEditingStackOperations()
+    {
+        var commands = new XTMFCommand[20];
+        for ( int i = 0; i < commands.Length; i++ )
+        {
+            commands[i] = new TestCommand();
+        }
+        EditingStack stack = new( 10 );
+        Assert.AreEqual( 0, stack.Count, "The stack's count is incorrect!" );
+        // fill the stack
+        for ( int i = 0; i < 10; i++ )
+        {
+            stack.Add( commands[i] );
+            Assert.AreEqual( i + 1, stack.Count, "The stack's count is incorrect!" );
+        }
+        // over fill the stack
+        for ( int i = 10; i < 20; i++ )
+        {
+            stack.Add( commands[i] );
+            Assert.AreEqual( 10, stack.Count, "The stack's count is incorrect!" );
+        }
+        // Make sure the first don't exist anymore
+        for ( int i = 0; i < 10; i++ )
+        {
+            Assert.AreEqual( false, stack.Contains( commands[i] ), "The stack retained a command it should have lost!" );
+        }
+        // Make sure the newer ones still exist
+        for ( int i = 10; i < 20; i++ )
+        {
+            Assert.AreEqual( true, stack.Contains( commands[i] ), "The stack lost a command it should have retained!" );
+        }
+        for (int i = 19; i >= 10; i--)
+        {
+            if (stack.TryPop(out XTMFCommand command))
             {
-                commands[i] = new TestCommand();
+                Assert.AreEqual(commands[i], command, "While popping we popped an unexpected command!");
             }
-            EditingStack stack = new( 10 );
-            Assert.AreEqual( 0, stack.Count, "The stack's count is incorrect!" );
-            // fill the stack
-            for ( int i = 0; i < 10; i++ )
+            else
             {
-                stack.Add( commands[i] );
-                Assert.AreEqual( i + 1, stack.Count, "The stack's count is incorrect!" );
-            }
-            // over fill the stack
-            for ( int i = 10; i < 20; i++ )
-            {
-                stack.Add( commands[i] );
-                Assert.AreEqual( 10, stack.Count, "The stack's count is incorrect!" );
-            }
-            // Make sure the first don't exist anymore
-            for ( int i = 0; i < 10; i++ )
-            {
-                Assert.AreEqual( false, stack.Contains( commands[i] ), "The stack retained a command it should have lost!" );
-            }
-            // Make sure the newer ones still exist
-            for ( int i = 10; i < 20; i++ )
-            {
-                Assert.AreEqual( true, stack.Contains( commands[i] ), "The stack lost a command it should have retained!" );
-            }
-            for (int i = 19; i >= 10; i--)
-            {
-                if (stack.TryPop(out XTMFCommand command))
-                {
-                    Assert.AreEqual(commands[i], command, "While popping we popped an unexpected command!");
-                }
-                else
-                {
-                    Assert.Fail("A pop failed that should have succeeded!");
-                }
+                Assert.Fail("A pop failed that should have succeeded!");
             }
         }
     }

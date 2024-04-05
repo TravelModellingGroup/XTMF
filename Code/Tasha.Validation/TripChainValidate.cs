@@ -23,100 +23,99 @@ using System.Linq;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+[ModuleInformation(
+    Description = "A validation module that counts the length of the different trip chains scheduled by TASHA. " +
+                    "As an input it takes in the newly scheduled trip chains from TASHA and then counts the length " +
+                    "of each trip-chain. The output is a table that shows the lengths of trip chains, followed by " +
+                    "the percentage of the total trip chains."
+    )]
+public class TripChainValidate : IPostHousehold
 {
-    [ModuleInformation(
-        Description = "A validation module that counts the length of the different trip chains scheduled by TASHA. " +
-                        "As an input it takes in the newly scheduled trip chains from TASHA and then counts the length " +
-                        "of each trip-chain. The output is a table that shows the lengths of trip chains, followed by " +
-                        "the percentage of the total trip chains."
-        )]
-    public class TripChainValidate : IPostHousehold
+    [RunParameter( "Output File", "TripChainCount.csv", "The output file name" )]
+    public string OutputFile;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private Dictionary<int, float> NumberOfTrips = [];
+
+    public string Name
     {
-        [RunParameter( "Output File", "TripChainCount.csv", "The output file name" )]
-        public string OutputFile;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        private Dictionary<int, float> NumberOfTrips = [];
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
+    }
 
-        public string Name
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        lock ( this )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
-        }
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            lock ( this )
+            foreach ( var person in household.Persons )
             {
-                foreach ( var person in household.Persons )
+                foreach ( var tripChain in person.TripChains )
                 {
-                    foreach ( var tripChain in person.TripChains )
+                    int currentNumberOfTrips = tripChain.Trips.Count;
+
+                    if ( NumberOfTrips.ContainsKey( currentNumberOfTrips ) ) // Has this scenario occured previously?
                     {
-                        int currentNumberOfTrips = tripChain.Trips.Count;
+                        NumberOfTrips[currentNumberOfTrips] += 1; // If it has, add one more occurence to it.
+                    }
+                    else
+                    {
+                        NumberOfTrips.Add( currentNumberOfTrips, 1 ); // If it hasn't, create the scenario and give it a value of one occurence at this point.
+                    }
 
-                        if ( NumberOfTrips.ContainsKey( currentNumberOfTrips ) ) // Has this scenario occured previously?
-                        {
-                            NumberOfTrips[currentNumberOfTrips] += 1; // If it has, add one more occurence to it.
-                        }
-                        else
-                        {
-                            NumberOfTrips.Add( currentNumberOfTrips, 1 ); // If it hasn't, create the scenario and give it a value of one occurence at this point.
-                        }
-
-                        if ( currentNumberOfTrips == 1 )
-                        {
-                            throw new XTMFRuntimeException(this, "Household " + household.HouseholdId + " has a trip chain with only one trip. The trip chain belongs to person number " + person.Id );
-                        }
+                    if ( currentNumberOfTrips == 1 )
+                    {
+                        throw new XTMFRuntimeException(this, "Household " + household.HouseholdId + " has a trip chain with only one trip. The trip chain belongs to person number " + person.Id );
                     }
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        lock (this)
         {
-            lock (this)
-            {
-                using StreamWriter writer = new(OutputFile);
-                writer.WriteLine("Trips/TripChain, Total, Percentage of all Trips");
+            using StreamWriter writer = new(OutputFile);
+            writer.WriteLine("Trips/TripChain, Total, Percentage of all Trips");
 
-                var sum = NumberOfTrips.Sum(v => v.Value);
-                foreach (var pair in NumberOfTrips)
-                {
-                    writer.WriteLine("{0}, {1}, {2}", pair.Key, pair.Value, pair.Value / sum * 100);
-                }
+            var sum = NumberOfTrips.Sum(v => v.Value);
+            foreach (var pair in NumberOfTrips)
+            {
+                writer.WriteLine("{0}, {1}, {2}", pair.Key, pair.Value, pair.Value / sum * 100);
             }
         }
+    }
 
-        public void Load(int maxIterations)
-        {
-        }
+    public void Load(int maxIterations)
+    {
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-        }
+    public void IterationStarting(int iteration)
+    {
+    }
 
-        public override string ToString()
-        {
-            return "Currently Validating Trip Chains!";
-        }
+    public override string ToString()
+    {
+        return "Currently Validating Trip Chains!";
     }
 }

@@ -18,42 +18,40 @@
 */
 using System;
 using XTMF;
-namespace TMG.Frameworks.Data.Synthesis.Gibbs
+namespace TMG.Frameworks.Data.Synthesis.Gibbs;
+
+
+public class GibbsSampler : ISelfContainedModule
 {
 
-    public class GibbsSampler : ISelfContainedModule
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        [SubModelInformation(Description = "The pools to generate.")]
-        public Pool[] Pools;
-
-        [SubModelInformation(Description = "Aggregations to apply between pools")]
-        public Aggregation[] Aggregations;
-
-        public void Start()
-        {
-            // just generate things for now, later we will need to do recombination
-            foreach(var pool in Pools)
-            {
-                pool.GeneratePool();
-            }
-            // once all of the pools have been computed combine the pools
-            foreach(var aggregation in Aggregations)
-            {
-                aggregation.Execute();
-            }
-        }
+        return true;
     }
 
+    [SubModelInformation(Description = "The pools to generate.")]
+    public Pool[] Pools;
+
+    [SubModelInformation(Description = "Aggregations to apply between pools")]
+    public Aggregation[] Aggregations;
+
+    public void Start()
+    {
+        // just generate things for now, later we will need to do recombination
+        foreach(var pool in Pools)
+        {
+            pool.GeneratePool();
+        }
+        // once all of the pools have been computed combine the pools
+        foreach(var aggregation in Aggregations)
+        {
+            aggregation.Execute();
+        }
+    }
 }

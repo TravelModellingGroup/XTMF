@@ -23,80 +23,79 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Analysis
+namespace TMG.GTAModel.Analysis;
+
+public class ValidateStudentsGeneration : ISelfContainedModule
 {
-    public class ValidateStudentsGeneration : ISelfContainedModule
+    [RootModule]
+    public IDemographicsModelSystemTemplate Root;
+
+    [SubModelInformation( Required = true, Description = "Where to save the analysis. (CSV)" )]
+    public FileLocation SaveTo;
+
+    [SubModelInformation( Description = "Used to gather the daily generation rates", Required = true )]
+    public IDataSource<SparseTriIndex<float>> LoadDailyRates;
+
+    [SubModelInformation( Description = "Used to gather the period generation rates", Required = true )]
+    public IDataSource<SparseTriIndex<float>> LoadTimeOfDayRates;
+
+    public void Start()
     {
-        [RootModule]
-        public IDemographicsModelSystemTemplate Root;
-
-        [SubModelInformation( Required = true, Description = "Where to save the analysis. (CSV)" )]
-        public FileLocation SaveTo;
-
-        [SubModelInformation( Description = "Used to gather the daily generation rates", Required = true )]
-        public IDataSource<SparseTriIndex<float>> LoadDailyRates;
-
-        [SubModelInformation( Description = "Used to gather the period generation rates", Required = true )]
-        public IDataSource<SparseTriIndex<float>> LoadTimeOfDayRates;
-
-        public void Start()
+        Progress = 0f;
+        LoadDailyRates.LoadData();
+        LoadTimeOfDayRates.LoadData();
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var ageRates = Root.Demographics.AgeRates.GetFlatData();
+        var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
+        var studentRates = Root.Demographics.SchoolRates.GetFlatData();
+        var employmentRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
+        var employmentCategories = Root.Demographics.EmploymentStatus.GetFlatData();
+        var dailyRates = LoadDailyRates.GiveData();
+        var timeOfDayRates = LoadTimeOfDayRates.GiveData();
+        using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
         {
-            Progress = 0f;
-            LoadDailyRates.LoadData();
-            LoadTimeOfDayRates.LoadData();
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var ageRates = Root.Demographics.AgeRates.GetFlatData();
-            var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
-            var studentRates = Root.Demographics.SchoolRates.GetFlatData();
-            var employmentRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
-            var employmentCategories = Root.Demographics.EmploymentStatus.GetFlatData();
-            var dailyRates = LoadDailyRates.GiveData();
-            var timeOfDayRates = LoadTimeOfDayRates.GiveData();
-            using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
+            writer.WriteLine( "Zone,AgeCategory,EmpStat,Persons" );
+            for ( int i = 0; i < ageRates.Length; i++ )
             {
-                writer.WriteLine( "Zone,AgeCategory,EmpStat,Persons" );
-                for ( int i = 0; i < ageRates.Length; i++ )
+                var ageRate = ageRates[i];
+                var studentRate = studentRates[i].GetFlatData();
+                var pop = zones[i].Population;
+                var zoneNumber = zones[i].ZoneNumber;
+                var pd = zones[i].PlanningDistrict;
+                var empRate = employmentRates[i].GetFlatData();
+                for ( int age = 0; age < ageRate.Length; age++ )
                 {
-                    var ageRate = ageRates[i];
-                    var studentRate = studentRates[i].GetFlatData();
-                    var pop = zones[i].Population;
-                    var zoneNumber = zones[i].ZoneNumber;
-                    var pd = zones[i].PlanningDistrict;
-                    var empRate = employmentRates[i].GetFlatData();
-                    for ( int age = 0; age < ageRate.Length; age++ )
+                    var agePop = pop * ageRate[age];
+                    var stuEmpRate = studentRate[age];
+                    var generationRate = dailyRates[pd, age, 0] * timeOfDayRates[pd, age, 0];
+                    for ( int emp = 0; emp < stuEmpRate.Length; emp++ )
                     {
-                        var agePop = pop * ageRate[age];
-                        var stuEmpRate = studentRate[age];
-                        var generationRate = dailyRates[pd, age, 0] * timeOfDayRates[pd, age, 0];
-                        for ( int emp = 0; emp < stuEmpRate.Length; emp++ )
-                        {
-                            writer.Write( zoneNumber );
-                            writer.Write( ',' );
-                            writer.Write( ageCategories[age] );
-                            writer.Write( ',' );
-                            writer.Write( employmentCategories[emp] );
-                            writer.Write( ',' );
-                            writer.WriteLine( stuEmpRate[emp] * agePop * empRate[age][emp] * generationRate);
-                        }
+                        writer.Write( zoneNumber );
+                        writer.Write( ',' );
+                        writer.Write( ageCategories[age] );
+                        writer.Write( ',' );
+                        writer.Write( employmentCategories[emp] );
+                        writer.Write( ',' );
+                        writer.WriteLine( stuEmpRate[emp] * agePop * empRate[age][emp] * generationRate);
                     }
-                    // Update our progress
-                    Progress = (float)i / zones.Length;
                 }
+                // Update our progress
+                Progress = (float)i / zones.Length;
             }
-            LoadDailyRates.UnloadData();
-            LoadTimeOfDayRates.UnloadData();
-            Progress = 1f;
         }
+        LoadDailyRates.UnloadData();
+        LoadTimeOfDayRates.UnloadData();
+        Progress = 1f;
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress { get; set; }
+    public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => null;
+    public Tuple<byte, byte, byte> ProgressColour => null;
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

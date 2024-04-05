@@ -22,78 +22,76 @@ using XTMF;
 using Datastructure;
 using TMG.Functions;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+
+public class DivideOD : IDataSource<SparseTwinIndex<float>>
 {
+    private SparseTwinIndex<float> Data;
 
-    public class DivideOD : IDataSource<SparseTwinIndex<float>>
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation(Required = true, Description = "The value to use for the numerator.")]
+    public IResource FirstRateToApply;
+
+    [SubModelInformation(Required = true, Description = "The value to use for the denominator.")]
+    public IResource SecondRateToApply;
+
+    public SparseTwinIndex<float> GiveData()
     {
-        private SparseTwinIndex<float> Data;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [SubModelInformation(Required = true, Description = "The value to use for the numerator.")]
-        public IResource FirstRateToApply;
-
-        [SubModelInformation(Required = true, Description = "The value to use for the denominator.")]
-        public IResource SecondRateToApply;
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            var firstRate = FirstRateToApply.AcquireResource<SparseTwinIndex<float>>();
-            var secondRate = SecondRateToApply.AcquireResource<SparseTwinIndex<float>>();
-            SparseTwinIndex<float> data = firstRate.CreateSimilarArray<float>();
-            var flatFirst = firstRate.GetFlatData();
-            var flatSecond = secondRate.GetFlatData();
-            var flat = data.GetFlatData();
-            for (int i = 0; i < flat.Length; i++)
-            {
-                VectorHelper.Divide(flat[i], 0, flatFirst[i], 0, flatSecond[i], 0, flat[i].Length);
-            }
-            Data = data;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (!FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the first rates resource is not of type SparseArraySparseTwinIndex<float>!";
-                return false;
-            }
-            if (!SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            return true;
-        }
+        return Data;
     }
 
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
+
+    public void LoadData()
+    {
+        var firstRate = FirstRateToApply.AcquireResource<SparseTwinIndex<float>>();
+        var secondRate = SecondRateToApply.AcquireResource<SparseTwinIndex<float>>();
+        SparseTwinIndex<float> data = firstRate.CreateSimilarArray<float>();
+        var flatFirst = firstRate.GetFlatData();
+        var flatSecond = secondRate.GetFlatData();
+        var flat = data.GetFlatData();
+        for (int i = 0; i < flat.Length; i++)
+        {
+            VectorHelper.Divide(flat[i], 0, flatFirst[i], 0, flatSecond[i], 0, flat[i].Length);
+        }
+        Data = data;
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+    }
+
+    public string Name { get; set; }
+
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+        {
+            error = "In '" + Name + "' the first rates resource is not of type SparseArraySparseTwinIndex<float>!";
+            return false;
+        }
+        if (!SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+        {
+            error = "In '" + Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
+            return false;
+        }
+        return true;
+    }
 }

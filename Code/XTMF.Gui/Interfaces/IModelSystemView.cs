@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using XTMF.Gui.Models;
 
-namespace XTMF.Gui.Interfaces
+namespace XTMF.Gui.Interfaces;
+
+public interface IModelSystemView
 {
-    public interface IModelSystemView
-    {
-        ModelSystemStructureDisplayModel SelectedModule { get;  }
+    ModelSystemStructureDisplayModel SelectedModule { get;  }
 
-        ItemsControl ViewItemsControl { get; }
-    }
-
+    ItemsControl ViewItemsControl { get; }
 }

@@ -21,138 +21,136 @@ using System.Linq;
 using XTMF;
 using Datastructure;
 using TMG.Frameworks.Data.Processing.AST;
-namespace TMG.Frameworks.Data.Processing
-{
-    [ModuleInformation(
-        Description =
- @"This module is designed to execute optimized matrix math on the given data sources.  The available operations are add +, subtract -, multiply *, and divide /. 
+namespace TMG.Frameworks.Data.Processing;
+
+[ModuleInformation(
+    Description =
+@"This module is designed to execute optimized matrix math on the given data sources.  The available operations are add +, subtract -, multiply *, and divide /. 
 You can also use brackets () to order the operations.  Math using literals will be optimized and no data source will be altered.  A valid expression could be 
 '(A + B * C) / D' where you have the data sources A, B, C, and D defined with their Module names matching.  The result of this will be an vector.  If only literals are used the size 
 of the matrix will match the zone system otherwise the size of the vector are loaded in from the data sources."
-        )]
-    public class VectorMath : IDataSource<SparseArray<float>>
+    )]
+public class VectorMath : IDataSource<SparseArray<float>>
+{
+    [RunParameter("Expression", "1", "The expression to evaluate for each OD cell.")]
+    public string Expression;
+
+    [SubModelInformation(Required = false, Description = "The matrices to refer to.")]
+    public IDataSource[] DataSources;
+
+    [DoNotAutomate]
+    public ITravelDemandModel Root;
+
+    private IConfiguration Config;
+
+    public VectorMath(IConfiguration config)
     {
-        [RunParameter("Expression", "1", "The expression to evaluate for each OD cell.")]
-        public string Expression;
+        Config = config;
+    }
 
-        [SubModelInformation(Required = false, Description = "The matrices to refer to.")]
-        public IDataSource[] DataSources;
+    public bool Loaded
+    {
+        get; set;
+    }
 
-        [DoNotAutomate]
-        public ITravelDemandModel Root;
+    public string Name { get; set; }
 
-        private IConfiguration Config;
+    public float Progress { get; set; }
 
-        public VectorMath(IConfiguration config)
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public SparseArray<float> Data;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        var loadedSources = DataSources.Select(s => s.Loaded).ToArray();
+        try
         {
-            Config = config;
-        }
-
-        public bool Loaded
-        {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public SparseArray<float> Data;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            var loadedSources = DataSources.Select(s => s.Loaded).ToArray();
-            try
+            var result = ExpressionToExecute.Evaluate(DataSources);
+            if (result.Error)
             {
-                var result = ExpressionToExecute.Evaluate(DataSources);
-                if (result.Error)
+                throw new XTMFRuntimeException(this, "In '" + Name + "' an exception during the execution of the expression occurred.\r\n" + result.ErrorMessage);
+            }
+            // check to see if the result is a scalar
+            if (result.IsValue)
+            {
+                if (Root != null)
                 {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' an exception during the execution of the expression occurred.\r\n" + result.ErrorMessage);
-                }
-                // check to see if the result is a scalar
-                if (result.IsValue)
-                {
-                    if (Root != null)
+                    var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                    var flat = data.GetFlatData();
+                    var val = result.LiteralValue;
+                    for (int i = 0; i < flat.Length; i++)
                     {
-                        var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                        var flat = data.GetFlatData();
-                        var val = result.LiteralValue;
-                        for (int i = 0; i < flat.Length; i++)
-                        {
-                            flat[i] = val;
-                        }
-                        Data = data;
+                        flat[i] = val;
                     }
-                    else
-                    {
-                        throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Scalar instead of a Vector and there was no ITravelDemandModel in the ancestry to copy the zone system from!");
-                    }
-                }
-                else if (result.IsVectorResult)
-                {
-                    Data = result.VectorData;
+                    Data = data;
                 }
                 else
                 {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Matrix instead of a Vector!");
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Scalar instead of a Vector and there was no ITravelDemandModel in the ancestry to copy the zone system from!");
                 }
             }
-            finally
+            else if (result.IsVectorResult)
             {
-                // unload the data sources that were loaded to evaluate the expression
-                for (int i = 0; i < loadedSources.Length; i++)
+                Data = result.VectorData;
+            }
+            else
+            {
+                throw new XTMFRuntimeException(this, "In '" + Name + "' the result of the expression was a Matrix instead of a Vector!");
+            }
+        }
+        finally
+        {
+            // unload the data sources that were loaded to evaluate the expression
+            for (int i = 0; i < loadedSources.Length; i++)
+            {
+                if (!loadedSources[i] && DataSources[i].Loaded)
                 {
-                    if (!loadedSources[i] && DataSources[i].Loaded)
-                    {
-                        DataSources[i].UnloadData();
-                    }
-                }
-            }
-            Loaded = true;
-        }
-
-        private void FindRoot()
-        {
-            var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
-            for (int i = ancestry.Count - 1; i >= 0; i--)
-            {
-                if (ancestry[i].Module is ITravelDemandModel tdm)
-                {
-                    Root = tdm;
-                    return;
+                    DataSources[i].UnloadData();
                 }
             }
         }
+        Loaded = true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    private void FindRoot()
+    {
+        var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+        for (int i = ancestry.Count - 1; i >= 0; i--)
         {
-            FindRoot();
-            if (!CompileAst(ref error))
+            if (ancestry[i].Module is ITravelDemandModel tdm)
             {
-                return false;
+                Root = tdm;
+                return;
             }
-            return true;
-        }
-
-        private Expression ExpressionToExecute;
-
-        private bool CompileAst(ref string error)
-        {
-            return Compiler.Compile(Expression, out ExpressionToExecute, ref error);
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
-            Data = null;
         }
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        FindRoot();
+        if (!CompileAst(ref error))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private Expression ExpressionToExecute;
+
+    private bool CompileAst(ref string error)
+    {
+        return Compiler.Compile(Expression, out ExpressionToExecute, ref error);
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+        Data = null;
+    }
 }

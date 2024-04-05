@@ -17,29 +17,28 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+static class TestXTMFCore
 {
-    static class TestXTMFCore
-    {
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private static XTMFRuntime Runtime;
+    private static XTMFRuntime Runtime;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-        internal static XTMFRuntime CreateRuntime()
+    internal static XTMFRuntime CreateRuntime()
+    {
+        if ( Runtime == null )
         {
-            if ( Runtime == null )
-            {
-                // create an xtmf runtime that is able to look at the modules contained within this testing environment
-                Runtime = new XTMFRuntime( new Configuration( "TestConfiguration.xml", System.Reflection.Assembly.GetExecutingAssembly() ) );
-            }
-            return Runtime;
+            // create an xtmf runtime that is able to look at the modules contained within this testing environment
+            Runtime = new XTMFRuntime( new Configuration( "TestConfiguration.xml", System.Reflection.Assembly.GetExecutingAssembly() ) );
         }
+        return Runtime;
+    }
 
-        internal static ModelSystem GetModelSystem(XTMFRuntime runtime, string name)
-        {
-            var controller = runtime.ModelSystemController;
-            return controller.LoadOrCreate( name );
-        }
+    internal static ModelSystem GetModelSystem(XTMFRuntime runtime, string name)
+    {
+        var controller = runtime.ModelSystemController;
+        return controller.LoadOrCreate( name );
     }
 }

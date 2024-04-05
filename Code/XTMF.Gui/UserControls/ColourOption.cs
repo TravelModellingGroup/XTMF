@@ -6,12 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
-namespace XTMF.Gui.UserControls
-{
-    public class ColourOption
-    {
-        public string Name { get; set; }
+namespace XTMF.Gui.UserControls;
 
-        public Color Colour { get; set; }
-    }
+public class ColourOption
+{
+    public string Name { get; set; }
+
+    public Color Colour { get; set; }
 }

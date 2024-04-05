@@ -16,58 +16,57 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+public interface ITransitStation
 {
-    public interface ITransitStation
-    {
-        /// <summary>
-        /// closest zone to this station
-        /// </summary>
-        int ClosestZone { get; }
+    /// <summary>
+    /// closest zone to this station
+    /// </summary>
+    int ClosestZone { get; }
 
-        /// <summary>
-        /// Parking Cost
-        /// </summary>
-        float ParkingCost { get; }
+    /// <summary>
+    /// Parking Cost
+    /// </summary>
+    float ParkingCost { get; }
 
-        /// <summary>
-        /// Number of Parking spots
-        /// </summary>
-        int ParkingSpots { get; }
+    /// <summary>
+    /// Number of Parking spots
+    /// </summary>
+    int ParkingSpots { get; }
 
-        /// <summary>
-        /// This stations code
-        /// </summary>
-        string StationCode { get; }
+    /// <summary>
+    /// This stations code
+    /// </summary>
+    string StationCode { get; }
 
-        /// <summary>
-        /// The Name of the Line its on
-        /// </summary>
-        string StationLineName { get; }
+    /// <summary>
+    /// The Name of the Line its on
+    /// </summary>
+    string StationLineName { get; }
 
-        /// <summary>
-        /// The Station Line its on
-        /// </summary>
-        int StationLineNumber { get; }
+    /// <summary>
+    /// The Station Line its on
+    /// </summary>
+    int StationLineNumber { get; }
 
-        /// <summary>
-        /// This Stations Name
-        /// </summary>
-        string StationName { get; }
+    /// <summary>
+    /// This Stations Name
+    /// </summary>
+    string StationName { get; }
 
-        /// <summary>
-        /// The Station Number
-        /// </summary>
-        int StationNumber { get; }
+    /// <summary>
+    /// The Station Number
+    /// </summary>
+    int StationNumber { get; }
 
-        /// <summary>
-        /// X coordinate
-        /// </summary>
-        int X { get; }
+    /// <summary>
+    /// X coordinate
+    /// </summary>
+    int X { get; }
 
-        /// <summary>
-        /// Y coordinate
-        /// </summary>
-        int Y { get; }
-    }
+    /// <summary>
+    /// Y coordinate
+    /// </summary>
+    int Y { get; }
 }

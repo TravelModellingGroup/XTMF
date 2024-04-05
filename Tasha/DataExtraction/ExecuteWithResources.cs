@@ -21,131 +21,130 @@ using System.Collections.Generic;
 using XTMF;
 using TMG;
 // ReSharper disable AccessToModifiedClosure
-namespace Tasha.DataExtraction
-{
-    [ModuleInformation(Description=
-        @"This module is used for executing a series of self contained modules (<em>XTMF.ISelfContainedModule</em>) that can share resources.
+namespace Tasha.DataExtraction;
+
+[ModuleInformation(Description=
+    @"This module is used for executing a series of self contained modules (<em>XTMF.ISelfContainedModule</em>) that can share resources.
 Modules will be executed in the presented order.  Progress and status message are passed through to the currently running modules.  Progress
 will assume that each module will execute with approximately the same amount of time, thus progress space is evenly distributed.  It will also
 add in the current progress reported by the currently executing module."
-        )]
-    public class ExecuteWithResources : IModelSystemTemplate, IResourceSource
+    )]
+public class ExecuteWithResources : IModelSystemTemplate, IResourceSource
+{
+    private Func<float> ProgressLogic;
+    private Func<string> StatusLogic;
+
+    [SubModelInformation( Required = false, Description = "Resources to be used by the model system." )]
+    public List<IResource> Resources
     {
-        private Func<float> ProgressLogic;
-        private Func<string> StatusLogic;
+        get;
+        set;
+    }
 
-        [SubModelInformation( Required = false, Description = "Resources to be used by the model system." )]
-        public List<IResource> Resources
+    [SubModelInformation( Required = false, Description = "The models to run with the given resources." )]
+    public List<ISelfContainedModule> ToRun;
+
+    [RunParameter("Input Directory", "../../V4Input", "The path to the input directory for this model system.")]
+    public string InputBaseDirectory { get; set; }
+
+    public string OutputBaseDirectory { get; set; }
+
+    bool Exit;
+
+    [RunParameter("Release", true, "Should we release the resources after finishing?")]
+    public bool Release;
+
+    public bool ExitRequest()
+    {
+        Exit = true;
+        for ( int i = 0; i < ToRun.Count; i++ )
         {
-            get;
-            set;
-        }
-
-        [SubModelInformation( Required = false, Description = "The models to run with the given resources." )]
-        public List<ISelfContainedModule> ToRun;
-
-        [RunParameter("Input Directory", "../../V4Input", "The path to the input directory for this model system.")]
-        public string InputBaseDirectory { get; set; }
-
-        public string OutputBaseDirectory { get; set; }
-
-        bool Exit;
-
-        [RunParameter("Release", true, "Should we release the resources after finishing?")]
-        public bool Release;
-
-        public bool ExitRequest()
-        {
-            Exit = true;
-            for ( int i = 0; i < ToRun.Count; i++ )
+            // make an attempt to exit early if possible
+            try
             {
-                // make an attempt to exit early if possible
-                try
-                {
-                    var mst = ToRun[i] as IModelSystemTemplate;
-                    mst?.ExitRequest();
-                }
-                // ReSharper disable once EmptyGeneralCatchClause
-                catch
-                {
-                }
+                var mst = ToRun[i] as IModelSystemTemplate;
+                mst?.ExitRequest();
             }
-            return true;
-        }
-
-        public void Start()
-        {
-            Exit = false;
-            ExecuteToRun();
-            if(Release)
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch
             {
-                ReleaseResources();
             }
         }
+        return true;
+    }
 
-        private void ReleaseResources()
+    public void Start()
+    {
+        Exit = false;
+        ExecuteToRun();
+        if(Release)
         {
-            for ( int j = 0; j < Resources.Count; j++ )
-            {
-                Resources[j].ReleaseResource();
-            }
+            ReleaseResources();
         }
+    }
 
-        private void ExecuteToRun()
+    private void ReleaseResources()
+    {
+        for ( int j = 0; j < Resources.Count; j++ )
         {
-            int i = 0;
-            // assign the progress logic
-            ProgressLogic = () =>
+            Resources[j].ReleaseResource();
+        }
+    }
+
+    private void ExecuteToRun()
+    {
+        int i = 0;
+        // assign the progress logic
+        ProgressLogic = () =>
+        {
+            if ( i < ToRun.Count )
             {
-                if ( i < ToRun.Count )
-                {
-                    return ( ( ToRun[i].Progress / ToRun.Count ) + (float)i / ToRun.Count );
-                }
-                return 1f;
-            };
-            // assign the status logic
-            StatusLogic = () =>
+                return ( ( ToRun[i].Progress / ToRun.Count ) + (float)i / ToRun.Count );
+            }
+            return 1f;
+        };
+        // assign the status logic
+        StatusLogic = () =>
+        {
+            if ( i < ToRun.Count )
             {
-                if ( i < ToRun.Count )
-                {
-                    if ( Exit )
-                    {
-                        return "Exiting after: " + ToRun[i];
-                    }
-                    return ToRun[i].ToString();
-                }
-                return "Done";
-            };
-            for ( ; i < ToRun.Count; i++ )
-            {
-                ToRun[i].Start();
                 if ( Exit )
                 {
-                    break;
+                    return "Exiting after: " + ToRun[i];
                 }
+                return ToRun[i].ToString();
+            }
+            return "Done";
+        };
+        for ( ; i < ToRun.Count; i++ )
+        {
+            ToRun[i].Start();
+            if ( Exit )
+            {
+                break;
             }
         }
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return ProgressLogic == null ? 0f : ProgressLogic(); }
-        }
+    public float Progress
+    {
+        get { return ProgressLogic == null ? 0f : ProgressLogic(); }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public override string ToString()
-        {
-            return StatusLogic == null ? "Loading" : StatusLogic();
-        }
+    public override string ToString()
+    {
+        return StatusLogic == null ? "Loading" : StatusLogic();
     }
 }

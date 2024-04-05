@@ -9,115 +9,114 @@ using MaterialDesignThemes.Wpf.Transitions;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Helpers;
 
-namespace XTMF.Gui
+namespace XTMF.Gui;
+
+/// <summary>
+///     Interaction logic for XtmfApplication.xaml
+/// </summary>
+public partial class App : Application
 {
+    private MainWindow xtmfMainWindow;
+
+    public const String APP_ID = "TMG.Xtmf";
+
     /// <summary>
-    ///     Interaction logic for XtmfApplication.xaml
+    /// 
     /// </summary>
-    public partial class App : Application
+    /// <param name="args"></param>
+    private void RegisterEditorController(StartupEventArgs args)
     {
-        private MainWindow xtmfMainWindow;
-
-        public const String APP_ID = "TMG.Xtmf";
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="args"></param>
-        private void RegisterEditorController(StartupEventArgs args)
+        EditorController.Register(xtmfMainWindow, () =>
         {
-            EditorController.Register(xtmfMainWindow, () =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
-                Dispatcher.BeginInvoke(new Action(() =>
+
+                var colourOptions = ThemeHelper.ColourOptions;
+                if (EditorController.Runtime.Configuration.PrimaryColour != null)
                 {
-
-                    var colourOptions = ThemeHelper.ColourOptions;
-                    if (EditorController.Runtime.Configuration.PrimaryColour != null)
+                    var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
+                    if(swatch != null )
                     {
-                        var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
-                        if(swatch != null )
-                        {
-                            ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
-                        }
-                        else
-                        {
-                            ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), "Blue", EditorController.Runtime.Configuration.IsDarkTheme);;
-                        }
-                        
-                    }
-                    else
-                    {
-                        var swatch = colourOptions.First(s => s.Name.Equals("Blue", StringComparison.InvariantCultureIgnoreCase));
                         ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
-                        EditorController.Runtime.Configuration.PrimaryColour = swatch.Name;
-                    }
-
-
-                    if (EditorController.Runtime.Configuration.AccentColour != null)
-                    {
-                        var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
-                        if(swatch != null)
-                        {
-                            ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
-                        }
-                        else
-                        {
-                            ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), "Amber", EditorController.Runtime.Configuration.IsDarkTheme);
-                        }
-                        ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
-                        EditorController.Runtime.Configuration.AccentColour = swatch.Name;
                     }
                     else
                     {
-                        var swatch = colourOptions.First(s => s.Name.Equals("Amber", StringComparison.InvariantCultureIgnoreCase));
-                        ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
-
+                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), "Blue", EditorController.Runtime.Configuration.IsDarkTheme);;
                     }
-
                     
-                    TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, EditorController.Runtime.Configuration.IsDisableTransitionAnimations);
-                    xtmfMainWindow.UpdateRecentProjectsMenu();
-                    xtmfMainWindow.Show();
-                    Task.Run(() =>
+                }
+                else
+                {
+                    var swatch = colourOptions.First(s => s.Name.Equals("Blue", StringComparison.InvariantCultureIgnoreCase));
+                    ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+                    EditorController.Runtime.Configuration.PrimaryColour = swatch.Name;
+                }
+
+
+                if (EditorController.Runtime.Configuration.AccentColour != null)
+                {
+                    var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
+                    if(swatch != null)
                     {
-                        EditorController.Runtime.Configuration.LoadModules(() =>
+                        ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+                    }
+                    else
+                    {
+                        ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), "Amber", EditorController.Runtime.Configuration.IsDarkTheme);
+                    }
+                    ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+                    EditorController.Runtime.Configuration.AccentColour = swatch.Name;
+                }
+                else
+                {
+                    var swatch = colourOptions.First(s => s.Name.Equals("Amber", StringComparison.InvariantCultureIgnoreCase));
+                    ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
+
+                }
+
+                
+                TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, EditorController.Runtime.Configuration.IsDisableTransitionAnimations);
+                xtmfMainWindow.UpdateRecentProjectsMenu();
+                xtmfMainWindow.Show();
+                Task.Run(() =>
+                {
+                    EditorController.Runtime.Configuration.LoadModules(() =>
+                    {
+                        Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            Dispatcher.BeginInvoke(new Action(() =>
-                            {
-                                xtmfMainWindow.IsEnabled = true;
-                                xtmfMainWindow.StatusDisplay.Text = "Ready";
-                            }));
-                        });
+                            xtmfMainWindow.IsEnabled = true;
+                            xtmfMainWindow.StatusDisplay.Text = "Ready";
+                        }));
                     });
-                }));
-            }, false);
-           
-        }
+                });
+            }));
+        }, false);
+       
+    }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void App_OnStartup(object sender, StartupEventArgs e)
-        {
-            DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void App_OnStartup(object sender, StartupEventArgs e)
+    {
+        DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
 
-            xtmfMainWindow = new MainWindow();
-            RegisterEditorController(e);
+        xtmfMainWindow = new MainWindow();
+        RegisterEditorController(e);
 
-          
-        }
+      
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void AppGlobalDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-        {
-            e.Handled = true;
-        }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void AppGlobalDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        e.Handled = true;
     }
 }

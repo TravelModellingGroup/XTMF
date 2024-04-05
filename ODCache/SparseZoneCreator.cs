@@ -21,121 +21,120 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Datastructure
+namespace Datastructure;
+
+public class SparseZoneCreator
 {
-    public class SparseZoneCreator
+    private const int Version = 2;
+    private float[][] Data;
+    private int Types;
+
+    public SparseZoneCreator(int highestZone, int types)
     {
-        private const int Version = 2;
-        private float[][] Data;
-        private int Types;
+        Types = types;
+        Data = new float[highestZone + 1][];
+    }
 
-        public SparseZoneCreator(int highestZone, int types)
+    /// <summary>
+    /// Converts a csv file into odc.
+    /// </summary>
+    /// <param name="csv">The CSV file to parse</param>
+    /// <param name="header">Does this csv file contain a header?</param>
+    /// <param name="offset">How much other data comes before our new entries?</param>
+    public void LoadCsv(string csv, bool header, int offset = 0)
+    {
+        using CsvReader reader = new(csv);
+        var dataLength = Data.Length;
+        if (header) reader.LoadLine();
+        while (!reader.EndOfFile)
         {
-            Types = types;
-            Data = new float[highestZone + 1][];
-        }
-
-        /// <summary>
-        /// Converts a csv file into odc.
-        /// </summary>
-        /// <param name="csv">The CSV file to parse</param>
-        /// <param name="header">Does this csv file contain a header?</param>
-        /// <param name="offset">How much other data comes before our new entries?</param>
-        public void LoadCsv(string csv, bool header, int offset = 0)
-        {
-            using CsvReader reader = new(csv);
-            var dataLength = Data.Length;
-            if (header) reader.LoadLine();
-            while (!reader.EndOfFile)
+            int length;
+            if ((length = reader.LoadLine()) < 2) continue;
+            reader.Get(out int origin, 0);
+            if ((origin < 0)) continue;
+            if (origin >= dataLength)
             {
-                int length;
-                if ((length = reader.LoadLine()) < 2) continue;
-                reader.Get(out int origin, 0);
-                if ((origin < 0)) continue;
-                if (origin >= dataLength)
-                {
-                    var temp = new float[origin + 1][];
-                    Array.Copy(Data, temp, dataLength);
-                    Data = temp;
-                    dataLength = origin + 1;
-                }
-                if (Data[origin] == null)
-                {
-                    Data[origin] = new float[Types];
-                }
-                // add in the offset off the bat
-                int loaded = offset;
-                for (int i = 1; i < length; i++)
-                {
-                    reader.Get(out Data[origin][loaded++], i);
-                }
+                var temp = new float[origin + 1][];
+                Array.Copy(Data, temp, dataLength);
+                Data = temp;
+                dataLength = origin + 1;
+            }
+            if (Data[origin] == null)
+            {
+                Data[origin] = new float[Types];
+            }
+            // add in the offset off the bat
+            int loaded = offset;
+            for (int i = 1; i < length; i++)
+            {
+                reader.Get(out Data[origin][loaded++], i);
             }
         }
+    }
 
-        public void Save(string fileName)
+    public void Save(string fileName)
+    {
+        using BinaryWriter writer = new(new
+            FileStream(fileName, FileMode.Create, FileAccess.Write,
+            FileShare.None, 0x8000, FileOptions.SequentialScan),
+            Encoding.Default);
+        var dataLength = Data.Length;
+        int highestZone = 0;
+
+        for (int i = 0; i < dataLength; i++)
         {
-            using BinaryWriter writer = new(new
-                FileStream(fileName, FileMode.Create, FileAccess.Write,
-                FileShare.None, 0x8000, FileOptions.SequentialScan),
-                Encoding.Default);
-            var dataLength = Data.Length;
-            int highestZone = 0;
+            if (Data[i] != null) highestZone = i;
+        }
+        writer.Write(highestZone);
+        writer.Write(Version);
+        writer.Write(Types);
+        WriteSparseIndexes(writer);
 
-            for (int i = 0; i < dataLength; i++)
+        for (int i = 0; i < dataLength; i++)
+        {
+            if (Data[i] != null)
             {
-                if (Data[i] != null) highestZone = i;
-            }
-            writer.Write(highestZone);
-            writer.Write(Version);
-            writer.Write(Types);
-            WriteSparseIndexes(writer);
-
-            for (int i = 0; i < dataLength; i++)
-            {
-                if (Data[i] != null)
+                for (int j = 0; j < Types; j++)
                 {
-                    for (int j = 0; j < Types; j++)
-                    {
-                        writer.Write(Data[i][j]);
-                    }
+                    writer.Write(Data[i][j]);
                 }
             }
         }
+    }
 
-        private void GenerateIndexes(List<SparseSet> indexes)
+    private void GenerateIndexes(List<SparseSet> indexes)
+    {
+        int length = Data.Length;
+        for (int i = 0; i < length; i++)
         {
-            int length = Data.Length;
-            for (int i = 0; i < length; i++)
+            if (Data[i] == null) continue;
+            for (int j = i + 1; ; j++)
             {
-                if (Data[i] == null) continue;
-                for (int j = i + 1; ; j++)
+                if (j == length || Data[j] == null)
                 {
-                    if (j == length || Data[j] == null)
-                    {
-                        indexes.Add(new SparseSet() { Start = i, Stop = j - 1 });
-                        // we don't add one here since the outer for loop will increment it
-                        i = j;
-                        break;
-                    }
+                    indexes.Add(new SparseSet() { Start = i, Stop = j - 1 });
+                    // we don't add one here since the outer for loop will increment it
+                    i = j;
+                    break;
                 }
             }
         }
+    }
 
-        private void WriteSparseIndexes(BinaryWriter writer)
+    private void WriteSparseIndexes(BinaryWriter writer)
+    {
+        List<SparseSet> indexes = [];
+        GenerateIndexes(indexes);
+        var numberOfIndexes = indexes.Count;
+        // start == 4 stop == 4, disk location = 4
+        long baseLocation = 12 + 16 * numberOfIndexes + 4; // skip the header and the indexes for the start of data (also skip number of headers)
+        writer.Write(numberOfIndexes);
+        for (int i = 0; i < numberOfIndexes; i++)
         {
-            List<SparseSet> indexes = [];
-            GenerateIndexes(indexes);
-            var numberOfIndexes = indexes.Count;
-            // start == 4 stop == 4, disk location = 4
-            long baseLocation = 12 + 16 * numberOfIndexes + 4; // skip the header and the indexes for the start of data (also skip number of headers)
-            writer.Write(numberOfIndexes);
-            for (int i = 0; i < numberOfIndexes; i++)
-            {
-                writer.Write(indexes[i].Start);
-                writer.Write(indexes[i].Stop);
-                writer.Write(baseLocation);
-                baseLocation += (indexes[i].Stop - indexes[i].Start + 1) * Types * 4;
-            }
+            writer.Write(indexes[i].Start);
+            writer.Write(indexes[i].Stop);
+            writer.Write(baseLocation);
+            baseLocation += (indexes[i].Stop - indexes[i].Start + 1) * Types * 4;
         }
     }
 }

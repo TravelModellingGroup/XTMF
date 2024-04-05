@@ -19,136 +19,135 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public class ArbitraryParameterParserTest
 {
-    [TestClass]
-    public class ArbitraryParameterParserTest
+    [TestMethod]
+    public void TestCharParsing()
     {
-        [TestMethod]
-        public void TestCharParsing()
+        string error = null;
+        var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( char ), "1", ref error );
+        if ( !( obj is char ) )
         {
-            string error = null;
-            var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( char ), "1", ref error );
-            if ( !( obj is char ) )
-            {
-                Assert.Fail( "We should be able to parse a number!" );
-            }
-            obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( char ), "as", ref error );
-            if ( obj != null || error == null )
-            {
-                Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
-            }
+            Assert.Fail( "We should be able to parse a number!" );
         }
-
-        [TestMethod]
-        public void TestDateTimeParsing()
+        obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( char ), "as", ref error );
+        if ( obj != null || error == null )
         {
-            string error = null;
-            var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( DateTime ), "10:00 AM", ref error );
-            if ( !( obj is DateTime ) )
-            {
-                Assert.Fail( "We should be able to parse a DateTime!" );
-            }
-            obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( DateTime ), "123211231:123:321", ref error );
-            if ( obj != null || error == null )
-            {
-                Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
-            }
+            Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
         }
+    }
 
-        [TestMethod]
-        public void TestFloatParsing()
+    [TestMethod]
+    public void TestDateTimeParsing()
+    {
+        string error = null;
+        var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( DateTime ), "10:00 AM", ref error );
+        if ( !( obj is DateTime ) )
         {
-            string error = null;
-            var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( float ), "12345.123", ref error );
-            if ( !( obj is float ) )
-            {
-                Assert.Fail( "We should be able to parse a number!" );
-            }
-            obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( float ), "asdbasd.321", ref error );
-            if ( obj != null || error == null )
-            {
-                Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
-            }
+            Assert.Fail( "We should be able to parse a DateTime!" );
         }
-
-        [TestMethod]
-        public void TestIntegerParsing()
+        obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( DateTime ), "123211231:123:321", ref error );
+        if ( obj != null || error == null )
         {
-            string error = null;
-            var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( int ), "12345", ref error );
-            if ( !( obj is int ) )
-            {
-                Assert.Fail( "We should be able to parse a number!" );
-            }
-            obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( int ), "asdbasd", ref error );
-            if ( obj != null || error == null )
-            {
-                Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
-            }
+            Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
         }
+    }
 
-        [TestMethod]
-        public void TestStringParsing()
+    [TestMethod]
+    public void TestFloatParsing()
+    {
+        string error = null;
+        var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( float ), "12345.123", ref error );
+        if ( !( obj is float ) )
         {
-            string error = null;
-            var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( string ), "12345.123", ref error );
-            if ( !( obj is string ) )
-            {
-                Assert.Fail( "We should be able to parse a string!" );
-            }
-            obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( string ), "asdbasd.321", ref error );
-            if ( obj == null || error != null )
-            {
-                Assert.Fail( "Strings should always be \"parsed\"" );
-            }
+            Assert.Fail( "We should be able to parse a number!" );
         }
-
-        [TestMethod]
-        public void TestTestStructParsing()
+        obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( float ), "asdbasd.321", ref error );
+        if ( obj != null || error == null )
         {
-            string error = null;
-            var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( TestStruct ), "10:00 AM", ref error );
-            if ( !( obj is TestStruct ) )
-            {
-                Assert.Fail( "We should be able to parse a TestStruct!" );
-            }
-            obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( TestStruct ), "", ref error );
-            if ( obj != null || error == null )
-            {
-                Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
-            }
+            Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
         }
+    }
 
-        [TestMethod]
-        public void TestXTMFTimeParsing()
+    [TestMethod]
+    public void TestIntegerParsing()
+    {
+        string error = null;
+        var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( int ), "12345", ref error );
+        if ( !( obj is int ) )
         {
-            string error = null;
-            var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( Time ), "10:00 AM", ref error );
-            if ( !( obj is Time ) )
-            {
-                Assert.Fail( "We should be able to parse a DateTime!" );
-            }
-            obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( Time ), "inverse:polynomial:321", ref error );
-            if ( obj != null || error == null )
-            {
-                Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
-            }
+            Assert.Fail( "We should be able to parse a number!" );
         }
-
-        private struct TestStruct
+        obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( int ), "asdbasd", ref error );
+        if ( obj != null || error == null )
         {
-            // ReSharper disable once UnusedMember.Local
-            public static bool TryParse(ref string error, string input, out TestStruct output)
+            Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
+        }
+    }
+
+    [TestMethod]
+    public void TestStringParsing()
+    {
+        string error = null;
+        var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( string ), "12345.123", ref error );
+        if ( !( obj is string ) )
+        {
+            Assert.Fail( "We should be able to parse a string!" );
+        }
+        obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( string ), "asdbasd.321", ref error );
+        if ( obj == null || error != null )
+        {
+            Assert.Fail( "Strings should always be \"parsed\"" );
+        }
+    }
+
+    [TestMethod]
+    public void TestTestStructParsing()
+    {
+        string error = null;
+        var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( TestStruct ), "10:00 AM", ref error );
+        if ( !( obj is TestStruct ) )
+        {
+            Assert.Fail( "We should be able to parse a TestStruct!" );
+        }
+        obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( TestStruct ), "", ref error );
+        if ( obj != null || error == null )
+        {
+            Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
+        }
+    }
+
+    [TestMethod]
+    public void TestXTMFTimeParsing()
+    {
+        string error = null;
+        var obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( Time ), "10:00 AM", ref error );
+        if ( !( obj is Time ) )
+        {
+            Assert.Fail( "We should be able to parse a DateTime!" );
+        }
+        obj = ArbitraryParameterParser.ArbitraryParameterParse( typeof( Time ), "inverse:polynomial:321", ref error );
+        if ( obj != null || error == null )
+        {
+            Assert.Fail( "We need to make sure that invalid data doesn't get parsed" );
+        }
+    }
+
+    private struct TestStruct
+    {
+        // ReSharper disable once UnusedMember.Local
+        public static bool TryParse(ref string error, string input, out TestStruct output)
+        {
+            output = default( TestStruct );
+            if ( input.Length > 0 )
             {
-                output = default( TestStruct );
-                if ( input.Length > 0 )
-                {
-                    return true;
-                }
-                error = "Length needs to be greater than zero!";
-                return false;
+                return true;
             }
+            error = "Length needs to be greater than zero!";
+            return false;
         }
     }
 }

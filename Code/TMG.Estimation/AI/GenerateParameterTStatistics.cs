@@ -23,232 +23,231 @@ using System.Linq;
 using Datastructure;
 using TMG.Input;
 using XTMF;
-namespace TMG.Estimation.AI
+namespace TMG.Estimation.AI;
+
+[ModuleInformation(Description = "Produces a report to show the t-statistics of the parameters in the model given a set of betas from a previous estimation run.")]
+public class GenerateParameterTStatistics : IEstimationAI
 {
-    [ModuleInformation(Description = "Produces a report to show the t-statistics of the parameters in the model given a set of betas from a previous estimation run.")]
-    public class GenerateParameterTStatistics : IEstimationAI
+    [RootModule]
+    public IEstimationHost Root;
+
+    [RunParameter("Delta", 0.0001f, "In relative parameter space the distance that will be used to estimate the derivatives.")]
+    public float Delta;
+
+    [RunParameter("Maximize", true, "Is the estimation trying to maximize or minimize the fitness function (maximize = true)?")]
+    public bool Maximize;
+
+    [SubModelInformation(Required = true, Description = "The location of the result file to read in.")]
+    public FileLocation ResultFile;
+
+    [SubModelInformation(Required = true, Description = "The location to save our report to.")]
+    public FileLocation ReportFile;
+
+    public string Name
     {
-        [RootModule]
-        public IEstimationHost Root;
+        get;
+        set;
+    }
 
-        [RunParameter("Delta", 0.0001f, "In relative parameter space the distance that will be used to estimate the derivatives.")]
-        public float Delta;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("Maximize", true, "Is the estimation trying to maximize or minimize the fitness function (maximize = true)?")]
-        public bool Maximize;
-
-        [SubModelInformation(Required = true, Description = "The location of the result file to read in.")]
-        public FileLocation ResultFile;
-
-        [SubModelInformation(Required = true, Description = "The location to save our report to.")]
-        public FileLocation ReportFile;
-
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get;
-            set;
+            return null;
         }
+    }
 
-        public float Progress
+    public List<Job> CreateJobsForIteration()
+    {
+        var ret = new List<Job>();
+        var parameters = Root.Parameters.ToArray();
+        using(var reader = new CsvReader(ResultFile.GetFilePath()))
         {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
+            int[] columnToParameterMap = CreateParameterMap(reader);
+            var baseParameters = LoadBaseParameters(parameters, reader, columnToParameterMap);
+            ret.Add(CreateZero(baseParameters));
+            ret.Add(CreateJob(baseParameters));
+            for(int i = 0; i < baseParameters.Length; i++)
             {
-                return null;
+                // we will need 4 points to approx the second derivative for now
+                ret.Add(CreateWithOffset(baseParameters, i, -Delta));
+                ret.Add(CreateWithOffset(baseParameters, i, Delta));
             }
         }
+        return ret;
+    }
 
-        public List<Job> CreateJobsForIteration()
+    private Job CreateZero(ParameterSetting[] baseParameters)
+    {
+        var parameters = Clone(baseParameters);
+        for(int i = 0; i < parameters.Length; i++)
         {
-            var ret = new List<Job>();
-            var parameters = Root.Parameters.ToArray();
-            using(var reader = new CsvReader(ResultFile.GetFilePath()))
-            {
-                int[] columnToParameterMap = CreateParameterMap(reader);
-                var baseParameters = LoadBaseParameters(parameters, reader, columnToParameterMap);
-                ret.Add(CreateZero(baseParameters));
-                ret.Add(CreateJob(baseParameters));
-                for(int i = 0; i < baseParameters.Length; i++)
-                {
-                    // we will need 4 points to approx the second derivative for now
-                    ret.Add(CreateWithOffset(baseParameters, i, -Delta));
-                    ret.Add(CreateWithOffset(baseParameters, i, Delta));
-                }
-            }
-            return ret;
+            parameters[i].Current = parameters[i].NullHypothesis;
         }
+        return CreateJob(parameters);
+    }
 
-        private Job CreateZero(ParameterSetting[] baseParameters)
+    private Job CreateWithOffset(ParameterSetting[] baseParameters, int index, float delta)
+    {
+        var parameters = Clone(baseParameters);
+        parameters[index].Current += delta * (parameters[index].Maximum - parameters[index].Minimum);
+        return CreateJob(parameters);
+    }
+
+    private ParameterSetting[] Clone(ParameterSetting[] parameters)
+    {
+        ParameterSetting[] ret = new ParameterSetting[parameters.Length];
+        for(int i = 0; i < parameters.Length; i++)
         {
-            var parameters = Clone(baseParameters);
-            for(int i = 0; i < parameters.Length; i++)
+            ret[i] = new ParameterSetting()
             {
-                parameters[i].Current = parameters[i].NullHypothesis;
-            }
-            return CreateJob(parameters);
-        }
-
-        private Job CreateWithOffset(ParameterSetting[] baseParameters, int index, float delta)
-        {
-            var parameters = Clone(baseParameters);
-            parameters[index].Current += delta * (parameters[index].Maximum - parameters[index].Minimum);
-            return CreateJob(parameters);
-        }
-
-        private ParameterSetting[] Clone(ParameterSetting[] parameters)
-        {
-            ParameterSetting[] ret = new ParameterSetting[parameters.Length];
-            for(int i = 0; i < parameters.Length; i++)
-            {
-                ret[i] = new ParameterSetting()
-                {
-                    Current = parameters[i].Current,
-                    Names = parameters[i].Names,
-                    Minimum = parameters[i].Minimum,
-                    Maximum = parameters[i].Maximum,
-                    NullHypothesis = parameters[i].NullHypothesis
-                };
-            }
-            return ret;
-        }
-
-        private Job CreateJob(ParameterSetting[] parameters)
-        {
-            return new Job()
-            {
-                Parameters = parameters,
-                Processed = false,
-                ProcessedBy = null,
-                Processing = false,
-                Value = float.NaN
+                Current = parameters[i].Current,
+                Names = parameters[i].Names,
+                Minimum = parameters[i].Minimum,
+                Maximum = parameters[i].Maximum,
+                NullHypothesis = parameters[i].NullHypothesis
             };
         }
+        return ret;
+    }
 
-        private static ParameterSetting[] LoadBaseParameters(ParameterSetting[] parameters, CsvReader reader, int[] columnMap)
+    private Job CreateJob(ParameterSetting[] parameters)
+    {
+        return new Job()
         {
-            var baseParameters = new ParameterSetting[parameters.Length];
-            // we only read the first line
-            if (reader.LoadLine(out int columns))
+            Parameters = parameters,
+            Processed = false,
+            ProcessedBy = null,
+            Processing = false,
+            Value = float.NaN
+        };
+    }
+
+    private static ParameterSetting[] LoadBaseParameters(ParameterSetting[] parameters, CsvReader reader, int[] columnMap)
+    {
+        var baseParameters = new ParameterSetting[parameters.Length];
+        // we only read the first line
+        if (reader.LoadLine(out int columns))
+        {
+            for (int i = 0; i < parameters.Length; i++)
             {
-                for (int i = 0; i < parameters.Length; i++)
+                baseParameters[i] = new ParameterSetting()
                 {
-                    baseParameters[i] = new ParameterSetting()
-                    {
-                        Names = parameters[i].Names,
-                        Minimum = parameters[i].Minimum,
-                        Maximum = parameters[i].Maximum
-                    };
-                }
-
-                for (int i = 0; i < columnMap.Length; i++)
-                {
-                    reader.Get(out baseParameters[columnMap[i]].Current, i + 2);
-                }
+                    Names = parameters[i].Names,
+                    Minimum = parameters[i].Minimum,
+                    Maximum = parameters[i].Maximum
+                };
             }
-            return baseParameters;
-        }
 
-        private int[] CreateParameterMap(CsvReader reader)
-        {
-            var parameters = Root.Parameters.ToArray();
-            reader.LoadLine(out int columns);
-            var ret = new int[columns - 2];
-            for ( int i = 2; i < columns; i++ )
+            for (int i = 0; i < columnMap.Length; i++)
             {
-                reader.Get(out string name, i);
-                var selectedParameter = ( from p in parameters
-                                          where p.Names.Contains( name )
-                                          select p ).FirstOrDefault();
-                if ( selectedParameter == null )
-                {
-                    throw new XTMFRuntimeException(this, "In '" + Name + " the parameter '" + name + "' could not be resolved." );
-                }
-                ret[i - 2] = IndexOf( parameters, selectedParameter );
+                reader.Get(out baseParameters[columnMap[i]].Current, i + 2);
             }
-            return ret;
         }
+        return baseParameters;
+    }
 
-        private int IndexOf(ParameterSetting[] parameters, ParameterSetting selectedParameter)
+    private int[] CreateParameterMap(CsvReader reader)
+    {
+        var parameters = Root.Parameters.ToArray();
+        reader.LoadLine(out int columns);
+        var ret = new int[columns - 2];
+        for ( int i = 2; i < columns; i++ )
         {
-            for(int i = 0; i < parameters.Length; i++)
+            reader.Get(out string name, i);
+            var selectedParameter = ( from p in parameters
+                                      where p.Names.Contains( name )
+                                      select p ).FirstOrDefault();
+            if ( selectedParameter == null )
             {
-                if(parameters[i] == selectedParameter) return i;
+                throw new XTMFRuntimeException(this, "In '" + Name + " the parameter '" + name + "' could not be resolved." );
             }
-            return -1;
+            ret[i - 2] = IndexOf( parameters, selectedParameter );
         }
+        return ret;
+    }
 
-        public void IterationComplete()
+    private int IndexOf(ParameterSetting[] parameters, ParameterSetting selectedParameter)
+    {
+        for(int i = 0; i < parameters.Length; i++)
         {
-            var jobs = Root.CurrentJobs;
-            var parameters = Root.Parameters;
-            // job 0 is no parameters included
-            // job 1 is all parameters included
-            var zeroValue = jobs[0].Value;
-            var baseValue = jobs[1].Value;
-            using var writer = new StreamWriter(ReportFile);
-            writer.WriteLine("Fitness,ZeroFitness,Rho^2");
-            writer.Write(baseValue);
+            if(parameters[i] == selectedParameter) return i;
+        }
+        return -1;
+    }
+
+    public void IterationComplete()
+    {
+        var jobs = Root.CurrentJobs;
+        var parameters = Root.Parameters;
+        // job 0 is no parameters included
+        // job 1 is all parameters included
+        var zeroValue = jobs[0].Value;
+        var baseValue = jobs[1].Value;
+        using var writer = new StreamWriter(ReportFile);
+        writer.WriteLine("Fitness,ZeroFitness,Rho^2");
+        writer.Write(baseValue);
+        writer.Write(',');
+        writer.Write(zeroValue);
+        writer.Write(',');
+        writer.WriteLine(GetRho(baseValue, zeroValue));
+        writer.WriteLine("ParameterName,Coefficient,LeftCoefficient,RightCoefficient,LeftFitness,RightFitness,SecondDerivative,t-statistic");
+        for (int i = 0; i < parameters.Count; i++)
+        {
+            var secondDerivative = SecondDerivative(i);
+            var current = jobs[1].Parameters[i].Current;
+            int offset = i * 2 + 2;
+            writer.Write('"');
+            writer.Write(parameters[i].Names[0]);
+            writer.Write('"');
             writer.Write(',');
-            writer.Write(zeroValue);
+            writer.Write(current);
             writer.Write(',');
-            writer.WriteLine(GetRho(baseValue, zeroValue));
-            writer.WriteLine("ParameterName,Coefficient,LeftCoefficient,RightCoefficient,LeftFitness,RightFitness,SecondDerivative,t-statistic");
-            for (int i = 0; i < parameters.Count; i++)
-            {
-                var secondDerivative = SecondDerivative(i);
-                var current = jobs[1].Parameters[i].Current;
-                int offset = i * 2 + 2;
-                writer.Write('"');
-                writer.Write(parameters[i].Names[0]);
-                writer.Write('"');
-                writer.Write(',');
-                writer.Write(current);
-                writer.Write(',');
-                writer.Write(jobs[offset].Parameters[i].Current);
-                writer.Write(',');
-                writer.Write(jobs[offset + 1].Parameters[i].Current);
-                writer.Write(',');
-                writer.Write(jobs[offset].Value);
-                writer.Write(',');
-                writer.Write(jobs[offset + 1].Value);
-                writer.Write(',');
-                writer.Write(secondDerivative);
-                writer.Write(',');
-                writer.WriteLine(ComputeTStatistic(current, secondDerivative));
-            }
+            writer.Write(jobs[offset].Parameters[i].Current);
+            writer.Write(',');
+            writer.Write(jobs[offset + 1].Parameters[i].Current);
+            writer.Write(',');
+            writer.Write(jobs[offset].Value);
+            writer.Write(',');
+            writer.Write(jobs[offset + 1].Value);
+            writer.Write(',');
+            writer.Write(secondDerivative);
+            writer.Write(',');
+            writer.WriteLine(ComputeTStatistic(current, secondDerivative));
         }
+    }
 
-        private double ComputeTStatistic(float current, double secondDerivative)
-        {
-            var variance = (Maximize ? -1.0f : 1.0f) / secondDerivative;
-            var std = Math.Sqrt(variance);
-            return current / std;
-        }
+    private double ComputeTStatistic(float current, double secondDerivative)
+    {
+        var variance = (Maximize ? -1.0f : 1.0f) / secondDerivative;
+        var std = Math.Sqrt(variance);
+        return current / std;
+    }
 
-        private double SecondDerivative(int parameterIndex)
-        {
-            var jobs = Root.CurrentJobs;
-            var parameters = Root.Parameters;
-            var parameterDelta = Delta * (parameters[parameterIndex].Maximum - parameters[parameterIndex].Minimum);
-            // 4 parameters per job, 2 jobs to get value and zero value
-            var parameterOffset = parameterIndex * 2 + 2;
-            return (jobs[parameterOffset + 1].Value - (2 * jobs[1].Value) + jobs[parameterOffset].Value)
-                / (parameterDelta * parameterDelta);
-        }
+    private double SecondDerivative(int parameterIndex)
+    {
+        var jobs = Root.CurrentJobs;
+        var parameters = Root.Parameters;
+        var parameterDelta = Delta * (parameters[parameterIndex].Maximum - parameters[parameterIndex].Minimum);
+        // 4 parameters per job, 2 jobs to get value and zero value
+        var parameterOffset = parameterIndex * 2 + 2;
+        return (jobs[parameterOffset + 1].Value - (2 * jobs[1].Value) + jobs[parameterOffset].Value)
+            / (parameterDelta * parameterDelta);
+    }
 
-        private float GetRho(float current, float zeroParams)
-        {
-            return 1.0f - (current / zeroParams);
-        }
+    private float GetRho(float current, float zeroParams)
+    {
+        return 1.0f - (current / zeroParams);
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

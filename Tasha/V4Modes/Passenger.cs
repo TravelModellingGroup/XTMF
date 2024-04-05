@@ -23,745 +23,744 @@ using Tasha.Common;
 using TMG;
 using XTMF;
 
-namespace Tasha.V4Modes
+namespace Tasha.V4Modes;
+
+[ModuleInformation(Description =
+    @"This module is designed to implement the Passenger mode for GTAModel V4.0+.")]
+public sealed class Passenger : ITashaPassenger, IIterationSensitive
 {
-    [ModuleInformation(Description =
-        @"This module is designed to implement the Passenger mode for GTAModel V4.0+.")]
-    public sealed class Passenger : ITashaPassenger, IIterationSensitive
+    [DoNotAutomate]
+    public INetworkData AutoData;
+
+    [DoNotAutomate]
+    public INetworkCompleteData FastAutoData;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
+    public float ProfessionalConstant;
+    [RunParameter("GeneralConstant", 0f, "The constant applied to the person type.")]
+    public float GeneralConstant;
+    [RunParameter("SalesConstant", 0f, "The constant applied to the person type.")]
+    public float SalesConstant;
+    [RunParameter("ManufacturingConstant", 0f, "The constant applied to the person type.")]
+    public float ManufacturingConstant;
+    [RunParameter("StudentConstant", 0f, "The constant applied to the person type.")]
+    public float StudentConstant;
+    [RunParameter("NonWorkerStudentConstant", 0f, "The constant applied to the person type.")]
+    public float NonWorkerStudentConstant;
+
+    [RunParameter("Female Flag", 0f, "Added to the utility if the person is female.")]
+    public float FemaleFlag;
+
+    [RunParameter("IntrazonalDriverConstant", 0f, "The mode constant if all of the trip legs are intrazonal.")]
+    public float IntrazonalConstant;
+
+    [RunParameter("IntrazonalDriverTripDistanceFactor", 0f, "The factor to apply to the intrazonal trip distance.")]
+    public float IntrazonalDriverTripDistanceFactor;
+
+    [RunParameter("IntrazonalPassengerTripDistanceFactor", 0f, "The factor to apply to the intrazonal trip distance.")]
+    public float IntrazonalPassengerTripDistanceFactor;
+
+    [RootModule]
+    public ITashaRuntime TashaRuntime;
+
+    [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
+    public float MarketFlag;
+
+    [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
+    public float OtherFlag;
+
+    [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
+    public float SchoolFlag;
+
+    [RunParameter("ProfessionalTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float ProfessionalCostFactor;
+
+    [RunParameter("GeneralTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float GeneralCostFactor;
+
+    [RunParameter("SalesTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float SalesCostFactor;
+
+    [RunParameter("ManufacturingTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float ManufacturingCostFactor;
+
+    [RunParameter("StudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float StudentCostFactor;
+
+    [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
+    public float NonWorkerStudentCostFactor;
+
+    private float ProfessionalCost;
+    private float GeneralCost;
+    private float SalesCost;
+    private float ManufacturingCost;
+    private float StudentCost;
+    private float NonWorkerStudentCost;
+
+    [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float ProfessionalTimeFactor;
+    [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float GeneralTimeFactor;
+    [RunParameter("SalesTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float SalesTimeFactor;
+    [RunParameter("ManufacturingTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float ManufacturingTimeFactor;
+    [RunParameter("StudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float StudentTimeFactor;
+    [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+    public float NonWorkerStudentTimeFactor;
+
+    [RunParameter("LogOfAgeFactor", 0f, "The factor applied to the log of age.")]
+    public float LogOfAgeFactor;
+
+    [RunParameter("Over65", 0f, "The factor applied if the person is over the age of 65..")]
+    public float Over65;
+
+    [RunParameter("Over55", 0f, "The factor applied if the person is over the age of 55, but less than 65.")]
+    public float Over55;
+
+    [RunParameter("PassengerHasLicenseFlag", 0f, "Added to the utility if the passenger has a license.")]
+    public float PassengerHasLicenseFlag;
+
+    [RunParameter("ShareBothPointsFlag", 0f, "Added if the passenger and driver share both origin and destination zones.")]
+    public float ShareBothPointsFlag;
+
+    [RunParameter("ShareAPointFlag", 0f, "Added if the passenger and driver share one of their origin and destination zones.")]
+    public float ShareAPointFlag;
+
+    [RunParameter("Max Passenger Time", "45 minutes", typeof(Time), "The amount of time that the passenger can shift their trip by.")]
+    public Time MaxPassengerTimeThreshold;
+
+    [RunParameter("Max Driver Time", "15 minutes", typeof(Time), "The amount of time that the driver can shift their trip by.")]
+    public Time MaxDriverTimeThreshold;
+
+    [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculate the parking cost for.")]
+    public float MaximumHoursForParking;
+
+    [SubModelInformation(Required = false, Description = "Constants for time of day")]
+    public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+    [SubModelInformation(Required = false, Description = "An optional source to gather parking costs from.")]
+    public IDataSource<IParkingCost> ParkingModel;
+
+    private IParkingCost _parkingModel;
+
+    [DoNotAutomate]
+    public ITashaMode AssociatedMode
     {
-        [DoNotAutomate]
-        public INetworkData AutoData;
+        get { return TashaRuntime.AutoMode; }
+    }
 
-        [DoNotAutomate]
-        public INetworkCompleteData FastAutoData;
+    [Parameter("Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?")]
+    public float CurrentlyFeasible { get; set; }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    /// <summary>
+    ///
+    /// </summary>
+    public byte ModeChoiceArrIndex { get; set; }
 
-        [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
-        public float ProfessionalConstant;
-        [RunParameter("GeneralConstant", 0f, "The constant applied to the person type.")]
-        public float GeneralConstant;
-        [RunParameter("SalesConstant", 0f, "The constant applied to the person type.")]
-        public float SalesConstant;
-        [RunParameter("ManufacturingConstant", 0f, "The constant applied to the person type.")]
-        public float ManufacturingConstant;
-        [RunParameter("StudentConstant", 0f, "The constant applied to the person type.")]
-        public float StudentConstant;
-        [RunParameter("NonWorkerStudentConstant", 0f, "The constant applied to the person type.")]
-        public float NonWorkerStudentConstant;
+    [RunParameter("Mode Name", "Passenger", "The name of the mode")]
+    public string ModeName { get; set; }
 
-        [RunParameter("Female Flag", 0f, "Added to the utility if the person is female.")]
-        public float FemaleFlag;
+    /// <summary>
+    ///
+    /// </summary>
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("IntrazonalDriverConstant", 0f, "The mode constant if all of the trip legs are intrazonal.")]
-        public float IntrazonalConstant;
+    [RunParameter("Network Type", "Auto", "The name of the network data to use.")]
+    public string NetworkType
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("IntrazonalDriverTripDistanceFactor", 0f, "The factor to apply to the intrazonal trip distance.")]
-        public float IntrazonalDriverTripDistanceFactor;
+    /// <summary>
+    /// This does not require a personal vehicle
+    /// </summary>
+    public bool NonPersonalVehicle
+    {
+        get { return true; }
+    }
 
-        [RunParameter("IntrazonalPassengerTripDistanceFactor", 0f, "The factor to apply to the intrazonal trip distance.")]
-        public float IntrazonalPassengerTripDistanceFactor;
+    public char ObservedMode
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime TashaRuntime;
+    public char OutputSignature
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
-        public float MarketFlag;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
-        public float OtherFlag;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(100, 200, 100); }
+    }
 
-        [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
-        public float SchoolFlag;
 
-        [RunParameter("ProfessionalTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float ProfessionalCostFactor;
+    /// <summary>
+    /// Does this require a vehicle
+    /// </summary>
+    [DoNotAutomate]
+    public IVehicleType RequiresVehicle
+    {
+        get { return TashaRuntime.AutoType; }
+    }
 
-        [RunParameter("GeneralTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float GeneralCostFactor;
+    [RunParameter("Variance Scale", 1.0f, "The scale for variance used for variance testing.")]
+    public double VarianceScale
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("SalesTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float SalesCostFactor;
+    public bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
+    {
+        return FastAutoData != null ? FastCalcV(driverOriginalTrip, passengerTrip, out v) : NonFastCalcV(driverOriginalTrip, passengerTrip, out v);
+    }
 
-        [RunParameter("ManufacturingTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float ManufacturingCostFactor;
+    private SparseArray<IZone> ZoneSystem;
+    private float[][] ZoneDistances;
 
-        [RunParameter("StudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float StudentCostFactor;
-
-        [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
-        public float NonWorkerStudentCostFactor;
-
-        private float ProfessionalCost;
-        private float GeneralCost;
-        private float SalesCost;
-        private float ManufacturingCost;
-        private float StudentCost;
-        private float NonWorkerStudentCost;
-
-        [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float ProfessionalTimeFactor;
-        [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float GeneralTimeFactor;
-        [RunParameter("SalesTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float SalesTimeFactor;
-        [RunParameter("ManufacturingTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float ManufacturingTimeFactor;
-        [RunParameter("StudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float StudentTimeFactor;
-        [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float NonWorkerStudentTimeFactor;
-
-        [RunParameter("LogOfAgeFactor", 0f, "The factor applied to the log of age.")]
-        public float LogOfAgeFactor;
-
-        [RunParameter("Over65", 0f, "The factor applied if the person is over the age of 65..")]
-        public float Over65;
-
-        [RunParameter("Over55", 0f, "The factor applied if the person is over the age of 55, but less than 65.")]
-        public float Over55;
-
-        [RunParameter("PassengerHasLicenseFlag", 0f, "Added to the utility if the passenger has a license.")]
-        public float PassengerHasLicenseFlag;
-
-        [RunParameter("ShareBothPointsFlag", 0f, "Added if the passenger and driver share both origin and destination zones.")]
-        public float ShareBothPointsFlag;
-
-        [RunParameter("ShareAPointFlag", 0f, "Added if the passenger and driver share one of their origin and destination zones.")]
-        public float ShareAPointFlag;
-
-        [RunParameter("Max Passenger Time", "45 minutes", typeof(Time), "The amount of time that the passenger can shift their trip by.")]
-        public Time MaxPassengerTimeThreshold;
-
-        [RunParameter("Max Driver Time", "15 minutes", typeof(Time), "The amount of time that the driver can shift their trip by.")]
-        public Time MaxDriverTimeThreshold;
-
-        [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculate the parking cost for.")]
-        public float MaximumHoursForParking;
-
-        [SubModelInformation(Required = false, Description = "Constants for time of day")]
-        public TimePeriodSpatialConstant[] TimePeriodConstants;
-
-        [SubModelInformation(Required = false, Description = "An optional source to gather parking costs from.")]
-        public IDataSource<IParkingCost> ParkingModel;
-
-        private IParkingCost _parkingModel;
-
-        [DoNotAutomate]
-        public ITashaMode AssociatedMode
+    private bool FastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
+    {
+        var numberOfZones = ZoneSystem.Count;
+        IZone driverDestinationZone = driverOriginalTrip.DestinationZone;
+        int passengerOrigin = ZoneSystem.GetFlatIndex(passengerTrip.OriginalZone.ZoneNumber);
+        int passengerDestination = ZoneSystem.GetFlatIndex(passengerTrip.DestinationZone.ZoneNumber);
+        int driverOrigin = ZoneSystem.GetFlatIndex(driverOriginalTrip.OriginalZone.ZoneNumber);
+        int driverDestination = ZoneSystem.GetFlatIndex(driverDestinationZone.ZoneNumber);
+        var autoData = FastAutoData.GetTimePeriodData(driverOriginalTrip.ActivityStartTime);
+        v = float.NegativeInfinity;
+        if(autoData == null ||
+            !IsThereEnoughTimeFast(autoData, driverOriginalTrip, passengerTrip,
+            driverOrigin, passengerOrigin, passengerDestination, driverDestination,
+            out float toPassengerOrigin, out float toPassengerDestination, out float toDriverDestination))
         {
-            get { return TashaRuntime.AutoMode; }
+            return false;
+        }
+        // Since this is going to be valid, start building a real utility!
+        v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerTrip.OriginalZone.PlanningDistrict, passengerTrip.DestinationZone.PlanningDistrict);
+        var sameOrigin = passengerOrigin == driverOrigin;
+        var sameDestination = passengerDestination == driverDestination;
+        var passenger = passengerTrip.TripChain.Person;
+        // we are going to add in the time of the to passenger destination twice
+        int same = 0;
+        // from driver's origin to passenger's origin
+        if(toPassengerOrigin <= 0.0f)
+        {
+            v += ZoneDistances[driverOrigin][passengerOrigin] * 0.001f * IntrazonalDriverTripDistanceFactor;
+            same++;
+        }
+        //from passenger origin to passenger destination
+        if(toPassengerDestination <= 0.0f)
+        {
+            v += ZoneDistances[passengerOrigin][passengerDestination] * 0.001f * IntrazonalPassengerTripDistanceFactor;
+            same++;
+        }
+        // time to driver destination
+        if(toDriverDestination <= 0.0f)
+        {
+            v += ZoneDistances[passengerDestination][driverDestination] * 0.001f * IntrazonalDriverTripDistanceFactor;
+            same++;
         }
 
-        [Parameter("Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?")]
-        public float CurrentlyFeasible { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public byte ModeChoiceArrIndex { get; set; }
-
-        [RunParameter("Mode Name", "Passenger", "The name of the mode")]
-        public string ModeName { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public string Name
+        GetPersonVariables(passenger, out float timeFactor, out float passengerConstant, out float costFactor);
+        // if all three are the same then apply the intrazonal constant, otherwise use the regular constant
+        v += passengerConstant;
+        if(same == 3)
         {
-            get;
-            set;
+            v += IntrazonalConstant;
+        }
+        // apply the travel times (don't worry if we have intrazonals because they will be 0's).
+        v += (toPassengerOrigin + toPassengerDestination + toDriverDestination + toPassengerDestination) * timeFactor;
+        // Add in the travel cost
+        var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
+        v += (
+             (autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones) + 1]
+            + autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones) + 1]
+            + autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones) + 1])
+            + (_parkingModel == null ? driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+             : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverDestination))
+            ) * costFactor;
+        switch(passengerTrip.Purpose)
+        {
+            case Activity.School:
+                v += SchoolFlag;
+                break;
+            case Activity.IndividualOther:
+            case Activity.JointOther:
+                v += OtherFlag;
+                break;
+            case Activity.Market:
+            case Activity.JointMarket:
+                v += MarketFlag;
+                break;
         }
 
-        [RunParameter("Network Type", "Auto", "The name of the network data to use.")]
-        public string NetworkType
+        if(passenger.Female) v += FemaleFlag;
+        if(passenger.Licence) v += PassengerHasLicenseFlag;
+        if(sameOrigin | sameDestination)
         {
-            get;
-            set;
+            v += (sameOrigin & sameDestination) ? ShareBothPointsFlag : ShareAPointFlag;
+        }
+        var age = passenger.Age;
+        v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
+        if(age >= 65)
+        {
+            v += Over65;
+        }
+        else if(age >= 55)
+        {
+            v += Over55;
+        }
+        return true;
+    }
+
+    public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+    {
+        for (int i = 0; i < TimePeriodConstants.Length; i++)
+        {
+            if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+            {
+                return TimePeriodConstants[i].GetConstant(pdO, pdD);
+            }
+        }
+        return 0f;
+    }
+
+    private bool NonFastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
+    {
+        v = float.NegativeInfinity;
+        if (!IsThereEnoughTime(driverOriginalTrip, passengerTrip, out Time toPassengerOrigin, out Time toPassengerDestination, out Time toDriverDestination))
+        {
+            return false;
+        }
+        var zoneDistances = Root.ZoneSystem.Distances;
+        // Since this is going to be valid, start building a real utility!
+        IZone passengerOrigin = passengerTrip.OriginalZone;
+        IZone driverOrigin = driverOriginalTrip.OriginalZone;
+        var sameOrigin = passengerOrigin == driverOrigin;
+        IZone passengerDestination = passengerTrip.DestinationZone;
+        var sameDestination = passengerDestination == driverOriginalTrip.DestinationZone;
+        var passenger = passengerTrip.TripChain.Person;
+        v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerOrigin.PlanningDistrict, passengerDestination.PlanningDistrict);
+        // we are going to add in the time of the to passenger destination twice
+        var zeroTime = Time.Zero;
+        int same = 0;
+
+        // from driver's origin to passenger's origin
+        if(toPassengerOrigin == zeroTime)
+        {
+            v += zoneDistances[driverOrigin.ZoneNumber,
+                passengerOrigin.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
+            same++;
+        }
+        //from passenger origin to passenger destination
+        if(toPassengerDestination == zeroTime)
+        {
+            v += zoneDistances[passengerOrigin.ZoneNumber,
+                passengerDestination.ZoneNumber] * 0.001f * IntrazonalPassengerTripDistanceFactor;
+            same++;
+        }
+        // time to driver destination
+        if(toDriverDestination == zeroTime)
+        {
+            v += zoneDistances[passengerDestination.ZoneNumber,
+                driverOriginalTrip.DestinationZone.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
+            same++;
         }
 
-        /// <summary>
-        /// This does not require a personal vehicle
-        /// </summary>
-        public bool NonPersonalVehicle
+        GetPersonVariables(passenger, out float timeFactor, out float passengerConstant, out float costFactor);
+        // if all three are the same then apply the intrazonal constant, otherwise use the regular constant
+        v += passengerConstant;
+        if(same == 3)
         {
-            get { return true; }
+            v += IntrazonalConstant;
+        }
+        // apply the travel times (don't worry if we have intrazonals because they will be 0's).
+        v += ((toPassengerOrigin + toPassengerDestination + toDriverDestination) + toPassengerDestination).ToMinutes() * timeFactor;
+        // Add in the travel cost
+        var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
+        v += (
+            (AutoData.TravelCost(driverOrigin, passengerOrigin, passengerTrip.ActivityStartTime)
+            + AutoData.TravelCost(passengerOrigin, passengerDestination, passengerTrip.ActivityStartTime)
+            + AutoData.TravelCost(passengerDestination, driverOriginalTrip.DestinationZone, passengerTrip.ActivityStartTime))
+            + (_parkingModel == null ? driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
+             : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverOriginalTrip.DestinationZone))
+            ) * costFactor;
+        switch(passengerTrip.Purpose)
+        {
+            case Activity.School:
+                v += SchoolFlag;
+                break;
+            case Activity.IndividualOther:
+            case Activity.JointOther:
+                v += OtherFlag;
+                break;
+            case Activity.Market:
+            case Activity.JointMarket:
+                v += MarketFlag;
+                break;
         }
 
-        public char ObservedMode
+        if(passenger.Female) v += FemaleFlag;
+        if(passenger.Licence) v += PassengerHasLicenseFlag;
+        if(sameOrigin | sameDestination)
         {
-            get;
-            set;
+            v += (sameOrigin & sameDestination) ? ShareBothPointsFlag : ShareAPointFlag;
         }
-
-        public char OutputSignature
+        var age = passenger.Age;
+        v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
+        if(age >= 65)
         {
-            get;
-            set;
+            v += Over65;
         }
-
-        public float Progress
+        else if(age >= 55)
         {
-            get { return 0; }
+            v += Over55;
         }
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    private float TimeToNextTrip(ITrip trip)
+    {
+        var tchain = trip.TripChain.Trips;
+        for(int i = 0; i < tchain.Count - 1; i++)
         {
-            get { return new Tuple<byte, byte, byte>(100, 200, 100); }
+            if(tchain[i] == trip)
+            {
+                // the number is (1/60)f
+                return (tchain[i + 1].ActivityStartTime - trip.ActivityStartTime).ToMinutes() * 0.01666666666666f;
+            }
         }
+        return 0f;
+    }
 
-
-        /// <summary>
-        /// Does this require a vehicle
-        /// </summary>
-        [DoNotAutomate]
-        public IVehicleType RequiresVehicle
+    private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
+    {
+        if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
         {
-            get { return TashaRuntime.AutoType; }
-        }
-
-        [RunParameter("Variance Scale", 1.0f, "The scale for variance used for variance testing.")]
-        public double VarianceScale
-        {
-            get;
-            set;
-        }
-
-        public bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
-        {
-            return FastAutoData != null ? FastCalcV(driverOriginalTrip, passengerTrip, out v) : NonFastCalcV(driverOriginalTrip, passengerTrip, out v);
-        }
-
-        private SparseArray<IZone> ZoneSystem;
-        private float[][] ZoneDistances;
-
-        private bool FastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
-        {
-            var numberOfZones = ZoneSystem.Count;
-            IZone driverDestinationZone = driverOriginalTrip.DestinationZone;
-            int passengerOrigin = ZoneSystem.GetFlatIndex(passengerTrip.OriginalZone.ZoneNumber);
-            int passengerDestination = ZoneSystem.GetFlatIndex(passengerTrip.DestinationZone.ZoneNumber);
-            int driverOrigin = ZoneSystem.GetFlatIndex(driverOriginalTrip.OriginalZone.ZoneNumber);
-            int driverDestination = ZoneSystem.GetFlatIndex(driverDestinationZone.ZoneNumber);
-            var autoData = FastAutoData.GetTimePeriodData(driverOriginalTrip.ActivityStartTime);
-            v = float.NegativeInfinity;
-            if(autoData == null ||
-                !IsThereEnoughTimeFast(autoData, driverOriginalTrip, passengerTrip,
-                driverOrigin, passengerOrigin, passengerDestination, driverDestination,
-                out float toPassengerOrigin, out float toPassengerDestination, out float toDriverDestination))
+            switch(person.Occupation)
             {
-                return false;
-            }
-            // Since this is going to be valid, start building a real utility!
-            v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerTrip.OriginalZone.PlanningDistrict, passengerTrip.DestinationZone.PlanningDistrict);
-            var sameOrigin = passengerOrigin == driverOrigin;
-            var sameDestination = passengerDestination == driverDestination;
-            var passenger = passengerTrip.TripChain.Person;
-            // we are going to add in the time of the to passenger destination twice
-            int same = 0;
-            // from driver's origin to passenger's origin
-            if(toPassengerOrigin <= 0.0f)
-            {
-                v += ZoneDistances[driverOrigin][passengerOrigin] * 0.001f * IntrazonalDriverTripDistanceFactor;
-                same++;
-            }
-            //from passenger origin to passenger destination
-            if(toPassengerDestination <= 0.0f)
-            {
-                v += ZoneDistances[passengerOrigin][passengerDestination] * 0.001f * IntrazonalPassengerTripDistanceFactor;
-                same++;
-            }
-            // time to driver destination
-            if(toDriverDestination <= 0.0f)
-            {
-                v += ZoneDistances[passengerDestination][driverDestination] * 0.001f * IntrazonalDriverTripDistanceFactor;
-                same++;
-            }
-
-            GetPersonVariables(passenger, out float timeFactor, out float passengerConstant, out float costFactor);
-            // if all three are the same then apply the intrazonal constant, otherwise use the regular constant
-            v += passengerConstant;
-            if(same == 3)
-            {
-                v += IntrazonalConstant;
-            }
-            // apply the travel times (don't worry if we have intrazonals because they will be 0's).
-            v += (toPassengerOrigin + toPassengerDestination + toDriverDestination + toPassengerDestination) * timeFactor;
-            // Add in the travel cost
-            var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
-            v += (
-                 (autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones) + 1]
-                + autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones) + 1]
-                + autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones) + 1])
-                + (_parkingModel == null ? driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
-                 : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverDestination))
-                ) * costFactor;
-            switch(passengerTrip.Purpose)
-            {
-                case Activity.School:
-                    v += SchoolFlag;
-                    break;
-                case Activity.IndividualOther:
-                case Activity.JointOther:
-                    v += OtherFlag;
-                    break;
-                case Activity.Market:
-                case Activity.JointMarket:
-                    v += MarketFlag;
-                    break;
-            }
-
-            if(passenger.Female) v += FemaleFlag;
-            if(passenger.Licence) v += PassengerHasLicenseFlag;
-            if(sameOrigin | sameDestination)
-            {
-                v += (sameOrigin & sameDestination) ? ShareBothPointsFlag : ShareAPointFlag;
-            }
-            var age = passenger.Age;
-            v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
-            if(age >= 65)
-            {
-                v += Over65;
-            }
-            else if(age >= 55)
-            {
-                v += Over55;
-            }
-            return true;
-        }
-
-        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
-        {
-            for (int i = 0; i < TimePeriodConstants.Length; i++)
-            {
-                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
-                {
-                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
-                }
-            }
-            return 0f;
-        }
-
-        private bool NonFastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
-        {
-            v = float.NegativeInfinity;
-            if (!IsThereEnoughTime(driverOriginalTrip, passengerTrip, out Time toPassengerOrigin, out Time toPassengerDestination, out Time toDriverDestination))
-            {
-                return false;
-            }
-            var zoneDistances = Root.ZoneSystem.Distances;
-            // Since this is going to be valid, start building a real utility!
-            IZone passengerOrigin = passengerTrip.OriginalZone;
-            IZone driverOrigin = driverOriginalTrip.OriginalZone;
-            var sameOrigin = passengerOrigin == driverOrigin;
-            IZone passengerDestination = passengerTrip.DestinationZone;
-            var sameDestination = passengerDestination == driverOriginalTrip.DestinationZone;
-            var passenger = passengerTrip.TripChain.Person;
-            v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerOrigin.PlanningDistrict, passengerDestination.PlanningDistrict);
-            // we are going to add in the time of the to passenger destination twice
-            var zeroTime = Time.Zero;
-            int same = 0;
-
-            // from driver's origin to passenger's origin
-            if(toPassengerOrigin == zeroTime)
-            {
-                v += zoneDistances[driverOrigin.ZoneNumber,
-                    passengerOrigin.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
-                same++;
-            }
-            //from passenger origin to passenger destination
-            if(toPassengerDestination == zeroTime)
-            {
-                v += zoneDistances[passengerOrigin.ZoneNumber,
-                    passengerDestination.ZoneNumber] * 0.001f * IntrazonalPassengerTripDistanceFactor;
-                same++;
-            }
-            // time to driver destination
-            if(toDriverDestination == zeroTime)
-            {
-                v += zoneDistances[passengerDestination.ZoneNumber,
-                    driverOriginalTrip.DestinationZone.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
-                same++;
-            }
-
-            GetPersonVariables(passenger, out float timeFactor, out float passengerConstant, out float costFactor);
-            // if all three are the same then apply the intrazonal constant, otherwise use the regular constant
-            v += passengerConstant;
-            if(same == 3)
-            {
-                v += IntrazonalConstant;
-            }
-            // apply the travel times (don't worry if we have intrazonals because they will be 0's).
-            v += ((toPassengerOrigin + toPassengerDestination + toDriverDestination) + toPassengerDestination).ToMinutes() * timeFactor;
-            // Add in the travel cost
-            var timeToNextTrip = TimeToNextTrip(driverOriginalTrip);
-            v += (
-                (AutoData.TravelCost(driverOrigin, passengerOrigin, passengerTrip.ActivityStartTime)
-                + AutoData.TravelCost(passengerOrigin, passengerDestination, passengerTrip.ActivityStartTime)
-                + AutoData.TravelCost(passengerDestination, driverOriginalTrip.DestinationZone, passengerTrip.ActivityStartTime))
-                + (_parkingModel == null ? driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
-                 : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverOriginalTrip.DestinationZone))
-                ) * costFactor;
-            switch(passengerTrip.Purpose)
-            {
-                case Activity.School:
-                    v += SchoolFlag;
-                    break;
-                case Activity.IndividualOther:
-                case Activity.JointOther:
-                    v += OtherFlag;
-                    break;
-                case Activity.Market:
-                case Activity.JointMarket:
-                    v += MarketFlag;
-                    break;
-            }
-
-            if(passenger.Female) v += FemaleFlag;
-            if(passenger.Licence) v += PassengerHasLicenseFlag;
-            if(sameOrigin | sameDestination)
-            {
-                v += (sameOrigin & sameDestination) ? ShareBothPointsFlag : ShareAPointFlag;
-            }
-            var age = passenger.Age;
-            v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
-            if(age >= 65)
-            {
-                v += Over65;
-            }
-            else if(age >= 55)
-            {
-                v += Over55;
-            }
-            return true;
-        }
-
-        private float TimeToNextTrip(ITrip trip)
-        {
-            var tchain = trip.TripChain.Trips;
-            for(int i = 0; i < tchain.Count - 1; i++)
-            {
-                if(tchain[i] == trip)
-                {
-                    // the number is (1/60)f
-                    return (tchain[i + 1].ActivityStartTime - trip.ActivityStartTime).ToMinutes() * 0.01666666666666f;
-                }
-            }
-            return 0f;
-        }
-
-        private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
-        {
-            if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
-            {
-                switch(person.Occupation)
-                {
-                    case Occupation.Professional:
-                        cost = ProfessionalCost;
-                        constant = ProfessionalConstant;
-                        time = ProfessionalTimeFactor;
-                        return;
-                    case Occupation.Office:
-                        cost = GeneralCost;
-                        constant = GeneralConstant;
-                        time = GeneralTimeFactor;
-                        return;
-                    case Occupation.Retail:
-                        cost = SalesCost;
-                        constant = SalesConstant;
-                        time = SalesTimeFactor;
-                        return;
-                    case Occupation.Manufacturing:
-                        cost = ManufacturingCost;
-                        constant = ManufacturingConstant;
-                        time = ManufacturingTimeFactor;
-                        return;
-                }
-            }
-            switch(person.StudentStatus)
-            {
-                case StudentStatus.FullTime:
-                case StudentStatus.PartTime:
-                    cost = StudentCost;
-                    constant = StudentConstant;
-                    time = StudentTimeFactor;
+                case Occupation.Professional:
+                    cost = ProfessionalCost;
+                    constant = ProfessionalConstant;
+                    time = ProfessionalTimeFactor;
+                    return;
+                case Occupation.Office:
+                    cost = GeneralCost;
+                    constant = GeneralConstant;
+                    time = GeneralTimeFactor;
+                    return;
+                case Occupation.Retail:
+                    cost = SalesCost;
+                    constant = SalesConstant;
+                    time = SalesTimeFactor;
+                    return;
+                case Occupation.Manufacturing:
+                    cost = ManufacturingCost;
+                    constant = ManufacturingConstant;
+                    time = ManufacturingTimeFactor;
                     return;
             }
-            if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
-            {
-                switch(person.Occupation)
-                {
-                    case Occupation.Professional:
-                        cost = ProfessionalCost;
-                        constant = ProfessionalConstant;
-                        time = ProfessionalTimeFactor;
-                        return;
-                    case Occupation.Office:
-                        cost = GeneralCost;
-                        constant = GeneralConstant;
-                        time = GeneralTimeFactor;
-                        return;
-                    case Occupation.Retail:
-                        cost = SalesCost;
-                        constant = SalesConstant;
-                        time = SalesTimeFactor;
-                        return;
-                    case Occupation.Manufacturing:
-                        cost = ManufacturingCost;
-                        constant = ManufacturingConstant;
-                        time = ManufacturingTimeFactor;
-                        return;
-                }
-            }
-            cost = NonWorkerStudentCost;
-            constant = NonWorkerStudentConstant;
-            time = NonWorkerStudentTimeFactor;
         }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="trip"></param>
-        /// <returns></returns>
-        public double CalculateV(ITrip trip)
+        switch(person.StudentStatus)
         {
-            throw new NotImplementedException("Please use a mode choice algorithm that knows about passenger mode.");
+            case StudentStatus.FullTime:
+            case StudentStatus.PartTime:
+                cost = StudentCost;
+                constant = StudentConstant;
+                time = StudentTimeFactor;
+                return;
         }
-
-        public float CalculateV(IZone origin, IZone destination, Time time)
+        if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
         {
-            // This doesn't even make sense without having households
-            throw new NotImplementedException("Please use a mode choice algorithm that knows about passenger mode.");
+            switch(person.Occupation)
+            {
+                case Occupation.Professional:
+                    cost = ProfessionalCost;
+                    constant = ProfessionalConstant;
+                    time = ProfessionalTimeFactor;
+                    return;
+                case Occupation.Office:
+                    cost = GeneralCost;
+                    constant = GeneralConstant;
+                    time = GeneralTimeFactor;
+                    return;
+                case Occupation.Retail:
+                    cost = SalesCost;
+                    constant = SalesConstant;
+                    time = SalesTimeFactor;
+                    return;
+                case Occupation.Manufacturing:
+                    cost = ManufacturingCost;
+                    constant = ManufacturingConstant;
+                    time = ManufacturingTimeFactor;
+                    return;
+            }
         }
+        cost = NonWorkerStudentCost;
+        constant = NonWorkerStudentConstant;
+        time = NonWorkerStudentTimeFactor;
+    }
 
-        /// <summary>
-        /// Basic auto gas price from origin zone to destination zone
-        /// </summary>return trip.TripChain.Person.Licence
-        /// <param name="origin"></param>
-        /// <param name="destination"></param>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        public float Cost(IZone origin, IZone destination, Time time)
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="trip"></param>
+    /// <returns></returns>
+    public double CalculateV(ITrip trip)
+    {
+        throw new NotImplementedException("Please use a mode choice algorithm that knows about passenger mode.");
+    }
+
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        // This doesn't even make sense without having households
+        throw new NotImplementedException("Please use a mode choice algorithm that knows about passenger mode.");
+    }
+
+    /// <summary>
+    /// Basic auto gas price from origin zone to destination zone
+    /// </summary>return trip.TripChain.Person.Licence
+    /// <param name="origin"></param>
+    /// <param name="destination"></param>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public float Cost(IZone origin, IZone destination, Time time)
+    {
+        return AutoData.TravelCost(origin, destination, time);
+    }
+
+    public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
+    {
+        return CurrentlyFeasible > 0;
+    }
+
+    /// <summary>
+    /// Checking if the trip is feasible
+    /// </summary>
+    /// <param name="trip">the trip to test feasibility on</param>
+    /// <returns>Is this trip feasible?</returns>
+    public bool Feasible(ITrip trip)
+    {
+        throw new NotImplementedException("Please use a mode choice algorithm that knows about passenger mode.");
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="tripChain"></param>
+    /// <returns></returns>
+    public bool Feasible(ITripChain tripChain)
+    {
+        //passenger mode does not handle joint trips
+        return !tripChain.JointTrip;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public bool IsObservedMode(char observedMode)
+    {
+        return (observedMode == ObservedMode);
+    }
+
+    /// <summary>
+    /// This is called before the start method as a way to pre-check that all of the parameters that are selected
+    /// are in fact valid for this module.
+    /// </summary>
+    /// <param name="error">A string that should be assigned a detailed error</param>
+    /// <returns>If the validation was successful or if there was a problem</returns>
+    public bool RuntimeValidation(ref string error)
+    {
+        var networks = TashaRuntime.NetworkData;
+        if(networks == null)
         {
-            return AutoData.TravelCost(origin, destination, time);
+            error = "There was no Auto Network loaded for the Passenger Mode!";
+            return false;
         }
-
-        public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
+        bool found = false;
+        foreach(var network in networks)
         {
-            return CurrentlyFeasible > 0;
+            if(network.NetworkType == NetworkType)
+            {
+                AutoData = network;
+                found = true;
+                break;
+            }
         }
-
-        /// <summary>
-        /// Checking if the trip is feasible
-        /// </summary>
-        /// <param name="trip">the trip to test feasibility on</param>
-        /// <returns>Is this trip feasible?</returns>
-        public bool Feasible(ITrip trip)
+        if(!found)
         {
-            throw new NotImplementedException("Please use a mode choice algorithm that knows about passenger mode.");
+            error = "We were unable to find the network data with the name \"Auto\" in this Model System!";
+            return false;
         }
+        FastAutoData = AutoData as INetworkCompleteData;
+        return true;
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="tripChain"></param>
-        /// <returns></returns>
-        public bool Feasible(ITripChain tripChain)
+    /// <summary>
+    /// This gets the travel time between zones
+    /// </summary>
+    /// <param name="origin">Where to start</param>
+    /// <param name="destination">Where to go</param>
+    /// <param name="time">What time of day is it? (hhmm.ss)</param>
+    /// <returns>The amount of time it will take</returns>
+    public Time TravelTime(IZone origin, IZone destination, Time time)
+    {
+        return AutoData.TravelTime(origin, destination, time);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CalculateBaseIndex(int origin, int desintation, int numberOfZones)
+    {
+        return (origin * numberOfZones + desintation) << 1;
+    }
+
+    private bool IsThereEnoughTimeFast(float[] autoData, ITrip driverOriginalTrip, ITrip passengerTrip,
+        int driverOrigin, int passengerOrigin, int passengerDestination, int driverDestination, out float toPassengerOrigin, out float toPassengerDestination, out float toDriverDestination)
+    {
+        var numberOfZones = ZoneSystem.Count;
+        // Check to see if the driver is able to get there
+        Time driverActivityStartTime = driverOriginalTrip.ActivityStartTime;
+        var driverTripStartTime = driverActivityStartTime - Time.FromMinutes(autoData[CalculateBaseIndex(driverOrigin, driverDestination, numberOfZones)]);
+        Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
+        Time latestPassenger = passengerActivityStartTime + MaxPassengerTimeThreshold;
+
+        var timeToPassenger = Time.FromMinutes(toPassengerOrigin = autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones)]);
+        var driverArrivesAt = driverTripStartTime + timeToPassenger;
+        var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
+        // try to fail quickly.
+        if(latestPassenger < earliestDriver)
         {
-            //passenger mode does not handle joint trips
-            return !tripChain.JointTrip;
+            toPassengerDestination = 0.0f;
+            toDriverDestination = 0.0f;
+            return false;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public bool IsObservedMode(char observedMode)
+        // check to see if the driver is able to get to their destination
+        Time earliestPassenger = passengerActivityStartTime - MaxPassengerTimeThreshold;
+        var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
+        if (!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out Time overlapStart, out Time overlapEnd))
         {
-            return (observedMode == ObservedMode);
+            toPassengerDestination = 0.0f;
+            toDriverDestination = 0.0f;
+            return false;
         }
 
-        /// <summary>
-        /// This is called before the start method as a way to pre-check that all of the parameters that are selected
-        /// are in fact valid for this module.
-        /// </summary>
-        /// <param name="error">A string that should be assigned a detailed error</param>
-        /// <returns>If the validation was successful or if there was a problem</returns>
-        public bool RuntimeValidation(ref string error)
+        var midLegTravelTime = Time.FromMinutes(toPassengerDestination = autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones)]);
+        if(passengerDestination != driverDestination)
         {
-            var networks = TashaRuntime.NetworkData;
-            if(networks == null)
-            {
-                error = "There was no Auto Network loaded for the Passenger Mode!";
-                return false;
-            }
-            bool found = false;
-            foreach(var network in networks)
-            {
-                if(network.NetworkType == NetworkType)
-                {
-                    AutoData = network;
-                    found = true;
-                    break;
-                }
-            }
-            if(!found)
-            {
-                error = "We were unable to find the network data with the name \"Auto\" in this Model System!";
-                return false;
-            }
-            FastAutoData = AutoData as INetworkCompleteData;
-            return true;
+            toDriverDestination = autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones)];
         }
-
-        /// <summary>
-        /// This gets the travel time between zones
-        /// </summary>
-        /// <param name="origin">Where to start</param>
-        /// <param name="destination">Where to go</param>
-        /// <param name="time">What time of day is it? (hhmm.ss)</param>
-        /// <returns>The amount of time it will take</returns>
-        public Time TravelTime(IZone origin, IZone destination, Time time)
+        else
         {
-            return AutoData.TravelTime(origin, destination, time);
+            toDriverDestination = 0.0f;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int CalculateBaseIndex(int origin, int desintation, int numberOfZones)
+        if(overlapStart + timeToPassenger + midLegTravelTime + Time.FromMinutes(toDriverDestination) > driverActivityStartTime + MaxDriverTimeThreshold)
         {
-            return (origin * numberOfZones + desintation) << 1;
+            return false;
         }
+        return true;
+    }
 
-        private bool IsThereEnoughTimeFast(float[] autoData, ITrip driverOriginalTrip, ITrip passengerTrip,
-            int driverOrigin, int passengerOrigin, int passengerDestination, int driverDestination, out float toPassengerOrigin, out float toPassengerDestination, out float toDriverDestination)
+    private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time toPassengerOrigin, out Time toPassengerDestination, out Time toDriverDestination)
+    {
+        // Check to see if the driver is able to get there
+        var driverTripStartTime = driverOriginalTrip.TripStartTime;
+        Time earliestPassenger = passengerTrip.ActivityStartTime - MaxPassengerTimeThreshold;
+        Time latestPassenger = passengerTrip.ActivityStartTime + MaxPassengerTimeThreshold;
+        IZone passengerOrigin = passengerTrip.OriginalZone;
+        IZone driverOrigin = driverOriginalTrip.OriginalZone;
+        // check to see if the driver is able to get to their destination
+        var timeToPassenger = toPassengerOrigin = TravelTime(driverOrigin, passengerOrigin, driverTripStartTime);
+        var driverArrivesAt = driverTripStartTime + timeToPassenger;
+        var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
+        var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
+        if (!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out Time overlapStart, out Time overlapEnd))
         {
-            var numberOfZones = ZoneSystem.Count;
-            // Check to see if the driver is able to get there
-            Time driverActivityStartTime = driverOriginalTrip.ActivityStartTime;
-            var driverTripStartTime = driverActivityStartTime - Time.FromMinutes(autoData[CalculateBaseIndex(driverOrigin, driverDestination, numberOfZones)]);
-            Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
-            Time latestPassenger = passengerActivityStartTime + MaxPassengerTimeThreshold;
-
-            var timeToPassenger = Time.FromMinutes(toPassengerOrigin = autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones)]);
-            var driverArrivesAt = driverTripStartTime + timeToPassenger;
-            var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
-            // try to fail quickly.
-            if(latestPassenger < earliestDriver)
-            {
-                toPassengerDestination = 0.0f;
-                toDriverDestination = 0.0f;
-                return false;
-            }
-
-            // check to see if the driver is able to get to their destination
-            Time earliestPassenger = passengerActivityStartTime - MaxPassengerTimeThreshold;
-            var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
-            if (!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out Time overlapStart, out Time overlapEnd))
-            {
-                toPassengerDestination = 0.0f;
-                toDriverDestination = 0.0f;
-                return false;
-            }
-
-            var midLegTravelTime = Time.FromMinutes(toPassengerDestination = autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones)]);
-            if(passengerDestination != driverDestination)
-            {
-                toDriverDestination = autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones)];
-            }
-            else
-            {
-                toDriverDestination = 0.0f;
-            }
-            if(overlapStart + timeToPassenger + midLegTravelTime + Time.FromMinutes(toDriverDestination) > driverActivityStartTime + MaxDriverTimeThreshold)
-            {
-                return false;
-            }
-            return true;
+            toPassengerDestination = Time.Zero;
+            toDriverDestination = Time.Zero;
+            return false;
         }
 
-        private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time toPassengerOrigin, out Time toPassengerDestination, out Time toDriverDestination)
+        IZone passengerDestination = passengerTrip.DestinationZone;
+        var midLegTravelTime = toPassengerDestination = TravelTime(passengerOrigin, passengerDestination, latestDriver);
+        IZone driverDestination = driverOriginalTrip.DestinationZone;
+        if(passengerDestination != driverDestination)
         {
-            // Check to see if the driver is able to get there
-            var driverTripStartTime = driverOriginalTrip.TripStartTime;
-            Time earliestPassenger = passengerTrip.ActivityStartTime - MaxPassengerTimeThreshold;
-            Time latestPassenger = passengerTrip.ActivityStartTime + MaxPassengerTimeThreshold;
-            IZone passengerOrigin = passengerTrip.OriginalZone;
-            IZone driverOrigin = driverOriginalTrip.OriginalZone;
-            // check to see if the driver is able to get to their destination
-            var timeToPassenger = toPassengerOrigin = TravelTime(driverOrigin, passengerOrigin, driverTripStartTime);
-            var driverArrivesAt = driverTripStartTime + timeToPassenger;
-            var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
-            var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
-            if (!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out Time overlapStart, out Time overlapEnd))
-            {
-                toPassengerDestination = Time.Zero;
-                toDriverDestination = Time.Zero;
-                return false;
-            }
-
-            IZone passengerDestination = passengerTrip.DestinationZone;
-            var midLegTravelTime = toPassengerDestination = TravelTime(passengerOrigin, passengerDestination, latestDriver);
-            IZone driverDestination = driverOriginalTrip.DestinationZone;
-            if(passengerDestination != driverDestination)
-            {
-                toDriverDestination = TravelTime(passengerDestination, driverDestination, latestDriver + midLegTravelTime);
-            }
-            else
-            {
-                toDriverDestination = Time.Zero;
-            }
-            if(overlapStart + timeToPassenger + midLegTravelTime + toDriverDestination > driverOriginalTrip.ActivityStartTime + MaxDriverTimeThreshold)
-            {
-                return false;
-            }
-            return true;
+            toDriverDestination = TravelTime(passengerDestination, driverDestination, latestDriver + midLegTravelTime);
         }
-
-
-        public void IterationEnding(int iterationNumber, int maxIterations)
+        else
         {
-
+            toDriverDestination = Time.Zero;
         }
-
-        private float[] AgeUtilLookup;
-        public void IterationStarting(int iterationNumber, int maxIterations)
+        if(overlapStart + timeToPassenger + midLegTravelTime + toDriverDestination > driverOriginalTrip.ActivityStartTime + MaxDriverTimeThreshold)
         {
-            ZoneSystem = Root.ZoneSystem.ZoneArray;
-            ZoneDistances = Root.ZoneSystem.Distances.GetFlatData();
-            AgeUtilLookup = new float[16];
-            for(int i = 0; i < AgeUtilLookup.Length; i++)
-            {
-                AgeUtilLookup[i] = (float)Math.Log(i + 1) * LogOfAgeFactor;
-            }
-            ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, ProfessionalTimeFactor);
-            GeneralCost = ConvertCostFactor(GeneralCostFactor, GeneralTimeFactor);
-            SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
-            ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
-            StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
-            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
-
-            for (int i = 0; i < TimePeriodConstants.Length; i++)
-            {
-                TimePeriodConstants[i].BuildMatrix();
-            }
-            if (ParkingModel != null)
-            {
-                if (!ParkingModel.Loaded)
-                {
-                    ParkingModel.LoadData();
-                }
-                _parkingModel = ParkingModel.GiveData();
-            }
+            return false;
         }
+        return true;
+    }
 
-        private float ConvertCostFactor(float costFactor, float timeFactor)
+
+    public void IterationEnding(int iterationNumber, int maxIterations)
+    {
+
+    }
+
+    private float[] AgeUtilLookup;
+    public void IterationStarting(int iterationNumber, int maxIterations)
+    {
+        ZoneSystem = Root.ZoneSystem.ZoneArray;
+        ZoneDistances = Root.ZoneSystem.Distances.GetFlatData();
+        AgeUtilLookup = new float[16];
+        for(int i = 0; i < AgeUtilLookup.Length; i++)
         {
-            var ret = costFactor * timeFactor;
-            if (ret > 0)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
-            }
-            return ret;
+            AgeUtilLookup[i] = (float)Math.Log(i + 1) * LogOfAgeFactor;
         }
+        ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, ProfessionalTimeFactor);
+        GeneralCost = ConvertCostFactor(GeneralCostFactor, GeneralTimeFactor);
+        SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
+        ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
+        StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
+        NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+
+        for (int i = 0; i < TimePeriodConstants.Length; i++)
+        {
+            TimePeriodConstants[i].BuildMatrix();
+        }
+        if (ParkingModel != null)
+        {
+            if (!ParkingModel.Loaded)
+            {
+                ParkingModel.LoadData();
+            }
+            _parkingModel = ParkingModel.GiveData();
+        }
+    }
+
+    private float ConvertCostFactor(float costFactor, float timeFactor)
+    {
+        var ret = costFactor * timeFactor;
+        if (ret > 0)
+        {
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
+        }
+        return ret;
     }
 }

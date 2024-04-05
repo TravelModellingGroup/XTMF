@@ -22,10 +22,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMG
+namespace TMG;
+
+public interface IEstimableCalculation<D, O> : ICalculation<D, O>
 {
-    public interface IEstimableCalculation<D, O> : ICalculation<D, O>
-    {
-        float Estimate(D input, O expectedResult);
-    }
+    float Estimate(D input, O expectedResult);
 }

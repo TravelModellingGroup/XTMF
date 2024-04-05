@@ -19,55 +19,54 @@
 using System;
 using System.IO;
 
-namespace XTMF.Networking
+namespace XTMF.Networking;
+
+/// <summary>
+/// Include this in your Client ModelSystemTemplate in order to unlock the XTMF Networking Sub-System.
+///
+/// The containing class will need to leave this as a public field/property for it to be setup properly.
+/// </summary>
+public interface IClient
 {
     /// <summary>
-    /// Include this in your Client ModelSystemTemplate in order to unlock the XTMF Networking Sub-System.
-    ///
-    /// The containing class will need to leave this as a public field/property for it to be setup properly.
+    /// The Id of this client
     /// </summary>
-    public interface IClient
-    {
-        /// <summary>
-        /// The Id of this client
-        /// </summary>
-        string UniqueID { get; }
+    string UniqueID { get; }
 
-        /// <summary>
-        /// Notify the host that we have completed our run
-        /// </summary>
-        /// <param name="status">Set this to non-zero if there is additional meaning for the host</param>
-        /// <param name="error">This allows us to pass back a string in case of an error</param>
-        void NotifyComplete(int status = 0, string? error = null);
+    /// <summary>
+    /// Notify the host that we have completed our run
+    /// </summary>
+    /// <param name="status">Set this to non-zero if there is additional meaning for the host</param>
+    /// <param name="error">This allows us to pass back a string in case of an error</param>
+    void NotifyComplete(int status = 0, string? error = null);
 
-        /// <summary>
-        /// Notify the host of our current state of progress.
-        /// The progress will be gathered by the XTMF framework automatically from the model system template
-        /// </summary>
-        void NotifyProgress();
+    /// <summary>
+    /// Notify the host of our current state of progress.
+    /// The progress will be gathered by the XTMF framework automatically from the model system template
+    /// </summary>
+    void NotifyProgress();
 
-        void RegisterCustomMessageHandler(int customMessageNumber, Action<object> handler);
+    void RegisterCustomMessageHandler(int customMessageNumber, Action<object> handler);
 
-        void RegisterCustomReceiver(int customMessageNumber, Func<Stream, object> converter);
+    void RegisterCustomReceiver(int customMessageNumber, Func<Stream, object> converter);
 
-        void RegisterCustomSender(int customMessageNumber, Action<object, Stream> converter);
+    void RegisterCustomSender(int customMessageNumber, Action<object, Stream> converter);
 
-        /// <summary>
-        /// Get a resource from the host
-        /// </summary>
-        /// <param name="name">The name of the resource</param>
-        /// <param name="t">The type of resource expected</param>
-        /// <returns>The object, if found and of type.  Null otherwise.</returns>
-        object RetriveResource(string name, Type t);
+    /// <summary>
+    /// Get a resource from the host
+    /// </summary>
+    /// <param name="name">The name of the resource</param>
+    /// <param name="t">The type of resource expected</param>
+    /// <returns>The object, if found and of type.  Null otherwise.</returns>
+    object RetriveResource(string name, Type t);
 
-        void SendCustomMessage(object data, int customMessageNumber);
+    void SendCustomMessage(object data, int customMessageNumber);
 
-        /// <summary>
-        /// Set the resource on the host
-        /// </summary>
-        /// <param name="name">With the given name</param>
-        /// <param name="o">The object to send</param>
-        /// <returns>True if successful</returns>
-        bool SetResource(string name, object o);
-    }
+    /// <summary>
+    /// Set the resource on the host
+    /// </summary>
+    /// <param name="name">With the given name</param>
+    /// <param name="o">The object to send</param>
+    /// <returns>True if successful</returns>
+    bool SetResource(string name, object o);
 }

@@ -21,58 +21,57 @@ using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
 
-namespace TMG.Functions
-{
-    public class SinglyConstrainedGravityModel
-    {
-        public static SparseTwinIndex<float> Process(SparseArray<float> production, float[] friction)
-        {
-            var ret = production.CreateSquareTwinArray<float>();
-            var flatRet = ret.GetFlatData();
-            var flatProduction = production.GetFlatData();
-            var numberOfZones = flatProduction.Length;
-            try
-            {
-                // Make all of the frictions to the power of E
-                Parallel.For( 0, friction.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                    delegate(int i)
-                    {
-                        friction[i] = (float)Math.Exp( friction[i] );
-                    } );
+namespace TMG.Functions;
 
-                Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                    delegate(int i)
+public class SinglyConstrainedGravityModel
+{
+    public static SparseTwinIndex<float> Process(SparseArray<float> production, float[] friction)
+    {
+        var ret = production.CreateSquareTwinArray<float>();
+        var flatRet = ret.GetFlatData();
+        var flatProduction = production.GetFlatData();
+        var numberOfZones = flatProduction.Length;
+        try
+        {
+            // Make all of the frictions to the power of E
+            Parallel.For( 0, friction.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                delegate(int i)
+                {
+                    friction[i] = (float)Math.Exp( friction[i] );
+                } );
+
+            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                delegate(int i)
+                {
+                    float sum = 0f;
+                    var iIndex = i * numberOfZones;
+                    // gather the sum of the friction
+                    for ( int j = 0; j < numberOfZones; j++ )
                     {
-                        float sum = 0f;
-                        var iIndex = i * numberOfZones;
-                        // gather the sum of the friction
-                        for ( int j = 0; j < numberOfZones; j++ )
-                        {
-                            sum += friction[iIndex + j];
-                        }
-                        if ( sum <= 0 )
-                        {
-                            return;
-                        }
-                        sum = 1f / sum;
-                        for ( int j = 0; j < numberOfZones; j++ )
-                        {
-                            flatRet[i][j] = flatProduction[i] * ( friction[iIndex + j] * sum );
-                        }
-                    } );
-            }
-            catch ( AggregateException e )
-            {
-                if ( e.InnerException is XTMFRuntimeException )
-                {
-                    throw new XTMFRuntimeException(null, e.InnerException.Message );
-                }
-                else
-                {
-                    throw new XTMFRuntimeException(null, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
-                }
-            }
-            return ret;
+                        sum += friction[iIndex + j];
+                    }
+                    if ( sum <= 0 )
+                    {
+                        return;
+                    }
+                    sum = 1f / sum;
+                    for ( int j = 0; j < numberOfZones; j++ )
+                    {
+                        flatRet[i][j] = flatProduction[i] * ( friction[iIndex + j] * sum );
+                    }
+                } );
         }
+        catch ( AggregateException e )
+        {
+            if ( e.InnerException is XTMFRuntimeException )
+            {
+                throw new XTMFRuntimeException(null, e.InnerException.Message );
+            }
+            else
+            {
+                throw new XTMFRuntimeException(null, e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
+            }
+        }
+        return ret;
     }
 }

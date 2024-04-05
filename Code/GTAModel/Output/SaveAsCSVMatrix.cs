@@ -26,96 +26,95 @@ using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Output
+namespace TMG.GTAModel.Output;
+
+public class SaveAsCSVMatrix : ISaveODData<float>
 {
-    public class SaveAsCSVMatrix : ISaveODData<float>
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        get { return 0f; }
+    }
 
-        public string Name { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
+    public bool RuntimeValidation(ref string error)
+    {
+
+
+        if (Root.ZoneSystem == null)
         {
-            get { return 0f; }
+            error = $"No Zone OD data specified or loaded in root demand model {Root}.";
+            return false;
         }
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public void SaveMatrix(SparseTwinIndex<float> matrix, string fileName)
+    {
+        SaveData.SaveMatrix( matrix, fileName );
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
+    public void SaveMatrix(float[][] data, string fileName)
+    {
+        SaveData.SaveMatrix( Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
+    }
 
-    
-            if (Root.ZoneSystem == null)
+    public void SaveMatrix(float[] data, string fileName)
+    {
+
+  
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        StringBuilder header = null;
+        StringBuilder[] zoneLines = new StringBuilder[zones.Length];
+        Parallel.Invoke(
+            () =>
             {
-                error = $"No Zone OD data specified or loaded in root demand model {Root}.";
-                return false;
-            }
-            return true;
-        }
-
-        public void SaveMatrix(SparseTwinIndex<float> matrix, string fileName)
-        {
-            SaveData.SaveMatrix( matrix, fileName );
-        }
-
-        public void SaveMatrix(float[][] data, string fileName)
-        {
-            SaveData.SaveMatrix( Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
-        }
-
-        public void SaveMatrix(float[] data, string fileName)
-        {
-
-      
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            StringBuilder header = null;
-            StringBuilder[] zoneLines = new StringBuilder[zones.Length];
-            Parallel.Invoke(
-                () =>
+                var dir = Path.GetDirectoryName( fileName );
+                if ( !String.IsNullOrWhiteSpace( dir ) )
                 {
-                    var dir = Path.GetDirectoryName( fileName );
-                    if ( !String.IsNullOrWhiteSpace( dir ) )
+                    if ( !Directory.Exists( dir ) )
                     {
-                        if ( !Directory.Exists( dir ) )
-                        {
-                            Directory.CreateDirectory( dir );
-                        }
+                        Directory.CreateDirectory( dir );
                     }
-                },
-                () =>
+                }
+            },
+            () =>
+            {
+                header = new StringBuilder();
+                header.Append( "Zones O\\D" );
+                for ( int i = 0; i < zones.Length; i++ )
                 {
-                    header = new StringBuilder();
-                    header.Append( "Zones O\\D" );
-                    for ( int i = 0; i < zones.Length; i++ )
+                    header.Append( ',' );
+                    header.Append( zones[i].ZoneNumber );
+                }
+            },
+            () =>
+            {
+                Parallel.For( 0, zones.Length, i =>
+                {
+                    zoneLines[i] = new StringBuilder();
+                    zoneLines[i].Append( zones[i].ZoneNumber );
+                    int offset = zones.Length * i;
+                    for ( int j = 0; j < zones.Length; j++ )
                     {
-                        header.Append( ',' );
-                        header.Append( zones[i].ZoneNumber );
+                        zoneLines[i].Append( ',' );
+                        zoneLines[i].Append( data[j + offset] );
                     }
-                },
-                () =>
-                {
-                    Parallel.For( 0, zones.Length, i =>
-                    {
-                        zoneLines[i] = new StringBuilder();
-                        zoneLines[i].Append( zones[i].ZoneNumber );
-                        int offset = zones.Length * i;
-                        for ( int j = 0; j < zones.Length; j++ )
-                        {
-                            zoneLines[i].Append( ',' );
-                            zoneLines[i].Append( data[j + offset] );
-                        }
-                    } );
                 } );
-            using StreamWriter writer = new(fileName);
-            writer.WriteLine(header);
-            for (int i = 0; i < zoneLines.Length; i++)
-            {
-                writer.WriteLine(zoneLines[i]);
-            }
+            } );
+        using StreamWriter writer = new(fileName);
+        writer.WriteLine(header);
+        for (int i = 0; i < zoneLines.Length; i++)
+        {
+            writer.WriteLine(zoneLines[i]);
         }
     }
 }

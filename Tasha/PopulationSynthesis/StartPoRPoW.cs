@@ -22,49 +22,48 @@ using Tasha.Common;
 using Datastructure;
 using System.Threading.Tasks;
 
-namespace Tasha.PopulationSynthesis
+namespace Tasha.PopulationSynthesis;
+
+[ModuleInformation(Description = "This module is designed to initialize the resources containing the place of residence place of work aggregate model.")]
+// ReSharper disable once InconsistentNaming
+public class StartPoRPoW : IPreIteration
 {
-    [ModuleInformation(Description = "This module is designed to initialize the resources containing the place of residence place of work aggregate model.")]
-    // ReSharper disable once InconsistentNaming
-    public class StartPoRPoW : IPreIteration
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return 0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        public IResource[] ToWakeup;
+    public IResource[] ToWakeup;
 
-        public void Execute(int iterationNumber, int totalIterations)
+    public void Execute(int iterationNumber, int totalIterations)
+    {
+        Console.WriteLine("Initializing PoRPoW Probabilities...");
+        Parallel.For(0, ToWakeup.Length, i =>
         {
-            Console.WriteLine("Initializing PoRPoW Probabilities...");
-            Parallel.For(0, ToWakeup.Length, i =>
-            {
-                ToWakeup[i].AcquireResource<SparseTriIndex<float>>();
-            });
-        }
+            ToWakeup[i].AcquireResource<SparseTriIndex<float>>();
+        });
+    }
 
-        public void Load(int totalIterations)
-        {
+    public void Load(int totalIterations)
+    {
 
-        }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

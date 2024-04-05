@@ -21,189 +21,188 @@ using System;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.GTAModel.Modes
-{
-    [ModuleInformation( Description =
-        @"This module allows the ability to split the logic based upon distance between walk and bike under a single mode.  
+namespace TMG.GTAModel.Modes;
+
+[ModuleInformation( Description =
+    @"This module allows the ability to split the logic based upon distance between walk and bike under a single mode.  
 Using the distance ranges either walk or bike parameters will be used for a given OD pair." )]
-    public class WalkBike : IMode
+public class WalkBike : IMode
+{
+    [RunParameter( "AgeConstant1", 0.0f, "An additive constant for persons for different ages." )]
+    public float AgeConstant1;
+
+    [RunParameter( "AgeConstant2", 0.0f, "An additive constant for persons for different ages." )]
+    public float AgeConstant2;
+
+    [RunParameter( "AgeConstant3", 0.0f, "An additive constant for persons for different ages." )]
+    public float AgeConstant3;
+
+    [RunParameter( "AgeConstant4", 0.0f, "An additive constant for persons for different ages." )]
+    public float AgeConstant4;
+
+    [RunParameter( "Bike Time Weight", 0.0f, "The utility for each minute on a bike.  This is only used for network data sources that support walk time components." )]
+    public float Bike;
+
+    [RunParameter( "Bike Constant", 0.0f, "The base constant term of the utility calculation." )]
+    public float BikeConstant;
+
+    [RunParameter( "Bike Distance", 0f, "The weight to add based on the straight line distance (KM) between zones for Bike." )]
+    public float BikeDistance;
+
+    [RunParameter( "Bike Max Distance", 12.0f, "The maximum distance (KM) that you can travel with this mode, 0 means unlimited" )]
+    public float BikeMaxDistance;
+
+    [RunParameter( "Bike Speed", 66.667f * 4, "The speed in meters per minute." )]
+    public float BikeMetersPerMinute;
+
+    [RunParameter( "Bike Min Distance", 3.0f, "The minimum distance (KM) that you can travel with this mode." )]
+    public float BikeMinDistance;
+
+    [RunParameter( "Destination Employment Density", 0.0f, "The weight to use for the employment density of the destination zone." )]
+    public float DestinationEmploymentDensity;
+
+    [RunParameter( "Destination Population Density", 0.0f, "The weight to use for the population density of the destination zone." )]
+    public float DestinationPopulationDensity;
+
+    [RunParameter( "Multiple-Vehicle Household", 0.0f, "An additive constant for households that contain a multiple vehicles." )]
+    public float MultipleVehicleHousehold;
+
+    [RunParameter( "No Driver's License", 0.0f, "An additive constant for persons who have no driver's license." )]
+    public float NoDriversLicense;
+
+    [RunParameter( "Origin Employment Density", 0.0f, "The weight to use for the employment density of the origin zone." )]
+    public float OriginEmploymentDensity;
+
+    [RunParameter( "Origin Population Density", 0.0f, "The weight to use for the population density of the origin zone." )]
+    public float OriginPopulationDensity;
+
+    [RunParameter( "Part-Time Work", 0.0f, "An additive constant for persons who are part time workers." )]
+    public float PartTime;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter( "Single-Vehicle Household", 0.0f, "An additive constant for households that contain a single vehicle." )]
+    public float SingleVehicleHousehold;
+
+    [RunParameter( "Walk Time Weight", 0.0f, "The utility for each minute walking.  This is only used for network data sources that support walk time components." )]
+    public float Walk;
+
+    [RunParameter( "Walk Constant", 0.0f, "The base constant term of the utility calculation." )]
+    public float WalkConstant;
+
+    [RunParameter( "Walk Distance", 0f, "The weight to add based on the straight line distance (KM) between zones for Walk." )]
+    public float WalkDistance;
+
+    [RunParameter( "Walk Max Distance", 3.0f, "The maximum distance (KM) that you can travel with this mode, 0 means unlimited." )]
+    public float WalkMaxDistance;
+
+    [RunParameter( "Walk Speed", 66.667f, "The speed in meters per minute." )]
+    public float WalkMetersPerMinute;
+
+    [RunParameter( "Walk Min Distance", 0.0f, "The minimum distance (KM) that you can travel with this mode." )]
+    public float WalkMinDistance;
+
+    [Parameter( "Demographic Category Feasible", 1.0f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
+    public float CurrentlyFeasible { get; set; }
+
+    [RunParameter( "Mode Name", "WalkBike", "The name of the mode." )]
+    public string ModeName { get; set; }
+
+    public string Name
     {
-        [RunParameter( "AgeConstant1", 0.0f, "An additive constant for persons for different ages." )]
-        public float AgeConstant1;
+        get;
+        set;
+    }
 
-        [RunParameter( "AgeConstant2", 0.0f, "An additive constant for persons for different ages." )]
-        public float AgeConstant2;
+    public string NetworkType
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "AgeConstant3", 0.0f, "An additive constant for persons for different ages." )]
-        public float AgeConstant3;
+    public bool NonPersonalVehicle
+    {
+        get { return true; }
+    }
 
-        [RunParameter( "AgeConstant4", 0.0f, "An additive constant for persons for different ages." )]
-        public float AgeConstant4;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [RunParameter( "Bike Time Weight", 0.0f, "The utility for each minute on a bike.  This is only used for network data sources that support walk time components." )]
-        public float Bike;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Bike Constant", 0.0f, "The base constant term of the utility calculation." )]
-        public float BikeConstant;
-
-        [RunParameter( "Bike Distance", 0f, "The weight to add based on the straight line distance (KM) between zones for Bike." )]
-        public float BikeDistance;
-
-        [RunParameter( "Bike Max Distance", 12.0f, "The maximum distance (KM) that you can travel with this mode, 0 means unlimited" )]
-        public float BikeMaxDistance;
-
-        [RunParameter( "Bike Speed", 66.667f * 4, "The speed in meters per minute." )]
-        public float BikeMetersPerMinute;
-
-        [RunParameter( "Bike Min Distance", 3.0f, "The minimum distance (KM) that you can travel with this mode." )]
-        public float BikeMinDistance;
-
-        [RunParameter( "Destination Employment Density", 0.0f, "The weight to use for the employment density of the destination zone." )]
-        public float DestinationEmploymentDensity;
-
-        [RunParameter( "Destination Population Density", 0.0f, "The weight to use for the population density of the destination zone." )]
-        public float DestinationPopulationDensity;
-
-        [RunParameter( "Multiple-Vehicle Household", 0.0f, "An additive constant for households that contain a multiple vehicles." )]
-        public float MultipleVehicleHousehold;
-
-        [RunParameter( "No Driver's License", 0.0f, "An additive constant for persons who have no driver's license." )]
-        public float NoDriversLicense;
-
-        [RunParameter( "Origin Employment Density", 0.0f, "The weight to use for the employment density of the origin zone." )]
-        public float OriginEmploymentDensity;
-
-        [RunParameter( "Origin Population Density", 0.0f, "The weight to use for the population density of the origin zone." )]
-        public float OriginPopulationDensity;
-
-        [RunParameter( "Part-Time Work", 0.0f, "An additive constant for persons who are part time workers." )]
-        public float PartTime;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [RunParameter( "Single-Vehicle Household", 0.0f, "An additive constant for households that contain a single vehicle." )]
-        public float SingleVehicleHousehold;
-
-        [RunParameter( "Walk Time Weight", 0.0f, "The utility for each minute walking.  This is only used for network data sources that support walk time components." )]
-        public float Walk;
-
-        [RunParameter( "Walk Constant", 0.0f, "The base constant term of the utility calculation." )]
-        public float WalkConstant;
-
-        [RunParameter( "Walk Distance", 0f, "The weight to add based on the straight line distance (KM) between zones for Walk." )]
-        public float WalkDistance;
-
-        [RunParameter( "Walk Max Distance", 3.0f, "The maximum distance (KM) that you can travel with this mode, 0 means unlimited." )]
-        public float WalkMaxDistance;
-
-        [RunParameter( "Walk Speed", 66.667f, "The speed in meters per minute." )]
-        public float WalkMetersPerMinute;
-
-        [RunParameter( "Walk Min Distance", 0.0f, "The minimum distance (KM) that you can travel with this mode." )]
-        public float WalkMinDistance;
-
-        [Parameter( "Demographic Category Feasible", 1.0f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
-        public float CurrentlyFeasible { get; set; }
-
-        [RunParameter( "Mode Name", "WalkBike", "The name of the mode." )]
-        public string ModeName { get; set; }
-
-        public string Name
+    public float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        // add up all of the constants
+        float v = PartTime + SingleVehicleHousehold + MultipleVehicleHousehold;
+        v += AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4;
+        v += GetDensityV( origin, destination );
+        var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
+        if ( distance >= BikeMinDistance )
         {
-            get;
-            set;
+            v += BikeConstant;
+            v += BikeDistance * distance;
         }
-
-        public string NetworkType
+        else
         {
-            get { return null; }
+            v += WalkConstant;
+            v += WalkDistance * distance;
         }
+        return v;
+    }
 
-        public bool NonPersonalVehicle
-        {
-            get { return true; }
-        }
+    public float Cost(IZone origin, IZone destination, Time time)
+    {
+        return 0f;
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public bool Feasible(IZone origin, IZone destination, Time time)
+    {
+        if ( CurrentlyFeasible <= 0 ) return false;
+        if ( ( WalkMaxDistance == 0 ) & ( BikeMaxDistance == 0 ) ) return true;
+        var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
+        // make sure it is in one of the valid ranges
+        return ( ( distance >= WalkMinDistance ) & ( distance <= WalkMaxDistance ) )
+            | ( ( distance >= BikeMinDistance ) & ( distance <= BikeMaxDistance ) );
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( WalkMinDistance > WalkMaxDistance )
         {
-            get { return null; }
+            error = "In " + Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
+            return false;
         }
+        if ( BikeMinDistance > BikeMaxDistance )
+        {
+            error = "In " + Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
+            return false;
+        }
+        return true;
+    }
 
-        public float CalculateV(IZone origin, IZone destination, Time time)
+    public Time TravelTime(IZone origin, IZone destination, Time time)
+    {
+        var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
+        if ( distance >= BikeMinDistance )
         {
-            // add up all of the constants
-            float v = PartTime + SingleVehicleHousehold + MultipleVehicleHousehold;
-            v += AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4;
-            v += GetDensityV( origin, destination );
-            var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
-            if ( distance >= BikeMinDistance )
-            {
-                v += BikeConstant;
-                v += BikeDistance * distance;
-            }
-            else
-            {
-                v += WalkConstant;
-                v += WalkDistance * distance;
-            }
-            return v;
+            return Time.FromMinutes( distance / BikeMetersPerMinute );
         }
+        return Time.FromMinutes( distance / WalkMetersPerMinute );
+    }
 
-        public float Cost(IZone origin, IZone destination, Time time)
-        {
-            return 0f;
-        }
-
-        public bool Feasible(IZone origin, IZone destination, Time time)
-        {
-            if ( CurrentlyFeasible <= 0 ) return false;
-            if ( ( WalkMaxDistance == 0 ) & ( BikeMaxDistance == 0 ) ) return true;
-            var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
-            // make sure it is in one of the valid ranges
-            return ( ( distance >= WalkMinDistance ) & ( distance <= WalkMaxDistance ) )
-                | ( ( distance >= BikeMinDistance ) & ( distance <= BikeMaxDistance ) );
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if ( WalkMinDistance > WalkMaxDistance )
-            {
-                error = "In " + Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
-                return false;
-            }
-            if ( BikeMinDistance > BikeMaxDistance )
-            {
-                error = "In " + Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
-                return false;
-            }
-            return true;
-        }
-
-        public Time TravelTime(IZone origin, IZone destination, Time time)
-        {
-            var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
-            if ( distance >= BikeMinDistance )
-            {
-                return Time.FromMinutes( distance / BikeMetersPerMinute );
-            }
-            return Time.FromMinutes( distance / WalkMetersPerMinute );
-        }
-
-        private float GetDensityV(IZone origin, IZone destination)
-        {
-            // convert the area to KM^2
-            var originFactor = 1f / ( origin.InternalArea / 1000f );
-            var destinationFactor = 1f / ( destination.InternalArea / 1000f );
-            return (float)(
-                 Math.Log( origin.Population * originFactor + 1 ) * OriginPopulationDensity
-                + Math.Log( destination.Employment * destinationFactor + 1 ) * DestinationEmploymentDensity
-                );
-        }
+    private float GetDensityV(IZone origin, IZone destination)
+    {
+        // convert the area to KM^2
+        var originFactor = 1f / ( origin.InternalArea / 1000f );
+        var destinationFactor = 1f / ( destination.InternalArea / 1000f );
+        return (float)(
+             Math.Log( origin.Population * originFactor + 1 ) * OriginPopulationDensity
+            + Math.Log( destination.Employment * destinationFactor + 1 ) * DestinationEmploymentDensity
+            );
     }
 }

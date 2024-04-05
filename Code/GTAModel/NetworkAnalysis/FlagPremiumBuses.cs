@@ -22,79 +22,78 @@ using System.Text;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation(Name = "Flag Premium Buses", Description = "Flags certain premium bus lines by assigning '1' to line extra " +
+                    "attribute '@lflag'. Initializes  @lflag to 0 first.")]
+public class FlagPremiumBuses : IEmmeTool
 {
-    [ModuleInformation(Name = "Flag Premium Buses", Description = "Flags certain premium bus lines by assigning '1' to line extra " +
-                        "attribute '@lflag'. Initializes  @lflag to 0 first.")]
-    public class FlagPremiumBuses : IEmmeTool
+    private const string ToolName = "tmg.assignment.preprocessing.flag_premium_buses";
+    private const string OldToolName = "TMG2.Assignment.PreProcessing.FlagPremiumBusLines";
+    [RunParameter("GO Bus Flag", true, "Flag GO buses true\false.")]
+    public bool FlagGo;
+
+    [RunParameter("Premium TTC Bus Flag", true, "Flag premium TTC buses (mode='p') true\false.")]
+    public bool FlagPremTTC;
+
+    [RunParameter("VIVA Bus Flag", false, "Flag VIVA buses true\false.")]
+    public bool FlagVIVA;
+
+    [Parameter("ZUM Buse Flag", false, "IS NOT CURRENTLY SUPPORTED. DO NOT USE.")]
+    public bool FlagZUM;
+
+    [RunParameter("Scenario Number", 0, "The scenario number in which to flag the selected lines.")]
+    public int ScenarioNumber;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+    public string Name
     {
-        private const string ToolName = "tmg.assignment.preprocessing.flag_premium_buses";
-        private const string OldToolName = "TMG2.Assignment.PreProcessing.FlagPremiumBusLines";
-        [RunParameter("GO Bus Flag", true, "Flag GO buses true\false.")]
-        public bool FlagGo;
+        get;
+        set;
+    }
 
-        [RunParameter("Premium TTC Bus Flag", true, "Flag premium TTC buses (mode='p') true\false.")]
-        public bool FlagPremTTC;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("VIVA Bus Flag", false, "Flag VIVA buses true\false.")]
-        public bool FlagVIVA;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        [Parameter("ZUM Buse Flag", false, "IS NOT CURRENTLY SUPPORTED. DO NOT USE.")]
-        public bool FlagZUM;
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController;
+        if (mc == null)
+            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
 
-        [RunParameter("Scenario Number", 0, "The scenario number in which to flag the selected lines.")]
-        public int ScenarioNumber;
+        var sb = new StringBuilder();
+        sb.AppendFormat("{0} {1} {2} {3} {4}",
+            ScenarioNumber, FlagGo, FlagPremTTC, FlagVIVA, FlagZUM);
+        string result = null;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
-
-        public string Name
+        /*
+        ScenarioNumber, FlagGO, FlagPremTTC, FlagVIVA, \
+             FlagZum
+        */
+        if (mc.CheckToolExists(this, ToolName))
         {
-            get;
-            set;
+            return mc.Run(this, ToolName, sb.ToString(), (p => Progress = p), ref result);
+        }
+        return mc.Run(this, OldToolName, sb.ToString(), (p => Progress = p), ref result);
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (FlagZUM)
+        {
+            error = "Flagging of ZUM bus lines is not currently supported!. Set this variable to 'false'!";
+            return false;
         }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if (mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
-
-            var sb = new StringBuilder();
-            sb.AppendFormat("{0} {1} {2} {3} {4}",
-                ScenarioNumber, FlagGo, FlagPremTTC, FlagVIVA, FlagZUM);
-            string result = null;
-
-            /*
-            ScenarioNumber, FlagGO, FlagPremTTC, FlagVIVA, \
-                 FlagZum
-            */
-            if (mc.CheckToolExists(this, ToolName))
-            {
-                return mc.Run(this, ToolName, sb.ToString(), (p => Progress = p), ref result);
-            }
-            return mc.Run(this, OldToolName, sb.ToString(), (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (FlagZUM)
-            {
-                error = "Flagging of ZUM bus lines is not currently supported!. Set this variable to 'false'!";
-                return false;
-            }
-
-            return true;
-        }
+        return true;
     }
 }

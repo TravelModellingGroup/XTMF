@@ -24,144 +24,143 @@ using TMG.Estimation;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public class CordonCountEstimation : IModelSystemTemplate
 {
-    public class CordonCountEstimation : IModelSystemTemplate
+    [RunParameter( "Input Directory", "../../Input", "The input directory for this model system." )]
+    public string InputBaseDirectory { get; set; }
+
+    public string OutputBaseDirectory { get; set; }
+
+    [SubModelInformation( Required = true, Description = "A mapping between the truth data and the model data's names for stations." )]
+    public FileLocation StationNameMapFile;
+
+    [SubModelInformation( Required = true, Description = "A csv with the first column being the name the second being the value." )]
+    public FileLocation TruthFile;
+
+    [SubModelInformation( Required = true, Description = "A csv with the first column being the name the second being the value." )]
+    public FileLocation ModelOutputFile;
+
+    [RunParameter("Total Error Factor", 0f, "The factor applied to the sum of error.")]
+    public float TotalErrorFactor;
+
+    [RunParameter( "Mean Squared Error Factor", 0f, "The factor applied to the sum of each station's (error)^2." )]
+    public float MeanSquareErrorFactor;
+
+    [RunParameter( "Absolute Error Factor", 0f, "The factor applied to the sum of each station's Abs(error)." )]
+    public float AbsoluteErrorFactor;
+
+    private Dictionary<string, string> StationNameMap = [];
+
+    private Dictionary<string, float> TruthValues = [];
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    public bool ExitRequest()
     {
-        [RunParameter( "Input Directory", "../../Input", "The input directory for this model system." )]
-        public string InputBaseDirectory { get; set; }
+        return false;
+    }
 
-        public string OutputBaseDirectory { get; set; }
-
-        [SubModelInformation( Required = true, Description = "A mapping between the truth data and the model data's names for stations." )]
-        public FileLocation StationNameMapFile;
-
-        [SubModelInformation( Required = true, Description = "A csv with the first column being the name the second being the value." )]
-        public FileLocation TruthFile;
-
-        [SubModelInformation( Required = true, Description = "A csv with the first column being the name the second being the value." )]
-        public FileLocation ModelOutputFile;
-
-        [RunParameter("Total Error Factor", 0f, "The factor applied to the sum of error.")]
-        public float TotalErrorFactor;
-
-        [RunParameter( "Mean Squared Error Factor", 0f, "The factor applied to the sum of each station's (error)^2." )]
-        public float MeanSquareErrorFactor;
-
-        [RunParameter( "Absolute Error Factor", 0f, "The factor applied to the sum of each station's Abs(error)." )]
-        public float AbsoluteErrorFactor;
-
-        private Dictionary<string, string> StationNameMap = [];
-
-        private Dictionary<string, float> TruthValues = [];
-
-        [RootModule]
-        public IEstimationClientModelSystem Root;
-
-        public bool ExitRequest()
+    public void Start()
+    {
+        LoadStationMap();
+        LoadTruthData();
+        float totalError = 0f;
+        float meanSquareError = 0f;
+        float absError = 0f;
+        if (!EvaluateModelData(ref totalError, ref meanSquareError, ref absError) )
         {
-            return false;
+            Root.RetrieveValue = () =>
+                TotalErrorFactor * totalError
+                + MeanSquareErrorFactor * meanSquareError
+                + AbsoluteErrorFactor * absError;
         }
+    }
 
-        public void Start()
+    private bool EvaluateModelData(ref float totalError, ref float meanSquareError, ref float absError)
+    {
+        // model data needs to be loaded every time
+        using var reader = new CsvReader(ModelOutputFile.GetFilePath());
+        reader.LoadLine();
+        while (!reader.EndOfFile)
         {
-            LoadStationMap();
-            LoadTruthData();
-            float totalError = 0f;
-            float meanSquareError = 0f;
-            float absError = 0f;
-            if (!EvaluateModelData(ref totalError, ref meanSquareError, ref absError) )
+            var columns = reader.LoadLine();
+            if (columns < 2) continue;
+            reader.Get(out string modelStationName, 0);
+            reader.Get(out float modelStationValue, 1);
+            if (StationNameMap.TryGetValue(modelStationName, out string truthName))
             {
-                Root.RetrieveValue = () =>
-                    TotalErrorFactor * totalError
-                    + MeanSquareErrorFactor * meanSquareError
-                    + AbsoluteErrorFactor * absError;
+                if (TruthValues.TryGetValue(truthName, out float truthValue))
+                {
+                    var diff = modelStationValue - truthValue;
+                    totalError += diff;
+                    meanSquareError += diff * diff;
+                    absError += diff < 0 ? -diff : diff;
+                }
             }
         }
+        return true;
+    }
 
-        private bool EvaluateModelData(ref float totalError, ref float meanSquareError, ref float absError)
+    private void LoadTruthData()
+    {
+        if ( TruthValues.Count == 0 )
         {
-            // model data needs to be loaded every time
-            using var reader = new CsvReader(ModelOutputFile.GetFilePath());
+            using var reader = new CsvReader(TruthFile.GetFilePath());
             reader.LoadLine();
             while (!reader.EndOfFile)
             {
                 var columns = reader.LoadLine();
-                if (columns < 2) continue;
-                reader.Get(out string modelStationName, 0);
-                reader.Get(out float modelStationValue, 1);
-                if (StationNameMap.TryGetValue(modelStationName, out string truthName))
+                if (columns < 2)
                 {
-                    if (TruthValues.TryGetValue(truthName, out float truthValue))
-                    {
-                        var diff = modelStationValue - truthValue;
-                        totalError += diff;
-                        meanSquareError += diff * diff;
-                        absError += diff < 0 ? -diff : diff;
-                    }
+                    continue;
                 }
+                reader.Get(out string stationName, 0);
+                reader.Get(out float stationValue, 1);
+                TruthValues.Add(stationName, stationValue);
             }
-            return true;
         }
+    }
 
-        private void LoadTruthData()
+    private void LoadStationMap()
+    {
+        if ( StationNameMap.Count == 0 )
         {
-            if ( TruthValues.Count == 0 )
+            using CsvReader reader = new(StationNameMapFile.GetFilePath());
+            // Burn header
+            reader.LoadLine();
+            // process data
+            while (!reader.EndOfFile)
             {
-                using var reader = new CsvReader(TruthFile.GetFilePath());
-                reader.LoadLine();
-                while (!reader.EndOfFile)
+                var columns = reader.LoadLine();
+                if (columns < 2)
                 {
-                    var columns = reader.LoadLine();
-                    if (columns < 2)
-                    {
-                        continue;
-                    }
-                    reader.Get(out string stationName, 0);
-                    reader.Get(out float stationValue, 1);
-                    TruthValues.Add(stationName, stationValue);
+                    continue;
                 }
+
+                reader.Get(out string truthStationName, 0);
+                reader.Get(out string modelStationName, 1);
+                StationNameMap.Add(modelStationName, truthStationName);
             }
         }
+    }
 
-        private void LoadStationMap()
-        {
-            if ( StationNameMap.Count == 0 )
-            {
-                using CsvReader reader = new(StationNameMapFile.GetFilePath());
-                // Burn header
-                reader.LoadLine();
-                // process data
-                while (!reader.EndOfFile)
-                {
-                    var columns = reader.LoadLine();
-                    if (columns < 2)
-                    {
-                        continue;
-                    }
+    public string Name { get; set; }
 
-                    reader.Get(out string truthStationName, 0);
-                    reader.Get(out string modelStationName, 1);
-                    StationNameMap.Add(modelStationName, truthStationName);
-                }
-            }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public string Name { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

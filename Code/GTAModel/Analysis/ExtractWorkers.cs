@@ -23,67 +23,66 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Analysis
+namespace TMG.GTAModel.Analysis;
+
+public class ExtractWorkers : ISelfContainedModule
 {
-    public class ExtractWorkers : ISelfContainedModule
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation( Required = true, Description = "The resource containing the worker information." )]
+    public IResource WorkerResource;
+
+    [SubModelInformation( Required = true, Description = "The place to save the file to." )]
+    public FileLocation OututFile;
+
+    public void Start()
     {
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [SubModelInformation( Required = true, Description = "The resource containing the worker information." )]
-        public IResource WorkerResource;
-
-        [SubModelInformation( Required = true, Description = "The place to save the file to." )]
-        public FileLocation OututFile;
-
-        public void Start()
+        var zones = Root.ZoneSystem.ZoneArray;
+        var workerData = WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+        var flatZones = zones.GetFlatData();
+        var flatWorkerData = workerData.GetFlatData();
+        using StreamWriter writer = new(OututFile.GetFilePath());
+        writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
+        for (int i = 0; i < flatWorkerData.Length; i++)
         {
-            var zones = Root.ZoneSystem.ZoneArray;
-            var workerData = WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
-            var flatZones = zones.GetFlatData();
-            var flatWorkerData = workerData.GetFlatData();
-            using StreamWriter writer = new(OututFile.GetFilePath());
-            writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
-            for (int i = 0; i < flatWorkerData.Length; i++)
+            foreach (var validI in flatWorkerData[i].ValidIndexes())
             {
-                foreach (var validI in flatWorkerData[i].ValidIndexes())
+                foreach (var validJ in flatWorkerData[i].ValidIndexes(validI))
                 {
-                    foreach (var validJ in flatWorkerData[i].ValidIndexes(validI))
+                    foreach (var validK in flatWorkerData[i].ValidIndexes(validI, validJ))
                     {
-                        foreach (var validK in flatWorkerData[i].ValidIndexes(validI, validJ))
-                        {
-                            writer.Write(flatZones[i].ZoneNumber);
-                            writer.Write(',');
-                            writer.Write(flatZones[i].PlanningDistrict);
-                            writer.Write(',');
-                            writer.Write(flatZones[i].RegionNumber);
-                            writer.Write(',');
-                            writer.Write(validI);
-                            writer.Write(',');
-                            writer.Write(validJ);
-                            writer.Write(',');
-                            writer.Write(validK);
-                            writer.Write(',');
-                            writer.WriteLine(flatWorkerData[i][validI, validJ, validK]);
-                        }
+                        writer.Write(flatZones[i].ZoneNumber);
+                        writer.Write(',');
+                        writer.Write(flatZones[i].PlanningDistrict);
+                        writer.Write(',');
+                        writer.Write(flatZones[i].RegionNumber);
+                        writer.Write(',');
+                        writer.Write(validI);
+                        writer.Write(',');
+                        writer.Write(validJ);
+                        writer.Write(',');
+                        writer.Write(validK);
+                        writer.Write(',');
+                        writer.WriteLine(flatWorkerData[i][validI, validJ, validK]);
                     }
                 }
             }
         }
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress => 0f;
+    public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => null;
+    public Tuple<byte, byte, byte> ProgressColour => null;
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( !WorkerResource.CheckResourceType<SparseArray<SparseTriIndex<float>>>() )
         {
-            if ( !WorkerResource.CheckResourceType<SparseArray<SparseTriIndex<float>>>() )
-            {
-                error = "In '" + Name + "' the Worker resource was not of type SparseArray<SparseTriIndex<float>>!";
-            }
-            return true;
+            error = "In '" + Name + "' the Worker resource was not of type SparseArray<SparseTriIndex<float>>!";
         }
+        return true;
     }
 }

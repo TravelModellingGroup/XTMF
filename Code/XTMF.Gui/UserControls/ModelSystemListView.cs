@@ -24,24 +24,23 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+public class ModelSystemListView : DataGrid
 {
-    public class ModelSystemListView : DataGrid
+    protected override void OnContextMenuOpening(ContextMenuEventArgs e)
     {
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
-        {
-            base.OnContextMenuOpening(e);
-            IsCanPasteModelSystem = MainWindow.Us.ClipboardModel != null;
-        }
+        base.OnContextMenuOpening(e);
+        IsCanPasteModelSystem = MainWindow.Us.ClipboardModel != null;
+    }
 
-        public static readonly DependencyProperty IsCanPasteModelSystemDependencyProperty =
-        DependencyProperty.Register("IsCanPasteModelSystem", typeof(bool), typeof(ModelSystemListView),
-        new PropertyMetadata(false));
+    public static readonly DependencyProperty IsCanPasteModelSystemDependencyProperty =
+    DependencyProperty.Register("IsCanPasteModelSystem", typeof(bool), typeof(ModelSystemListView),
+    new PropertyMetadata(false));
 
-        public bool IsCanPasteModelSystem
-        {
-            set => SetValue(IsCanPasteModelSystemDependencyProperty, value);
-            get => (bool)GetValue(IsCanPasteModelSystemDependencyProperty);
-        }
+    public bool IsCanPasteModelSystem
+    {
+        set => SetValue(IsCanPasteModelSystemDependencyProperty, value);
+        get => (bool)GetValue(IsCanPasteModelSystemDependencyProperty);
     }
 }

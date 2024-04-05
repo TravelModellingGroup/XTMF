@@ -20,80 +20,79 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Datastructure
+namespace Datastructure;
+
+public class ZoneCreator
 {
-    public class ZoneCreator
+    /// <summary>
+    /// Converts a csv file into odc.
+    /// </summary>
+    /// <param name="csv">The CSV file to parse</param>
+    /// <param name="highestZone">The highest numbered zone</param>
+    /// <param name="types">The number of types of data per recored</param>
+    /// <param name="zfc">The ZFC we are to produce</param>
+    /// <param name="header">Does this csv file contain a header?</param>
+    public static void CsvToZfc(string csv, int highestZone, int types, string zfc, bool header)
     {
-        /// <summary>
-        /// Converts a csv file into odc.
-        /// </summary>
-        /// <param name="csv">The CSV file to parse</param>
-        /// <param name="highestZone">The highest numbered zone</param>
-        /// <param name="types">The number of types of data per recored</param>
-        /// <param name="zfc">The ZFC we are to produce</param>
-        /// <param name="header">Does this csv file contain a header?</param>
-        public static void CsvToZfc(string csv, int highestZone, int types, string zfc, bool header)
-        {
-            CsvToZfc(csv, highestZone, types, zfc, header, 0);
-        }
+        CsvToZfc(csv, highestZone, types, zfc, header, 0);
+    }
 
-        /// <summary>
-        /// Converts a csv file into odc.
-        /// </summary>
-        /// <param name="csv">The CSV file to parse</param>
-        /// <param name="highestZone">The highest numbered zone</param>
-        /// <param name="types">The number of types of data per recored</param>
-        /// <param name="zfc">The ZFC we are to produce</param>
-        /// <param name="header">Does this csv file contain a header?</param>
-        /// <param name="offset">How much other data comes before our new entries?</param>
-        public static void CsvToZfc(string csv, int highestZone, int types, string zfc, bool header, int offset)
+    /// <summary>
+    /// Converts a csv file into odc.
+    /// </summary>
+    /// <param name="csv">The CSV file to parse</param>
+    /// <param name="highestZone">The highest numbered zone</param>
+    /// <param name="types">The number of types of data per recored</param>
+    /// <param name="zfc">The ZFC we are to produce</param>
+    /// <param name="header">Does this csv file contain a header?</param>
+    /// <param name="offset">How much other data comes before our new entries?</param>
+    public static void CsvToZfc(string csv, int highestZone, int types, string zfc, bool header, int offset)
+    {
+        StreamReader reader = new(new FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.SequentialScan));
+        BinaryWriter writer = new(new
+            FileStream(zfc, FileMode.OpenOrCreate, FileAccess.Write,
+            FileShare.None, 0x1000, FileOptions.RandomAccess),
+            Encoding.Default);
+        string line;
+        writer.Write(highestZone);
+        writer.Write(0);
+        writer.Write(types);
+        byte[] data = new byte[types * 4];
+        if (header) reader.ReadLine();
+        while ((line = reader.ReadLine()) != null)
         {
-            StreamReader reader = new(new FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.SequentialScan));
-            BinaryWriter writer = new(new
-                FileStream(zfc, FileMode.OpenOrCreate, FileAccess.Write,
-                FileShare.None, 0x1000, FileOptions.RandomAccess),
-                Encoding.Default);
-            string line;
-            writer.Write(highestZone);
-            writer.Write(0);
-            writer.Write(types);
-            byte[] data = new byte[types * 4];
-            if (header) reader.ReadLine();
-            while ((line = reader.ReadLine()) != null)
+            int position;
+            int origin = FastParse.ParseInt(line, 0, (position = line.IndexOf(',')));
+            position++;
+
+            writer.BaseStream.Seek((sizeof(int) * 3) +
+                ((origin * types) + offset) * sizeof(float), SeekOrigin.Begin);
+
+            // It is faster to store the length before itterating over it
+            int length = line.Length;
+            int ammount = 0;
+            for (int i = position; i < length; i++)
             {
-                int position;
-                int origin = FastParse.ParseInt(line, 0, (position = line.IndexOf(',')));
-                position++;
-
-                writer.BaseStream.Seek((sizeof(int) * 3) +
-                    ((origin * types) + offset) * sizeof(float), SeekOrigin.Begin);
-
-                // It is faster to store the length before itterating over it
-                int length = line.Length;
-                int ammount = 0;
-                for (int i = position; i < length; i++)
+                if (line[i] == ',')
                 {
-                    if (line[i] == ',')
-                    {
-                        LoadData(data, FastParse.ParseFloat(line, position, i), ref ammount);
-                        position = i + 1;
-                    }
+                    LoadData(data, FastParse.ParseFloat(line, position, i), ref ammount);
+                    position = i + 1;
                 }
-                LoadData(data, FastParse.ParseFloat(line, position, line.Length), ref ammount);
-                writer.Write(data, 0, ammount);
             }
-            reader.Close();
-            writer.Close();
+            LoadData(data, FastParse.ParseFloat(line, position, line.Length), ref ammount);
+            writer.Write(data, 0, ammount);
         }
+        reader.Close();
+        writer.Close();
+    }
 
-        private static void LoadData(byte[] data, float p, ref int ammount)
-        {
-            var temp = BitConverter.GetBytes(p);
-            data[ammount] = temp[0];
-            data[ammount + 1] = temp[1];
-            data[ammount + 2] = temp[2];
-            data[ammount + 3] = temp[3];
-            ammount += 4;
-        }
+    private static void LoadData(byte[] data, float p, ref int ammount)
+    {
+        var temp = BitConverter.GetBytes(p);
+        data[ammount] = temp[0];
+        data[ammount + 1] = temp[1];
+        data[ammount + 2] = temp[2];
+        data[ammount + 3] = temp[3];
+        ammount += 4;
     }
 }

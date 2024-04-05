@@ -18,20 +18,19 @@
 */
 using XTMF;
 using System;
-namespace TMG.Emme
-{
-    [Serializable]
-    public class EmmeToolRuntimeException : XTMFRuntimeException
-    {
-        [System.Obsolete("Use EmmeToolRuntimeException(IModule module, string message) instead.")]
-        public EmmeToolRuntimeException(string description)
-            : base(description)
-        {
-        }
+namespace TMG.Emme;
 
-        public EmmeToolRuntimeException(IModule module, string description)
-            : base(module, description)
-        {
-        }
+[Serializable]
+public class EmmeToolRuntimeException : XTMFRuntimeException
+{
+    [System.Obsolete("Use EmmeToolRuntimeException(IModule module, string message) instead.")]
+    public EmmeToolRuntimeException(string description)
+        : base(description)
+    {
+    }
+
+    public EmmeToolRuntimeException(IModule module, string description)
+        : base(module, description)
+    {
     }
 }

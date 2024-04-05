@@ -21,273 +21,272 @@ using System.Text;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+public abstract class Schedule : ISchedule
 {
-    public abstract class Schedule : ISchedule
+    public static ITashaScheduler Scheduler;
+
+    public int EpisodeCount;
+
+    public IEpisode[] Episodes { get; private set; }
+
+    public Schedule()
     {
-        public static ITashaScheduler Scheduler;
+        Episodes = new IEpisode[20];
+        EpisodeCount = 0;
+    }
 
-        public int EpisodeCount;
-
-        public IEpisode[] Episodes { get; private set; }
-
-        public Schedule()
+    internal int NumberOfEpisodes
+    {
+        get
         {
-            Episodes = new IEpisode[20];
-            EpisodeCount = 0;
+            return Episodes == null ? 0 : EpisodeCount;
         }
+    }
 
-        internal int NumberOfEpisodes
+    public void AddHouseholdProjects(ITashaHousehold household)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Checks to see if an episode can be inserted, and does if it can
+    /// </summary>
+    public abstract bool CheckEpisodeInsert(IEpisode episode, ref TimeWindow feasibleWindow);
+
+    /// <summary>
+    /// Checks to see if an episode can be inserted
+    /// </summary>
+    public abstract Time CheckOverlap(Episode episode);
+
+    public abstract int CleanUp(Time minPrimaryWorkLength);
+
+    public void Clear()
+    {
+        for ( int i = 0; i < EpisodeCount; i++ )
         {
-            get
+            Episodes[i] = null;
+        }
+        EpisodeCount = 0;
+    }
+
+    /// <summary>
+    /// Forces an episode to be inserted
+    /// </summary>
+    public abstract bool ForcedEpisodeInsert(Episode ep);
+
+    public abstract void GenerateTrips(ITashaHousehold household, int householdIterations, Time minimumAtHomeTime);
+
+    public Time GetFirstEpisodeStartTime()
+    {
+        if ( EpisodeCount == 0 || Episodes[0] == null )
+        {
+            return Time.Zero;
+        }
+        return Episodes[0].StartTime;
+    }
+
+    public Time GetLastEpisodeEndTime()
+    {
+        if ( EpisodeCount == 0 )
+        {
+            return Time.Zero;
+        }
+        return Episodes[EpisodeCount - 1].EndTime;
+    }
+
+    public abstract bool Insert(Episode ep, Random random);
+
+    /// <summary>
+    /// Add a whole Schedule to this schedule
+    /// </summary>
+    /// <param name="schedule">The schedule you wish to add</param>
+    /// <param name="random"></param>
+    public void Insert(Schedule schedule, Random random)
+    {
+        for ( int i = 0; i < schedule.EpisodeCount; i++ )
+        {
+            if ( schedule.Episodes[i].ActivityType != Activity.NullActivity )
             {
-                return Episodes == null ? 0 : EpisodeCount;
+                var episode = (Episode)schedule.Episodes[i];
+                // take ownership of this episode
+                episode.ContainingSchedule = this;
+                Insert( episode, random );
             }
         }
+    }
 
-        public void AddHouseholdProjects(ITashaHousehold household)
+    /// <summary>
+    /// Insert into our array data structure
+    /// </summary>
+    /// <param name="ep">The episode you want to insert</param>
+    /// <param name="pos">The position you want to insert it into</param>
+    public void InsertAt(Episode ep, int pos)
+    {
+        // if we are not adding it to the end
+        if ( ( pos < 0 ) | ( pos > EpisodeCount ) )
         {
-            throw new NotImplementedException();
+            throw new XTMFRuntimeException(Scheduler, "Tried to insert into an schedule at position " + pos
+                + " where there are currently " + EpisodeCount + " episodes." );
         }
 
-        /// <summary>
-        /// Checks to see if an episode can be inserted, and does if it can
-        /// </summary>
-        public abstract bool CheckEpisodeInsert(IEpisode episode, ref TimeWindow feasibleWindow);
-
-        /// <summary>
-        /// Checks to see if an episode can be inserted
-        /// </summary>
-        public abstract Time CheckOverlap(Episode episode);
-
-        public abstract int CleanUp(Time minPrimaryWorkLength);
-
-        public void Clear()
+        if ( EpisodeCount + 1 >= Episodes.Length )
         {
-            for ( int i = 0; i < EpisodeCount; i++ )
+            // if we are assigning to the end, but it isn't large enough, expand
+            IncreaseArraySize();
+        }
+
+        if ( pos != EpisodeCount )
+        {
+            Array.Copy( Episodes, pos, Episodes, pos + 1, EpisodeCount - pos );
+        }
+        // take ownership of the episode
+        ep.ContainingSchedule = this;
+        Episodes[pos] = ep;
+        EpisodeCount++;
+
+        CheckEpisodeIntegrity();
+    }
+
+    public ConflictReport InsertCase(ITashaPerson owner, Episode ep, bool travelTime)
+    {
+        ConflictReport report;
+        report.Type = ScheduleConflictType.NoConflict;
+        report.Position = EpisodeCount;
+
+        for ( int i = 0; i < EpisodeCount; i++ )
+        {
+            if ( Episodes[i].EndTime + Episodes[i].TravelTime < ep.StartTime ) continue;
+            Time epEnd = ep.EndTime;
+            Time ithEnd = Episodes[i].EndTime;
+            if ( travelTime )
             {
-                Episodes[i] = null;
+                ep.TravelTime = ( EpisodeCount - 1 > i ) ?
+                    Scheduler.TravelTime( owner, ep.Zone, Episodes[i + 1].Zone, ep.EndTime ) : Time.Zero;
+                epEnd += ep.TravelTime;
+                ithEnd += Episodes[i].TravelTime;
             }
-            EpisodeCount = 0;
-        }
-
-        /// <summary>
-        /// Forces an episode to be inserted
-        /// </summary>
-        public abstract bool ForcedEpisodeInsert(Episode ep);
-
-        public abstract void GenerateTrips(ITashaHousehold household, int householdIterations, Time minimumAtHomeTime);
-
-        public Time GetFirstEpisodeStartTime()
-        {
-            if ( EpisodeCount == 0 || Episodes[0] == null )
+            report.Position = i;
+            // Check for Complete overlap of the ith position
+            if ( Episodes[i].StartTime >= ep.StartTime && ( epEnd >= ithEnd || ep.EndTime >= Episodes[i].EndTime ) )
             {
-                return Time.Zero;
+                report.Type = ScheduleConflictType.CompleteOverlap;
             }
-            return Episodes[0].StartTime;
-        }
-
-        public Time GetLastEpisodeEndTime()
-        {
-            if ( EpisodeCount == 0 )
+            else if ( EpisodeCount - 1 > i && Episodes[i + 1].StartTime >= ep.StartTime && epEnd >= Episodes[i + 1].EndTime )
             {
-                return Time.Zero;
+                report.Type = ScheduleConflictType.CompleteOverlap;
             }
-            return Episodes[EpisodeCount - 1].EndTime;
-        }
-
-        public abstract bool Insert(Episode ep, Random random);
-
-        /// <summary>
-        /// Add a whole Schedule to this schedule
-        /// </summary>
-        /// <param name="schedule">The schedule you wish to add</param>
-        /// <param name="random"></param>
-        public void Insert(Schedule schedule, Random random)
-        {
-            for ( int i = 0; i < schedule.EpisodeCount; i++ )
+            else if ( Episodes[i].StartTime < ep.StartTime && ep.EndTime < Episodes[i].EndTime )
             {
-                if ( schedule.Episodes[i].ActivityType != Activity.NullActivity )
-                {
-                    var episode = (Episode)schedule.Episodes[i];
-                    // take ownership of this episode
-                    episode.ContainingSchedule = this;
-                    Insert( episode, random );
-                }
+                report.Type = ScheduleConflictType.Split;
             }
-        }
-
-        /// <summary>
-        /// Insert into our array data structure
-        /// </summary>
-        /// <param name="ep">The episode you want to insert</param>
-        /// <param name="pos">The position you want to insert it into</param>
-        public void InsertAt(Episode ep, int pos)
-        {
-            // if we are not adding it to the end
-            if ( ( pos < 0 ) | ( pos > EpisodeCount ) )
+            else if ( Episodes[i].StartTime >= ep.StartTime && ep.EndTime < Episodes[i].EndTime )
             {
-                throw new XTMFRuntimeException(Scheduler, "Tried to insert into an schedule at position " + pos
-                    + " where there are currently " + EpisodeCount + " episodes." );
+                report.Type = ScheduleConflictType.Prior;
             }
-
-            if ( EpisodeCount + 1 >= Episodes.Length )
+            else if ( Episodes[i].StartTime < ep.StartTime && ep.EndTime >= Episodes[i].EndTime )
             {
-                // if we are assigning to the end, but it isn't large enough, expand
-                IncreaseArraySize();
+                report.Type = ScheduleConflictType.Posterior;
             }
+            break;
+        }
+        return report; // There is no conflict
+    }
 
-            if ( pos != EpisodeCount )
+    public abstract bool TestInsert(Episode episode);
+
+    internal void CheckEpisodeIntegrity()
+    {
+        Time lastEnd = Time.Zero;
+        Time mustEndBefore = Time.EndOfDay + new Time() { Minutes = 5 };
+        for ( int i = 0; i < EpisodeCount; i++ )
+        {
+            if ( lastEnd > Episodes[i].StartTime )
             {
-                Array.Copy( Episodes, pos, Episodes, pos + 1, EpisodeCount - pos );
+                throw new XTMFRuntimeException(Scheduler, Dump( this ) );
             }
-            // take ownership of the episode
-            ep.ContainingSchedule = this;
-            Episodes[pos] = ep;
-            EpisodeCount++;
-
-            CheckEpisodeIntegrity();
-        }
-
-        public ConflictReport InsertCase(ITashaPerson owner, Episode ep, bool travelTime)
-        {
-            ConflictReport report;
-            report.Type = ScheduleConflictType.NoConflict;
-            report.Position = EpisodeCount;
-
-            for ( int i = 0; i < EpisodeCount; i++ )
+            if ( Episodes[i].StartTime > mustEndBefore | Episodes[i].EndTime > mustEndBefore )
             {
-                if ( Episodes[i].EndTime + Episodes[i].TravelTime < ep.StartTime ) continue;
-                Time epEnd = ep.EndTime;
-                Time ithEnd = Episodes[i].EndTime;
-                if ( travelTime )
-                {
-                    ep.TravelTime = ( EpisodeCount - 1 > i ) ?
-                        Scheduler.TravelTime( owner, ep.Zone, Episodes[i + 1].Zone, ep.EndTime ) : Time.Zero;
-                    epEnd += ep.TravelTime;
-                    ithEnd += Episodes[i].TravelTime;
-                }
-                report.Position = i;
-                // Check for Complete overlap of the ith position
-                if ( Episodes[i].StartTime >= ep.StartTime && ( epEnd >= ithEnd || ep.EndTime >= Episodes[i].EndTime ) )
-                {
-                    report.Type = ScheduleConflictType.CompleteOverlap;
-                }
-                else if ( EpisodeCount - 1 > i && Episodes[i + 1].StartTime >= ep.StartTime && epEnd >= Episodes[i + 1].EndTime )
-                {
-                    report.Type = ScheduleConflictType.CompleteOverlap;
-                }
-                else if ( Episodes[i].StartTime < ep.StartTime && ep.EndTime < Episodes[i].EndTime )
-                {
-                    report.Type = ScheduleConflictType.Split;
-                }
-                else if ( Episodes[i].StartTime >= ep.StartTime && ep.EndTime < Episodes[i].EndTime )
-                {
-                    report.Type = ScheduleConflictType.Prior;
-                }
-                else if ( Episodes[i].StartTime < ep.StartTime && ep.EndTime >= Episodes[i].EndTime )
-                {
-                    report.Type = ScheduleConflictType.Posterior;
-                }
-                break;
+                throw new XTMFRuntimeException(Scheduler, Dump( this ) );
             }
-            return report; // There is no conflict
-        }
-
-        public abstract bool TestInsert(Episode episode);
-
-        internal void CheckEpisodeIntegrity()
-        {
-            Time lastEnd = Time.Zero;
-            Time mustEndBefore = Time.EndOfDay + new Time() { Minutes = 5 };
-            for ( int i = 0; i < EpisodeCount; i++ )
+            if ( Episodes[i].EndTime < Episodes[i].StartTime )
             {
-                if ( lastEnd > Episodes[i].StartTime )
+                if ( Episodes[i].Owner != null )
                 {
-                    throw new XTMFRuntimeException(Scheduler, Dump( this ) );
+                    throw new XTMFRuntimeException(Scheduler, "There is an episode that ends before it starts in household #" + Episodes[i].Owner.Household.HouseholdId );
                 }
-                if ( Episodes[i].StartTime > mustEndBefore | Episodes[i].EndTime > mustEndBefore )
-                {
-                    throw new XTMFRuntimeException(Scheduler, Dump( this ) );
-                }
-                if ( Episodes[i].EndTime < Episodes[i].StartTime )
-                {
-                    if ( Episodes[i].Owner != null )
-                    {
-                        throw new XTMFRuntimeException(Scheduler, "There is an episode that ends before it starts in household #" + Episodes[i].Owner.Household.HouseholdId );
-                    }
-                    throw new XTMFRuntimeException(Scheduler, "There is an episode that ends before it starts and has no owner!"
-                                                    + "\r\nActivity Type    :" + Episodes[i].ActivityType
-                                                    + "\r\nStart Time       :" + Episodes[i].StartTime
-                                                    + "\r\nDuration         :" + Episodes[i].Duration
-                                                    + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
-                                                    + "\r\nEnd Time         :" + Episodes[i].EndTime );
-                }
-                if ( Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * Episodes[i].Duration )
-                {
-                    throw new XTMFRuntimeException(Scheduler, "Episode is smaller than the allowed overlap!"
-                                                    + "\r\nActivity Type    :" + Episodes[i].ActivityType
-                                                    + "\r\nStart Time       :" + Episodes[i].StartTime
-                                                    + "\r\nDuration         :" + Episodes[i].Duration
-                                                    + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
-                                                    + "\r\nEnd Time         :" + Episodes[i].EndTime);
-                }
-                lastEnd = Episodes[i].EndTime;
+                throw new XTMFRuntimeException(Scheduler, "There is an episode that ends before it starts and has no owner!"
+                                                + "\r\nActivity Type    :" + Episodes[i].ActivityType
+                                                + "\r\nStart Time       :" + Episodes[i].StartTime
+                                                + "\r\nDuration         :" + Episodes[i].Duration
+                                                + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
+                                                + "\r\nEnd Time         :" + Episodes[i].EndTime );
             }
-        }
-
-        protected static string Dump(Schedule sched)
-        {
-            StringBuilder builder = new();
-            bool first = true;
-            for ( int i = 0; i < sched.Episodes.Length; i++ )
+            if ( Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * Episodes[i].Duration )
             {
-                if ( sched.Episodes[i] == null ) continue;
-                if ( !first )
-                {
-                    builder.AppendLine();
-                }
-                StoreEpisode( (Episode)sched.Episodes[i], builder );
-                first = false;
+                throw new XTMFRuntimeException(Scheduler, "Episode is smaller than the allowed overlap!"
+                                                + "\r\nActivity Type    :" + Episodes[i].ActivityType
+                                                + "\r\nStart Time       :" + Episodes[i].StartTime
+                                                + "\r\nDuration         :" + Episodes[i].Duration
+                                                + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
+                                                + "\r\nEnd Time         :" + Episodes[i].EndTime);
             }
-            return builder.ToString();
+            lastEnd = Episodes[i].EndTime;
         }
+    }
 
-        private static void StoreEpisode(Episode e, StringBuilder builder)
+    protected static string Dump(Schedule sched)
+    {
+        StringBuilder builder = new();
+        bool first = true;
+        for ( int i = 0; i < sched.Episodes.Length; i++ )
         {
-            builder.Append( "Activity -> " );
-            builder.Append( e.ActivityType );
-            builder.Append( ", Start -> " );
-            builder.Append( e.StartTime );
-            builder.Append( ", End -> " );
-            builder.Append( e.EndTime );
-            builder.Append( ", TT -> " );
-            builder.Append( e.TravelTime );
+            if ( sched.Episodes[i] == null ) continue;
+            if ( !first )
+            {
+                builder.AppendLine();
+            }
+            StoreEpisode( (Episode)sched.Episodes[i], builder );
+            first = false;
         }
+        return builder.ToString();
+    }
 
-        private void IncreaseArraySize()
-        {
-            // if we don't have room create a new array of 2x the size
-            IEpisode[] temp = new IEpisode[EpisodeCount * 2];
-            // copy all of the old data
-            Array.Copy( Episodes, temp, EpisodeCount );
-            // and now use that larger array
-            Episodes = temp;
-        }
+    private static void StoreEpisode(Episode e, StringBuilder builder)
+    {
+        builder.Append( "Activity -> " );
+        builder.Append( e.ActivityType );
+        builder.Append( ", Start -> " );
+        builder.Append( e.StartTime );
+        builder.Append( ", End -> " );
+        builder.Append( e.EndTime );
+        builder.Append( ", TT -> " );
+        builder.Append( e.TravelTime );
+    }
 
-        public IActivityEpisode[] GenerateScheduledEpisodeList()
-        {
-            throw new NotImplementedException("Available in the Tasha2 Scheduler");
-        }
+    private void IncreaseArraySize()
+    {
+        // if we don't have room create a new array of 2x the size
+        IEpisode[] temp = new IEpisode[EpisodeCount * 2];
+        // copy all of the old data
+        Array.Copy( Episodes, temp, EpisodeCount );
+        // and now use that larger array
+        Episodes = temp;
+    }
 
-        public void Insert(Random householdRandom, IActivityEpisode episode)
-        {
-            throw new NotImplementedException( "Available in the Tasha2 Scheduler" );
-        }
+    public IActivityEpisode[] GenerateScheduledEpisodeList()
+    {
+        throw new NotImplementedException("Available in the Tasha2 Scheduler");
+    }
 
-        public void InsertInside(Random householdRandom, IActivityEpisode episode, IActivityEpisode into)
-        {
-            throw new NotImplementedException( "Available in the Tasha2 Scheduler" );
-        }
+    public void Insert(Random householdRandom, IActivityEpisode episode)
+    {
+        throw new NotImplementedException( "Available in the Tasha2 Scheduler" );
+    }
+
+    public void InsertInside(Random householdRandom, IActivityEpisode episode, IActivityEpisode into)
+    {
+        throw new NotImplementedException( "Available in the Tasha2 Scheduler" );
     }
 }

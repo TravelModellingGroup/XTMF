@@ -24,102 +24,101 @@ using XTMF;
 using XTMF.Logging;
 using Timer = System.Timers.Timer;
 
-namespace TMG.Frameworks.Testing
+namespace TMG.Frameworks.Testing;
+
+/// <summary>
+///     A simple test module that simulates a module that requires an extended period of time to finish executing.
+/// </summary>
+///
+[ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.", Name = "Test Executing Module",
+    IconURI = "TestTube")]
+public class TestExecutingModule : ISelfContainedModule
 {
+    private readonly ILogger _logger;
+
+    private int _ticks;
+
+    private Timer _timer;
+
     /// <summary>
-    ///     A simple test module that simulates a module that requires an extended period of time to finish executing.
+    /// 
     /// </summary>
-    ///
-    [ModuleInformation(Description = "This is just a simple module that runs for a pre determined amount of time.", Name = "Test Executing Module",
-        IconURI = "TestTube")]
-    public class TestExecutingModule : ISelfContainedModule
+    /// <param name="configuration"></param>
+    /// <param name="logger"></param>
+    public TestExecutingModule(IConfiguration configuration,
+        ILogger logger)
     {
-        private readonly ILogger _logger;
+        _logger = logger;
+    }
 
-        private int _ticks;
 
-        private Timer _timer;
+    [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
+    public float ExecutionTime { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="logger"></param>
-        public TestExecutingModule(IConfiguration configuration,
-            ILogger logger)
+    [RunParameter("Test Boolean", false, "Just a simple test boolean")]
+    public bool TestBool { get; set; }
+
+    [RunParameter("Test Boolean 2", false, "Just a simple test boolean")]
+    public bool TestBool2 { get; set; }
+
+    [RunParameter("Test Boolean 3", false, "Just a simple test boolean")]
+    public bool TestBool3 { get; set; }
+
+    [RunParameter("Test Boolean 4", false, "Just a simple test boolean")]
+    public bool TestBool4 { get; set; }
+
+    [RunParameter("Test Boolean 5 ", false, "Just a simple test boolean")]
+    public bool TestBool5 { get; set; }
+
+    [RunParameter("Test Boolean 6", false, "Just a simple test boolean")]
+    public bool TestBool6 { get; set; }
+
+    [RunParameter("Test Boolean 7", false, "Just a simple test boolean")]
+    public bool TestBool7 { get; set; }
+
+    [RunParameter("Test Boolean 8", false, "Just a simple test boolean")]
+    public bool TestBool8 { get; set; }
+
+    public string Name { get; set; }
+
+    public float Progress { get; private set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get; } = new Tuple<byte, byte, byte>(100, 120, 200);
+
+    public bool RuntimeValidation(ref string error)
+    {
+
+        return true;
+    }
+
+    public void Start()
+    {
+        Progress = 0.0f;
+        _timer = new Timer();
+        _timer.Interval = 1000;
+        _timer.Elapsed += _timer_Elapsed;
+        _timer.AutoReset = true;
+        _timer.Start();
+        var _totalTime = ExecutionTime;
+        while (_ticks < _totalTime)
         {
-            _logger = logger;
+            //hold up execution
+            Thread.Sleep(100);
         }
 
+        _timer.Stop();
 
-        [RunParameter("Execution Time", 60, "Specficy the simulated length of execution for this module, in seconds..")]
-        public float ExecutionTime { get; set; }
+    }
 
-        [RunParameter("Test Boolean", false, "Just a simple test boolean")]
-        public bool TestBool { get; set; }
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void _timer_Elapsed(object sender, ElapsedEventArgs e)
+    {
 
-        [RunParameter("Test Boolean 2", false, "Just a simple test boolean")]
-        public bool TestBool2 { get; set; }
-
-        [RunParameter("Test Boolean 3", false, "Just a simple test boolean")]
-        public bool TestBool3 { get; set; }
-
-        [RunParameter("Test Boolean 4", false, "Just a simple test boolean")]
-        public bool TestBool4 { get; set; }
-
-        [RunParameter("Test Boolean 5 ", false, "Just a simple test boolean")]
-        public bool TestBool5 { get; set; }
-
-        [RunParameter("Test Boolean 6", false, "Just a simple test boolean")]
-        public bool TestBool6 { get; set; }
-
-        [RunParameter("Test Boolean 7", false, "Just a simple test boolean")]
-        public bool TestBool7 { get; set; }
-
-        [RunParameter("Test Boolean 8", false, "Just a simple test boolean")]
-        public bool TestBool8 { get; set; }
-
-        public string Name { get; set; }
-
-        public float Progress { get; private set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get; } = new Tuple<byte, byte, byte>(100, 120, 200);
-
-        public bool RuntimeValidation(ref string error)
-        {
-
-            return true;
-        }
-
-        public void Start()
-        {
-            Progress = 0.0f;
-            _timer = new Timer();
-            _timer.Interval = 1000;
-            _timer.Elapsed += _timer_Elapsed;
-            _timer.AutoReset = true;
-            _timer.Start();
-            var _totalTime = ExecutionTime;
-            while (_ticks < _totalTime)
-            {
-                //hold up execution
-                Thread.Sleep(100);
-            }
-
-            _timer.Stop();
-
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void _timer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-
-            _ticks++;
-            Progress = _ticks / ExecutionTime;
-            _logger.Info("Timer tick");
-        }
+        _ticks++;
+        Progress = _ticks / ExecutionTime;
+        _logger.Info("Timer tick");
     }
 }

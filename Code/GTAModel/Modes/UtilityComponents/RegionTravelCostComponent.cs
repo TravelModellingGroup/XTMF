@@ -19,52 +19,51 @@
 
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+public class RegionTravelCostComponent : RegionUtilityComponent
 {
-    public class RegionTravelCostComponent : RegionUtilityComponent
+    [RunParameter( "Travel Cost", 0f, "The factor to apply to the cost of travel between the zones."
+        + " This is only applied if it is contained within the given regions." )]
+    public float Cost;
+
+    private INetworkData NetworkData;
+
+    [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
+    public string NetworkType { get; set; }
+
+    public override float CalculateV(IZone origin, IZone destination, Time time)
     {
-        [RunParameter( "Travel Cost", 0f, "The factor to apply to the cost of travel between the zones."
-            + " This is only applied if it is contained within the given regions." )]
-        public float Cost;
-
-        private INetworkData NetworkData;
-
-        [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
-        public string NetworkType { get; set; }
-
-        public override float CalculateV(IZone origin, IZone destination, Time time)
+        if ( IsContained( origin, destination ) )
         {
-            if ( IsContained( origin, destination ) )
-            {
-                return Cost * NetworkData.TravelCost( origin, destination, time );
-            }
-            return 0;
+            return Cost * NetworkData.TravelCost( origin, destination, time );
         }
+        return 0;
+    }
 
-        protected override bool SubRuntimeValidation(ref string error)
+    protected override bool SubRuntimeValidation(ref string error)
+    {
+        // Load in the network data
+        LoadNetworkData();
+        if ( NetworkData == null )
         {
-            // Load in the network data
-            LoadNetworkData();
-            if ( NetworkData == null )
-            {
-                error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
-                return false;
-            }
-            return true;
+            error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
+            return false;
         }
+        return true;
+    }
 
-        /// <summary>
-        /// Find and Load in the network data
-        /// </summary>
-        private void LoadNetworkData()
+    /// <summary>
+    /// Find and Load in the network data
+    /// </summary>
+    private void LoadNetworkData()
+    {
+        foreach ( var dataSource in Root.NetworkData )
         {
-            foreach ( var dataSource in Root.NetworkData )
+            if ( dataSource.NetworkType == NetworkType )
             {
-                if ( dataSource.NetworkType == NetworkType )
-                {
-                    NetworkData = dataSource;
-                    return;
-                }
+                NetworkData = dataSource;
+                return;
             }
         }
     }

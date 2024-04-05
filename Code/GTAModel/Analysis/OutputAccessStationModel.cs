@@ -23,74 +23,73 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Analysis
+namespace TMG.GTAModel.Analysis;
+
+[ModuleInformation( Description =
+    @"This module is designed to output the access station choice data for GTAModel." )]
+public sealed class OutputAccessStationModel : ISelfContainedModule
 {
-    [ModuleInformation( Description =
-        @"This module is designed to output the access station choice data for GTAModel." )]
-    public sealed class OutputAccessStationModel : ISelfContainedModule
+    [SubModelInformation( Required = true, Description = "The resource containing the access station model data to output." )]
+    public IResource AccessStationData;
+
+    [SubModelInformation( Required = true, Description = "The location to save the data." )]
+    public FileLocation OutputFile;
+
+    public void Start()
     {
-        [SubModelInformation( Required = true, Description = "The resource containing the access station model data to output." )]
-        public IResource AccessStationData;
-
-        [SubModelInformation( Required = true, Description = "The location to save the data." )]
-        public FileLocation OutputFile;
-
-        public void Start()
+        var data = AccessStationData.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
+        var flatData = data.GetFlatData();
+        using var writer = new StreamWriter(OutputFile);
+        //output the header
+        var validIndex = data.ValidIndexArray();
+        writer.WriteLine("Origin,Destination,AccessStation[0],AccessStation[1],AccessStation[2],AccessStation[3],AccessStation[4],Utility[0],Utility[1],Utility[2],Utility[3],Utility[4],Logsum");
+        for (int o = 0; o < validIndex.Length; o++)
         {
-            var data = AccessStationData.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
-            var flatData = data.GetFlatData();
-            using var writer = new StreamWriter(OutputFile);
-            //output the header
-            var validIndex = data.ValidIndexArray();
-            writer.WriteLine("Origin,Destination,AccessStation[0],AccessStation[1],AccessStation[2],AccessStation[3],AccessStation[4],Utility[0],Utility[1],Utility[2],Utility[3],Utility[4],Logsum");
-            for (int o = 0; o < validIndex.Length; o++)
+            var row = flatData[o];
+            for (int d = 0; d < validIndex.Length; d++)
             {
-                var row = flatData[o];
-                for (int d = 0; d < validIndex.Length; d++)
+                var result = row[d];
+                // if there is no data, just skip it
+                if (result == null) continue;
+                var zones = result.Item1;
+                var utils = result.Item3;
+                writer.Write(validIndex[o]);
+                writer.Write(',');
+                writer.Write(validIndex[d]);
+                for (int i = 0; i < zones.Length; i++)
                 {
-                    var result = row[d];
-                    // if there is no data, just skip it
-                    if (result == null) continue;
-                    var zones = result.Item1;
-                    var utils = result.Item3;
-                    writer.Write(validIndex[o]);
                     writer.Write(',');
-                    writer.Write(validIndex[d]);
-                    for (int i = 0; i < zones.Length; i++)
-                    {
-                        writer.Write(',');
-                        // make sure this zone is used
-                        writer.Write(zones[i] == null ? -1 : zones[i].ZoneNumber);
-                    }
-                    var total = 0.0f;
-                    for (int i = 0; i < zones.Length; i++)
-                    {
-                        // make sure this zone is used
-                        writer.Write(',');
-                        var ammount = zones[i] == null ? 0.0f : utils[i];
-                        writer.Write(ammount);
-                        total += ammount;
-                    }
-                    writer.Write(',');
-                    writer.WriteLine(Math.Log(total));
+                    // make sure this zone is used
+                    writer.Write(zones[i] == null ? -1 : zones[i].ZoneNumber);
                 }
+                var total = 0.0f;
+                for (int i = 0; i < zones.Length; i++)
+                {
+                    // make sure this zone is used
+                    writer.Write(',');
+                    var ammount = zones[i] == null ? 0.0f : utils[i];
+                    writer.Write(ammount);
+                    total += ammount;
+                }
+                writer.Write(',');
+                writer.WriteLine(Math.Log(total));
             }
         }
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress => 0f;
+    public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => null;
+    public Tuple<byte, byte, byte> ProgressColour => null;
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( !AccessStationData.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
         {
-            if ( !AccessStationData.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
-            {
-                error = "In '" + Name + "' the access station data is not connecting to a resource of type SparseTwinIndex<Tuple<IZone[], float[]>>!";
-                return false;
-            }
-            return true;
+            error = "In '" + Name + "' the access station data is not connecting to a resource of type SparseTwinIndex<Tuple<IZone[], float[]>>!";
+            return false;
         }
+        return true;
     }
 }

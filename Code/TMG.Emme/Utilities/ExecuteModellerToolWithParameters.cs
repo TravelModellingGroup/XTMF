@@ -24,122 +24,121 @@ using System.Text;
 using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.Emme.Utilities
+namespace TMG.Emme.Utilities;
+
+[ModuleInformation(Description = "Execute a given EMME modeller tool with the given name and parameters.")]
+public sealed class ExecuteModellerToolWithParameters : IEmmeTool
 {
-    [ModuleInformation(Description = "Execute a given EMME modeller tool with the given name and parameters.")]
-    public sealed class ExecuteModellerToolWithParameters : IEmmeTool
+    [ModuleInformation(Description = "A representation of an EMMETool parameter and the value to assign to it.")]
+    public class Parameter : IModule
     {
-        [ModuleInformation(Description = "A representation of an EMMETool parameter and the value to assign to it.")]
-        public class Parameter : IModule
-        {
-            [RunParameter("Parameter Name", "", "The name of the parameter to assign the given value.")]
-            public string ParameterName;
+        [RunParameter("Parameter Name", "", "The name of the parameter to assign the given value.")]
+        public string ParameterName;
 
-            [RunParameter("Parameter Value", "", "The value of the parameter to assign the given parameter name.")]
-            public string ParameterValue;
-
-            public string Name { get; set; }
-
-            public float Progress => 0f;
-
-            public Tuple<byte, byte, byte> ProgressColour => throw new NotImplementedException();
-
-            /// <summary>
-            /// Gets the value of this parameter.
-            /// </summary>
-            /// <returns>The value to pass into the EMME tool.</returns>
-            public virtual string GetParameterValue()
-            {
-                return ParameterValue;
-            }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                if(String.IsNullOrWhiteSpace(ParameterName))
-                {
-                    error = $"In {Name} the parameter name was not selected for!";
-                    return false;
-                }
-                return true;
-            }
-        }
-
-        [ModuleInformation(Description = "Creates a parameter that gives the path relative to the run directory.")]
-        public class ParameterFromRunDirectory : Parameter
-        {
-            [RootModule]
-            public IModelSystemTemplate Root;
-
-            public override string GetParameterValue()
-            {
-                if (Path.IsPathRooted(ParameterValue))
-                {
-                    return ParameterValue;
-                }
-                else
-                {
-                    return Path.Combine(Environment.CurrentDirectory, ParameterValue);
-                }
-            }
-        }
-
-        [ModuleInformation(Description = "Creates a parameter that gives the path relative to the input directory.")]
-        public class ParameterFromInputDirectory : Parameter
-        {
-            [RootModule]
-            public IModelSystemTemplate Root;
-
-            public override string GetParameterValue()
-            {
-                if(Path.IsPathRooted(ParameterValue))
-                {
-                    return ParameterValue;
-                }
-                else
-                {
-                    return Path.Combine(Root.InputBaseDirectory, ParameterValue);
-                }
-            }
-        }
-
-        [RunParameter("ModuleName", "", "The name of the EMME modeller tool to execute.")]
-        public string ModuleName;
-
-        [SubModelInformation(Required = false, Description = "The parameters to assign to execute the given module.")]
-        public Parameter[] Parameters;
+        [RunParameter("Parameter Value", "", "The value of the parameter to assign the given parameter name.")]
+        public string ParameterValue;
 
         public string Name { get; set; }
 
-        public float Progress { get; private set; }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => throw new NotImplementedException();
 
-        public bool Execute(Controller controller)
+        /// <summary>
+        /// Gets the value of this parameter.
+        /// </summary>
+        /// <returns>The value to pass into the EMME tool.</returns>
+        public virtual string GetParameterValue()
         {
-            if (controller is ModellerController mc)
-            {
-                string ret = null;
-                mc.Run(this, ModuleName, GetArguments(), (p) => Progress = p, ref ret);
-                return true;
-            }
-            return false;
-        }
-
-        private ModellerControllerParameter[] GetArguments()
-        {
-            return (from p in Parameters
-                    select new ModellerControllerParameter(p.ParameterName, p.GetParameterValue()))
-                    .ToArray();
+            return ParameterValue;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if(String.IsNullOrWhiteSpace(ModuleName))
+            if(String.IsNullOrWhiteSpace(ParameterName))
             {
-                error = $"In {Name} the Module Name was not specified!";
+                error = $"In {Name} the parameter name was not selected for!";
                 return false;
             }
             return true;
         }
+    }
+
+    [ModuleInformation(Description = "Creates a parameter that gives the path relative to the run directory.")]
+    public class ParameterFromRunDirectory : Parameter
+    {
+        [RootModule]
+        public IModelSystemTemplate Root;
+
+        public override string GetParameterValue()
+        {
+            if (Path.IsPathRooted(ParameterValue))
+            {
+                return ParameterValue;
+            }
+            else
+            {
+                return Path.Combine(Environment.CurrentDirectory, ParameterValue);
+            }
+        }
+    }
+
+    [ModuleInformation(Description = "Creates a parameter that gives the path relative to the input directory.")]
+    public class ParameterFromInputDirectory : Parameter
+    {
+        [RootModule]
+        public IModelSystemTemplate Root;
+
+        public override string GetParameterValue()
+        {
+            if(Path.IsPathRooted(ParameterValue))
+            {
+                return ParameterValue;
+            }
+            else
+            {
+                return Path.Combine(Root.InputBaseDirectory, ParameterValue);
+            }
+        }
+    }
+
+    [RunParameter("ModuleName", "", "The name of the EMME modeller tool to execute.")]
+    public string ModuleName;
+
+    [SubModelInformation(Required = false, Description = "The parameters to assign to execute the given module.")]
+    public Parameter[] Parameters;
+
+    public string Name { get; set; }
+
+    public float Progress { get; private set; }
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+    public bool Execute(Controller controller)
+    {
+        if (controller is ModellerController mc)
+        {
+            string ret = null;
+            mc.Run(this, ModuleName, GetArguments(), (p) => Progress = p, ref ret);
+            return true;
+        }
+        return false;
+    }
+
+    private ModellerControllerParameter[] GetArguments()
+    {
+        return (from p in Parameters
+                select new ModellerControllerParameter(p.ParameterName, p.GetParameterValue()))
+                .ToArray();
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(String.IsNullOrWhiteSpace(ModuleName))
+        {
+            error = $"In {Name} the Module Name was not specified!";
+            return false;
+        }
+        return true;
     }
 }

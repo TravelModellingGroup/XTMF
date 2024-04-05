@@ -18,58 +18,57 @@
 */
 using System;
 
-namespace TMG.Functions
+namespace TMG.Functions;
+
+public static class GravityModel3D
 {
-    public static class GravityModel3D
+    public static float[] ProduceFlows(int maxIterations, float epsilon, float[] categoriesByOrigin, float[] destinations, float[] friction, int categories, int numberofZones)
     {
-        public static float[] ProduceFlows(int maxIterations, float epsilon, float[] categoriesByOrigin, float[] destinations, float[] friction, int categories, int numberofZones)
-        {
 
-            var ret = new float[categories * numberofZones * numberofZones];
-            var destinationStar = new float[numberofZones];
-            for (int i = 0; i < destinationStar.Length; i++)
-            {
-                destinationStar[i] = destinations[i];
-            }
-            int iterations = 1;
-            bool balanced;
-            float[] columnTotals = new float[numberofZones];
-            do
-            {
-                Array.Clear(columnTotals, 0, columnTotals.Length);
-                VectorApply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
-                balanced = VectorBalance(destinations, destinationStar, columnTotals, epsilon);
-            } while (iterations++ < maxIterations & !balanced);
-            return ret;
+        var ret = new float[categories * numberofZones * numberofZones];
+        var destinationStar = new float[numberofZones];
+        for (int i = 0; i < destinationStar.Length; i++)
+        {
+            destinationStar[i] = destinations[i];
         }
-
-        private static void VectorApply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
+        int iterations = 1;
+        bool balanced;
+        float[] columnTotals = new float[numberofZones];
+        do
         {
-            var numberOfZones = columnTotals.Length;
-            // For now parallel has been taken out to ensure that there is no rounding error level difference between runs.  If this becomes a problem we can rebuild it with a parallel algorithm
-            // that guarantees constancy between runs.
-            // Currently the efficiency of using Multiply2Scalar1AndColumnSum beats doing parallel with 8 cores and just multiplying and then going back to calculate the column sums
-            for (int i = 0; i < numberOfZones; i++)
+            Array.Clear(columnTotals, 0, columnTotals.Length);
+            VectorApply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
+            balanced = VectorBalance(destinations, destinationStar, columnTotals, epsilon);
+        } while (iterations++ < maxIterations & !balanced);
+        return ret;
+    }
+
+    private static void VectorApply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
+    {
+        var numberOfZones = columnTotals.Length;
+        // For now parallel has been taken out to ensure that there is no rounding error level difference between runs.  If this becomes a problem we can rebuild it with a parallel algorithm
+        // that guarantees constancy between runs.
+        // Currently the efficiency of using Multiply2Scalar1AndColumnSum beats doing parallel with 8 cores and just multiplying and then going back to calculate the column sums
+        for (int i = 0; i < numberOfZones; i++)
+        {
+            for (int k = 0; k < categories; k++)
             {
-                for (int k = 0; k < categories; k++)
-                {
-                    var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
-                    if (catByOrigin <= 0) continue;
-                    int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
-                    var sumAf = VectorHelper.MultiplyAndSum(friction, index, dStar, 0, numberOfZones);
-                    if (sumAf <= 0) continue;
-                    VectorHelper.Multiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAf, columnTotals, 0, numberOfZones);
-                }
+                var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
+                if (catByOrigin <= 0) continue;
+                int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
+                var sumAf = VectorHelper.MultiplyAndSum(friction, index, dStar, 0, numberOfZones);
+                if (sumAf <= 0) continue;
+                VectorHelper.Multiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAf, columnTotals, 0, numberOfZones);
             }
         }
+    }
 
-        private static bool VectorBalance(float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon)
-        {
-            VectorHelper.Divide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
-            // Fix the 0/0's caused by having no employment
-            VectorHelper.ReplaceIfNotFinite(columnTotals, 0, 1.0f, columnTotals.Length);
-            VectorHelper.Multiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
-            return VectorHelper.AreBoundedBy(columnTotals, 0, 1.0f, epsilon, columnTotals.Length);
-        }
+    private static bool VectorBalance(float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon)
+    {
+        VectorHelper.Divide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
+        // Fix the 0/0's caused by having no employment
+        VectorHelper.ReplaceIfNotFinite(columnTotals, 0, 1.0f, columnTotals.Length);
+        VectorHelper.Multiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
+        return VectorHelper.AreBoundedBy(columnTotals, 0, 1.0f, epsilon, columnTotals.Length);
     }
 }

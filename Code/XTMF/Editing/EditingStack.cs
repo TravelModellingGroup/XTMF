@@ -22,149 +22,148 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace XTMF.Editing
+namespace XTMF.Editing;
+
+/// <summary>
+/// Provides support for a rolling stack
+/// </summary>
+public sealed class EditingStack : ICollection<XTMFCommand>
 {
-    /// <summary>
-    /// Provides support for a rolling stack
-    /// </summary>
-    public sealed class EditingStack : ICollection<XTMFCommand>
+    public EditingStack(int capacity)
     {
-        public EditingStack(int capacity)
+        Capacity = capacity;
+        _Data = new XTMFCommand[capacity];
+        IsReadOnly = false;
+    }
+    /// <summary>
+    /// The backing data for the stack
+    /// </summary>
+    private XTMFCommand[] _Data;
+
+    public int Capacity { get; private set; }
+
+    public int Count { get; private set; }
+
+    public bool IsReadOnly { get; private set; }
+
+    private int _Head = -1;
+
+    private object _DataLock = new();
+
+    /// <summary>
+    /// Add a new command onto the stack
+    /// </summary>
+    /// <param name="item"></param>
+    public void Add(XTMFCommand item)
+    {
+        lock (_DataLock)
         {
-            Capacity = capacity;
-            _Data = new XTMFCommand[capacity];
-            IsReadOnly = false;
-        }
-        /// <summary>
-        /// The backing data for the stack
-        /// </summary>
-        private XTMFCommand[] _Data;
-
-        public int Capacity { get; private set; }
-
-        public int Count { get; private set; }
-
-        public bool IsReadOnly { get; private set; }
-
-        private int _Head = -1;
-
-        private object _DataLock = new();
-
-        /// <summary>
-        /// Add a new command onto the stack
-        /// </summary>
-        /// <param name="item"></param>
-        public void Add(XTMFCommand item)
-        {
-            lock (_DataLock)
+            // since this is a circle, there is no issue
+            _Head = (_Head + 1) % Capacity;
+            Count++;
+            _Data[_Head] = item;
+            if(Count > Capacity)
             {
-                // since this is a circle, there is no issue
-                _Head = (_Head + 1) % Capacity;
-                Count++;
-                _Data[_Head] = item;
-                if(Count > Capacity)
-                {
-                    Count = Capacity;
-                }
+                Count = Capacity;
             }
         }
+    }
 
-        /// <summary>
-        /// Get the top element off of the stack
-        /// </summary>
-        /// <returns>The top element</returns>
-        public XTMFCommand Pop()
+    /// <summary>
+    /// Get the top element off of the stack
+    /// </summary>
+    /// <returns>The top element</returns>
+    public XTMFCommand Pop()
+    {
+        if (TryPop(out XTMFCommand result))
         {
-            if (TryPop(out XTMFCommand result))
-            {
-                return result;
-            }
-            return null;
+            return result;
         }
+        return null;
+    }
 
-        /// <summary>
-        /// Attempt to pop the top element off of the stack
-        /// </summary>
-        /// <param name="command">The command that was popped off the stack, null if it failed.</param>
-        /// <returns>If the pop was successful</returns>
-        public bool TryPop(out XTMFCommand command)
+    /// <summary>
+    /// Attempt to pop the top element off of the stack
+    /// </summary>
+    /// <param name="command">The command that was popped off the stack, null if it failed.</param>
+    /// <returns>If the pop was successful</returns>
+    public bool TryPop(out XTMFCommand command)
+    {
+        lock (_DataLock)
         {
-            lock (_DataLock)
+            if(Count > 0)
             {
-                if(Count > 0)
-                {
-                    Count--;
-                    command = _Data[_Head];
-                    _Head = (_Head - 1) % Capacity;
-                    return true;
-                }
-                command = null;
-                return false;
+                Count--;
+                command = _Data[_Head];
+                _Head = (_Head - 1) % Capacity;
+                return true;
             }
-        }
-
-        public void Clear()
-        {
-            lock (_DataLock)
-            {
-                Array.Clear(_Data, 0, _Data.Length);
-                Count = 0;
-            }
-        }
-
-        public bool Contains(XTMFCommand item)
-        {
-            lock (_DataLock)
-            {
-                for(int i = 0; i < Count; i++)
-                {
-                    var headoffset = (_Head - i);
-                    int index = headoffset < 0 ? Capacity + headoffset : headoffset;
-                    if (_Data[index] == item)
-                    {
-                        return true;
-                    }
-                }
-            }
+            command = null;
             return false;
         }
-
-        public void CopyTo(XTMFCommand[] array, int arrayIndex)
-        {
-            ArgumentNullException.ThrowIfNull(array);
-            lock (_DataLock)
-            {
-                if(array.Length - arrayIndex < Count)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(arrayIndex));
-                }
-                for(int i = 0; i < Count; i++)
-                {
-                    var headoffset = (_Head - i);
-                    int index = headoffset < 0 ? Capacity + headoffset : headoffset;
-                    array[arrayIndex++] = _Data[index];
-                }
-            }
-        }
-
-        public IEnumerator<XTMFCommand> GetEnumerator()
-        {
-            lock (_DataLock)
-            {
-                for(int i = 0; i < Count; i++)
-                {
-                    var headoffset = (_Head - i);
-                    int index = headoffset < 0 ? Capacity + headoffset : headoffset;
-                    yield return _Data[index];
-                }
-            }
-        }
-
-        public bool Remove(XTMFCommand item)
-        {
-            throw new NotSupportedException("Removing an item is not supported for a stack.");
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
+
+    public void Clear()
+    {
+        lock (_DataLock)
+        {
+            Array.Clear(_Data, 0, _Data.Length);
+            Count = 0;
+        }
+    }
+
+    public bool Contains(XTMFCommand item)
+    {
+        lock (_DataLock)
+        {
+            for(int i = 0; i < Count; i++)
+            {
+                var headoffset = (_Head - i);
+                int index = headoffset < 0 ? Capacity + headoffset : headoffset;
+                if (_Data[index] == item)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void CopyTo(XTMFCommand[] array, int arrayIndex)
+    {
+        ArgumentNullException.ThrowIfNull(array);
+        lock (_DataLock)
+        {
+            if(array.Length - arrayIndex < Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+            for(int i = 0; i < Count; i++)
+            {
+                var headoffset = (_Head - i);
+                int index = headoffset < 0 ? Capacity + headoffset : headoffset;
+                array[arrayIndex++] = _Data[index];
+            }
+        }
+    }
+
+    public IEnumerator<XTMFCommand> GetEnumerator()
+    {
+        lock (_DataLock)
+        {
+            for(int i = 0; i < Count; i++)
+            {
+                var headoffset = (_Head - i);
+                int index = headoffset < 0 ? Capacity + headoffset : headoffset;
+                yield return _Data[index];
+            }
+        }
+    }
+
+    public bool Remove(XTMFCommand item)
+    {
+        throw new NotSupportedException("Removing an item is not supported for a stack.");
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

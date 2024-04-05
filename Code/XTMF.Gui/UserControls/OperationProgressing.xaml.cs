@@ -18,16 +18,15 @@
 */
 using System.Windows;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for OperationProgressing.xaml
+/// </summary>
+public partial class OperationProgressing : Window
 {
-    /// <summary>
-    /// Interaction logic for OperationProgressing.xaml
-    /// </summary>
-    public partial class OperationProgressing : Window
+    public OperationProgressing()
     {
-        public OperationProgressing()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

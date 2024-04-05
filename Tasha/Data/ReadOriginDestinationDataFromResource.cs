@@ -21,83 +21,82 @@ using System.Collections.Generic;
 using XTMF;
 using Datastructure;
 using TMG.Input;
-namespace Tasha.Data
-{
-    [ModuleInformation(Description=
-        @"This module is designed to provide access to resources where reading from a file was expected. 
+namespace Tasha.Data;
+
+[ModuleInformation(Description=
+    @"This module is designed to provide access to resources where reading from a file was expected. 
 It can read from a resource of type SparseArray<float> where it will assume the data is for the origin and only load that. 
 It can also read in SparseTwinIndex<float> where the O,D values will be inferred from the data source.")]
-    public class ReadOriginDestinationDataFromResource : IReadODData<float>
+public class ReadOriginDestinationDataFromResource : IReadODData<float>
+{
+    [SubModelInformation( Required = true, Description = "The resource to read from." )]
+    public IResource DataResource;
+
+    private bool OriginOnly;
+
+    public IEnumerable<ODData<float>> Read()
     {
-        [SubModelInformation( Required = true, Description = "The resource to read from." )]
-        public IResource DataResource;
-
-        private bool OriginOnly;
-
-        public IEnumerable<ODData<float>> Read()
+        if ( OriginOnly )
         {
-            if ( OriginOnly )
+            ODData<float> temp;
+            var data = DataResource.AcquireResource<SparseArray<float>>();
+            temp.D = 0;
+            var validIndexes = data.ValidIndexArray();
+            var flatData = data.GetFlatData();
+            for ( int i = 0; i < validIndexes.Length; i++ )
             {
-                ODData<float> temp;
-                var data = DataResource.AcquireResource<SparseArray<float>>();
-                temp.D = 0;
-                var validIndexes = data.ValidIndexArray();
-                var flatData = data.GetFlatData();
-                for ( int i = 0; i < validIndexes.Length; i++ )
+                temp.O = validIndexes[i];
+                temp.Data = flatData[i];
+                yield return temp;
+            }
+        }
+        else
+        {
+            ODData<float> temp;
+            var data = DataResource.AcquireResource<SparseTwinIndex<float>>();
+            var flatData = data.GetFlatData();
+            for ( int i = 0; i < flatData.Length; i++ )
+            {
+                temp.O = data.GetSparseIndex( i );
+                var row = flatData[i];
+                for ( int j = 0; j < row.Length; j++ )
                 {
-                    temp.O = validIndexes[i];
-                    temp.Data = flatData[i];
+                    temp.D = data.GetSparseIndex( i, j );
+                    temp.Data = flatData[i][j];
                     yield return temp;
                 }
             }
-            else
-            {
-                ODData<float> temp;
-                var data = DataResource.AcquireResource<SparseTwinIndex<float>>();
-                var flatData = data.GetFlatData();
-                for ( int i = 0; i < flatData.Length; i++ )
-                {
-                    temp.O = data.GetSparseIndex( i );
-                    var row = flatData[i];
-                    for ( int j = 0; j < row.Length; j++ )
-                    {
-                        temp.D = data.GetSparseIndex( i, j );
-                        temp.Data = flatData[i][j];
-                        yield return temp;
-                    }
-                }
-            }
         }
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( DataResource.CheckResourceType<SparseArray<float>>() )
         {
-            get { return 0f; }
+            OriginOnly = true;
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        else if ( DataResource.CheckResourceType<SparseTwinIndex<float>>() )
         {
-            get { return null; }
+            OriginOnly = false;
         }
-
-        public bool RuntimeValidation(ref string error)
+        else
         {
-            if ( DataResource.CheckResourceType<SparseArray<float>>() )
-            {
-                OriginOnly = true;
-            }
-            else if ( DataResource.CheckResourceType<SparseTwinIndex<float>>() )
-            {
-                OriginOnly = false;
-            }
-            else
-            {
-                error = "In '" + Name + "' the DataResource needs to be either a SparseArray<float> for origin "
-                    + "only information or SparseTwinIndex<float> for OD data!";
-                return false;
-            }
-            return true;
+            error = "In '" + Name + "' the DataResource needs to be either a SparseArray<float> for origin "
+                + "only information or SparseTwinIndex<float> for OD data!";
+            return false;
         }
+        return true;
     }
 }

@@ -20,18 +20,17 @@ using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Range = Datastructure.Range;
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public class TestRangeSet
 {
-    [TestClass]
-    public class TestRangeSet
+    [TestMethod]
+    public void TestRangeSetIntList()
     {
-        [TestMethod]
-        public void TestRangeSetIntList()
-        {
-            RangeSet rangeSet = new(new[] { 1, 2, 3, 4, 5, 7, 8, 9, 10 });
-            Assert.AreEqual(2, rangeSet.Count);
-            Assert.AreEqual(new Range(1, 5), rangeSet[0]);
-            Assert.AreEqual(new Range(7, 10), rangeSet[1]);
-        }
+        RangeSet rangeSet = new(new[] { 1, 2, 3, 4, 5, 7, 8, 9, 10 });
+        Assert.AreEqual(2, rangeSet.Count);
+        Assert.AreEqual(new Range(1, 5), rangeSet[0]);
+        Assert.AreEqual(new Range(7, 10), rangeSet[1]);
     }
 }

@@ -19,27 +19,26 @@
 
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+[ModuleInformation( Description = "This module provides the ability to add a constant value based on which regions the Origin and Destination are in."
+    + " If the regional information is not matched, 0 will be returned." )]
+public sealed class RegionConstantUtilityComponent : RegionUtilityComponent
 {
-    [ModuleInformation( Description = "This module provides the ability to add a constant value based on which regions the Origin and Destination are in."
-        + " If the regional information is not matched, 0 will be returned." )]
-    public sealed class RegionConstantUtilityComponent : RegionUtilityComponent
+    [RunParameter( "Constant", 0f, "The constant value that will be added if the regional condition is met." )]
+    public float Constant;
+
+    public override float CalculateV(IZone origin, IZone destination, Time time)
     {
-        [RunParameter( "Constant", 0f, "The constant value that will be added if the regional condition is met." )]
-        public float Constant;
-
-        public override float CalculateV(IZone origin, IZone destination, Time time)
+        if ( IsContained( origin, destination ) )
         {
-            if ( IsContained( origin, destination ) )
-            {
-                return Constant;
-            }
-            return 0f;
+            return Constant;
         }
+        return 0f;
+    }
 
-        protected override bool SubRuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    protected override bool SubRuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -19,40 +19,39 @@
 using System;
 using System.Collections.Generic;
 
-namespace XTMF
+namespace XTMF;
+
+public class ModuleParameters : IModuleParameters
 {
-    public class ModuleParameters : IModuleParameters
+    public ModuleParameters() => Parameters = new List<IModuleParameter>(5);
+
+    public ModuleParameters(IList<IModuleParameter> givenParameters) => Parameters = givenParameters;
+
+    public IModelSystemStructure BelongsTo { get; set; }
+
+    public IList<IModuleParameter> Parameters { get; private set; }
+
+    public void Add(ParameterAttribute param, Type t) => Parameters.Add(new ModuleParameter(param, t));
+
+    public IModuleParameters Clone()
     {
-        public ModuleParameters() => Parameters = new List<IModuleParameter>(5);
-
-        public ModuleParameters(IList<IModuleParameter> givenParameters) => Parameters = givenParameters;
-
-        public IModelSystemStructure BelongsTo { get; set; }
-
-        public IList<IModuleParameter> Parameters { get; private set; }
-
-        public void Add(ParameterAttribute param, Type t) => Parameters.Add(new ModuleParameter(param, t));
-
-        public IModuleParameters Clone()
+        ModuleParameters copy = [];
+        foreach (var p in Parameters)
         {
-            ModuleParameters copy = [];
-            foreach (var p in Parameters)
-            {
-                copy.Parameters.Add(p.Clone());
-            }
-            return copy;
+            copy.Parameters.Add(p.Clone());
         }
+        return copy;
+    }
 
-        public IEnumerator<IModuleParameter> GetEnumerator() => Parameters.GetEnumerator();
+    public IEnumerator<IModuleParameter> GetEnumerator() => Parameters.GetEnumerator();
 
-        public void Save()
-        {
-            throw new NotImplementedException();
-        }
+    public void Save()
+    {
+        throw new NotImplementedException();
+    }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return Parameters.GetEnumerator();
-        }
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return Parameters.GetEnumerator();
     }
 }

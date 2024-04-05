@@ -19,20 +19,19 @@
 using System;
 using XTMF;
 
-namespace TMG.Estimation.Utilities.AIEstimation
+namespace TMG.Estimation.Utilities.AIEstimation;
+
+public class Rosenbrock : TestEquation
 {
-    public class Rosenbrock : TestEquation
+    [RunParameter("X", 0.0f, "The value of x.")]
+    public float X;
+
+    [RunParameter("Y", 0.0f, "The value of y.")]
+    public float Y;
+
+    public override float Evaluate()
     {
-        [RunParameter("X", 0.0f, "The value of x.")]
-        public float X;
-
-        [RunParameter("Y", 0.0f, "The value of y.")]
-        public float Y;
-
-        public override float Evaluate()
-        {
-            // compute the error from the Rosenbrock function's optimal value 0, which occurs at 1,1
-            return Math.Abs(((1 - X) * (1 - X)) + 100.0f * ((Y - X * X) * (Y - X * X)));
-        }
+        // compute the error from the Rosenbrock function's optimal value 0, which occurs at 1,1
+        return Math.Abs(((1 - X) * (1 - X)) + 100.0f * ((Y - X * X) * (Y - X * X)));
     }
 }

@@ -19,16 +19,15 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+/// <summary>
+/// Allows access to a model system's resources
+/// </summary>
+public interface IResourceSource
 {
     /// <summary>
-    /// Allows access to a model system's resources
+    /// Provides access to all of the model system's resources
     /// </summary>
-    public interface IResourceSource
-    {
-        /// <summary>
-        /// Provides access to all of the model system's resources
-        /// </summary>
-        List<IResource> Resources { get; }
-    }
+    List<IResource> Resources { get; }
 }

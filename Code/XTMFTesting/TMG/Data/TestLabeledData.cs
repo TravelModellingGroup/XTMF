@@ -25,33 +25,68 @@ using TMG.Frameworks.Data.Processing;
 using TMG.Input;
 using System.IO;
 
-namespace XTMF.Testing.TMG.Data
+namespace XTMF.Testing.TMG.Data;
+
+[TestClass]
+public class TestLabeledData
 {
-    [TestClass]
-    public class TestLabeledData
+
+    private FileLocation CreateFileLocationFromOutputDirectory(string path)
     {
+        string error = null;
+        Assert.IsTrue(FileFromOutputDirectory.TryParse(ref error, path, out FileFromOutputDirectory fileOut));
+        return new FilePathFromOutputDirectory() { FileName = fileOut };
+    }
 
-        private FileLocation CreateFileLocationFromOutputDirectory(string path)
+    private LabeledData<float> LoadLabeledData(string path)
+    {
+        LabeledDataFromCSV<float> loader = new();
+        loader.LoadFrom = CreateFileLocationFromOutputDirectory(path);
+        loader.LoadData();
+        var data = loader.GiveData();
+        loader.UnloadData();
+        return data;
+    }
+
+    [TestMethod]
+    public void TestLoadingLabeledData()
+    {
+        const string originalData = "Data.csv";
+        using (var writer = new StreamWriter(originalData))
         {
-            string error = null;
-            Assert.IsTrue(FileFromOutputDirectory.TryParse(ref error, path, out FileFromOutputDirectory fileOut));
-            return new FilePathFromOutputDirectory() { FileName = fileOut };
+            writer.WriteLine("Label,Data");
+            for (int i = 0; i < 26; i++)
+            {
+                writer.Write((char)('a' + i));
+                writer.Write(',');
+                writer.WriteLine(i);
+            }
         }
-
-        private LabeledData<float> LoadLabeledData(string path)
+        try
         {
-            LabeledDataFromCSV<float> loader = new();
-            loader.LoadFrom = CreateFileLocationFromOutputDirectory(path);
-            loader.LoadData();
-            var data = loader.GiveData();
-            loader.UnloadData();
-            return data;
+            var data = LoadLabeledData(originalData);
+            Assert.AreEqual(26, data.Count);
+            for (int i = 0; i < 26; i++)
+            {
+                Assert.IsTrue(data.ContainsKey(((char)('a' + i)).ToString()));
+                Assert.AreEqual(i, data[((char)('a' + i)).ToString()]);
+            }
         }
-
-        [TestMethod]
-        public void TestLoadingLabeledData()
+        finally
         {
-            const string originalData = "Data.csv";
+            File.Delete("Data.csv");
+        }
+    }
+
+    [TestMethod]
+    public void TestAggregatingLabeledData()
+    {
+        const string originalData = "Data.csv";
+        const string mapToLocation = "MapTo.csv";
+        const string mapLocation = "Map.csv";
+        try
+        {
+            // create the data that is going to be mapped
             using (var writer = new StreamWriter(originalData))
             {
                 writer.WriteLine("Label,Data");
@@ -62,139 +97,61 @@ namespace XTMF.Testing.TMG.Data
                     writer.WriteLine(i);
                 }
             }
-            try
+            // create the data that will define the new shape
+            using (var writer = new StreamWriter(mapToLocation))
             {
-                var data = LoadLabeledData(originalData);
-                Assert.AreEqual(26, data.Count);
+                writer.WriteLine("Label,Data");
+                for (int i = 0; i < 2; i++)
+                {
+                    writer.Write((char)('1' + i));
+                    writer.Write(',');
+                    writer.WriteLine(i);
+                }
+            }
+            // create the mapping file
+            using (var writer = new StreamWriter(mapLocation))
+            {
+                writer.WriteLine("DestLabel,OriginLabel,Amount");
                 for (int i = 0; i < 26; i++)
                 {
-                    Assert.IsTrue(data.ContainsKey(((char)('a' + i)).ToString()));
-                    Assert.AreEqual(i, data[((char)('a' + i)).ToString()]);
+                    writer.Write((char)('1' + (i / 13)));
+                    writer.Write(',');
+                    writer.Write((char)('a' + i));
+                    writer.Write(',');
+                    writer.WriteLine(1.0f);
                 }
             }
-            finally
-            {
-                File.Delete("Data.csv");
-            }
+            // now that our data files have been created create the aggregation
+            AggregateLabeledDataToShape agg = new();
+            agg.DataMap = CreateFileLocationFromOutputDirectory(mapLocation);
+            agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
+            agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
+            agg.LoadData();
+            var combinedData = agg.GiveData();
+            agg.UnloadData();
+            // now test the properties
+            Assert.AreEqual(2, combinedData.Count);
+            Assert.IsTrue(combinedData.ContainsKey("1"));
+            Assert.AreEqual(78, combinedData["1"]);
+            Assert.IsTrue(combinedData.ContainsKey("2"));
+            Assert.AreEqual(247, combinedData["2"]);
         }
-
-        [TestMethod]
-        public void TestAggregatingLabeledData()
+        finally
         {
-            const string originalData = "Data.csv";
-            const string mapToLocation = "MapTo.csv";
-            const string mapLocation = "Map.csv";
-            try
-            {
-                // create the data that is going to be mapped
-                using (var writer = new StreamWriter(originalData))
-                {
-                    writer.WriteLine("Label,Data");
-                    for (int i = 0; i < 26; i++)
-                    {
-                        writer.Write((char)('a' + i));
-                        writer.Write(',');
-                        writer.WriteLine(i);
-                    }
-                }
-                // create the data that will define the new shape
-                using (var writer = new StreamWriter(mapToLocation))
-                {
-                    writer.WriteLine("Label,Data");
-                    for (int i = 0; i < 2; i++)
-                    {
-                        writer.Write((char)('1' + i));
-                        writer.Write(',');
-                        writer.WriteLine(i);
-                    }
-                }
-                // create the mapping file
-                using (var writer = new StreamWriter(mapLocation))
-                {
-                    writer.WriteLine("DestLabel,OriginLabel,Amount");
-                    for (int i = 0; i < 26; i++)
-                    {
-                        writer.Write((char)('1' + (i / 13)));
-                        writer.Write(',');
-                        writer.Write((char)('a' + i));
-                        writer.Write(',');
-                        writer.WriteLine(1.0f);
-                    }
-                }
-                // now that our data files have been created create the aggregation
-                AggregateLabeledDataToShape agg = new();
-                agg.DataMap = CreateFileLocationFromOutputDirectory(mapLocation);
-                agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
-                agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
-                agg.LoadData();
-                var combinedData = agg.GiveData();
-                agg.UnloadData();
-                // now test the properties
-                Assert.AreEqual(2, combinedData.Count);
-                Assert.IsTrue(combinedData.ContainsKey("1"));
-                Assert.AreEqual(78, combinedData["1"]);
-                Assert.IsTrue(combinedData.ContainsKey("2"));
-                Assert.AreEqual(247, combinedData["2"]);
-            }
-            finally
-            {
-                File.Delete(originalData);
-                File.Delete(mapToLocation);
-                File.Delete(mapLocation);
-            }
+            File.Delete(originalData);
+            File.Delete(mapToLocation);
+            File.Delete(mapLocation);
         }
+    }
 
-        [TestMethod]
-        public void TestAggregatingLabeledDataWithoutMapFile()
+    [TestMethod]
+    public void TestAggregatingLabeledDataWithoutMapFile()
+    {
+        const string originalData = "Data.csv";
+        const string mapToLocation = "MapTo.csv";
+        try
         {
-            const string originalData = "Data.csv";
-            const string mapToLocation = "MapTo.csv";
-            try
-            {
-                // create the data that is going to be mapped
-                using (var writer = new StreamWriter(originalData))
-                {
-                    writer.WriteLine("Label,Data");
-                    for (int i = 0; i < 26; i++)
-                    {
-                        writer.Write((char)('a' + i));
-                        writer.Write(',');
-                        writer.WriteLine(i);
-                    }
-                }
-                // create the data that will define the new shape
-                using (var writer = new StreamWriter(mapToLocation))
-                {
-                    writer.WriteLine("Label,Data");
-                    for (int i = 0; i < 26; i+=2)
-                    {
-                        writer.Write((char)('a' + i));
-                        writer.Write(',');
-                        writer.WriteLine(i);
-                    }
-                }
-                // now that our data files have been created create the aggregation
-                AggregateLabeledDataToShape agg = new();
-                agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
-                agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
-                agg.LoadData();
-                var combinedData = agg.GiveData();
-                agg.UnloadData();
-                // now test the properties
-                Assert.AreEqual(13, combinedData.Count);
-                Assert.AreEqual(156.00, combinedData.Sum(val => val.Value), 0.00001);
-            }
-            finally
-            {
-                File.Delete(originalData);
-                File.Delete(mapToLocation);
-            }
-        }
-
-        [TestMethod]
-        public void TestLabeledDataToSparseArray()
-        {
-            const string originalData = "Data.csv";
+            // create the data that is going to be mapped
             using (var writer = new StreamWriter(originalData))
             {
                 writer.WriteLine("Label,Data");
@@ -205,25 +162,67 @@ namespace XTMF.Testing.TMG.Data
                     writer.WriteLine(i);
                 }
             }
-            try
+            // create the data that will define the new shape
+            using (var writer = new StreamWriter(mapToLocation))
             {
-                ConvertLabeledDataToSparseArray cv = new();
-                cv.Labeled = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
-                cv.LoadData();
-                var array = cv.GiveData();
-                cv.UnloadData();
-                Assert.AreEqual(26, array.Count);
-                Assert.AreEqual(0, array.GetSparseIndex(0));
-                var flat = array.GetFlatData();
-                for (int i = 0; i < flat.Length; i++)
+                writer.WriteLine("Label,Data");
+                for (int i = 0; i < 26; i+=2)
                 {
-                    Assert.AreEqual(i, flat[i]);
+                    writer.Write((char)('a' + i));
+                    writer.Write(',');
+                    writer.WriteLine(i);
                 }
             }
-            finally
+            // now that our data files have been created create the aggregation
+            AggregateLabeledDataToShape agg = new();
+            agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
+            agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
+            agg.LoadData();
+            var combinedData = agg.GiveData();
+            agg.UnloadData();
+            // now test the properties
+            Assert.AreEqual(13, combinedData.Count);
+            Assert.AreEqual(156.00, combinedData.Sum(val => val.Value), 0.00001);
+        }
+        finally
+        {
+            File.Delete(originalData);
+            File.Delete(mapToLocation);
+        }
+    }
+
+    [TestMethod]
+    public void TestLabeledDataToSparseArray()
+    {
+        const string originalData = "Data.csv";
+        using (var writer = new StreamWriter(originalData))
+        {
+            writer.WriteLine("Label,Data");
+            for (int i = 0; i < 26; i++)
             {
-                File.Delete("Data.csv");
+                writer.Write((char)('a' + i));
+                writer.Write(',');
+                writer.WriteLine(i);
             }
+        }
+        try
+        {
+            ConvertLabeledDataToSparseArray cv = new();
+            cv.Labeled = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
+            cv.LoadData();
+            var array = cv.GiveData();
+            cv.UnloadData();
+            Assert.AreEqual(26, array.Count);
+            Assert.AreEqual(0, array.GetSparseIndex(0));
+            var flat = array.GetFlatData();
+            for (int i = 0; i < flat.Length; i++)
+            {
+                Assert.AreEqual(i, flat[i]);
+            }
+        }
+        finally
+        {
+            File.Delete("Data.csv");
         }
     }
 }

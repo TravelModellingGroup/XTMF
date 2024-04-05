@@ -18,37 +18,36 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IModeChoiceNode : IModule
 {
-    public interface IModeChoiceNode : IModule
-    {
-        /// <summary>
-        /// What percentage of the population can currently use this?
-        /// </summary>
-        float CurrentlyFeasible { get; set; }
+    /// <summary>
+    /// What percentage of the population can currently use this?
+    /// </summary>
+    float CurrentlyFeasible { get; set; }
 
-        /// <summary>
-        /// The name of the mode category.
-        /// This can be used for applying additional factors to their variables
-        /// </summary>
-        string ModeName { get; }
+    /// <summary>
+    /// The name of the mode category.
+    /// This can be used for applying additional factors to their variables
+    /// </summary>
+    string ModeName { get; }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="destination"></param>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        float CalculateV(IZone origin, IZone destination, Time time);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <param name="destination"></param>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    float CalculateV(IZone origin, IZone destination, Time time);
 
-        /// <summary>
-        /// See if this node is feasible
-        /// </summary>
-        /// <param name="origin">The starting zone</param>
-        /// <param name="destination">The destination zone</param>
-        /// <param name="time">The starting time of day</param>
-        /// <returns></returns>
-        bool Feasible(IZone origin, IZone destination, Time time);
-    }
+    /// <summary>
+    /// See if this node is feasible
+    /// </summary>
+    /// <param name="origin">The starting zone</param>
+    /// <param name="destination">The destination zone</param>
+    /// <param name="time">The starting time of day</param>
+    /// <returns></returns>
+    bool Feasible(IZone origin, IZone destination, Time time);
 }

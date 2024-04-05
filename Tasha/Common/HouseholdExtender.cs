@@ -20,390 +20,389 @@ using System.Collections.Generic;
 using Datastructure;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public static class HouseholdExtender
 {
-    public static class HouseholdExtender
+    public static ITashaRuntime TashaRuntime;
+
+    private static TripComparer TripComparer = new();
+
+    /// <summary>
+    /// Gets all the tripchains in a household
+    /// </summary>
+    /// <param name="household">The household</param>
+    /// <returns>all the trip chains</returns>
+    public static List<ITripChain> AllAuxTripsChains(this ITashaHousehold household)
     {
-        public static ITashaRuntime TashaRuntime;
+        List<ITripChain> trips = [];
 
-        private static TripComparer TripComparer = new();
-
-        /// <summary>
-        /// Gets all the tripchains in a household
-        /// </summary>
-        /// <param name="household">The household</param>
-        /// <returns>all the trip chains</returns>
-        public static List<ITripChain> AllAuxTripsChains(this ITashaHousehold household)
+        //flatten households trips
+        foreach ( var p in household.Persons )
         {
-            List<ITripChain> trips = [];
-
-            //flatten households trips
-            foreach ( var p in household.Persons )
-            {
-                trips.AddRange( p.AuxTripChains );
-            }
-
-            return trips;
+            trips.AddRange( p.AuxTripChains );
         }
 
-        /// <summary>
-        /// Gets all the tripchains in a household
-        /// </summary>
-        /// <param name="household">The household</param>
-        /// <returns>all the trip chains</returns>
-        public static List<ITripChain> AllTripChains(this ITashaHousehold household)
+        return trips;
+    }
+
+    /// <summary>
+    /// Gets all the tripchains in a household
+    /// </summary>
+    /// <param name="household">The household</param>
+    /// <returns>all the trip chains</returns>
+    public static List<ITripChain> AllTripChains(this ITashaHousehold household)
+    {
+        List<ITripChain> trips = [];
+        //flatten households trips
+        foreach ( var p in household.Persons )
         {
-            List<ITripChain> trips = [];
-            //flatten households trips
-            foreach ( var p in household.Persons )
+            trips.AddRange( p.TripChains );
+            //auxiliary trip chains
+            trips.AddRange( p.AuxTripChains );
+        }
+        return trips;
+    }
+
+    /// <summary>
+    /// Gets all the trip chains without Auxiliary trip chains in the household that use the specified vehicle
+    /// </summary>
+    /// <param name="household"></param>
+    /// <param name="vehicle"></param>
+    /// <returns></returns>
+    public static List<ITripChain> AllTripChainsThatUseVehicle(this ITashaHousehold household, IVehicleType vehicle)
+    {
+        List<ITripChain> trips = [];
+
+        //flatten households trips
+        foreach ( var p in household.Persons )
+        {
+            foreach ( var tc in p.TripChains )
             {
-                trips.AddRange( p.TripChains );
-                //auxiliary trip chains
-                trips.AddRange( p.AuxTripChains );
+                if ( tc.RequiresVehicle.Contains( vehicle ) )
+                {
+                    trips.Add( tc );
+                }
             }
-            return trips;
         }
 
-        /// <summary>
-        /// Gets all the trip chains without Auxiliary trip chains in the household that use the specified vehicle
-        /// </summary>
-        /// <param name="household"></param>
-        /// <param name="vehicle"></param>
-        /// <returns></returns>
-        public static List<ITripChain> AllTripChainsThatUseVehicle(this ITashaHousehold household, IVehicleType vehicle)
-        {
-            List<ITripChain> trips = [];
+        return trips;
+    }
 
-            //flatten households trips
-            foreach ( var p in household.Persons )
+    /// <summary>
+    /// Gets all the trip chains and auxiliary trip chains that use the specified vehicle
+    /// </summary>
+    /// <param name="household"></param>
+    /// <param name="vehicle"></param>
+    /// <returns></returns>
+    public static List<ITripChain> AllTripChainsWithAuxThatUseVehicle(this ITashaHousehold household, IVehicleType vehicle)
+    {
+        List<ITripChain> trips = [];
+
+        //flatten households trips
+        foreach ( var p in household.Persons )
+        {
+            foreach ( var tc in p.TripChains )
             {
-                foreach ( var tc in p.TripChains )
+                if ( tc.RequiresVehicle.Contains( vehicle ) )
                 {
-                    if ( tc.RequiresVehicle.Contains( vehicle ) )
-                    {
-                        trips.Add( tc );
-                    }
+                    trips.Add( tc );
                 }
             }
-
-            return trips;
+            foreach ( var tc in p.AuxTripChains )
+            {
+                if ( tc.RequiresVehicle.Contains( vehicle ) )
+                {
+                    trips.Add( tc );
+                }
+            }
         }
 
-        /// <summary>
-        /// Gets all the trip chains and auxiliary trip chains that use the specified vehicle
-        /// </summary>
-        /// <param name="household"></param>
-        /// <param name="vehicle"></param>
-        /// <returns></returns>
-        public static List<ITripChain> AllTripChainsWithAuxThatUseVehicle(this ITashaHousehold household, IVehicleType vehicle)
+        return trips;
+    }
+
+    /// <summary>
+    /// Gets all the tripchains in a household not including auxiliary trip chains
+    /// </summary>
+    /// <param name="household">The household</param>
+    /// <returns>all the trip chains</returns>
+    public static List<ITripChain> AllTripsChainsWithoutAuxChains(this ITashaHousehold household)
+    {
+        List<ITripChain> trips = [];
+
+        //flatten households trips
+        foreach ( var p in household.Persons )
         {
-            List<ITripChain> trips = [];
-
-            //flatten households trips
-            foreach ( var p in household.Persons )
-            {
-                foreach ( var tc in p.TripChains )
-                {
-                    if ( tc.RequiresVehicle.Contains( vehicle ) )
-                    {
-                        trips.Add( tc );
-                    }
-                }
-                foreach ( var tc in p.AuxTripChains )
-                {
-                    if ( tc.RequiresVehicle.Contains( vehicle ) )
-                    {
-                        trips.Add( tc );
-                    }
-                }
-            }
-
-            return trips;
+            trips.AddRange( p.TripChains );
         }
+        return trips;
+    }
 
-        /// <summary>
-        /// Gets all the tripchains in a household not including auxiliary trip chains
-        /// </summary>
-        /// <param name="household">The household</param>
-        /// <returns>all the trip chains</returns>
-        public static List<ITripChain> AllTripsChainsWithoutAuxChains(this ITashaHousehold household)
+    public static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilites(List<ITripChain> tc, int numVehicles)
+    {
+        int vehiclesAvailable = numVehicles;
+        Dictionary<TashaTimeSpan, int> availabilities = [];
+        if ( tc.Count == 0 )
         {
-            List<ITripChain> trips = [];
-
-            //flatten households trips
-            foreach ( var p in household.Persons )
-            {
-                trips.AddRange( p.TripChains );
-            }
-            return trips;
-        }
-
-        public static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilites(List<ITripChain> tc, int numVehicles)
-        {
-            int vehiclesAvailable = numVehicles;
-            Dictionary<TashaTimeSpan, int> availabilities = [];
-            if ( tc.Count == 0 )
-            {
-                availabilities.Add( new TashaTimeSpan( TashaRuntime.StartOfDay,
-                TashaRuntime.EndOfDay ), vehiclesAvailable );
-                return availabilities;
-            }
-            List<Pair<Time, int>> tripStartAndEndTimes = [];
-            foreach ( var tripChain in tc )
-            {
-                Pair<Time, int> startTime = new( tripChain.StartTime, -1 );
-                Pair<Time, int> endTime = new( tripChain.EndTime, 1 );
-
-                tripStartAndEndTimes.Add( startTime );
-                tripStartAndEndTimes.Add( endTime );
-            }
-
-            tripStartAndEndTimes.Sort( delegate(Pair<Time, int> p1, Pair<Time, int> p2)
-            {
-                var first = p1.First;
-                var second = p2.First;
-                if ( second < first ) return 1;
-                if ( second > first ) return -1;
-                return 0;
-            } );
-
-            for ( int i = -1; i < tripStartAndEndTimes.Count; i++ )
-            {
-                TashaTimeSpan span;
-                //from last trip to end of day
-                if ( i == tripStartAndEndTimes.Count - 1 )
-                {
-                    span = new TashaTimeSpan( tripStartAndEndTimes[i].First, Time.EndOfDay );
-                    vehiclesAvailable += tripStartAndEndTimes[i].Second;
-                    if ( availabilities.ContainsKey( span ) )
-                    {
-                        availabilities[span] += availabilities[span];
-                    }
-                    else
-                    {
-                        availabilities.Add( span, vehiclesAvailable );
-                    }
-                }
-                else if ( i == -1 )//from start of day to first trip
-                {
-                    span = new TashaTimeSpan( Time.StartOfDay, tripStartAndEndTimes[i + 1].First );
-                    if ( availabilities.ContainsKey( span ) )
-                    {
-                        availabilities[span] += availabilities[span];
-                    }
-                    else
-                    {
-                        availabilities.Add( span, vehiclesAvailable );
-                    }
-                }
-                else //trips in between
-                {
-                    vehiclesAvailable += tripStartAndEndTimes[i].Second;
-                    span = new TashaTimeSpan( tripStartAndEndTimes[i].First, tripStartAndEndTimes[i + 1].First );
-                    if ( availabilities.ContainsKey( span ) )
-                    {
-                        availabilities[span] += availabilities[span];
-                    }
-                    else
-                    {
-                        availabilities.Add( span, vehiclesAvailable );
-                    }
-                }
-            }
+            availabilities.Add( new TashaTimeSpan( TashaRuntime.StartOfDay,
+            TashaRuntime.EndOfDay ), vehiclesAvailable );
             return availabilities;
         }
-
-        /// <summary>
-        /// Returns a dictionary of time spans indicating at which time the # of vehicles not in use
-        /// </summary>
-        /// <param name="h"></param>
-        /// <param name="vehicleType"></param>
-        /// <param name="includeAuxTripChains"></param>
-        /// <returns></returns>
-        public static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilites(this ITashaHousehold h, IVehicleType vehicleType, bool includeAuxTripChains)
+        List<Pair<Time, int>> tripStartAndEndTimes = [];
+        foreach ( var tripChain in tc )
         {
-            return FindVehicleAvailabilitesHelper( h, vehicleType, includeAuxTripChains );
+            Pair<Time, int> startTime = new( tripChain.StartTime, -1 );
+            Pair<Time, int> endTime = new( tripChain.EndTime, 1 );
+
+            tripStartAndEndTimes.Add( startTime );
+            tripStartAndEndTimes.Add( endTime );
         }
 
-        /// <summary>
-        /// Gets all the trip chains of a Person
-        /// The Auxiliary connecting trips are combined to (Non-Auxiliary) Trip chains
-        /// The Regular trip chains (non-auxiliary) are therefore copied to not
-        /// interfere with the next household iteration
-        /// </summary>
-        /// <param name="person"></param>
-        /// <returns></returns>
-        public static List<ITripChain> GetAllTripChains(this ITashaPerson person)
+        tripStartAndEndTimes.Sort( delegate(Pair<Time, int> p1, Pair<Time, int> p2)
         {
-            List<ITripChain> allTripChains = [];
-            List<ITripChain> addedChains = [];
+            var first = p1.First;
+            var second = p2.First;
+            if ( second < first ) return 1;
+            if ( second > first ) return -1;
+            return 0;
+        } );
 
-            //adding all auxiliary trip chains
-            foreach ( var auxTripChain in person.AuxTripChains )
+        for ( int i = -1; i < tripStartAndEndTimes.Count; i++ )
+        {
+            TashaTimeSpan span;
+            //from last trip to end of day
+            if ( i == tripStartAndEndTimes.Count - 1 )
             {
-                ITrip connectingTripChain = auxTripChain["ConnectingChain"] as ITrip;
-                Activity purpose = (Activity)auxTripChain["Purpose"];
-                if ( connectingTripChain == null )
+                span = new TashaTimeSpan( tripStartAndEndTimes[i].First, Time.EndOfDay );
+                vehiclesAvailable += tripStartAndEndTimes[i].Second;
+                if ( availabilities.ContainsKey( span ) )
                 {
-                    allTripChains.Add( auxTripChain );
+                    availabilities[span] += availabilities[span];
                 }
                 else
                 {
-                    ITripChain clonedChain = connectingTripChain.TripChain.DeepClone();
-                    if ( purpose == Activity.Dropoff )
-                    {
-                        clonedChain.Trips.RemoveAt( 0 );
-                    }
-                    else if ( purpose == Activity.Pickup )
-                    {
-                        clonedChain.Trips.RemoveAt( clonedChain.Trips.Count - 1 );
-                    }
-                    clonedChain.Trips.AddRange( auxTripChain.Trips );
-                    clonedChain.Trips.Sort( TripComparer );
-                    addedChains.Add( connectingTripChain.TripChain );
-                    allTripChains.Add( clonedChain );
+                    availabilities.Add( span, vehiclesAvailable );
                 }
             }
-
-            //adding all regular trip chains
-            foreach ( ITripChain chain in person.TripChains )
+            else if ( i == -1 )//from start of day to first trip
             {
-                if ( !addedChains.Contains( chain ) )
+                span = new TashaTimeSpan( Time.StartOfDay, tripStartAndEndTimes[i + 1].First );
+                if ( availabilities.ContainsKey( span ) )
                 {
-                    allTripChains.Add( chain.DeepClone() );
-                }
-            }
-            return allTripChains;
-        }
-
-        /// <summary>
-        /// Gets the number of vehicles available in the household for the given timespan
-        /// </summary>
-        /// <param name="h"></param>
-        /// <param name="span"></param>
-        /// <param name="vehicleType"></param>
-        /// <param name="includeAuxTripChains"></param>
-        /// <returns></returns>
-        public static int NumberOfVehicleAvailable(this ITashaHousehold h, TashaTimeSpan span, IVehicleType vehicleType, bool includeAuxTripChains)
-        {
-            Dictionary<TashaTimeSpan, int> availabilities = h.FindVehicleAvailabilites( vehicleType, includeAuxTripChains );
-            var vehicles = h.Vehicles;
-            int available = 0;
-            for ( int i = 0; i < vehicles.Length; i++ )
-            {
-                if ( vehicles[i].VehicleType == vehicleType )
-                {
-                    available++;
-                }
-            }
-            foreach ( var a in availabilities )
-            {
-                if ( ( a.Key.Start < span.End ) && ( a.Key.End > span.Start ) )
-                {
-                    // this is strictly less than since we want the min of the vehicles
-                    if ( a.Value < available )
-                    {
-                        available = a.Value;
-                    }
-                }
-            }
-            return available;
-        }
-
-        public static int NumberOfVehicleAvailable(List<ITripChain> tripChains, int numVehicles, IVehicleType vehicleType, TashaTimeSpan span)
-        {
-            Dictionary<TashaTimeSpan, int> availabilities = FindVehicleAvailabilites( tripChains, numVehicles );
-            int available = numVehicles;
-            foreach ( var a in availabilities )
-            {
-                if ( ( a.Key.Start < span.End ) && ( a.Key.End > span.Start ) )
-                {
-                    if ( a.Value < available )
-                    {
-                        available = a.Value;
-                    }
-                }
-            }
-            return available;
-        }
-
-        /// <summary>
-        /// Cleans auxtrip chains and attached variables
-        /// </summary>
-        /// <param name="h"></param>
-        public static void Reset(this ITashaHousehold h)
-        {
-            foreach ( var p in h.Persons )
-            {
-                if ( p.AuxTripChains == null )
-                {
-                    p.AuxTripChains = [];
+                    availabilities[span] += availabilities[span];
                 }
                 else
                 {
-                    p.AuxTripChains.Clear();
+                    availabilities.Add( span, vehiclesAvailable );
                 }
-                foreach ( var tc in p.TripChains )
+            }
+            else //trips in between
+            {
+                vehiclesAvailable += tripStartAndEndTimes[i].Second;
+                span = new TashaTimeSpan( tripStartAndEndTimes[i].First, tripStartAndEndTimes[i + 1].First );
+                if ( availabilities.ContainsKey( span ) )
                 {
-                    foreach ( var t in tc.Trips )
-                    {
-                        t.Mode = null;
-                    }
+                    availabilities[span] += availabilities[span];
+                }
+                else
+                {
+                    availabilities.Add( span, vehiclesAvailable );
                 }
             }
         }
+        return availabilities;
+    }
 
-        public static bool VehicleAvailableInTimeSpan(Dictionary<TashaTimeSpan, int> availabilites, TashaTimeSpan span, int available)
-        {
-            foreach ( var a in availabilites )
-            {
-                if ( ( a.Key.Start < span.End ) && ( a.Key.End > span.Start ) )
-                {
-                    if ( a.Value < available )
-                    {
-                        available = a.Value;
-                    }
-                }
-            }
-            return available > 0;
-        }
+    /// <summary>
+    /// Returns a dictionary of time spans indicating at which time the # of vehicles not in use
+    /// </summary>
+    /// <param name="h"></param>
+    /// <param name="vehicleType"></param>
+    /// <param name="includeAuxTripChains"></param>
+    /// <returns></returns>
+    public static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilites(this ITashaHousehold h, IVehicleType vehicleType, bool includeAuxTripChains)
+    {
+        return FindVehicleAvailabilitesHelper( h, vehicleType, includeAuxTripChains );
+    }
 
-        /// <summary>
-        /// Returns a list of Timespans and the associated number of vehicles in that time span
-        /// </summary>
-        /// <param name="h"></param>
-        /// <param name="vehicleType"></param>
-        /// <param name="aux"></param>
-        /// <returns></returns>
-        private static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilitesHelper(ITashaHousehold h, IVehicleType vehicleType, bool aux)
+    /// <summary>
+    /// Gets all the trip chains of a Person
+    /// The Auxiliary connecting trips are combined to (Non-Auxiliary) Trip chains
+    /// The Regular trip chains (non-auxiliary) are therefore copied to not
+    /// interfere with the next household iteration
+    /// </summary>
+    /// <param name="person"></param>
+    /// <returns></returns>
+    public static List<ITripChain> GetAllTripChains(this ITashaPerson person)
+    {
+        List<ITripChain> allTripChains = [];
+        List<ITripChain> addedChains = [];
+
+        //adding all auxiliary trip chains
+        foreach ( var auxTripChain in person.AuxTripChains )
         {
-            List<ITripChain> allTripChains;
-            if ( aux )
+            ITrip connectingTripChain = auxTripChain["ConnectingChain"] as ITrip;
+            Activity purpose = (Activity)auxTripChain["Purpose"];
+            if ( connectingTripChain == null )
             {
-                allTripChains = h.AllTripChainsWithAuxThatUseVehicle( vehicleType );
+                allTripChains.Add( auxTripChain );
             }
             else
             {
-                allTripChains = h.AllTripChainsThatUseVehicle( vehicleType );
-            }
-            int vehiclesAvailable = 0;
-            var vehicles = h.Vehicles;
-            for ( int i = 0; i < vehicles.Length; i++ )
-            {
-                if ( vehicles[i].VehicleType == vehicleType )
+                ITripChain clonedChain = connectingTripChain.TripChain.DeepClone();
+                if ( purpose == Activity.Dropoff )
                 {
-                    vehiclesAvailable++;
+                    clonedChain.Trips.RemoveAt( 0 );
+                }
+                else if ( purpose == Activity.Pickup )
+                {
+                    clonedChain.Trips.RemoveAt( clonedChain.Trips.Count - 1 );
+                }
+                clonedChain.Trips.AddRange( auxTripChain.Trips );
+                clonedChain.Trips.Sort( TripComparer );
+                addedChains.Add( connectingTripChain.TripChain );
+                allTripChains.Add( clonedChain );
+            }
+        }
+
+        //adding all regular trip chains
+        foreach ( ITripChain chain in person.TripChains )
+        {
+            if ( !addedChains.Contains( chain ) )
+            {
+                allTripChains.Add( chain.DeepClone() );
+            }
+        }
+        return allTripChains;
+    }
+
+    /// <summary>
+    /// Gets the number of vehicles available in the household for the given timespan
+    /// </summary>
+    /// <param name="h"></param>
+    /// <param name="span"></param>
+    /// <param name="vehicleType"></param>
+    /// <param name="includeAuxTripChains"></param>
+    /// <returns></returns>
+    public static int NumberOfVehicleAvailable(this ITashaHousehold h, TashaTimeSpan span, IVehicleType vehicleType, bool includeAuxTripChains)
+    {
+        Dictionary<TashaTimeSpan, int> availabilities = h.FindVehicleAvailabilites( vehicleType, includeAuxTripChains );
+        var vehicles = h.Vehicles;
+        int available = 0;
+        for ( int i = 0; i < vehicles.Length; i++ )
+        {
+            if ( vehicles[i].VehicleType == vehicleType )
+            {
+                available++;
+            }
+        }
+        foreach ( var a in availabilities )
+        {
+            if ( ( a.Key.Start < span.End ) && ( a.Key.End > span.Start ) )
+            {
+                // this is strictly less than since we want the min of the vehicles
+                if ( a.Value < available )
+                {
+                    available = a.Value;
                 }
             }
-            return FindVehicleAvailabilites( allTripChains, vehiclesAvailable );
+        }
+        return available;
+    }
+
+    public static int NumberOfVehicleAvailable(List<ITripChain> tripChains, int numVehicles, IVehicleType vehicleType, TashaTimeSpan span)
+    {
+        Dictionary<TashaTimeSpan, int> availabilities = FindVehicleAvailabilites( tripChains, numVehicles );
+        int available = numVehicles;
+        foreach ( var a in availabilities )
+        {
+            if ( ( a.Key.Start < span.End ) && ( a.Key.End > span.Start ) )
+            {
+                if ( a.Value < available )
+                {
+                    available = a.Value;
+                }
+            }
+        }
+        return available;
+    }
+
+    /// <summary>
+    /// Cleans auxtrip chains and attached variables
+    /// </summary>
+    /// <param name="h"></param>
+    public static void Reset(this ITashaHousehold h)
+    {
+        foreach ( var p in h.Persons )
+        {
+            if ( p.AuxTripChains == null )
+            {
+                p.AuxTripChains = [];
+            }
+            else
+            {
+                p.AuxTripChains.Clear();
+            }
+            foreach ( var tc in p.TripChains )
+            {
+                foreach ( var t in tc.Trips )
+                {
+                    t.Mode = null;
+                }
+            }
         }
     }
 
-    internal class TripComparer : IComparer<ITrip>
+    public static bool VehicleAvailableInTimeSpan(Dictionary<TashaTimeSpan, int> availabilites, TashaTimeSpan span, int available)
     {
-        public int Compare(ITrip x, ITrip y)
+        foreach ( var a in availabilites )
         {
-            return (int)( ( x.ActivityStartTime.ToMinutes() - y.ActivityStartTime.ToMinutes() ) );
+            if ( ( a.Key.Start < span.End ) && ( a.Key.End > span.Start ) )
+            {
+                if ( a.Value < available )
+                {
+                    available = a.Value;
+                }
+            }
         }
+        return available > 0;
+    }
+
+    /// <summary>
+    /// Returns a list of Timespans and the associated number of vehicles in that time span
+    /// </summary>
+    /// <param name="h"></param>
+    /// <param name="vehicleType"></param>
+    /// <param name="aux"></param>
+    /// <returns></returns>
+    private static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilitesHelper(ITashaHousehold h, IVehicleType vehicleType, bool aux)
+    {
+        List<ITripChain> allTripChains;
+        if ( aux )
+        {
+            allTripChains = h.AllTripChainsWithAuxThatUseVehicle( vehicleType );
+        }
+        else
+        {
+            allTripChains = h.AllTripChainsThatUseVehicle( vehicleType );
+        }
+        int vehiclesAvailable = 0;
+        var vehicles = h.Vehicles;
+        for ( int i = 0; i < vehicles.Length; i++ )
+        {
+            if ( vehicles[i].VehicleType == vehicleType )
+            {
+                vehiclesAvailable++;
+            }
+        }
+        return FindVehicleAvailabilites( allTripChains, vehiclesAvailable );
+    }
+}
+
+internal class TripComparer : IComparer<ITrip>
+{
+    public int Compare(ITrip x, ITrip y)
+    {
+        return (int)( ( x.ActivityStartTime.ToMinutes() - y.ActivityStartTime.ToMinutes() ) );
     }
 }

@@ -19,35 +19,34 @@
 using System.Collections.Generic;
 using XTMF;
 
-namespace TMG.ParameterDatabase
+namespace TMG.ParameterDatabase;
+
+public interface IModeParameterAssignment : IModule
 {
-    public interface IModeParameterAssignment : IModule
-    {
-        /// <summary>
-        /// The mode we are working with
-        /// </summary>
-        IModeChoiceNode Mode { get; }
+    /// <summary>
+    /// The mode we are working with
+    /// </summary>
+    IModeChoiceNode Mode { get; }
 
-        /// <summary>
-        /// Build up our parameters to blend with
-        /// </summary>
-        /// <param name="parameters">The parameters to be loaded</param>
-        /// <param name="weight">The amount we will be blending for them</param>
-        void AssignBlendedParameters(List<Parameter> parameters, float weight);
+    /// <summary>
+    /// Build up our parameters to blend with
+    /// </summary>
+    /// <param name="parameters">The parameters to be loaded</param>
+    /// <param name="weight">The amount we will be blending for them</param>
+    void AssignBlendedParameters(List<Parameter> parameters, float weight);
 
-        /// <summary>
-        /// Assign the given value to the parameter
-        /// </summary>
-        void AssignParameters(List<Parameter> parameters);
+    /// <summary>
+    /// Assign the given value to the parameter
+    /// </summary>
+    void AssignParameters(List<Parameter> parameters);
 
-        /// <summary>
-        /// Complete the blending and assign the parameters
-        /// </summary>
-        void FinishBlending();
+    /// <summary>
+    /// Complete the blending and assign the parameters
+    /// </summary>
+    void FinishBlending();
 
-        /// <summary>
-        /// Start up blending mode
-        /// </summary>
-        void StartBlend();
-    }
+    /// <summary>
+    /// Start up blending mode
+    /// </summary>
+    void StartBlend();
 }

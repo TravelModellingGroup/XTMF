@@ -22,175 +22,174 @@ using System.Linq;
 using XTMF.Testing.Modules.Editing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XTMF.Testing.Editing
+namespace XTMF.Testing.Editing;
+
+[TestClass]
+public class TestEditingParameter
 {
-    [TestClass]
-    public class TestEditingParameter
+    [TestMethod]
+    public void TestEditParameter()
     {
-        [TestMethod]
-        public void TestEditParameter()
-        {
-            var runtime = TestXTMFCore.CreateRuntime();
-            var controller = runtime.ModelSystemController;
-            var msName = "TestModelSystem";
-            controller.Delete( msName );
-            var ms = controller.LoadOrCreate( msName );
-            Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            using var session = controller.EditModelSystem(ms);
-            var model = session.ModelSystemModel;
-            Assert.IsNotNull(model, "No model system model was created!");
-            ModelSystemStructureModel root = model.Root;
-            Assert.IsNotNull(root, "No root object was made!");
+        var runtime = TestXTMFCore.CreateRuntime();
+        var controller = runtime.ModelSystemController;
+        var msName = "TestModelSystem";
+        controller.Delete( msName );
+        var ms = controller.LoadOrCreate( msName );
+        Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
+        using var session = controller.EditModelSystem(ms);
+        var model = session.ModelSystemModel;
+        Assert.IsNotNull(model, "No model system model was created!");
+        ModelSystemStructureModel root = model.Root;
+        Assert.IsNotNull(root, "No root object was made!");
 
-            root.Type = typeof(TestModelSystemTemplate);
+        root.Type = typeof(TestModelSystemTemplate);
 
-            var parameters = root.Parameters.GetParameters();
-            Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
-            var inputDirectory = GetParameter(parameters, "Input Directory");
-            Assert.IsNotNull(inputDirectory, "There was no parameter called input directory.");
-            string? error = null;
-            var previousValue = inputDirectory.Value;
-            var newValue = "NewValue";
-            Assert.IsTrue(inputDirectory.SetValue(newValue, ref error), "The assignment of a value to a string somehow failed!");
-            Assert.AreEqual(newValue, inputDirectory?.Value, "The valid value was not stored in the parameter!");
-            Assert.IsTrue(session.Undo(ref error), "There should have been a command that could be undone!");
-            Assert.AreEqual(previousValue, inputDirectory?.Value, "The undo did not restore the previous value.");
-            Assert.IsTrue(session.Redo(ref error), "There should have been a command to have redone!");
-            Assert.AreEqual(newValue, inputDirectory?.Value, "The valid value was not stored in the parameter after the redo!");
-        }
+        var parameters = root.Parameters.GetParameters();
+        Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
+        var inputDirectory = GetParameter(parameters, "Input Directory");
+        Assert.IsNotNull(inputDirectory, "There was no parameter called input directory.");
+        string? error = null;
+        var previousValue = inputDirectory.Value;
+        var newValue = "NewValue";
+        Assert.IsTrue(inputDirectory.SetValue(newValue, ref error), "The assignment of a value to a string somehow failed!");
+        Assert.AreEqual(newValue, inputDirectory?.Value, "The valid value was not stored in the parameter!");
+        Assert.IsTrue(session.Undo(ref error), "There should have been a command that could be undone!");
+        Assert.AreEqual(previousValue, inputDirectory?.Value, "The undo did not restore the previous value.");
+        Assert.IsTrue(session.Redo(ref error), "There should have been a command to have redone!");
+        Assert.AreEqual(newValue, inputDirectory?.Value, "The valid value was not stored in the parameter after the redo!");
+    }
 
-        [TestMethod]
-        public void TestEditParameterToDefault()
-        {
-            var runtime = TestXTMFCore.CreateRuntime();
-            var controller = runtime.ModelSystemController;
-            var msName = "TestModelSystem";
-            controller.Delete( msName );
-            var ms = controller.LoadOrCreate( msName );
-            Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            using var session = controller.EditModelSystem(ms);
-            var model = session.ModelSystemModel;
-            Assert.IsNotNull(model, "No model system model was created!");
-            ModelSystemStructureModel root = model.Root;
-            Assert.IsNotNull(root, "No root object was made!");
+    [TestMethod]
+    public void TestEditParameterToDefault()
+    {
+        var runtime = TestXTMFCore.CreateRuntime();
+        var controller = runtime.ModelSystemController;
+        var msName = "TestModelSystem";
+        controller.Delete( msName );
+        var ms = controller.LoadOrCreate( msName );
+        Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
+        using var session = controller.EditModelSystem(ms);
+        var model = session.ModelSystemModel;
+        Assert.IsNotNull(model, "No model system model was created!");
+        ModelSystemStructureModel root = model.Root;
+        Assert.IsNotNull(root, "No root object was made!");
 
-            root.Type = typeof(TestModelSystemTemplate);
+        root.Type = typeof(TestModelSystemTemplate);
 
-            var parameters = root.Parameters.GetParameters();
-            Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
-            var inputDirectory = GetParameter(parameters, "Input Directory");
-            Assert.IsNotNull(inputDirectory, "There was no parameter called input directory.");
-            string? error = null;
-            var previousValue = inputDirectory.Value;
-            var newValue = "NewValue";
-            Assert.IsTrue(inputDirectory.SetValue(newValue, ref error), "The assignment of a value to a string somehow failed!");
-            Assert.AreEqual(newValue, inputDirectory.Value, "The valid value was not stored in the parameter!");
-            Assert.IsTrue(inputDirectory.SetToDefault(ref error), "Set to default failed!");
-            Assert.AreEqual(previousValue, inputDirectory?.Value, "We did not revert to the previous value!");
-        }
+        var parameters = root.Parameters.GetParameters();
+        Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
+        var inputDirectory = GetParameter(parameters, "Input Directory");
+        Assert.IsNotNull(inputDirectory, "There was no parameter called input directory.");
+        string? error = null;
+        var previousValue = inputDirectory.Value;
+        var newValue = "NewValue";
+        Assert.IsTrue(inputDirectory.SetValue(newValue, ref error), "The assignment of a value to a string somehow failed!");
+        Assert.AreEqual(newValue, inputDirectory.Value, "The valid value was not stored in the parameter!");
+        Assert.IsTrue(inputDirectory.SetToDefault(ref error), "Set to default failed!");
+        Assert.AreEqual(previousValue, inputDirectory?.Value, "We did not revert to the previous value!");
+    }
 
-        [TestMethod]
-        public void TestSettingParameterInLinkedParameter()
-        {
-            var runtime = TestXTMFCore.CreateRuntime();
-            var controller = runtime.ModelSystemController;
-            var msName = "TestModelSystem";
-            controller.Delete( msName );
-            var ms = controller.LoadOrCreate( msName );
-            Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            using var session = controller.EditModelSystem(ms);
-            var modelSystem = session.ModelSystemModel;
-            var linkedParameters = modelSystem.LinkedParameters;
-            Assert.AreEqual(0, linkedParameters.Count, "The model system already had a linked parameter before we added any!");
-            string? error = null;
-            Assert.IsTrue(linkedParameters.NewLinkedParameter("Test", ref error), "We failed to create our first linked parameter!");
-            Assert.AreEqual(1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter.");
+    [TestMethod]
+    public void TestSettingParameterInLinkedParameter()
+    {
+        var runtime = TestXTMFCore.CreateRuntime();
+        var controller = runtime.ModelSystemController;
+        var msName = "TestModelSystem";
+        controller.Delete( msName );
+        var ms = controller.LoadOrCreate( msName );
+        Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
+        using var session = controller.EditModelSystem(ms);
+        var modelSystem = session.ModelSystemModel;
+        var linkedParameters = modelSystem.LinkedParameters;
+        Assert.AreEqual(0, linkedParameters.Count, "The model system already had a linked parameter before we added any!");
+        string? error = null;
+        Assert.IsTrue(linkedParameters.NewLinkedParameter("Test", ref error), "We failed to create our first linked parameter!");
+        Assert.AreEqual(1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter.");
 
 
-            var model = session.ModelSystemModel;
-            Assert.IsNotNull(model, "No model system model was created!");
-            ModelSystemStructureModel root = model.Root;
-            Assert.IsNotNull(root, "No root object was made!");
-            root.Type = typeof(TestModelSystemTemplate);
+        var model = session.ModelSystemModel;
+        Assert.IsNotNull(model, "No model system model was created!");
+        ModelSystemStructureModel root = model.Root;
+        Assert.IsNotNull(root, "No root object was made!");
+        root.Type = typeof(TestModelSystemTemplate);
 
-            var parameters = root.Parameters.GetParameters();
-            Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
-            var inputDirectory = GetParameter(parameters, "Input Directory");
-            var secondaryString = GetParameter(parameters, "SecondaryString");
+        var parameters = root.Parameters.GetParameters();
+        Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
+        var inputDirectory = GetParameter(parameters, "Input Directory");
+        var secondaryString = GetParameter(parameters, "SecondaryString");
 
-            var linkedParameterList = linkedParameters.GetLinkedParameters();
-            Assert.IsTrue(linkedParameterList[0].AddParameter(inputDirectory, ref error), error);
-            Assert.IsTrue(linkedParameterList[0].AddParameter(secondaryString, ref error), error);
-            string? oldValue = linkedParameterList[0].GetValue();
-            string? newValue = "NewValue";
-            Assert.IsTrue(linkedParameterList[0].SetValue(newValue, ref error));
-            // assign to both with through the linked parameter
-            Assert.AreEqual(newValue, linkedParameterList[0].GetValue());
-            Assert.AreEqual(newValue, inputDirectory?.Value);
-            Assert.AreEqual(newValue, secondaryString?.Value);
-            // assign to both using the secondary string
-            Assert.IsTrue(secondaryString?.SetValue(oldValue, ref error));
-            Assert.AreEqual(oldValue, linkedParameterList[0].GetValue());
-            Assert.AreEqual(oldValue, inputDirectory?.Value);
-            Assert.AreEqual(oldValue, secondaryString?.Value);
+        var linkedParameterList = linkedParameters.GetLinkedParameters();
+        Assert.IsTrue(linkedParameterList[0].AddParameter(inputDirectory, ref error), error);
+        Assert.IsTrue(linkedParameterList[0].AddParameter(secondaryString, ref error), error);
+        string? oldValue = linkedParameterList[0].GetValue();
+        string? newValue = "NewValue";
+        Assert.IsTrue(linkedParameterList[0].SetValue(newValue, ref error));
+        // assign to both with through the linked parameter
+        Assert.AreEqual(newValue, linkedParameterList[0].GetValue());
+        Assert.AreEqual(newValue, inputDirectory?.Value);
+        Assert.AreEqual(newValue, secondaryString?.Value);
+        // assign to both using the secondary string
+        Assert.IsTrue(secondaryString?.SetValue(oldValue, ref error));
+        Assert.AreEqual(oldValue, linkedParameterList[0].GetValue());
+        Assert.AreEqual(oldValue, inputDirectory?.Value);
+        Assert.AreEqual(oldValue, secondaryString?.Value);
 
-            Assert.IsTrue(session.Undo(ref error));
-            Assert.AreEqual(newValue, linkedParameterList[0].GetValue());
-            Assert.AreEqual(newValue, inputDirectory?.Value);
-            Assert.AreEqual(newValue, secondaryString?.Value);
-
-
-            Assert.IsTrue(session.Redo(ref error));
-            Assert.AreEqual(oldValue, linkedParameterList[0].GetValue());
-            Assert.AreEqual(oldValue, inputDirectory?.Value);
-            Assert.AreEqual(oldValue, secondaryString?.Value);
-        }
-
-        [TestMethod]
-        public void TestSettingParameterToDefaultInLinkedParameter()
-        {
-            var runtime = TestXTMFCore.CreateRuntime();
-            var controller = runtime.ModelSystemController;
-            var msName = "TestModelSystem";
-            controller.Delete( msName );
-            var ms = controller.LoadOrCreate( msName );
-            Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            using var session = controller.EditModelSystem(ms);
-            var modelSystem = session.ModelSystemModel;
-            var linkedParameters = modelSystem.LinkedParameters;
-            Assert.AreEqual(0, linkedParameters.Count, "The model system already had a linked parameter before we added any!");
-            string? error = null;
-            Assert.IsTrue(linkedParameters.NewLinkedParameter("Test", ref error), "We failed to create our first linked parameter!");
-            Assert.AreEqual(1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter.");
+        Assert.IsTrue(session.Undo(ref error));
+        Assert.AreEqual(newValue, linkedParameterList[0].GetValue());
+        Assert.AreEqual(newValue, inputDirectory?.Value);
+        Assert.AreEqual(newValue, secondaryString?.Value);
 
 
-            var model = session.ModelSystemModel;
-            Assert.IsNotNull(model, "No model system model was created!");
-            ModelSystemStructureModel root = model.Root;
-            Assert.IsNotNull(root, "No root object was made!");
-            root.Type = typeof(TestModelSystemTemplate);
+        Assert.IsTrue(session.Redo(ref error));
+        Assert.AreEqual(oldValue, linkedParameterList[0].GetValue());
+        Assert.AreEqual(oldValue, inputDirectory?.Value);
+        Assert.AreEqual(oldValue, secondaryString?.Value);
+    }
 
-            var parameters = root.Parameters.GetParameters();
-            Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
-            var inputDirectory = GetParameter(parameters, "Input Directory");
-            var secondaryString = GetParameter(parameters, "SecondaryString");
+    [TestMethod]
+    public void TestSettingParameterToDefaultInLinkedParameter()
+    {
+        var runtime = TestXTMFCore.CreateRuntime();
+        var controller = runtime.ModelSystemController;
+        var msName = "TestModelSystem";
+        controller.Delete( msName );
+        var ms = controller.LoadOrCreate( msName );
+        Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
+        using var session = controller.EditModelSystem(ms);
+        var modelSystem = session.ModelSystemModel;
+        var linkedParameters = modelSystem.LinkedParameters;
+        Assert.AreEqual(0, linkedParameters.Count, "The model system already had a linked parameter before we added any!");
+        string? error = null;
+        Assert.IsTrue(linkedParameters.NewLinkedParameter("Test", ref error), "We failed to create our first linked parameter!");
+        Assert.AreEqual(1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter.");
 
-            var linkedParameterList = linkedParameters.GetLinkedParameters();
-            Assert.IsTrue(linkedParameterList[0].AddParameter(inputDirectory, ref error), error);
-            Assert.IsTrue(linkedParameterList[0].AddParameter(secondaryString, ref error), error);
-            string? newValue = "NewValue";
-            Assert.IsTrue(linkedParameterList[0].SetValue(newValue, ref error));
-            // assign to both with through the linked parameter
-            Assert.AreEqual(newValue, linkedParameterList[0].GetValue());
-            Assert.AreEqual(newValue, inputDirectory?.Value);
-            Assert.AreEqual(newValue, secondaryString?.Value);
-            // assign to both using the secondary string
-            Assert.IsFalse(secondaryString?.SetToDefault(ref error));
-        }
 
-        private static ParameterModel? GetParameter(IList<ParameterModel> parameters, string parameterName)
-        {
-            return parameters.FirstOrDefault( (p) => p.Name == parameterName );
-        }
+        var model = session.ModelSystemModel;
+        Assert.IsNotNull(model, "No model system model was created!");
+        ModelSystemStructureModel root = model.Root;
+        Assert.IsNotNull(root, "No root object was made!");
+        root.Type = typeof(TestModelSystemTemplate);
+
+        var parameters = root.Parameters.GetParameters();
+        Assert.IsNotNull(parameters, "There are no parameters for our test model system template!");
+        var inputDirectory = GetParameter(parameters, "Input Directory");
+        var secondaryString = GetParameter(parameters, "SecondaryString");
+
+        var linkedParameterList = linkedParameters.GetLinkedParameters();
+        Assert.IsTrue(linkedParameterList[0].AddParameter(inputDirectory, ref error), error);
+        Assert.IsTrue(linkedParameterList[0].AddParameter(secondaryString, ref error), error);
+        string? newValue = "NewValue";
+        Assert.IsTrue(linkedParameterList[0].SetValue(newValue, ref error));
+        // assign to both with through the linked parameter
+        Assert.AreEqual(newValue, linkedParameterList[0].GetValue());
+        Assert.AreEqual(newValue, inputDirectory?.Value);
+        Assert.AreEqual(newValue, secondaryString?.Value);
+        // assign to both using the secondary string
+        Assert.IsFalse(secondaryString?.SetToDefault(ref error));
+    }
+
+    private static ParameterModel? GetParameter(IList<ParameterModel> parameters, string parameterName)
+    {
+        return parameters.FirstOrDefault( (p) => p.Name == parameterName );
     }
 }

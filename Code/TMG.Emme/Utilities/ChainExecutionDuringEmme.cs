@@ -18,42 +18,39 @@
 */
 using System;
 using XTMF;
-namespace TMG.Emme.Utilities
+namespace TMG.Emme.Utilities;
+
+
+public class ChainExecutionDuringEmme : IEmmeTool
 {
 
-    public class ChainExecutionDuringEmme : IEmmeTool
+    public string Name { get; set; }
+
+    public float Progress
     {
-
-        public string Name { get; set; }
-
-        public float Progress
-        {
-            get { return _Progress(); }
-        }
-
-        private Func<float> _Progress = () => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Description = "The modules to execute while emme is open.  This is useful for processing data.")]
-        public ISelfContainedModule[] Children;
-
-        public bool Execute(Controller controller)
-        {
-            for(int i = 0; i < Children.Length; i++)
-            {
-                var localI = i;
-                _Progress = () => Children[localI].Progress;
-                Children[i].Start();
-            }
-            return true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        get { return _Progress(); }
     }
 
+    private Func<float> _Progress = () => 0f;
 
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Description = "The modules to execute while emme is open.  This is useful for processing data.")]
+    public ISelfContainedModule[] Children;
+
+    public bool Execute(Controller controller)
+    {
+        for(int i = 0; i < Children.Length; i++)
+        {
+            var localI = i;
+            _Progress = () => Children[localI].Progress;
+            Children[i].Start();
+        }
+        return true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

@@ -23,107 +23,106 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadODMatrixCSVSeries : IReadODData<float>
 {
-    public class ReadODMatrixCSVSeries : IReadODData<float>
+    [RunParameter("File Name", "data.csv", typeof(FileFromInputDirectory), "The base file name to read in.  If UseInputDirectory is false we will use the run directory instead.")]
+    public FileFromInputDirectory FileName;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Series Size", 0, "The number of files in this series")]
+    public int SeriesSize;
+
+    [RunParameter("Starting Index", 0, "The index to start from for the series.")]
+    public int StartingIndex;
+
+    [RunParameter("Use Input Directory", false, "Should we use the model system's input directory as a base?")]
+    public bool UseInputDirectory;
+
+    public string Name
     {
-        [RunParameter("File Name", "data.csv", typeof(FileFromInputDirectory), "The base file name to read in.  If UseInputDirectory is false we will use the run directory instead.")]
-        public FileFromInputDirectory FileName;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("Series Size", 0, "The number of files in this series")]
-        public int SeriesSize;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter("Starting Index", 0, "The index to start from for the series.")]
-        public int StartingIndex;
+    public IEnumerable<ODData<float>> Read()
+    {
+        var sparseZones = Root.ZoneSystem.ZoneArray;
+        var zones = sparseZones.GetFlatData();
+        var ret = sparseZones.CreateSquareTwinArray<float>();
 
-        [RunParameter("Use Input Directory", false, "Should we use the model system's input directory as a base?")]
-        public bool UseInputDirectory;
-
-        public string Name
+        LoadData(zones, ret);
+        // only after all of the files have been finished will this run
+        var flatRet = ret.GetFlatData();
+        ODData<float> point;
+        for (int i = 0; i < zones.Length; i++)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public IEnumerable<ODData<float>> Read()
-        {
-            var sparseZones = Root.ZoneSystem.ZoneArray;
-            var zones = sparseZones.GetFlatData();
-            var ret = sparseZones.CreateSquareTwinArray<float>();
-
-            LoadData(zones, ret);
-            // only after all of the files have been finished will this run
-            var flatRet = ret.GetFlatData();
-            ODData<float> point;
-            for (int i = 0; i < zones.Length; i++)
+            point.O = zones[i].ZoneNumber;
+            var row = flatRet[i];
+            for (int j = 0; j < zones.Length; j++)
             {
-                point.O = zones[i].ZoneNumber;
-                var row = flatRet[i];
-                for (int j = 0; j < zones.Length; j++)
-                {
-                    point.D = zones[j].ZoneNumber;
-                    point.Data = row[j];
-                    yield return point;
-                }
+                point.D = zones[j].ZoneNumber;
+                point.Data = row[j];
+                yield return point;
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    private string GetFileName(int i)
+    {
+        return (FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".") + (i + StartingIndex) + ".csv");
+    }
+
+    private void LoadData(IZone[] zones, SparseTwinIndex<float> ret)
+    {
+        for (int i = 0; i < SeriesSize; i++)
         {
-            return true;
+            ReadFile(GetFileName(i), zones, ret.GetFlatData());
         }
+    }
 
-        private string GetFileName(int i)
+    private void ReadFile(string fileName, IZone[] zones, float[][] matrix)
+    {
+        using CsvReader reader = new(fileName);
+        var rowCount = 0;
+        int length;
+        // burn header
+        reader.LoadLine();
+        // now read in data
+        while (!reader.EndOfFile)
         {
-            return (FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".") + (i + StartingIndex) + ".csv");
-        }
-
-        private void LoadData(IZone[] zones, SparseTwinIndex<float> ret)
-        {
-            for (int i = 0; i < SeriesSize; i++)
+            length = reader.LoadLine();
+            if (length != zones.Length + 1)
             {
-                ReadFile(GetFileName(i), zones, ret.GetFlatData());
+                continue;
             }
-        }
-
-        private void ReadFile(string fileName, IZone[] zones, float[][] matrix)
-        {
-            using CsvReader reader = new(fileName);
-            var rowCount = 0;
-            int length;
-            // burn header
-            reader.LoadLine();
-            // now read in data
-            while (!reader.EndOfFile)
+            if (rowCount >= matrix.Length)
             {
-                length = reader.LoadLine();
-                if (length != zones.Length + 1)
-                {
-                    continue;
-                }
-                if (rowCount >= matrix.Length)
-                {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")");
-                }
-                var row = matrix[rowCount++];
-                for (int i = 0; i < row.Length; i++)
-                {
-                    reader.Get(out float temp, i + 1);
-                    row[i] += temp;
-                }
+                throw new XTMFRuntimeException(this, "In '" + Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")");
+            }
+            var row = matrix[rowCount++];
+            for (int i = 0; i < row.Length; i++)
+            {
+                reader.Get(out float temp, i + 1);
+                row[i] += temp;
             }
         }
     }

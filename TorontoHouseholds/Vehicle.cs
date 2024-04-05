@@ -20,60 +20,59 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// This represents a vehicle in the simulation
+/// </summary>
+[Serializable()]
+public sealed class Vehicle : Attachable, IVehicle
 {
-    /// <summary>
-    /// This represents a vehicle in the simulation
-    /// </summary>
-    [Serializable()]
-    public sealed class Vehicle : Attachable, IVehicle
+    private static ConcurrentBag<Vehicle> Vehicles = [];
+
+    private Vehicle(IVehicleType type)
     {
-        private static ConcurrentBag<Vehicle> Vehicles = [];
+        VehicleType = type;
+    }
 
-        private Vehicle(IVehicleType type)
+    /// <summary>
+    /// The household this vehical belongs to
+    /// </summary>
+    public ITashaHousehold Household
+    {
+        get
         {
-            VehicleType = type;
+            return null;
         }
+    }
 
-        /// <summary>
-        /// The household this vehical belongs to
-        /// </summary>
-        public ITashaHousehold Household
+    /// <summary>
+    /// The modes this vehicle uses
+    /// </summary>
+    public ICollection<ITashaMode> Modes
+    {
+        get { return null; }
+    }
+
+    /// <summary>
+    /// Gets the type of vehicle this is
+    /// </summary>
+    public IVehicleType VehicleType { get; private set; }
+
+    public static Vehicle MakeVehicle(IVehicleType type)
+    {
+        if (Vehicles.TryTake(out Vehicle v))
         {
-            get
-            {
-                return null;
-            }
+            v.VehicleType = type;
+            return v;
         }
+        return new Vehicle(type);
+    }
 
-        /// <summary>
-        /// The modes this vehicle uses
-        /// </summary>
-        public ICollection<ITashaMode> Modes
-        {
-            get { return null; }
-        }
-
-        /// <summary>
-        /// Gets the type of vehicle this is
-        /// </summary>
-        public IVehicleType VehicleType { get; private set; }
-
-        public static Vehicle MakeVehicle(IVehicleType type)
-        {
-            if (Vehicles.TryTake(out Vehicle v))
-            {
-                v.VehicleType = type;
-                return v;
-            }
-            return new Vehicle(type);
-        }
-
-        public void Recycle()
-        {
-            VehicleType = null;
-            Release();
-            Vehicles.Add(this);
-        }
+    public void Recycle()
+    {
+        VehicleType = null;
+        Release();
+        Vehicles.Add(this);
     }
 }

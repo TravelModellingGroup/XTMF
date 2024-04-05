@@ -23,183 +23,182 @@ using Tasha.Common;
 using Tasha.XTMFModeChoice;
 using XTMF;
 
-namespace Tasha.Validation.ValidateModeChoice
+namespace Tasha.Validation.ValidateModeChoice;
+
+public class GetUtilities : IPostHouseholdIteration
 {
-    public class GetUtilities : IPostHouseholdIteration
+    [RunParameter( "FailedHouseholds", "Failed.csv", "The file where we can store the failed households." )]
+    public string FailFile;
+
+    [RunParameter( "Output File", "HouseholdUtilities.csv", "The file where we can store the household utilities." )]
+    public string OutputFile;
+
+    [RunParameter( "Passenger Mode", "Passenger", "The name of the passenger mode, leave blank to not processes them specially." )]
+    public string PassengerModeName;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private ConcurrentDictionary<ITashaHousehold, float[][]> HouseUtilities = new();
+    private int PassengerIndex;
+
+    public string Name
     {
-        [RunParameter( "FailedHouseholds", "Failed.csv", "The file where we can store the failed households." )]
-        public string FailFile;
+        get;
+        set;
+    }
 
-        [RunParameter( "Output File", "HouseholdUtilities.csv", "The file where we can store the household utilities." )]
-        public string OutputFile;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Passenger Mode", "Passenger", "The name of the passenger mode, leave blank to not processes them specially." )]
-        public string PassengerModeName;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
-
-        private ConcurrentDictionary<ITashaHousehold, float[][]> HouseUtilities = new();
-        private int PassengerIndex;
-
-        public string Name
+    public void HouseholdComplete(ITashaHousehold household, bool success)
+    {
+        if (success)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-            set;
-        }
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
-        {
-            if (success)
+            if (!HouseUtilities.TryRemove(household, out float[][] util))
             {
-                if (!HouseUtilities.TryRemove(household, out float[][] util))
+                return;
+            }
+            lock (this)
+            {
+                int tripChains = 0;
+                foreach (var person in household.Persons)
                 {
-                    return;
+                    tripChains += person.TripChains.Count;
                 }
-                lock (this)
+                var writeHeader = !File.Exists(OutputFile);
+                using StreamWriter writer = new(OutputFile, true);
+                if (writeHeader)
                 {
-                    int tripChains = 0;
-                    foreach (var person in household.Persons)
-                    {
-                        tripChains += person.TripChains.Count;
-                    }
-                    var writeHeader = !File.Exists(OutputFile);
-                    using StreamWriter writer = new(OutputFile, true);
-                    if (writeHeader)
-                    {
-                        writer.WriteLine("HouseholdID,ouseholdIteration,First Household Utility,Second Household Utility,After Passenger Household Utility, TripChains Count");
-                    }
+                    writer.WriteLine("HouseholdID,ouseholdIteration,First Household Utility,Second Household Utility,After Passenger Household Utility, TripChains Count");
+                }
 
-                    for (int i = 0; i < util.Length; i++)
+                for (int i = 0; i < util.Length; i++)
+                {
+                    writer.Write(household.HouseholdId);
+                    writer.Write(',');
+                    writer.Write(i);
+                    writer.Write(',');
+                    writer.Write(util[i][0]);
+                    writer.Write(',');
+                    writer.Write(util[i][1]);
+                    writer.Write(',');
+                    writer.Write(util[i][2]);
+                    writer.Write(',');
+                    writer.WriteLine(tripChains);
+                }
+            }
+        }
+    }
+
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+        var houseData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
+        var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
+        var modes = Root.AllModes;
+
+        float firstPassHouseholdU = 0;
+        float secondHouseholdU = 0;
+        float passengerU = 0;
+
+        for ( int i = 0; i < household.Persons.Length; i++ )
+        {
+            var personData = houseData.PersonData[i];
+            for ( int j = 0; j < household.Persons[i].TripChains.Count; j++ )
+            {
+                var tripChainData = personData.TripChainData[j];
+                if ( tripChainData.TripChain.JointTrip && !tripChainData.TripChain.JointTripRep )
+                {
+                    continue;
+                }
+                var chosenVehicleType = resource.Resolution[i][j];
+                var bestAssignments = tripChainData.BestPossibleAssignmentForVehicleType;
+                float max = float.NegativeInfinity;
+                for ( int a = 0; a < bestAssignments.Length; a++ )
+                {
+                    if ( bestAssignments[a] != null && bestAssignments[a].U > max )
                     {
-                        writer.Write(household.HouseholdId);
-                        writer.Write(',');
-                        writer.Write(i);
-                        writer.Write(',');
-                        writer.Write(util[i][0]);
-                        writer.Write(',');
-                        writer.Write(util[i][1]);
-                        writer.Write(',');
-                        writer.Write(util[i][2]);
-                        writer.Write(',');
-                        writer.WriteLine(tripChains);
+                        max = bestAssignments[a].U;
                     }
+                }
+                firstPassHouseholdU += max;
+                for ( int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++ )
+                {
+                    var tripData = tripChainData.TripData[k];
+                    int modeIndex = bestAssignments[chosenVehicleType].PickedModes[k];
+                    if ( household.Persons[i].TripChains[j].Trips[k].Mode == modes[PassengerIndex] )
+                    {
+                        passengerU += tripData.V[PassengerIndex];
+                    }
+                    else
+                    {
+                        passengerU += tripData.V[modeIndex] + tripData.Error[modeIndex];
+                    }
+                    secondHouseholdU += tripData.V[modeIndex] + tripData.Error[modeIndex];
                 }
             }
         }
 
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+        bool found;
+        if ( !( found = HouseUtilities.TryGetValue( household, out float[][] utilities ) ) )
         {
-            var houseData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
-            var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
-            var modes = Root.AllModes;
-
-            float firstPassHouseholdU = 0;
-            float secondHouseholdU = 0;
-            float passengerU = 0;
-
-            for ( int i = 0; i < household.Persons.Length; i++ )
+            utilities = new float[totalHouseholdIterations][];
+            for ( int i = 0; i < utilities.Length; i++ )
             {
-                var personData = houseData.PersonData[i];
-                for ( int j = 0; j < household.Persons[i].TripChains.Count; j++ )
-                {
-                    var tripChainData = personData.TripChainData[j];
-                    if ( tripChainData.TripChain.JointTrip && !tripChainData.TripChain.JointTripRep )
-                    {
-                        continue;
-                    }
-                    var chosenVehicleType = resource.Resolution[i][j];
-                    var bestAssignments = tripChainData.BestPossibleAssignmentForVehicleType;
-                    float max = float.NegativeInfinity;
-                    for ( int a = 0; a < bestAssignments.Length; a++ )
-                    {
-                        if ( bestAssignments[a] != null && bestAssignments[a].U > max )
-                        {
-                            max = bestAssignments[a].U;
-                        }
-                    }
-                    firstPassHouseholdU += max;
-                    for ( int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++ )
-                    {
-                        var tripData = tripChainData.TripData[k];
-                        int modeIndex = bestAssignments[chosenVehicleType].PickedModes[k];
-                        if ( household.Persons[i].TripChains[j].Trips[k].Mode == modes[PassengerIndex] )
-                        {
-                            passengerU += tripData.V[PassengerIndex];
-                        }
-                        else
-                        {
-                            passengerU += tripData.V[modeIndex] + tripData.Error[modeIndex];
-                        }
-                        secondHouseholdU += tripData.V[modeIndex] + tripData.Error[modeIndex];
-                    }
-                }
-            }
-
-            bool found;
-            if ( !( found = HouseUtilities.TryGetValue( household, out float[][] utilities ) ) )
-            {
-                utilities = new float[totalHouseholdIterations][];
-                for ( int i = 0; i < utilities.Length; i++ )
-                {
-                    utilities[i] = new float[3];
-                }
-            }
-            utilities[hhldIteration][0] = firstPassHouseholdU;
-            utilities[hhldIteration][1] = secondHouseholdU;
-            utilities[hhldIteration][2] = passengerU;
-            if ( !found )
-            {
-                HouseUtilities[household] = utilities;
+                utilities[i] = new float[3];
             }
         }
-
-        public void HouseholdStart(ITashaHousehold household, int totalIterations)
+        utilities[hhldIteration][0] = firstPassHouseholdU;
+        utilities[hhldIteration][1] = secondHouseholdU;
+        utilities[hhldIteration][2] = passengerU;
+        if ( !found )
         {
+            HouseUtilities[household] = utilities;
         }
+    }
 
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-            
-        }
+    public void HouseholdStart(ITashaHousehold household, int totalIterations)
+    {
+    }
 
-        public void IterationStarting(int iteration, int totalIterations)
-        {
-            
-        }
+    public void IterationFinished(int iteration, int totalIterations)
+    {
+        
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public void IterationStarting(int iteration, int totalIterations)
+    {
+        
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        PassengerIndex = -1;
+        if ( !String.IsNullOrWhiteSpace( PassengerModeName ) )
         {
-            PassengerIndex = -1;
-            if ( !String.IsNullOrWhiteSpace( PassengerModeName ) )
+            for ( int i = 0; i < Root.AllModes.Count; i++ )
             {
-                for ( int i = 0; i < Root.AllModes.Count; i++ )
+                if ( Root.AllModes[i].ModeName == PassengerModeName )
                 {
-                    if ( Root.AllModes[i].ModeName == PassengerModeName )
-                    {
-                        PassengerIndex = i;
-                        break;
-                    }
-                }
-                if ( PassengerIndex <= 0 )
-                {
-                    error = "In '" + Name + "' we were unable to find any passenger mode with the name '" + PassengerModeName + "'.";
-                    return false;
+                    PassengerIndex = i;
+                    break;
                 }
             }
-            return true;
+            if ( PassengerIndex <= 0 )
+            {
+                error = "In '" + Name + "' we were unable to find any passenger mode with the name '" + PassengerModeName + "'.";
+                return false;
+            }
         }
+        return true;
     }
 }

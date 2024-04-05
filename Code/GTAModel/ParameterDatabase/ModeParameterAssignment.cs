@@ -23,168 +23,167 @@ using System.Threading.Tasks;
 using TMG.ParameterDatabase;
 using XTMF;
 
-namespace TMG.GTAModel.ParameterDatabase
+namespace TMG.GTAModel.ParameterDatabase;
+
+public class ModeParameterAssignment : IModeParameterAssignment
 {
-    public class ModeParameterAssignment : IModeParameterAssignment
+    [RunParameter( "Ignore Bad Parameters", false, "Ignore parameters that don't exist." )]
+    public bool IgnoreBadParameters;
+
+    public List<IParameterLink> Links;
+
+    [RunParameter( "Mode Name", "Auto", "The name of the mode to bind to." )]
+    public string ModeName;
+
+    [RootModule]
+    public I4StepModel Root;
+
+    private int[] ParameterIndexes;
+
+    [DoNotAutomate]
+    public IModeChoiceNode Mode { get; private set; }
+
+    public string Name
     {
-        [RunParameter( "Ignore Bad Parameters", false, "Ignore parameters that don't exist." )]
-        public bool IgnoreBadParameters;
+        get;
+        set;
+    }
 
-        public List<IParameterLink> Links;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter( "Mode Name", "Auto", "The name of the mode to bind to." )]
-        public string ModeName;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public I4StepModel Root;
-
-        private int[] ParameterIndexes;
-
-        [DoNotAutomate]
-        public IModeChoiceNode Mode { get; private set; }
-
-        public string Name
+    public void AssignBlendedParameters(List<Parameter> parameters, float weight)
+    {
+        if ( ParameterIndexes == null )
         {
-            get;
-            set;
+            CheckParameterNames( parameters );
         }
-
-        public float Progress
+        for ( int i = 0; i < Links.Count; i++ )
         {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void AssignBlendedParameters(List<Parameter> parameters, float weight)
-        {
-            if ( ParameterIndexes == null )
+            var index = ParameterIndexes[i];
+            if ( index >= 0 )
             {
-                CheckParameterNames( parameters );
+                Links[i].BlendedAssignment( parameters[index].Value, weight );
             }
-            for ( int i = 0; i < Links.Count; i++ )
+        }
+    }
+
+    public void AssignParameters(List<Parameter> parameters)
+    {
+        if ( ParameterIndexes == null )
+        {
+            CheckParameterNames( parameters );
+        }
+        for ( int i = 0; i < Links.Count; i++ )
+        {
+            var index = ParameterIndexes[i];
+            if ( index >= 0 )
             {
-                var index = ParameterIndexes[i];
-                if ( index >= 0 )
+                Links[i].Assign( parameters[index].Value );
+            }
+        }
+    }
+
+    public void FinishBlending()
+    {
+        for ( int i = 0; i < Links.Count; i++ )
+        {
+            Links[i].FinishBlending();
+        }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (!LinkMode(ModeName, out IModeChoiceNode mode))
+        {
+            error = "In '" + Name + "' we were unable to find a mode named '" + ModeName + "'!";
+            return false;
+        }
+        Mode = mode;
+        return true;
+    }
+
+    public void StartBlend()
+    {
+        for ( int i = 0; i < Links.Count; i++ )
+        {
+            Links[i].StartBlending();
+        }
+    }
+
+    private void CheckParameterNames(List<Parameter> parameters)
+    {
+        ParameterIndexes = new int[Links.Count];
+        for ( int i = 0; i < ParameterIndexes.Length; i++ )
+        {
+            ParameterIndexes[i] = -1;
+        }
+        Parallel.For( 0, Links.Count, i =>
+        {
+            for ( int j = 0; j < parameters.Count; j++ )
+            {
+                if ( Links[i].ParameterName == parameters[j].ParameterName )
                 {
-                    Links[i].BlendedAssignment( parameters[index].Value, weight );
+                    ParameterIndexes[i] = j;
                 }
             }
-        }
-
-        public void AssignParameters(List<Parameter> parameters)
-        {
-            if ( ParameterIndexes == null )
+            if ( ParameterIndexes[i] == -1 )
             {
-                CheckParameterNames( parameters );
-            }
-            for ( int i = 0; i < Links.Count; i++ )
-            {
-                var index = ParameterIndexes[i];
-                if ( index >= 0 )
+                if ( IgnoreBadParameters )
                 {
-                    Links[i].Assign( parameters[index].Value );
+                    ParameterIndexes[i] = -1;
+                }
+                else
+                {
+                    throw new XTMFRuntimeException(this, "We were unable to find a parameter called '" + Links[i].ParameterName
+                        + "' to be used for mode '" + ModeName + "' for mode choice!" );
                 }
             }
-        }
+        } );
+    }
 
-        public void FinishBlending()
+    private bool LinkMode(string modeName, out IModeChoiceNode mode)
+    {
+        var modes = Root.Modes;
+        var length = modes.Count;
+        for ( int i = 0; i < length; i++ )
         {
-            for ( int i = 0; i < Links.Count; i++ )
+            if ( LinkMode( modeName, modes[i], out mode ) )
             {
-                Links[i].FinishBlending();
+                return true;
             }
         }
+        mode = null;
+        return false;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    private bool LinkMode(string modeName, IModeChoiceNode current, out IModeChoiceNode mode)
+    {
+        if ( current.ModeName == modeName )
         {
-            if (!LinkMode(ModeName, out IModeChoiceNode mode))
-            {
-                error = "In '" + Name + "' we were unable to find a mode named '" + ModeName + "'!";
-                return false;
-            }
-            Mode = mode;
+            mode = current;
             return true;
         }
-
-        public void StartBlend()
+        if (current is IModeCategory cat)
         {
-            for ( int i = 0; i < Links.Count; i++ )
-            {
-                Links[i].StartBlending();
-            }
-        }
-
-        private void CheckParameterNames(List<Parameter> parameters)
-        {
-            ParameterIndexes = new int[Links.Count];
-            for ( int i = 0; i < ParameterIndexes.Length; i++ )
-            {
-                ParameterIndexes[i] = -1;
-            }
-            Parallel.For( 0, Links.Count, i =>
-            {
-                for ( int j = 0; j < parameters.Count; j++ )
-                {
-                    if ( Links[i].ParameterName == parameters[j].ParameterName )
-                    {
-                        ParameterIndexes[i] = j;
-                    }
-                }
-                if ( ParameterIndexes[i] == -1 )
-                {
-                    if ( IgnoreBadParameters )
-                    {
-                        ParameterIndexes[i] = -1;
-                    }
-                    else
-                    {
-                        throw new XTMFRuntimeException(this, "We were unable to find a parameter called '" + Links[i].ParameterName
-                            + "' to be used for mode '" + ModeName + "' for mode choice!" );
-                    }
-                }
-            } );
-        }
-
-        private bool LinkMode(string modeName, out IModeChoiceNode mode)
-        {
-            var modes = Root.Modes;
+            var modes = cat.Children;
             var length = modes.Count;
-            for ( int i = 0; i < length; i++ )
+            for (int i = 0; i < length; i++)
             {
-                if ( LinkMode( modeName, modes[i], out mode ) )
+                if (LinkMode(modeName, modes[i], out mode))
                 {
                     return true;
                 }
             }
-            mode = null;
-            return false;
         }
-
-        private bool LinkMode(string modeName, IModeChoiceNode current, out IModeChoiceNode mode)
-        {
-            if ( current.ModeName == modeName )
-            {
-                mode = current;
-                return true;
-            }
-            if (current is IModeCategory cat)
-            {
-                var modes = cat.Children;
-                var length = modes.Count;
-                for (int i = 0; i < length; i++)
-                {
-                    if (LinkMode(modeName, modes[i], out mode))
-                    {
-                        return true;
-                    }
-                }
-            }
-            mode = null;
-            return false;
-        }
+        mode = null;
+        return false;
     }
 }

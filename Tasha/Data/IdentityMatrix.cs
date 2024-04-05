@@ -22,56 +22,54 @@ using Datastructure;
 using TMG;
 using XTMF;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description = "This module proves an identity matrix which matches the same size as the zone system.")]
+public class IdentityMatrix : IDataSource<SparseTwinIndex<float>>
 {
-    [ModuleInformation(Description = "This module proves an identity matrix which matches the same size as the zone system.")]
-    public class IdentityMatrix : IDataSource<SparseTwinIndex<float>>
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public bool Loaded
     {
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public bool Loaded
-        {
-            get;
-            set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseTwinIndex<float> Data;
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            var matrix = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var flat = matrix.GetFlatData();
-            for(int i = 0; i < flat.Length; i++)
-            {
-                flat[i][i] = 1.0f;
-            }
-            Data = matrix;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
-            Data = null;
-        }
+        get;
+        set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseTwinIndex<float> Data;
+
+    public SparseTwinIndex<float> GiveData()
+    {
+        return Data;
+    }
+
+    public void LoadData()
+    {
+        var matrix = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        var flat = matrix.GetFlatData();
+        for(int i = 0; i < flat.Length; i++)
+        {
+            flat[i][i] = 1.0f;
+        }
+        Data = matrix;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+        Data = null;
+    }
 }

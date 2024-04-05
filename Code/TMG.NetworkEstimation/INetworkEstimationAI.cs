@@ -20,18 +20,17 @@ using System;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public interface INetworkEstimationAI : IModule
 {
-    public interface INetworkEstimationAI : IModule
-    {
-        bool UseComplexErrorFunction { get; }
+    bool UseComplexErrorFunction { get; }
 
-        void CancelExploration();
+    void CancelExploration();
 
-        float ComplexErrorFunction(ParameterSetting[] parameters, TransitLine[] transitLine, TransitLine[] predicted, float[] aggToTruth);
+    float ComplexErrorFunction(ParameterSetting[] parameters, TransitLine[] transitLine, TransitLine[] predicted, float[] aggToTruth);
 
-        float ErrorCombinationFunction(double rmse, double mabs, double terror);
+    float ErrorCombinationFunction(double rmse, double mabs, double terror);
 
-        void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction);
-    }
+    void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction);
 }

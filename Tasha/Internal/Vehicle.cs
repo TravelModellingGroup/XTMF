@@ -20,49 +20,48 @@ using System.Collections.Generic;
 
 using Tasha.Common;
 
-namespace Tasha.Internal
+namespace Tasha.Internal;
+
+/// <summary>
+/// This represents a vehicle in the simulation
+/// </summary>
+internal sealed class TashaVehicle : Attachable, IVehicle
 {
-    /// <summary>
-    /// This represents a vehicle in the simulation
-    /// </summary>
-    internal sealed class TashaVehicle : Attachable, IVehicle
+    private TashaVehicle(IVehicleType type)
     {
-        private TashaVehicle(IVehicleType type)
-        {
-            VehicleType = type;
-        }
+        VehicleType = type;
+    }
 
-        /// <summary>
-        /// The household this vehical belongs to
-        /// </summary>
-        public ITashaHousehold Household
+    /// <summary>
+    /// The household this vehical belongs to
+    /// </summary>
+    public ITashaHousehold Household
+    {
+        get
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
+            throw new System.NotImplementedException();
         }
+    }
 
-        /// <summary>
-        /// The modes this vehicle uses
-        /// </summary>
-        public ICollection<ITashaMode> Modes
-        {
-            get { return null; }
-        }
+    /// <summary>
+    /// The modes this vehicle uses
+    /// </summary>
+    public ICollection<ITashaMode> Modes
+    {
+        get { return null; }
+    }
 
-        /// <summary>
-        /// Gets the type of vehicle this is
-        /// </summary>
-        public IVehicleType VehicleType { get; private set; }
+    /// <summary>
+    /// Gets the type of vehicle this is
+    /// </summary>
+    public IVehicleType VehicleType { get; private set; }
 
-        public static TashaVehicle MakeVehicle(IVehicleType type)
-        {
-            return new TashaVehicle( type );
-        }
+    public static TashaVehicle MakeVehicle(IVehicleType type)
+    {
+        return new TashaVehicle( type );
+    }
 
-        public void Recycle()
-        {
-        }
+    public void Recycle()
+    {
     }
 }

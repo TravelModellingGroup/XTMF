@@ -23,80 +23,79 @@ using Datastructure;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.GTAModel
-{
-    [ModuleInformation(Description=
-        @"<b>This module is for testing purposes only!</b><p>This module is responsible for selecting a specific segment of the population based upon a range of ages, what type of work they have, employment status, and mobility category. It also provides parameters to change how the mode split will be placed upon them. You can disable particular modes with the ‘Infeasible Modes’ parameter by entering in the mode’s name. In addition you can also modify the utility of the mode by entering in its name, a colon and then entering in a number. You can chain these together by adding commas between them.
+namespace TMG.GTAModel;
+
+[ModuleInformation(Description=
+    @"<b>This module is for testing purposes only!</b><p>This module is responsible for selecting a specific segment of the population based upon a range of ages, what type of work they have, employment status, and mobility category. It also provides parameters to change how the mode split will be placed upon them. You can disable particular modes with the ‘Infeasible Modes’ parameter by entering in the mode’s name. In addition you can also modify the utility of the mode by entering in its name, a colon and then entering in a number. You can chain these together by adding commas between them.
 This module generates the trips based upon the population living in zones and the amount of retail employment in the destination zones.
 This module requires the root module of the model system to be an ‘IDemographic4StepModelSystemTemplate’.</p>" )]
-    public sealed class DemographicMarketGeneration : DemographicCategoryGeneration
+public sealed class DemographicMarketGeneration : DemographicCategoryGeneration
+{
+    [RunParameter( "Probability", 0.25f, "The probability of a person in this category making this kind of trip." )]
+    public float Probability;
+
+    override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
     {
-        [RunParameter( "Probability", 0.25f, "The probability of a person in this category making this kind of trip." )]
-        public float Probability;
+        var flatProduction = production.GetFlatData();
+        var flatAttraction = attractions.GetFlatData();
 
-        override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
+        var numberOfIndexes = flatAttraction.Length;
+
+        // Compute the Production and Attractions
+        float totalProduction;
+        float totalAttraction;
+        totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
+        totalAttraction = ComputeAttraction( flatAttraction, numberOfIndexes );
+
+        // Normalize the attractions
+        float productionAttractionRatio;
+        if ( totalAttraction != 0 )
         {
-            var flatProduction = production.GetFlatData();
-            var flatAttraction = attractions.GetFlatData();
-
-            var numberOfIndexes = flatAttraction.Length;
-
-            // Compute the Production and Attractions
-            float totalProduction;
-            float totalAttraction;
-            totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            totalAttraction = ComputeAttraction( flatAttraction, numberOfIndexes );
-
-            // Normalize the attractions
-            float productionAttractionRatio;
-            if ( totalAttraction != 0 )
-            {
-                productionAttractionRatio = totalProduction / totalAttraction; // inverse totalAttraction to save on divisions
-            }
-            else
-            {
-                productionAttractionRatio = totalProduction / numberOfIndexes;
-            }
-            for ( int i = 0; i < numberOfIndexes; i++ )
-            {
-                flatAttraction[i] = flatAttraction[i] * productionAttractionRatio;
-            }
+            productionAttractionRatio = totalProduction / totalAttraction; // inverse totalAttraction to save on divisions
         }
-
-        private float ComputeAttraction(float[] flatAttraction, int numberOfZones)
+        else
         {
-            float totalAttractions = 0;
-            var zoneArray = Root.ZoneSystem.ZoneArray.GetFlatData();
-            for ( int i = 0; i < numberOfZones; i++ )
-            {
-                var temp = zoneArray[i].RetailEmployment;
-                totalAttractions += ( flatAttraction[i] = temp );
-            }
-            return totalAttractions;
+            productionAttractionRatio = totalProduction / numberOfIndexes;
         }
-
-        private float ComputeProduction(float[] flatProduction, int numberOfZones)
+        for ( int i = 0; i < numberOfIndexes; i++ )
         {
-            int totalProduction = 0;
-            var flatPopulation = Root.Population.Population.GetFlatData();
-            Parallel.For( 0, numberOfZones, delegate(int i)
+            flatAttraction[i] = flatAttraction[i] * productionAttractionRatio;
+        }
+    }
+
+    private float ComputeAttraction(float[] flatAttraction, int numberOfZones)
+    {
+        float totalAttractions = 0;
+        var zoneArray = Root.ZoneSystem.ZoneArray.GetFlatData();
+        for ( int i = 0; i < numberOfZones; i++ )
+        {
+            var temp = zoneArray[i].RetailEmployment;
+            totalAttractions += ( flatAttraction[i] = temp );
+        }
+        return totalAttractions;
+    }
+
+    private float ComputeProduction(float[] flatProduction, int numberOfZones)
+    {
+        int totalProduction = 0;
+        var flatPopulation = Root.Population.Population.GetFlatData();
+        Parallel.For( 0, numberOfZones, delegate(int i)
+        {
+            var zonePop = flatPopulation[i];
+            if ( zonePop == null ) return;
+            var count = 0;
+            var popLength = zonePop.Length;
+            for ( int person = 0; person < popLength; person++ )
             {
-                var zonePop = flatPopulation[i];
-                if ( zonePop == null ) return;
-                var count = 0;
-                var popLength = zonePop.Length;
-                for ( int person = 0; person < popLength; person++ )
+                var p = zonePop[person];
+                if ( IsContained( p ) )
                 {
-                    var p = zonePop[person];
-                    if ( IsContained( p ) )
-                    {
-                        count++;
-                    }
+                    count++;
                 }
-                flatProduction[i] = count * Probability;
-                Interlocked.Add( ref totalProduction, count );
-            } );
-            return totalProduction * Probability;
-        }
+            }
+            flatProduction[i] = count * Probability;
+            Interlocked.Add( ref totalProduction, count );
+        } );
+        return totalProduction * Probability;
     }
 }

@@ -25,135 +25,105 @@ using Datastructure;
 using TMG.Functions;
 using XTMF;
 
-namespace TMG.GTAModel.V2.Distribution
+namespace TMG.GTAModel.V2.Distribution;
+
+public class V2ExternalDistribution : IDemographicDistribution
 {
-    public class V2ExternalDistribution : IDemographicDistribution
+    [SubModelInformation( Required = true, Description = "The rates for each PD that will produce an external trip (IE and EI)." )]
+    public IDataSource<SparseTwinIndex<float>> DistributionRates;
+
+    [SubModelInformation( Required = true, Description = "The observed external trips for the base year(1996)." )]
+    public IDataSource<SparseTwinIndex<float>> ObservedExternalTrips;
+
+    [ParentModel]
+    public IDemographicCategoyPurpose Parent;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter( "Save Location", "", "The location to save the data to, relative to the run directory.  Leave this blank to not save." )]
+    public string SaveDistribution;
+
+    public string Name
     {
-        [SubModelInformation( Required = true, Description = "The rates for each PD that will produce an external trip (IE and EI)." )]
-        public IDataSource<SparseTwinIndex<float>> DistributionRates;
+        get;
+        set;
+    }
 
-        [SubModelInformation( Required = true, Description = "The observed external trips for the base year(1996)." )]
-        public IDataSource<SparseTwinIndex<float>> ObservedExternalTrips;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [ParentModel]
-        public IDemographicCategoyPurpose Parent;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [RunParameter( "Save Location", "", "The location to save the data to, relative to the run directory.  Leave this blank to not save." )]
-        public string SaveDistribution;
-
-        public string Name
+    public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions,
+        IEnumerable<IDemographicCategory> category)
+    {
+        var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        float[][] generationRates = ProduceNormalizedObservedData();
+        SaveData.SaveMatrix( zones, generationRates, Path.Combine( SaveDistribution, "GenerationRates.csv" ) );
+        Apply( ret, generationRates );
+        if ( !String.IsNullOrWhiteSpace( SaveDistribution ) )
         {
-            get;
-            set;
+            SaveData.SaveMatrix( ret, Path.Combine( SaveDistribution, "ExternalDistribution.csv" ) );
         }
+        yield return ret;
+    }
 
-        public float Progress
-        {
-            get { return 0; }
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    private void Apply(SparseTwinIndex<float> ret, float[][] rates)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var data = ret.GetFlatData();
+        Parallel.For( 0, data.Length, i =>
         {
-            get { return null; }
-        }
-
-        public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions,
-            IEnumerable<IDemographicCategory> category)
-        {
-            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            float[][] generationRates = ProduceNormalizedObservedData();
-            SaveData.SaveMatrix( zones, generationRates, Path.Combine( SaveDistribution, "GenerationRates.csv" ) );
-            Apply( ret, generationRates );
-            if ( !String.IsNullOrWhiteSpace( SaveDistribution ) )
+            var row = data[i];
+            var rateRow = rates[i];
+            if ( zones[i].RegionNumber == 0 )
             {
-                SaveData.SaveMatrix( ret, Path.Combine( SaveDistribution, "ExternalDistribution.csv" ) );
+                for ( int j = 0; j < row.Length; j++ )
+                {
+                    row[j] = zones[i].Population * rateRow[j];
+                }
             }
-            yield return ret;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        private void Apply(SparseTwinIndex<float> ret, float[][] rates)
-        {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var data = ret.GetFlatData();
-            Parallel.For( 0, data.Length, i =>
+            else
             {
-                var row = data[i];
-                var rateRow = rates[i];
+                for ( int j = 0; j < row.Length; j++ )
+                {
+                    row[j] = zones[j].Population * rateRow[j];
+                }
+            }
+        } );
+    }
+
+    private float[][] ProduceNormalizedObservedData()
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        ObservedExternalTrips.LoadData();
+        DistributionRates.LoadData();
+        var distributionRates = ObservedExternalTrips.GiveData().GetFlatData();
+        var generationRates = DistributionRates.GiveData();
+        DistributionRates.UnloadData();
+        ObservedExternalTrips.UnloadData();
+        // EI
+        Parallel.For( 0, distributionRates.Length, i =>
+            {
                 if ( zones[i].RegionNumber == 0 )
                 {
-                    for ( int j = 0; j < row.Length; j++ )
-                    {
-                        row[j] = zones[i].Population * rateRow[j];
-                    }
-                }
-                else
-                {
-                    for ( int j = 0; j < row.Length; j++ )
-                    {
-                        row[j] = zones[j].Population * rateRow[j];
-                    }
-                }
-            } );
-        }
-
-        private float[][] ProduceNormalizedObservedData()
-        {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            ObservedExternalTrips.LoadData();
-            DistributionRates.LoadData();
-            var distributionRates = ObservedExternalTrips.GiveData().GetFlatData();
-            var generationRates = DistributionRates.GiveData();
-            DistributionRates.UnloadData();
-            ObservedExternalTrips.UnloadData();
-            // EI
-            Parallel.For( 0, distributionRates.Length, i =>
-                {
-                    if ( zones[i].RegionNumber == 0 )
-                    {
-                        var observedRates = distributionRates[i];
-                        var sum = 0.0;
-                        for ( int j = 0; j < observedRates.Length; j++ )
-                        {
-                            sum += observedRates[j];
-                        }
-                        if ( sum <= 0 )
-                        {
-                            return;
-                        }
-                        var factor = 1f / (float)sum;
-                        if ( factor > 1.1f | factor < 0.7f )
-                        {
-                            factor = 1f;
-                        }
-                        for ( int j = 0; j < observedRates.Length; j++ )
-                        {
-                            observedRates[j] *= factor;
-                            if ( observedRates[j] > 0 )
-                            {
-                                observedRates[j] = generationRates[zones[i].PlanningDistrict, zones[j].PlanningDistrict] * observedRates[j];
-                            }
-                        }
-                    }
-                } );
-            // IE
-            Parallel.For( 0, zones.Length, j =>
-                {
+                    var observedRates = distributionRates[i];
                     var sum = 0.0;
-                    for ( int i = 0; i < distributionRates.Length; i++ )
+                    for ( int j = 0; j < observedRates.Length; j++ )
                     {
-                        if ( zones[i].RegionNumber > 0 )
-                        {
-                            sum += distributionRates[i][j];
-                        }
+                        sum += observedRates[j];
                     }
                     if ( sum <= 0 )
                     {
@@ -164,19 +134,48 @@ namespace TMG.GTAModel.V2.Distribution
                     {
                         factor = 1f;
                     }
-                    for ( int i = 0; i < distributionRates.Length; i++ )
+                    for ( int j = 0; j < observedRates.Length; j++ )
                     {
-                        if ( zones[i].RegionNumber > 0 )
+                        observedRates[j] *= factor;
+                        if ( observedRates[j] > 0 )
                         {
-                            distributionRates[i][j] *= factor;
-                            if ( distributionRates[i][j] > 0 )
-                            {
-                                distributionRates[i][j] *= generationRates[zones[i].PlanningDistrict, zones[j].PlanningDistrict];
-                            }
+                            observedRates[j] = generationRates[zones[i].PlanningDistrict, zones[j].PlanningDistrict] * observedRates[j];
                         }
                     }
-                } );
-            return distributionRates;
-        }
+                }
+            } );
+        // IE
+        Parallel.For( 0, zones.Length, j =>
+            {
+                var sum = 0.0;
+                for ( int i = 0; i < distributionRates.Length; i++ )
+                {
+                    if ( zones[i].RegionNumber > 0 )
+                    {
+                        sum += distributionRates[i][j];
+                    }
+                }
+                if ( sum <= 0 )
+                {
+                    return;
+                }
+                var factor = 1f / (float)sum;
+                if ( factor > 1.1f | factor < 0.7f )
+                {
+                    factor = 1f;
+                }
+                for ( int i = 0; i < distributionRates.Length; i++ )
+                {
+                    if ( zones[i].RegionNumber > 0 )
+                    {
+                        distributionRates[i][j] *= factor;
+                        if ( distributionRates[i][j] > 0 )
+                        {
+                            distributionRates[i][j] *= generationRates[zones[i].PlanningDistrict, zones[j].PlanningDistrict];
+                        }
+                    }
+                }
+            } );
+        return distributionRates;
     }
 }

@@ -19,53 +19,52 @@
 using System.Collections.Generic;
 using XTMF.Interfaces;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// The defines a specific instantiation of a ModelSystemTemplate
+/// </summary>
+public interface IModelSystem
 {
     /// <summary>
-    /// The defines a specific instantiation of a ModelSystemTemplate
+    /// A string that describes what this model system is for
+    /// and about it.
     /// </summary>
-    public interface IModelSystem
-    {
-        /// <summary>
-        /// A string that describes what this model system is for
-        /// and about it.
-        /// </summary>
-        string Description { get; set; }
+    string Description { get; set; }
 
-        List<ILinkedParameter> LinkedParameters { get; }
+    List<ILinkedParameter> LinkedParameters { get; }
 
-        /// <summary>
-        /// Region Displays as part of this model system.
-        /// </summary>
-        List<IRegionDisplay> RegionDisplays { get; }
+    /// <summary>
+    /// Region Displays as part of this model system.
+    /// </summary>
+    List<IRegionDisplay> RegionDisplays { get; }
 
-        /// <summary>
-        /// The internal structure of the model system
-        /// </summary>
-        IModelSystemStructure ModelSystemStructure { get; set; }
+    /// <summary>
+    /// The internal structure of the model system
+    /// </summary>
+    IModelSystemStructure ModelSystemStructure { get; set; }
 
-        /// <summary>
-        /// The name of the model system
-        /// </summary>
-        string Name { get; set; }
+    /// <summary>
+    /// The name of the model system
+    /// </summary>
+    string Name { get; set; }
 
-        /// <summary>
-        /// Save the model system to disk
-        /// </summary>
-        bool Save(ref string error);
+    /// <summary>
+    /// Save the model system to disk
+    /// </summary>
+    bool Save(ref string error);
 
-        /// <summary>
-        /// Saves the model system to this disk with the given file name
-        /// </summary>
-        /// <param name="fileName">The file name to save it at</param>
-        /// <param name="error"></param>
-        bool Save(string fileName, ref string error);
+    /// <summary>
+    /// Saves the model system to this disk with the given file name
+    /// </summary>
+    /// <param name="fileName">The file name to save it at</param>
+    /// <param name="error"></param>
+    bool Save(string fileName, ref string error);
 
-        /// <summary>
-        /// Validate the correctness /completeness of the model system
-        /// </summary>
-        /// <param name="error">If there is an error, this still will be filled in with additional information about it</param>
-        /// <returns>If there was something invalid found in the model system</returns>
-        bool Validate(ref string error);
-    }
+    /// <summary>
+    /// Validate the correctness /completeness of the model system
+    /// </summary>
+    /// <param name="error">If there is an error, this still will be filled in with additional information about it</param>
+    /// <returns>If there was something invalid found in the model system</returns>
+    bool Validate(ref string error);
 }

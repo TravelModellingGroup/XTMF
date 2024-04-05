@@ -18,61 +18,60 @@
 */
 using System;
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+public class TestModelClass : IModule
 {
-    public class TestModelClass : IModule
+    public const string NumberOfZonesName = "NumberOfZones";
+    public const string PropertyName = "TestProperty";
+    public const string StringName = "TestString";
+
+    [Parameter( NumberOfZonesName, 0, "The number of zones in the model" )]
+    public int NumberOfZones;
+
+    [Parameter( StringName, "Success", "Used for testing that this is in fact working." )]
+    public string OurInputString;
+
+    private Tuple<byte, byte, byte>[] Colours = new[]
     {
-        public const string NumberOfZonesName = "NumberOfZones";
-        public const string PropertyName = "TestProperty";
-        public const string StringName = "TestString";
+        new Tuple<byte,byte,byte>(200, 150, 150),
+        new Tuple<byte,byte,byte>(150, 200, 150),
+        new Tuple<byte,byte,byte>(200, 150, 200),
+        new Tuple<byte,byte,byte>(200, 0, 0)
+    };
 
-        [Parameter( NumberOfZonesName, 0, "The number of zones in the model" )]
-        public int NumberOfZones;
+    private int ColourToSend;
 
-        [Parameter( StringName, "Success", "Used for testing that this is in fact working." )]
-        public string OurInputString;
+    public TestModelClass()
+    {
+        Name = "TestModel";
+    }
 
-        private Tuple<byte, byte, byte>[] Colours = new[]
+    public string Name { get; set; }
+
+    public float Progress { get; } = 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            new Tuple<byte,byte,byte>(200, 150, 150),
-            new Tuple<byte,byte,byte>(150, 200, 150),
-            new Tuple<byte,byte,byte>(200, 150, 200),
-            new Tuple<byte,byte,byte>(200, 0, 0)
-        };
-
-        private int ColourToSend;
-
-        public TestModelClass()
-        {
-            Name = "TestModel";
+            int toSend = ColourToSend;
+            ColourToSend = ( ColourToSend + 1 ) % Colours.Length;
+            return Colours[toSend];
         }
+    }
 
-        public string Name { get; set; }
+    [Parameter( PropertyName, "Serious Data", "This data is very serious and should never be questioned!" )]
+    public string Property { get; set; }
 
-        public float Progress { get; } = 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
-            {
-                int toSend = ColourToSend;
-                ColourToSend = ( ColourToSend + 1 ) % Colours.Length;
-                return Colours[toSend];
-            }
-        }
-
-        [Parameter( PropertyName, "Serious Data", "This data is very serious and should never be questioned!" )]
-        public string Property { get; set; }
-
-        /// <summary>
-        /// This is called before the start method as a way to pre-check that all of the parameters that are selected
-        /// are in fact valid for this module.
-        /// </summary>
-        /// <param name="error">A string that should be assigned a detailed error</param>
-        /// <returns>If the validation was successful or if there was a problem</returns>
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    /// <summary>
+    /// This is called before the start method as a way to pre-check that all of the parameters that are selected
+    /// are in fact valid for this module.
+    /// </summary>
+    /// <param name="error">A string that should be assigned a detailed error</param>
+    /// <returns>If the validation was successful or if there was a problem</returns>
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

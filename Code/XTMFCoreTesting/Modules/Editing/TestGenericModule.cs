@@ -20,34 +20,33 @@ using System;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedTypeParameter
 
-namespace XTMF.Testing.Modules.Editing
+namespace XTMF.Testing.Modules.Editing;
+
+
+public interface IGenericInterface<A,B,C,D> : IModule
 {
 
-    public interface IGenericInterface<A,B,C,D> : IModule
+}
+
+public abstract class NonGenericBase<E,F,G> : IGenericInterface<float, E, F, G>
+{
+    public string Name { get; set; } = string.Empty;
+
+    public float Progress { get; } = 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+    public bool RuntimeValidation(ref string? error)
     {
-
+        return true;
     }
+}
 
-    public abstract class NonGenericBase<E,F,G> : IGenericInterface<float, E, F, G>
-    {
-        public string Name { get; set; } = string.Empty;
-
-        public float Progress { get; } = 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        public bool RuntimeValidation(ref string? error)
-        {
-            return true;
-        }
-    }
-
-    public class TestGenericModule<H, I> : NonGenericBase<float, H, I>
-    {
-        /// <summary>
-        /// Actually have a data field in order to ensure the T matters
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public I? Data;
-    }
+public class TestGenericModule<H, I> : NonGenericBase<float, H, I>
+{
+    /// <summary>
+    /// Actually have a data field in order to ensure the T matters
+    /// </summary>
+    // ReSharper disable once UnusedMember.Global
+    public I? Data;
 }

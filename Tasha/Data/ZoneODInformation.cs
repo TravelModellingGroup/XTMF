@@ -21,82 +21,81 @@ using Datastructure;
 using XTMF;
 using TMG;
 using TMG.Input;
-namespace Tasha.Data
-{
-    [ModuleInformation(Description =
-        @"This module is designed to take in information from the reader
+namespace Tasha.Data;
+
+[ModuleInformation(Description =
+    @"This module is designed to take in information from the reader
 and store it into a SparseArray<float> that is of the same type as the model system's zone system.
 Data outside of the zones that are defined is trimmed off. Both the Origin and Destination from the Reader will be used.")]
-    public class ZoneODInformation : IDataSource<SparseTwinIndex<float>>
+public class ZoneODInformation : IDataSource<SparseTwinIndex<float>>
+{
+
+    [RunParameter("Continue After Invalid ODPair", false, "Should the model system continue after an invalid value has been read in?")]
+    public bool ContinueAfterInvalidODPair;
+
+    [SubModelInformation(Required = false, Description = "Origin, Destination will be used to store data.")]
+    public IReadODData<float> Reader;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseTwinIndex<float> Data;
+
+    public SparseTwinIndex<float> GiveData()
     {
+        return Data;
+    }
 
-        [RunParameter("Continue After Invalid ODPair", false, "Should the model system continue after an invalid value has been read in?")]
-        public bool ContinueAfterInvalidODPair;
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        [SubModelInformation(Required = false, Description = "Origin, Destination will be used to store data.")]
-        public IReadODData<float> Reader;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        private SparseTwinIndex<float> Data;
-
-        public SparseTwinIndex<float> GiveData()
+    public void LoadData()
+    {
+        var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        if (Reader != null)
         {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            if (Reader != null)
+            foreach (var point in Reader.Read())
             {
-                foreach (var point in Reader.Read())
+                if (data.ContainsIndex(point.O, point.D))
                 {
-                    if (data.ContainsIndex(point.O, point.D))
-                    {
-                        data[point.O, point.D] = point.Data;
-                    }
-                    else if (!ContinueAfterInvalidODPair)
-                    {
-                        throw new XTMFRuntimeException(this, $"An invalid OD pair was attempted to be read in {point.O} - {point.D} with the value of {point.Data}!");
-                    }
+                    data[point.O, point.D] = point.Data;
+                }
+                else if (!ContinueAfterInvalidODPair)
+                {
+                    throw new XTMFRuntimeException(this, $"An invalid OD pair was attempted to be read in {point.O} - {point.D} with the value of {point.Data}!");
                 }
             }
-            Data = data;
         }
+        Data = data;
+    }
 
-        public void UnloadData()
+    public void UnloadData()
+    {
+        Data = null;
+    }
+
+    public string Name { get; set; }
+
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+
+        if (Root.ZoneSystem == null)
         {
-            Data = null;
+            error = $"No Zone OD data specified or loaded in root demand model {Root}.";
+            return false;
         }
-
-        public string Name { get; set; }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-
-            if (Root.ZoneSystem == null)
-            {
-                error = $"No Zone OD data specified or loaded in root demand model {Root}.";
-                return false;
-            }
-            return true;
-        }
+        return true;
     }
 }

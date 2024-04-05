@@ -25,197 +25,196 @@ using Datastructure;
 using TMG.Modes;
 using XTMF;
 
-namespace TMG.GTAModel.Tally
+namespace TMG.GTAModel.Tally;
+
+public class StationAccessTally : DirectModeAggregationTally
 {
-    public class StationAccessTally : DirectModeAggregationTally
+    [RunParameter("Count From Origin", true, "Should we be tallying from the origin to the intermediate zone" +
+        "\r\nor should we be counting from the intermediate zone to the destination?")]
+    public bool CountFromOrigin;
+
+    [RunParameter("Count Line Hull", false, "Should we be tallying the line haul (access station to egress station).\r\nThis option takes priority over Count From Origin.")]
+    public bool LineHaull;
+
+    [RunParameter("Simulation Time", "7:00AM", typeof(Time), "The time of day to use for the split.")]
+    public Time Time;
+
+    public override void IncludeTally(float[][] currentTally)
     {
-        [RunParameter("Count From Origin", true, "Should we be tallying from the origin to the intermediate zone" +
-            "\r\nor should we be counting from the intermediate zone to the destination?")]
-        public bool CountFromOrigin;
-
-        [RunParameter("Count Line Hull", false, "Should we be tallying the line haul (access station to egress station).\r\nThis option takes priority over Count From Origin.")]
-        public bool LineHaull;
-
-        [RunParameter("Simulation Time", "7:00AM", typeof(Time), "The time of day to use for the split.")]
-        public Time Time;
-
-        public override void IncludeTally(float[][] currentTally)
+        var purposes = Root.Purpose;
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        var zones = zoneArray.GetFlatData();
+        for(int purp = 0; purp < PurposeIndexes.Length; purp++)
         {
-            var purposes = Root.Purpose;
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
-            for(int purp = 0; purp < PurposeIndexes.Length; purp++)
+            var purpose = purposes[purp];
+            for(int m = 0; m < ModeIndexes.Length; m++)
             {
-                var purpose = purposes[purp];
-                for(int m = 0; m < ModeIndexes.Length; m++)
+                var data = GetResult(purpose.Flows, ModeIndexes[m]);
+                if(data == null) continue;
+                var mode = (IStationCollectionMode)GetMode(ModeIndexes[m]);
+                if(LineHaull)
                 {
-                    var data = GetResult(purpose.Flows, ModeIndexes[m]);
-                    if(data == null) continue;
-                    var mode = (IStationCollectionMode)GetMode(ModeIndexes[m]);
-                    if(LineHaull)
+                    ComputeLineHaull(currentTally, zoneArray, zones, m, data);
+                }
+                else
+                {
+                    mode.Access = CountFromOrigin;
+                    if(CountFromOrigin)
                     {
-                        ComputeLineHaull(currentTally, zoneArray, zones, m, data);
+                        ComputeFromOrigin(currentTally, zoneArray, zones, m, data);
                     }
                     else
                     {
-                        mode.Access = CountFromOrigin;
-                        if(CountFromOrigin)
-                        {
-                            ComputeFromOrigin(currentTally, zoneArray, zones, m, data);
-                        }
-                        else
-                        {
-                            ComputeFromDestination(currentTally, zoneArray, zones, m, data);
-                        }
+                        ComputeFromDestination(currentTally, zoneArray, zones, m, data);
                     }
                 }
             }
         }
+    }
 
-        private void ComputeFromDestination(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
+    private void ComputeFromDestination(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
+    {
+        Parallel.For(0, data.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            delegate (int j)
         {
-            Parallel.For(0, data.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                delegate (int j)
-            {
-                for(int i = 0; i < data.Length; i++)
-                {
-                    if(data[i] == null || data[i][j] <= 0f) continue;
-                    var choices = GetStationChoiceSplit(m, zones[i], zones[j]);
-                    if(choices == null) continue;
-                    // check for egress stations first
-                    var stationZones = choices.Item2;
-                    if(stationZones == null)
-                    {
-                        // if there are no egress stations, use the access stations
-                        stationZones = choices.Item1;
-                    }
-                    var splits = choices.Item3;
-                    var totalTrips = data[i][j];
-                    var totalSplits = 0f;
-                    for(int z = 0; z < stationZones.Length; z++)
-                    {
-                        if(stationZones[z] != null)
-                        {
-                            totalSplits += splits[z];
-                        }
-                    }
-                    for(int z = 0; z < stationZones.Length; z++)
-                    {
-                        if(stationZones[z] == null) break;
-                        var flatZoneNumber = zoneArray.GetFlatIndex(stationZones[z].ZoneNumber);
-                        if(currentTally[flatZoneNumber] == null)
-                        {
-                            lock (data)
-                            {
-                                Thread.MemoryBarrier();
-                                if(currentTally[flatZoneNumber] == null)
-                                {
-                                    currentTally[flatZoneNumber] = new float[data[i].Length];
-                                }
-                            }
-                        }
-                        // no lock needed since we are doing it parallel in the i, so there will be no conflicts
-                        currentTally[flatZoneNumber][j] += totalTrips * (splits[z] / totalSplits);
-                    }
-                }
-            });
-        }
-
-        private void ComputeFromOrigin(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
-        {
-            Parallel.For(0, data.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                delegate (int i)
-            {
-                if(data[i] == null) return;
-                var tallyRow = currentTally[i];
-                for(int j = 0; j < data[i].Length; j++)
-                {
-                    var totalTrips = data[i][j];
-                    if(totalTrips <= 0f) continue;
-                    var choices = GetStationChoiceSplit(m, zones[i], zones[j]);
-                    if(choices == null) continue;
-                    var stationZones = choices.Item1;
-                    var splits = choices.Item3;
-                    var totalSplits = 0f;
-                    for(int z = 0; z < stationZones.Length; z++)
-                    {
-                        if(stationZones[z] != null)
-                        {
-                            totalSplits += splits[z];
-                        }
-                    }
-                    for(int z = 0; z < stationZones.Length; z++)
-                    {
-                        if(stationZones[z] == null) break;
-                        var flatZoneNumber = zoneArray.GetFlatIndex(stationZones[z].ZoneNumber);
-                        // no lock needed since we are doing it parallel in the i, so there will be no conflicts
-                        tallyRow[flatZoneNumber] += totalTrips * (splits[z] / totalSplits);
-                    }
-                }
-            });
-        }
-
-        public float Sum(float[][] data)
-        {
-            return data.Sum(row => row == null ? 0f : row.Sum());
-        }
-
-        private void ComputeLineHaull(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
-        {
-            // this can't be in parallel since we are writing to the some access and egress data entries
             for(int i = 0; i < data.Length; i++)
             {
-                if(data[i] == null) continue;
-                for(int j = 0; j < data[i].Length; j++)
+                if(data[i] == null || data[i][j] <= 0f) continue;
+                var choices = GetStationChoiceSplit(m, zones[i], zones[j]);
+                if(choices == null) continue;
+                // check for egress stations first
+                var stationZones = choices.Item2;
+                if(stationZones == null)
                 {
-                    var totalTrips = data[i][j];
-                    if(totalTrips <= 0f)
+                    // if there are no egress stations, use the access stations
+                    stationZones = choices.Item1;
+                }
+                var splits = choices.Item3;
+                var totalTrips = data[i][j];
+                var totalSplits = 0f;
+                for(int z = 0; z < stationZones.Length; z++)
+                {
+                    if(stationZones[z] != null)
                     {
-                        continue;
+                        totalSplits += splits[z];
                     }
-                    var choices = GetStationChoiceSplit(m, zones[i], zones[j]);
-                    if(choices == null)
+                }
+                for(int z = 0; z < stationZones.Length; z++)
+                {
+                    if(stationZones[z] == null) break;
+                    var flatZoneNumber = zoneArray.GetFlatIndex(stationZones[z].ZoneNumber);
+                    if(currentTally[flatZoneNumber] == null)
                     {
-                        continue;
-                    }
-                    var accessStations = choices.Item1;
-                    var egressStations = choices.Item2;
-                    if(egressStations == null)
-                    {
-                        continue;
-                    }
-                    var splits = choices.Item3;
-                    var totalSplits = 0f;
-                    for(int z = 0; z < accessStations.Length; z++)
-                    {
-                        if(accessStations[z] != null)
+                        lock (data)
                         {
-                            totalSplits += splits[z];
+                            Thread.MemoryBarrier();
+                            if(currentTally[flatZoneNumber] == null)
+                            {
+                                currentTally[flatZoneNumber] = new float[data[i].Length];
+                            }
                         }
                     }
-                    for(int z = 0; z < accessStations.Length; z++)
+                    // no lock needed since we are doing it parallel in the i, so there will be no conflicts
+                    currentTally[flatZoneNumber][j] += totalTrips * (splits[z] / totalSplits);
+                }
+            }
+        });
+    }
+
+    private void ComputeFromOrigin(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
+    {
+        Parallel.For(0, data.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            delegate (int i)
+        {
+            if(data[i] == null) return;
+            var tallyRow = currentTally[i];
+            for(int j = 0; j < data[i].Length; j++)
+            {
+                var totalTrips = data[i][j];
+                if(totalTrips <= 0f) continue;
+                var choices = GetStationChoiceSplit(m, zones[i], zones[j]);
+                if(choices == null) continue;
+                var stationZones = choices.Item1;
+                var splits = choices.Item3;
+                var totalSplits = 0f;
+                for(int z = 0; z < stationZones.Length; z++)
+                {
+                    if(stationZones[z] != null)
                     {
-                        if(accessStations[z] == null | egressStations[z] == null) break;
-                        var accessZoneNumber = zoneArray.GetFlatIndex(accessStations[z].ZoneNumber);
-                        var egressZoneNumber = zoneArray.GetFlatIndex(egressStations[z].ZoneNumber);
-                        // no lock needed since we are doing it parallel in the i, so there will be no conflicts
-                        currentTally[accessZoneNumber][egressZoneNumber] += totalTrips * (splits[z] / totalSplits);
+                        totalSplits += splits[z];
                     }
+                }
+                for(int z = 0; z < stationZones.Length; z++)
+                {
+                    if(stationZones[z] == null) break;
+                    var flatZoneNumber = zoneArray.GetFlatIndex(stationZones[z].ZoneNumber);
+                    // no lock needed since we are doing it parallel in the i, so there will be no conflicts
+                    tallyRow[flatZoneNumber] += totalTrips * (splits[z] / totalSplits);
+                }
+            }
+        });
+    }
+
+    public float Sum(float[][] data)
+    {
+        return data.Sum(row => row == null ? 0f : row.Sum());
+    }
+
+    private void ComputeLineHaull(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
+    {
+        // this can't be in parallel since we are writing to the some access and egress data entries
+        for(int i = 0; i < data.Length; i++)
+        {
+            if(data[i] == null) continue;
+            for(int j = 0; j < data[i].Length; j++)
+            {
+                var totalTrips = data[i][j];
+                if(totalTrips <= 0f)
+                {
+                    continue;
+                }
+                var choices = GetStationChoiceSplit(m, zones[i], zones[j]);
+                if(choices == null)
+                {
+                    continue;
+                }
+                var accessStations = choices.Item1;
+                var egressStations = choices.Item2;
+                if(egressStations == null)
+                {
+                    continue;
+                }
+                var splits = choices.Item3;
+                var totalSplits = 0f;
+                for(int z = 0; z < accessStations.Length; z++)
+                {
+                    if(accessStations[z] != null)
+                    {
+                        totalSplits += splits[z];
+                    }
+                }
+                for(int z = 0; z < accessStations.Length; z++)
+                {
+                    if(accessStations[z] == null | egressStations[z] == null) break;
+                    var accessZoneNumber = zoneArray.GetFlatIndex(accessStations[z].ZoneNumber);
+                    var egressZoneNumber = zoneArray.GetFlatIndex(egressStations[z].ZoneNumber);
+                    // no lock needed since we are doing it parallel in the i, so there will be no conflicts
+                    currentTally[accessZoneNumber][egressZoneNumber] += totalTrips * (splits[z] / totalSplits);
                 }
             }
         }
+    }
 
-        private Tuple<IZone[], IZone[], float[]> GetStationChoiceSplit(int m, IZone origin, IZone destination)
+    private Tuple<IZone[], IZone[], float[]> GetStationChoiceSplit(int m, IZone origin, IZone destination)
+    {
+        // this mode is our base
+        var mode = GetMode(ModeIndexes[m]);
+        var cat = mode as IStationCollectionMode;
+        if(cat == null)
         {
-            // this mode is our base
-            var mode = GetMode(ModeIndexes[m]);
-            var cat = mode as IStationCollectionMode;
-            if(cat == null)
-            {
-                throw new XTMFRuntimeException(this, "The mode '" + mode.ModeName
-                    + "' is not an TMG.Modes.IStationCollectionMode and can not be used with a StationAccessTally!");
-            }
-            return cat.GetSubchoiceSplit(origin, destination, Time);
+            throw new XTMFRuntimeException(this, "The mode '" + mode.ModeName
+                + "' is not an TMG.Modes.IStationCollectionMode and can not be used with a StationAccessTally!");
         }
+        return cat.GetSubchoiceSplit(origin, destination, Time);
     }
 }

@@ -18,10 +18,9 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+public class RootModule : Attribute
 {
-    public class RootModule : Attribute
-    {
-        public Type? ModelSystem { get; set; }
-    }
+    public Type? ModelSystem { get; set; }
 }

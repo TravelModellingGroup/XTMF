@@ -21,39 +21,38 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.FeasibilityCalculations
+namespace TMG.GTAModel.Modes.FeasibilityCalculations;
+
+[ModuleInformation( Description = "This module will return false if the two zones are the same." )]
+public class NoIntrazonealTrips : ICalculation<Pair<IZone, IZone>, bool>
 {
-    [ModuleInformation( Description = "This module will return false if the two zones are the same." )]
-    public class NoIntrazonealTrips : ICalculation<Pair<IZone, IZone>, bool>
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public string Name { get; set; }
+        get { return 0f; }
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public void Load()
+    {
+    }
 
-        public void Load()
-        {
-        }
+    public bool ProduceResult(Pair<IZone, IZone> data)
+    {
+        return data.First != data.Second;
+    }
 
-        public bool ProduceResult(Pair<IZone, IZone> data)
-        {
-            return data.First != data.Second;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Unload()
-        {
-        }
+    public void Unload()
+    {
     }
 }

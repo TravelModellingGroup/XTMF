@@ -18,44 +18,43 @@
 */
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Defines how a made class will be used by the system
+/// Warnning, this class will be called in a multi-threaded fashion
+/// </summary>
+public interface ITashaMode : IMode
 {
     /// <summary>
-    /// Defines how a made class will be used by the system
-    /// Warnning, this class will be called in a multi-threaded fashion
+    /// Which Vehical [if any] does this mode require
     /// </summary>
-    public interface ITashaMode : IMode
-    {
-        /// <summary>
-        /// Which Vehical [if any] does this mode require
-        /// </summary>
-        IVehicleType RequiresVehicle { get; }
+    IVehicleType RequiresVehicle { get; }
 
-        double VarianceScale { get; set; }
+    double VarianceScale { get; set; }
 
-        /// <summary>
-        /// Calculates the V for the given trip using this mode
-        /// </summary>
-        /// <param name="trip">The trip to calculate for</param>
-        /// <returns>The V for this trip</returns>
-        double CalculateV(ITrip trip);
+    /// <summary>
+    /// Calculates the V for the given trip using this mode
+    /// </summary>
+    /// <param name="trip">The trip to calculate for</param>
+    /// <returns>The V for this trip</returns>
+    double CalculateV(ITrip trip);
 
-        /// <summary>
-        /// Check to see if this mode is feasible for the given trip
-        /// </summary>
-        /// <param name="trip">The trip to check if we can possibly be used for</param>
-        /// <returns>If trip is feasible</returns>
-        bool Feasible(ITrip trip);
+    /// <summary>
+    /// Check to see if this mode is feasible for the given trip
+    /// </summary>
+    /// <param name="trip">The trip to check if we can possibly be used for</param>
+    /// <returns>If trip is feasible</returns>
+    bool Feasible(ITrip trip);
 
-        /// <summary>
-        /// Checks to see if this trip chain as a whole is feasable.
-        /// </summary>
-        /// <remarks>
-        /// This is used for modes like Train access, where you need to egress to the same station
-        /// so you can pick back up your car.
-        /// </remarks>
-        /// <param name="tripChain">The trip chain to validate</param>
-        /// <returns>If this trip chainis feasable according to this mode</returns>
-        bool Feasible(ITripChain tripChain);
-    }
+    /// <summary>
+    /// Checks to see if this trip chain as a whole is feasable.
+    /// </summary>
+    /// <remarks>
+    /// This is used for modes like Train access, where you need to egress to the same station
+    /// so you can pick back up your car.
+    /// </remarks>
+    /// <param name="tripChain">The trip chain to validate</param>
+    /// <returns>If this trip chainis feasable according to this mode</returns>
+    bool Feasible(ITripChain tripChain);
 }

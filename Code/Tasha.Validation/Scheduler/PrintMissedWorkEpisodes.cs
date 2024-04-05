@@ -19,33 +19,31 @@
 using System;
 using XTMF;
 using Tasha.Common;
-namespace Tasha.Validation.Scheduler
+namespace Tasha.Validation.Scheduler;
+
+
+public class PrintMissedWorkEpisodes : IPostIteration
 {
 
-    public class PrintMissedWorkEpisodes : IPostIteration
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public void Execute(int iterationNumber, int totalIterations)
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public void Execute(int iterationNumber, int totalIterations)
-        {
-            Console.WriteLine("Number of skipped work episodes: " + Tasha.Scheduler.PersonSchedule.SkippedWorkEpisodes);
-            Tasha.Scheduler.PersonSchedule.SkippedWorkEpisodes = 0;
-        }
-
-        public void Load(IConfiguration config, int totalIterations)
-        {
-            
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        Console.WriteLine("Number of skipped work episodes: " + Tasha.Scheduler.PersonSchedule.SkippedWorkEpisodes);
+        Tasha.Scheduler.PersonSchedule.SkippedWorkEpisodes = 0;
     }
 
+    public void Load(IConfiguration config, int totalIterations)
+    {
+        
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 }

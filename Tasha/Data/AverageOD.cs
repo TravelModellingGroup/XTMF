@@ -22,82 +22,80 @@ using TMG;
 using TMG.Functions;
 using XTMF;
 
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(
+    Description = "This module is designed to take the average of the two given matrices.  It can then store the result in the first matrix or create a new one to pass on to the next step."
+    )]
+public class AverageOD : IDataSource<SparseTwinIndex<float>>
 {
-    [ModuleInformation(
-        Description = "This module is designed to take the average of the two given matrices.  It can then store the result in the first matrix or create a new one to pass on to the next step."
-        )]
-    public class AverageOD : IDataSource<SparseTwinIndex<float>>
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public bool Loaded { get; set; }
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseTwinIndex<float> Data;
+
+    [SubModelInformation(Required = false, Description = "The first matrix if loading from a resource")]
+    public IResource FirstMatrix;
+
+    [SubModelInformation(Required = false, Description = "The second matrix if loading from a resource")]
+    public IResource SecondMatrix;
+
+    [SubModelInformation(Required = false, Description = "The first matrix if loading from a data source")]
+    public IDataSource<SparseTwinIndex<float>> FirstDataSource;
+
+    [SubModelInformation(Required = false, Description = "The second matrix if loading from a data source")]
+    public IDataSource<SparseTwinIndex<float>> SecondDataSource;
+
+    [RunParameter("Overwrite First", false, "Should we save memory by building the result in the first matrix?")]
+    public bool OverwriteFirst;
+
+    public SparseTwinIndex<float> GiveData()
     {
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public bool Loaded { get; set; }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseTwinIndex<float> Data;
-
-        [SubModelInformation(Required = false, Description = "The first matrix if loading from a resource")]
-        public IResource FirstMatrix;
-
-        [SubModelInformation(Required = false, Description = "The second matrix if loading from a resource")]
-        public IResource SecondMatrix;
-
-        [SubModelInformation(Required = false, Description = "The first matrix if loading from a data source")]
-        public IDataSource<SparseTwinIndex<float>> FirstDataSource;
-
-        [SubModelInformation(Required = false, Description = "The second matrix if loading from a data source")]
-        public IDataSource<SparseTwinIndex<float>> SecondDataSource;
-
-        [RunParameter("Overwrite First", false, "Should we save memory by building the result in the first matrix?")]
-        public bool OverwriteFirst;
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public void LoadData()
-        {
-            SparseTwinIndex<float> first = ModuleHelper.GetDataFromDatasourceOrResource(FirstDataSource, FirstMatrix);
-            SparseTwinIndex<float> second = ModuleHelper.GetDataFromDatasourceOrResource(SecondDataSource, SecondMatrix);
-            SparseTwinIndex<float> ret = GetResultMatrix(first);
-            var data = ret.GetFlatData();
-            var f = first.GetFlatData();
-            var s = second.GetFlatData();
-            for (int i = 0; i < data.Length; i++)
-            {
-                VectorHelper.Average(data[i], 0, f[i], 0, s[i], 0, data[i].Length);
-            }
-            Data = ret;
-            Loaded = true;
-        }
-
-        private SparseTwinIndex<float> GetResultMatrix(SparseTwinIndex<float> first)
-        {
-            if (OverwriteFirst)
-            {
-                return first;
-            }
-            return first.CreateSimilarArray<float>();
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(FirstDataSource, FirstMatrix, ref error)
-                && this.EnsureExactlyOneAndOfSameType(SecondDataSource, SecondMatrix, ref error);
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-            Loaded = false;
-        }
+        return Data;
     }
 
+    public void LoadData()
+    {
+        SparseTwinIndex<float> first = ModuleHelper.GetDataFromDatasourceOrResource(FirstDataSource, FirstMatrix);
+        SparseTwinIndex<float> second = ModuleHelper.GetDataFromDatasourceOrResource(SecondDataSource, SecondMatrix);
+        SparseTwinIndex<float> ret = GetResultMatrix(first);
+        var data = ret.GetFlatData();
+        var f = first.GetFlatData();
+        var s = second.GetFlatData();
+        for (int i = 0; i < data.Length; i++)
+        {
+            VectorHelper.Average(data[i], 0, f[i], 0, s[i], 0, data[i].Length);
+        }
+        Data = ret;
+        Loaded = true;
+    }
+
+    private SparseTwinIndex<float> GetResultMatrix(SparseTwinIndex<float> first)
+    {
+        if (OverwriteFirst)
+        {
+            return first;
+        }
+        return first.CreateSimilarArray<float>();
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(FirstDataSource, FirstMatrix, ref error)
+            && this.EnsureExactlyOneAndOfSameType(SecondDataSource, SecondMatrix, ref error);
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+        Loaded = false;
+    }
 }

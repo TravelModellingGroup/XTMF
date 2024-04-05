@@ -23,94 +23,93 @@ using Datastructure;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+// ReSharper disable once InconsistentNaming
+public sealed class GTAModelGeneration : DemographicCategoryGeneration
 {
-    // ReSharper disable once InconsistentNaming
-    public sealed class GTAModelGeneration : DemographicCategoryGeneration
+    [RunParameter( "Probability", 1.0f, "The probability for a person to make this trip." )]
+    public float Probability;
+
+    public float ComputeAttraction(float[] flatAttraction, IZone[] zones, int numberOfZones)
     {
-        [RunParameter( "Probability", 1.0f, "The probability for a person to make this trip." )]
-        public float Probability;
+        float totalAttractions = 0;
+        var demographics = Root.Demographics;
+        var flatEmploymentRates = demographics.JobOccupationRates.GetFlatData();
+        var flatJobTypes = demographics.JobTypeRates.GetFlatData();
 
-        public float ComputeAttraction(float[] flatAttraction, IZone[] zones, int numberOfZones)
+        for ( int i = 0; i < numberOfZones; i++ )
         {
-            float totalAttractions = 0;
-            var demographics = Root.Demographics;
-            var flatEmploymentRates = demographics.JobOccupationRates.GetFlatData();
-            var flatJobTypes = demographics.JobTypeRates.GetFlatData();
-
-            for ( int i = 0; i < numberOfZones; i++ )
+            var total = 0f;
+            foreach ( var empRange in EmploymentStatusCategory )
             {
-                var total = 0f;
-                foreach ( var empRange in EmploymentStatusCategory )
+                for ( int emp = empRange.Start; emp <= empRange.Stop; emp++ )
                 {
-                    for ( int emp = empRange.Start; emp <= empRange.Stop; emp++ )
+                    foreach ( var occRange in EmploymentStatusCategory )
                     {
-                        foreach ( var occRange in EmploymentStatusCategory )
+                        for ( int occ = occRange.Start; occ <= occRange.Stop; occ++ )
                         {
-                            for ( int occ = occRange.Start; occ <= occRange.Stop; occ++ )
-                            {
-                                var temp = flatEmploymentRates[i][emp][occ];
-                                temp *= flatJobTypes[i][emp];
-                                temp *= zones[i].Employment;
-                                total += temp;
-                            }
+                            var temp = flatEmploymentRates[i][emp][occ];
+                            temp *= flatJobTypes[i][emp];
+                            temp *= zones[i].Employment;
+                            total += temp;
                         }
                     }
                 }
-                totalAttractions += ( flatAttraction[i] = total );
             }
-            return totalAttractions;
+            totalAttractions += ( flatAttraction[i] = total );
         }
+        return totalAttractions;
+    }
 
-        public float ComputeProduction(float[] flatProduction, int numberOfZones)
+    public float ComputeProduction(float[] flatProduction, int numberOfZones)
+    {
+        int totalProduction = 0;
+        var flatPopulation = Root.Population.Population.GetFlatData();
+        Parallel.For( 0, numberOfZones, delegate(int i)
         {
-            int totalProduction = 0;
-            var flatPopulation = Root.Population.Population.GetFlatData();
-            Parallel.For( 0, numberOfZones, delegate(int i)
+            var zonePop = flatPopulation[i];
+            if ( zonePop == null ) return;
+            var count = 0;
+            var popLength = zonePop.Length;
+            for ( int person = 0; person < popLength; person++ )
             {
-                var zonePop = flatPopulation[i];
-                if ( zonePop == null ) return;
-                var count = 0;
-                var popLength = zonePop.Length;
-                for ( int person = 0; person < popLength; person++ )
+                var p = zonePop[person];
+                if ( IsContained( p ) )
                 {
-                    var p = zonePop[person];
-                    if ( IsContained( p ) )
-                    {
-                        count++;
-                    }
+                    count++;
                 }
-                flatProduction[i] = count * Probability;
-                Interlocked.Add( ref totalProduction, count );
-            } );
-            return totalProduction * Probability;
-        }
+            }
+            flatProduction[i] = count * Probability;
+            Interlocked.Add( ref totalProduction, count );
+        } );
+        return totalProduction * Probability;
+    }
 
-        override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
+    override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
+    {
+        var flatProduction = production.GetFlatData();
+        var flatAttraction = attractions.GetFlatData();
+
+        var numberOfIndexes = flatAttraction.Length;
+
+        // Compute the Production and Attractions
+        var totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
+        var totalAttraction = ComputeAttraction( flatAttraction, Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
+
+        // Normalize the attractions
+        float productionAttractionRatio;
+        if ( totalAttraction != 0 )
         {
-            var flatProduction = production.GetFlatData();
-            var flatAttraction = attractions.GetFlatData();
-
-            var numberOfIndexes = flatAttraction.Length;
-
-            // Compute the Production and Attractions
-            var totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            var totalAttraction = ComputeAttraction( flatAttraction, Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
-
-            // Normalize the attractions
-            float productionAttractionRatio;
-            if ( totalAttraction != 0 )
-            {
-                productionAttractionRatio = totalProduction / totalAttraction; // inverse totalAttraction to save on divisions
-            }
-            else
-            {
-                productionAttractionRatio = totalProduction / numberOfIndexes;
-            }
-            for ( int i = 0; i < numberOfIndexes; i++ )
-            {
-                flatAttraction[i] = flatAttraction[i] * productionAttractionRatio;
-            }
+            productionAttractionRatio = totalProduction / totalAttraction; // inverse totalAttraction to save on divisions
+        }
+        else
+        {
+            productionAttractionRatio = totalProduction / numberOfIndexes;
+        }
+        for ( int i = 0; i < numberOfIndexes; i++ )
+        {
+            flatAttraction[i] = flatAttraction[i] * productionAttractionRatio;
         }
     }
 }

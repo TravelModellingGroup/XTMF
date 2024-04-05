@@ -25,100 +25,99 @@ using TMG.Emme;
 using TMG.DataUtility;
 using XTMF;
 
-namespace Tasha.Validation.PerformanceMeasures
+namespace Tasha.Validation.PerformanceMeasures;
+
+public class LinkVolumes : IEmmeTool
 {
-    public class LinkVolumes : IEmmeTool
+    private const string ToolName = "tmg.analysis.link_specific_volumes";
+
+    [SubModelInformation(Required = true, Description = "Volume results .CSV file")]
+    public FileLocation LinkVolumeResults;
+
+    [RunParameter("Scenario Numbers", "1", typeof(NumberList), "A comma separated list of scenario numbers to execute this against.")]
+    public NumberList ScenarioNumbers;
+
+    [RunParameter("Transit Flag", false, "Report the transit volumes on this link in addition to the Auto Volumes.")]
+    public bool TransitFlag;
+
+    [SubModelInformation(Required = false, Description = "The different links to consider")]
+    public LinksToConsider[] LinksConsidered;
+
+    public sealed class LinksToConsider : IModule
     {
-        private const string ToolName = "tmg.analysis.link_specific_volumes";
+        public string Name { get; set; }
 
-        [SubModelInformation(Required = true, Description = "Volume results .CSV file")]
-        public FileLocation LinkVolumeResults;
+        public float Progress { get; set; }
 
-        [RunParameter("Scenario Numbers", "1", typeof(NumberList), "A comma separated list of scenario numbers to execute this against.")]
-        public NumberList ScenarioNumbers;
+        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        [RunParameter("Transit Flag", false, "Report the transit volumes on this link in addition to the Auto Volumes.")]
-        public bool TransitFlag;
+        [RunParameter("Label", "HWY407westOf404W", "The appropriate label for this link")]
+        public string Label;                
 
-        [SubModelInformation(Required = false, Description = "The different links to consider")]
-        public LinksToConsider[] LinksConsidered;
-   
-        public sealed class LinksToConsider : IModule
-        {
-            public string Name { get; set; }
+        [RunParameter("i,j of link", "123,123", "The i,j tuple of the line separated by a comma")]
+        public string LinkID;
 
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            [RunParameter("Label", "HWY407westOf404W", "The appropriate label for this link")]
-            public string Label;                
-
-            [RunParameter("i,j of link", "123,123", "The i,j tuple of the line separated by a comma")]
-            public string LinkID;
-
-            internal string ReturnFilter()
-            {   
-                string filter = Label.Replace('"', '\'') + ":" + "link=" + LinkID.Replace('"', '\'');
-                return filter;
-            }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                if(String.IsNullOrWhiteSpace(Label))
-                {
-                    error = "In " + Name + " the label parameter was left blank.";
-                    return false;
-                }
-                else if (String.IsNullOrWhiteSpace(LinkID))
-                {
-                    error = "in " + Name + " the ij link parameter was left blank";
-                    return false;
-                }
-
-                return true;
-            }
+        internal string ReturnFilter()
+        {   
+            string filter = Label.Replace('"', '\'') + ":" + "link=" + LinkID.Replace('"', '\'');
+            return filter;
         }
-
-        private string GenerageArgumentString()
-        {
-            var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
-            var linkString = "\"" + string.Join(";", LinksConsidered.Select(b => b.ReturnFilter())) + "\"";
-            return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" " + TransitFlag;
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
-            }
-
-            return modeller.Run(this, ToolName, GenerageArgumentString());
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }   
-        }            
 
         public bool RuntimeValidation(ref string error)
         {
+            if(String.IsNullOrWhiteSpace(Label))
+            {
+                error = "In " + Name + " the label parameter was left blank.";
+                return false;
+            }
+            else if (String.IsNullOrWhiteSpace(LinkID))
+            {
+                error = "in " + Name + " the ij link parameter was left blank";
+                return false;
+            }
+
             return true;
         }
+    }
+
+    private string GenerageArgumentString()
+    {
+        var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
+        var linkString = "\"" + string.Join(";", LinksConsidered.Select(b => b.ReturnFilter())) + "\"";
+        return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" " + TransitFlag;
+    }
+
+    public bool Execute(Controller controller)
+    {
+        var modeller = controller as ModellerController;
+        if (modeller == null)
+        {
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
+        }
+
+        return modeller.Run(this, ToolName, GenerageArgumentString());
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }   
+    }            
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

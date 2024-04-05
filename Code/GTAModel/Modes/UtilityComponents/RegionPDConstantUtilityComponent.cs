@@ -19,20 +19,19 @@
 
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
-{
-    public class RegionPDConstantUtilityComponent : RegionPDUtilityComponent
-    {
-        [RunParameter( "Constant", 0f, "The constant value that will be added if the regional condition is met." )]
-        public float Constant;
+namespace TMG.GTAModel.Modes.UtilityComponents;
 
-        public override float CalculateV(IZone origin, IZone destination, Time time)
+public class RegionPDConstantUtilityComponent : RegionPDUtilityComponent
+{
+    [RunParameter( "Constant", 0f, "The constant value that will be added if the regional condition is met." )]
+    public float Constant;
+
+    public override float CalculateV(IZone origin, IZone destination, Time time)
+    {
+        if ( IsContained( origin, destination ) )
         {
-            if ( IsContained( origin, destination ) )
-            {
-                return Constant;
-            }
-            return 0f;
+            return Constant;
         }
+        return 0f;
     }
 }

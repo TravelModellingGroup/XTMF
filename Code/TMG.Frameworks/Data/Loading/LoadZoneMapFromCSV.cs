@@ -22,88 +22,86 @@ using TMG.Data;
 using XTMF;
 using TMG.Input;
 
-namespace TMG.Frameworks.Data
+namespace TMG.Frameworks.Data;
+
+[ModuleInformation(Description = "This module is designed to load zonal mapping information from a CSV file where the first two columns are the zone number and then a number to categorize that zone to.")]
+// ReSharper disable once InconsistentNaming
+public sealed class LoadZoneMapFromCSV : IDataSource<ZoneMap>
 {
-    [ModuleInformation(Description = "This module is designed to load zonal mapping information from a CSV file where the first two columns are the zone number and then a number to categorize that zone to.")]
-    // ReSharper disable once InconsistentNaming
-    public sealed class LoadZoneMapFromCSV : IDataSource<ZoneMap>
+    public bool Loaded => Data == null;
+
+    [SubModelInformation(Required = true, Description = "The location to load the map file from. (Zone#,Mapping#)")]
+    public FileLocation MapFileLocation;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private ZoneMap Data;
+
+    public ZoneMap GiveData()
     {
-        public bool Loaded => Data == null;
+        return Data;
+    }
 
-        [SubModelInformation(Required = true, Description = "The location to load the map file from. (Zone#,Mapping#)")]
-        public FileLocation MapFileLocation;
+    [RunParameter("Default Map Index", 0, "The index to give all of the zones that are not specified.")]
+    public int DefaultMapIndex;
 
-        public string Name { get; set; }
+    [RootModule]
+    public ITravelDemandModel Root;
 
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private ZoneMap Data;
-
-        public ZoneMap GiveData()
+    public void LoadData()
+    {
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        var zones = zoneSystem.GetFlatData();
+        int[] map = new int[zones.Length];
+        var defaultIndex = DefaultMapIndex;
+        if (defaultIndex != 0)
         {
-            return Data;
-        }
-
-        [RunParameter("Default Map Index", 0, "The index to give all of the zones that are not specified.")]
-        public int DefaultMapIndex;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public void LoadData()
-        {
-            var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var zones = zoneSystem.GetFlatData();
-            int[] map = new int[zones.Length];
-            var defaultIndex = DefaultMapIndex;
-            if (defaultIndex != 0)
+            for (int i = 0; i < map.Length; i++)
             {
-                for (int i = 0; i < map.Length; i++)
-                {
-                    map[i] = defaultIndex;
-                }
+                map[i] = defaultIndex;
             }
-            using (var reader = new CsvReader(MapFileLocation))
+        }
+        using (var reader = new CsvReader(MapFileLocation))
+        {
+            // burn the header
+            reader.LoadLine();
+            while (reader.LoadLine(out int columns))
             {
-                // burn the header
-                reader.LoadLine();
-                while (reader.LoadLine(out int columns))
+                if (columns >= 2)
                 {
-                    if (columns >= 2)
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out int mapIndex, 1);
+                    var flatIndex = zoneSystem.GetFlatIndex(zoneNumber);
+                    // make sure the zone exists within the zone system
+                    if (flatIndex >= 0)
                     {
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out int mapIndex, 1);
-                        var flatIndex = zoneSystem.GetFlatIndex(zoneNumber);
-                        // make sure the zone exists within the zone system
-                        if (flatIndex >= 0)
+                        map[flatIndex] = mapIndex;
+                    }
+                    else
+                    {
+                        // check to see if everything just equals zero.  In this case it is likely excel adding some extra empty rows.
+                        if (!(zoneNumber == 0 && mapIndex == 0))
                         {
-                            map[flatIndex] = mapIndex;
-                        }
-                        else
-                        {
-                            // check to see if everything just equals zero.  In this case it is likely excel adding some extra empty rows.
-                            if (!(zoneNumber == 0 && mapIndex == 0))
-                            {
-                                throw new XTMFRuntimeException(this, "In '" + Name + "' while loading a zone number '" + zoneNumber + "' was found that is not included in the zone system!");
-                            }
+                            throw new XTMFRuntimeException(this, "In '" + Name + "' while loading a zone number '" + zoneNumber + "' was found that is not included in the zone system!");
                         }
                     }
                 }
             }
-            Data = ZoneMap.CreateZoneMap(zones, map);
         }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-        }
+        Data = ZoneMap.CreateZoneMap(zones, map);
     }
 
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+    }
 }

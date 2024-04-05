@@ -21,89 +21,87 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.Tools.Analysis.Traffic
+namespace TMG.Emme.Tools.Analysis.Traffic;
+
+
+public class ExportTransitScreenlines : IEmmeTool
 {
+    private const string ToolName = "tmg.analysis.transit.export_transit_screenline_results";
+    public string Name { get; set; }
 
-    public class ExportTransitScreenlines : IEmmeTool
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
+    public int ScenarioNumber;
+
+    [RunParameter("Export Pedestrians", false, "Export pedestrians instead of transit lines.")]
+    public bool ExportPedestrians;
+
+    [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
+    public string CountpostAttributeFlag;
+
+    [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
+    public string AlternateCountpostAttributeFlag;
+
+    [RunParameter("LineFilterExpression", "", typeof(string), "The line filter in the correct EMME format")]
+    public string LineFilter;
+
+    [RunParameter("RepresentativeHourFactor", "2.04", typeof(string),"The representative hour factor for the screenlines")]
+    public string RepresentativeHourFactor;
+
+    [SubModelInformation(Required = true, Description = "The location to save the results to")]
+    public FileLocation SaveTo;
+
+    [SubModelInformation(Required = true, Description = "The location for the definition file for screenlines")]
+    public FileLocation ScreenlineDefinitions;
+
+
+    public bool Execute(Controller controller)
     {
-        private const string ToolName = "tmg.analysis.transit.export_transit_screenline_results";
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
-        public int ScenarioNumber;
-
-        [RunParameter("Export Pedestrians", false, "Export pedestrians instead of transit lines.")]
-        public bool ExportPedestrians;
-
-        [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
-        public string CountpostAttributeFlag;
-
-        [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
-        public string AlternateCountpostAttributeFlag;
-
-        [RunParameter("LineFilterExpression", "", typeof(string), "The line filter in the correct EMME format")]
-        public string LineFilter;
-
-        [RunParameter("RepresentativeHourFactor", "2.04", typeof(string),"The representative hour factor for the screenlines")]
-        public string RepresentativeHourFactor;
-
-        [SubModelInformation(Required = true, Description = "The location to save the results to")]
-        public FileLocation SaveTo;
-
-        [SubModelInformation(Required = true, Description = "The location for the definition file for screenlines")]
-        public FileLocation ScreenlineDefinitions;
-
-
-        public bool Execute(Controller controller)
+        var modeller = controller as ModellerController;
+        if (modeller == null)
         {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
-            }
-            return modeller.Run(this, ToolName, GetParameters());
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
         }
-
-        private string GetParameters()
-        {
-            return string.Join(" ", ScenarioNumber,
-                AddQuotes(CountpostAttributeFlag),
-                AddQuotes(AlternateCountpostAttributeFlag),
-                AddQuotes(ScreenlineDefinitions),
-                AddQuotes(Path.GetFullPath(SaveTo)),
-                AddQuotes(LineFilter),
-                AddQuotes(RepresentativeHourFactor),
-                ExportPedestrians ? "true" : "false");
-        }
-
-        private static string AddQuotes(string toQuote)
-        {
-            return String.Concat("\"", toQuote, "\"");
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
-                || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
-        {
-            if (String.IsNullOrWhiteSpace(flag))
-            {
-                error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
-                return true;
-            }
-            return false;
-        }
+        return modeller.Run(this, ToolName, GetParameters());
     }
 
+    private string GetParameters()
+    {
+        return string.Join(" ", ScenarioNumber,
+            AddQuotes(CountpostAttributeFlag),
+            AddQuotes(AlternateCountpostAttributeFlag),
+            AddQuotes(ScreenlineDefinitions),
+            AddQuotes(Path.GetFullPath(SaveTo)),
+            AddQuotes(LineFilter),
+            AddQuotes(RepresentativeHourFactor),
+            ExportPedestrians ? "true" : "false");
+    }
+
+    private static string AddQuotes(string toQuote)
+    {
+        return String.Concat("\"", toQuote, "\"");
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
+            || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
+    {
+        if (String.IsNullOrWhiteSpace(flag))
+        {
+            error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
+            return true;
+        }
+        return false;
+    }
 }

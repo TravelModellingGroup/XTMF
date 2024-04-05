@@ -18,21 +18,19 @@
 */
 using System;
 
-namespace XTMF.Testing.Modules
+namespace XTMF.Testing.Modules;
+
+
+public class TestModule : IModule
 {
+    public string Name { get; set; } = string.Empty;
 
-    public class TestModule : IModule
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); } }
+
+    public bool RuntimeValidation(ref string? error)
     {
-        public string Name { get; set; } = string.Empty;
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); } }
-
-        public bool RuntimeValidation(ref string? error)
-        {
-            return true;
-        }
+        return true;
     }
-
 }

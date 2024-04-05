@@ -20,10 +20,9 @@ using System.Collections.Generic;
 using Datastructure;
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IModeSplit : IModule
 {
-    public interface IModeSplit : IModule
-    {
-        List<TreeData<float[][]>> ModeSplit(SparseTwinIndex<float> flowMatrix);
-    }
+    List<TreeData<float[][]>> ModeSplit(SparseTwinIndex<float> flowMatrix);
 }

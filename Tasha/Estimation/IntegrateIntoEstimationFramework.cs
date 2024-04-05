@@ -22,107 +22,106 @@ using Tasha.Common;
 using TMG.Estimation;
 using System.Threading;
 
-namespace Tasha.Estimation
+namespace Tasha.Estimation;
+
+public class IntegrateIntoEstimationFramework : IPostHousehold
 {
-    public class IntegrateIntoEstimationFramework : IPostHousehold
+    [RunParameter("Observed Mode Tag", "ObservedMode", "The name of the data to lookup to get the observed mode.")]
+    public string ObservedMode;
+
+    [RunParameter("Household Iterations", 1, "The number of iterations done for each household.  This will need to"
+        + " be the same as in mode choice!")]
+    public int HouseholdIterations;
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    private ITashaRuntime OurTasha;
+
+    private float Fitness;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter("Observed Mode Tag", "ObservedMode", "The name of the data to lookup to get the observed mode.")]
-        public string ObservedMode;
+        get { return 0f; }
+    }
 
-        [RunParameter("Household Iterations", 1, "The number of iterations done for each household.  This will need to"
-            + " be the same as in mode choice!")]
-        public int HouseholdIterations;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public IEstimationClientModelSystem Root;
+    private SpinLock FitnessUpdateLock = new(false);
 
-        private ITashaRuntime OurTasha;
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var householdFitness = (float)EvaluateHousehold(household);
+        bool taken = false;
+        FitnessUpdateLock.Enter(ref taken);
+        Thread.MemoryBarrier();
+        Fitness += householdFitness;
+        if(taken) FitnessUpdateLock.Exit(true);
+    }
 
-        private float Fitness;
+    public void IterationFinished(int iteration)
+    {
 
-        public string Name { get; set; }
+    }
 
-        public float Progress
+    public void Load(int maxIterations)
+    {
+        Root.RetrieveValue = () => Fitness;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        OurTasha = Root.MainClient as ITashaRuntime;
+        if(OurTasha == null)
         {
-            get { return 0f; }
+            error = "In '" + Name + "' the estimation's client model system is not an ITashaRuntime!";
+            return false;
         }
+        return true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public void IterationStarting(int iteration)
+    {
+        Fitness = 0f;
+    }
+
+    private double EvaluateHousehold(ITashaHousehold household)
+    {
+        double fitness = 0;
+        foreach(var p in household.Persons)
         {
-            get { return null; }
-        }
-
-        private SpinLock FitnessUpdateLock = new(false);
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            var householdFitness = (float)EvaluateHousehold(household);
-            bool taken = false;
-            FitnessUpdateLock.Enter(ref taken);
-            Thread.MemoryBarrier();
-            Fitness += householdFitness;
-            if(taken) FitnessUpdateLock.Exit(true);
-        }
-
-        public void IterationFinished(int iteration)
-        {
-
-        }
-
-        public void Load(int maxIterations)
-        {
-            Root.RetrieveValue = () => Fitness;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            OurTasha = Root.MainClient as ITashaRuntime;
-            if(OurTasha == null)
+            foreach(var chain in p.TripChains)
             {
-                error = "In '" + Name + "' the estimation's client model system is not an ITashaRuntime!";
-                return false;
-            }
-            return true;
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            Fitness = 0f;
-        }
-
-        private double EvaluateHousehold(ITashaHousehold household)
-        {
-            double fitness = 0;
-            foreach(var p in household.Persons)
-            {
-                foreach(var chain in p.TripChains)
+                foreach(var trip in chain.Trips)
                 {
-                    foreach(var trip in chain.Trips)
-                    {
-                        var value = Math.Log((EvaluateTrip(trip) + 1.0) / (HouseholdIterations + 1.0));
-                        Array.Clear(trip.ModesChosen, 0, trip.ModesChosen.Length);
-                        fitness += value;
-                    }
-                    chain.Release();
+                    var value = Math.Log((EvaluateTrip(trip) + 1.0) / (HouseholdIterations + 1.0));
+                    Array.Clear(trip.ModesChosen, 0, trip.ModesChosen.Length);
+                    fitness += value;
                 }
-                p.Release();
+                chain.Release();
             }
-            household.Release();
-            return fitness;
+            p.Release();
         }
+        household.Release();
+        return fitness;
+    }
 
-        private double EvaluateTrip(ITrip trip)
+    private double EvaluateTrip(ITrip trip)
+    {
+        int correct = 0;
+        var observedMode = trip[ObservedMode];
+        foreach(var choice in trip.ModesChosen)
         {
-            int correct = 0;
-            var observedMode = trip[ObservedMode];
-            foreach(var choice in trip.ModesChosen)
+            if(choice == observedMode)
             {
-                if(choice == observedMode)
-                {
-                    correct++;
-                }
+                correct++;
             }
-            return correct;
         }
+        return correct;
     }
 }

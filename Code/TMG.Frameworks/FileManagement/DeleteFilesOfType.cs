@@ -21,56 +21,54 @@ using System.IO;
 using System.Linq;
 using TMG.Input;
 using XTMF;
-namespace TMG.Frameworks.FileManagement
+namespace TMG.Frameworks.FileManagement;
+
+[ModuleInformation(Description = "This module will recursively delete all files from a given directory and its children of a given type.")]
+public class DeleteFilesOfType : ISelfContainedModule
 {
-    [ModuleInformation(Description = "This module will recursively delete all files from a given directory and its children of a given type.")]
-    public class DeleteFilesOfType : ISelfContainedModule
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
+        return true;
+    }
 
-        public string Name { get; set; }
+    [SubModelInformation(Required = true, Description = "The directory to delete from")]
+    public FileLocation DirectoryToDeleteFrom;
 
-        public float Progress { get; set; }
+    [RunParameter("Extension", "txt", "The extension name to delete.")]
+    public string Extension;
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
+    private void DeleteFrom(DirectoryInfo dir)
+    {
+        if (dir.Exists)
         {
-            return true;
-        }
-
-        [SubModelInformation(Required = true, Description = "The directory to delete from")]
-        public FileLocation DirectoryToDeleteFrom;
-
-        [RunParameter("Extension", "txt", "The extension name to delete.")]
-        public string Extension;
-
-        private void DeleteFrom(DirectoryInfo dir)
-        {
-            if (dir.Exists)
+            foreach(var file in dir.EnumerateFiles("*." + Extension).ToList())
             {
-                foreach(var file in dir.EnumerateFiles("*." + Extension).ToList())
+                try
                 {
-                    try
-                    {
-                        file.Delete();
-                    }
-                    catch (IOException e)
-                    {
-                        throw new XTMFRuntimeException(this, e, $"Unable to delete file {file.FullName}\r\n{e.Message}");
-                    }
+                    file.Delete();
                 }
-                foreach(var sub in dir.GetDirectories())
+                catch (IOException e)
                 {
-                    DeleteFrom(sub);
+                    throw new XTMFRuntimeException(this, e, $"Unable to delete file {file.FullName}\r\n{e.Message}");
                 }
             }
-        }
-
-        public void Start()
-        {
-            var path = DirectoryToDeleteFrom.GetFilePath();
-            DeleteFrom(new DirectoryInfo(path));
+            foreach(var sub in dir.GetDirectories())
+            {
+                DeleteFrom(sub);
+            }
         }
     }
 
+    public void Start()
+    {
+        var path = DirectoryToDeleteFrom.GetFilePath();
+        DeleteFrom(new DirectoryInfo(path));
+    }
 }

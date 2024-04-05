@@ -27,44 +27,43 @@ using System.Windows.Shapes;
 using XTMF.Gui.Controllers;
 using IOPath = System.IO.Path;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for AboutXTMF.xaml
+/// </summary>
+public partial class AboutXTMF : Window
 {
-    /// <summary>
-    /// Interaction logic for AboutXTMF.xaml
-    /// </summary>
-    public partial class AboutXTMF : Window
+    public AboutXTMF()
     {
-        public AboutXTMF()
-        {
-            InitializeComponent();
-            Owner = Application.Current.MainWindow;
-            VersionBlock.Text = EditorController.Runtime.Configuration.XTMFVersion.ToString();
-            BuildBlock.Text = EditorController.Runtime.Configuration.BuildDate;
-            NumberOfModules.Text = EditorController.Runtime.Configuration.ModelRepository.Modules.Count.ToString();
-        }
+        InitializeComponent();
+        Owner = Application.Current.MainWindow;
+        VersionBlock.Text = EditorController.Runtime.Configuration.XTMFVersion.ToString();
+        BuildBlock.Text = EditorController.Runtime.Configuration.BuildDate;
+        NumberOfModules.Text = EditorController.Runtime.Configuration.ModelRepository.Modules.Count.ToString();
+    }
 
-        private string GetVersionText()
+    private string GetVersionText()
+    {
+        var assemblyLocation = Assembly.GetEntryAssembly().Location;
+        var licenseFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "license.txt");
+        var versionFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "version.txt");
+        try
         {
-            var assemblyLocation = Assembly.GetEntryAssembly().Location;
-            var licenseFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "license.txt");
-            var versionFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "version.txt");
-            try
-            {
-                using StreamReader reader = new(versionFile);
-                return reader.ReadLine();
-            }
-            catch
-            {
-                return "Unknown Version";
-            }
+            using StreamReader reader = new(versionFile);
+            return reader.ReadLine();
         }
-
-        private void TextBlock_MouseUp(object sender, MouseButtonEventArgs e)
+        catch
         {
-            if (sender is TextBlock textBlock)
-            {
-                Process.Start(new ProcessStartInfo() { FileName = textBlock.Text, UseShellExecute = true });
-            }
+            return "Unknown Version";
+        }
+    }
+
+    private void TextBlock_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is TextBlock textBlock)
+        {
+            Process.Start(new ProcessStartInfo() { FileName = textBlock.Text, UseShellExecute = true });
         }
     }
 }

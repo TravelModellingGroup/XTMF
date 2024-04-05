@@ -21,266 +21,265 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Datastructure
+namespace Datastructure;
+
+/// <summary>
+/// A generic Key->Data Hashtable
+/// </summary>
+/// <typeparam name="TK">The Identifier</typeparam>
+/// <typeparam name="TD">What to store</typeparam>
+public class Hashtable<TK, TD> where TK : IComparable<TK>
 {
     /// <summary>
-    /// A generic Key->Data Hashtable
+    /// How many items we currently have
     /// </summary>
-    /// <typeparam name="TK">The Identifier</typeparam>
-    /// <typeparam name="TD">What to store</typeparam>
-    public class Hashtable<TK, TD> where TK : IComparable<TK>
+    protected int _Count;
+
+    /// <summary>
+    /// The table of starting nodes
+    /// </summary>
+    protected readonly Node[] Table;
+
+    /// <summary>
+    /// The locks for each cell of the table
+    /// </summary>
+    protected readonly GatewayLock[] TableLocks;
+
+    /// <summary>
+    /// Create a new Hashtable
+    /// </summary>
+    public Hashtable()
+        : this( 100 )
     {
-        /// <summary>
-        /// How many items we currently have
-        /// </summary>
-        protected int _Count;
+    }
 
-        /// <summary>
-        /// The table of starting nodes
-        /// </summary>
-        protected readonly Node[] Table;
-
-        /// <summary>
-        /// The locks for each cell of the table
-        /// </summary>
-        protected readonly GatewayLock[] TableLocks;
-
-        /// <summary>
-        /// Create a new Hashtable
-        /// </summary>
-        public Hashtable()
-            : this( 100 )
+    /// <summary>
+    /// Create a hashtable with the given amount of entries
+    /// </summary>
+    /// <param name="capacity"></param>
+    public Hashtable(int capacity)
+    {
+        Table = new Node[capacity];
+        TableLocks = new GatewayLock[capacity];
+        for ( var i = 0; i < capacity; i++ )
         {
+            TableLocks[i] = new GatewayLock();
         }
+    }
 
-        /// <summary>
-        /// Create a hashtable with the given amount of entries
-        /// </summary>
-        /// <param name="capacity"></param>
-        public Hashtable(int capacity)
+    /// <summary>
+    /// Learn how many items we have
+    /// </summary>
+    public int Count => _Count;
+
+    /// <summary>
+    /// The data stored in the hashtable
+    /// </summary>
+    public IEnumerable<TD> Data
+    {
+        get
         {
-            Table = new Node[capacity];
-            TableLocks = new GatewayLock[capacity];
-            for ( var i = 0; i < capacity; i++ )
+            var dataList = new List<TD>( Table.Length );
+            for ( var i = 0; i < Table.Length; i++ )
             {
-                TableLocks[i] = new GatewayLock();
-            }
-        }
-
-        /// <summary>
-        /// Learn how many items we have
-        /// </summary>
-        public int Count => _Count;
-
-        /// <summary>
-        /// The data stored in the hashtable
-        /// </summary>
-        public IEnumerable<TD> Data
-        {
-            get
-            {
-                var dataList = new List<TD>( Table.Length );
-                for ( var i = 0; i < Table.Length; i++ )
+                dataList.Clear();
+                var localI = i;
+                TableLocks[i].PassThrough( ()=>
                 {
-                    dataList.Clear();
-                    var localI = i;
-                    TableLocks[i].PassThrough( ()=>
-                    {
-                        var current = Table[localI];
-                        while ( current != null )
-                        {
-                            dataList.Add( current.Storage );
-                            current = current.Next;
-                        }
-                    } );
-                    foreach ( var d in dataList )
-                    {
-                        yield return d;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// The keys stored in the hash table
-        /// </summary>
-        public IEnumerable<TK> Keys
-        {
-            get
-            {
-                var keysList = new List<TK>( Table.Length );
-                for ( var i = 0; i < Table.Length; i++ )
-                {
-                    keysList.Clear();
-                    var localI = i;
-                    TableLocks[i].PassThrough( ()=>
-                    {
-                        var current = Table[localI];
-                        while ( current != null )
-                        {
-                            keysList.Add( current.Key );
-                            current = current.Next;
-                        }
-                    } );
-                    foreach ( var k in keysList )
-                    {
-                        yield return k;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get the Data for the given Key
-        /// </summary>
-        /// <param name="key">The identifier for this data</param>
-        /// <returns></returns>
-        public TD? this[TK key]
-        {
-            get
-            {
-                var place = Math.Abs( key.GetHashCode() % Table.Length );
-                Node? current = null;
-                TableLocks[place].PassThrough( ()=>
-                {
-                    current = Table[place];
+                    var current = Table[localI];
                     while ( current != null )
                     {
-                        if ( current.Key.CompareTo( key ) == 0 ) return;
+                        dataList.Add( current.Storage );
                         current = current.Next;
                     }
                 } );
-                return current != null ? current.Storage : default;
+                foreach ( var d in dataList )
+                {
+                    yield return d;
+                }
             }
         }
+    }
 
-        /// <summary>
-        /// Add this Key Data pair to the Hashtable
-        /// </summary>
-        /// <param name="key">What the key for this data is</param>
-        /// <param name="data">What data to store with this key</param>
-        public virtual void Add(TK key, TD data)
+    /// <summary>
+    /// The keys stored in the hash table
+    /// </summary>
+    public IEnumerable<TK> Keys
+    {
+        get
         {
-            var place = Math.Abs( key.GetHashCode() % Table.Length );
-            var n = new Node
+            var keysList = new List<TK>( Table.Length );
+            for ( var i = 0; i < Table.Length; i++ )
             {
-                Key = key,
-                Storage = data
-            };
-            TableLocks[place].Lock( ()=>
-            {
-                n.Next = Table[place];
-                Table[place] = n;
-                Interlocked.Increment( ref _Count );
-            } );
+                keysList.Clear();
+                var localI = i;
+                TableLocks[i].PassThrough( ()=>
+                {
+                    var current = Table[localI];
+                    while ( current != null )
+                    {
+                        keysList.Add( current.Key );
+                        current = current.Next;
+                    }
+                } );
+                foreach ( var k in keysList )
+                {
+                    yield return k;
+                }
+            }
         }
+    }
 
-        /// <summary>
-        /// Checks to see if the key is in the hashtable
-        /// </summary>
-        /// <param name="key">What key to look for</param>
-        /// <returns>True if it was found</returns>
-        public bool Contains(TK key)
+    /// <summary>
+    /// Get the Data for the given Key
+    /// </summary>
+    /// <param name="key">The identifier for this data</param>
+    /// <returns></returns>
+    public TD? this[TK key]
+    {
+        get
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node? current;
-            var found = false;
+            Node? current = null;
             TableLocks[place].PassThrough( ()=>
             {
                 current = Table[place];
                 while ( current != null )
                 {
-                    if ( current.Key.CompareTo( key ) == 0 )
-                    {
-                        found = true;
-                        return;
-                    }
+                    if ( current.Key.CompareTo( key ) == 0 ) return;
                     current = current.Next;
                 }
             } );
-            return found;
+            return current != null ? current.Storage : default;
         }
+    }
 
-        /// <summary>
-        /// Checks to see if the data is in the Hashtable
-        /// </summary>
-        /// <param name="data">What data to look for</param>
-        /// <returns>True if it was found</returns>
-        public bool Contains(TD data)
+    /// <summary>
+    /// Add this Key Data pair to the Hashtable
+    /// </summary>
+    /// <param name="key">What the key for this data is</param>
+    /// <param name="data">What data to store with this key</param>
+    public virtual void Add(TK key, TD data)
+    {
+        var place = Math.Abs( key.GetHashCode() % Table.Length );
+        var n = new Node
         {
-            if (data is null) return false;
-            var place = Math.Abs( data.GetHashCode() % Table.Length );
-            Node? current;
-            var found = false;
-            TableLocks[place].PassThrough( delegate
+            Key = key,
+            Storage = data
+        };
+        TableLocks[place].Lock( ()=>
+        {
+            n.Next = Table[place];
+            Table[place] = n;
+            Interlocked.Increment( ref _Count );
+        } );
+    }
+
+    /// <summary>
+    /// Checks to see if the key is in the hashtable
+    /// </summary>
+    /// <param name="key">What key to look for</param>
+    /// <returns>True if it was found</returns>
+    public bool Contains(TK key)
+    {
+        var place = Math.Abs( key.GetHashCode() % Table.Length );
+        Node? current;
+        var found = false;
+        TableLocks[place].PassThrough( ()=>
+        {
+            current = Table[place];
+            while ( current != null )
             {
-                current = Table[place];
-                while ( current != null )
+                if ( current.Key.CompareTo( key ) == 0 )
                 {
-                    if ( current.Storage?.Equals( data ) == true)
-                    {
-                        found = true;
-                        return;
-                    }
-                    current = current.Next;
+                    found = true;
+                    return;
                 }
-            } );
-            return found;
-        }
+                current = current.Next;
+            }
+        } );
+        return found;
+    }
 
-        /// <summary>
-        /// Remove an element from the hashtable
-        /// </summary>
-        /// <param name="key">What key to remove</param>
-        /// <returns>True, if something was removed</returns>
-        public virtual bool Remove(TK key)
+    /// <summary>
+    /// Checks to see if the data is in the Hashtable
+    /// </summary>
+    /// <param name="data">What data to look for</param>
+    /// <returns>True if it was found</returns>
+    public bool Contains(TD data)
+    {
+        if (data is null) return false;
+        var place = Math.Abs( data.GetHashCode() % Table.Length );
+        Node? current;
+        var found = false;
+        TableLocks[place].PassThrough( delegate
         {
-            throw new NotImplementedException( "Don't remove things quite yet" );
-        }
-
-        /// <summary>
-        /// Adds a new element if it doesn't exist already
-        /// </summary>
-        /// <param name="key">What key to test for uniqueness and to store</param>
-        /// <param name="data">What to store</param>
-        public virtual void UniqueAdd(TK key, TD data)
-        {
-            var place = Math.Abs( key.GetHashCode() % Table.Length );
-            var n = new Node
+            current = Table[place];
+            while ( current != null )
             {
-                Key = key,
-                Storage = data
-            };
-            TableLocks[place].Lock( delegate
-            {
-                n.Next = Table[place];
-                var current = Table[place];
-                var add = true;
-                while ( current != null )
+                if ( current.Storage?.Equals( data ) == true)
                 {
-                    if ( current.Key.CompareTo( key ) == 0 )
-                    {
-                        add = false;
-                        break;
-                    }
-                    current = current.Next;
+                    found = true;
+                    return;
                 }
-                if ( add )
-                {
-                    Table[place] = n;
-                    Interlocked.Increment( ref _Count );
-                }
-            } );
-        }
+                current = current.Next;
+            }
+        } );
+        return found;
+    }
 
-        /// <summary>
-        /// This is our internal linking
-        /// </summary>
-        protected class Node
+    /// <summary>
+    /// Remove an element from the hashtable
+    /// </summary>
+    /// <param name="key">What key to remove</param>
+    /// <returns>True, if something was removed</returns>
+    public virtual bool Remove(TK key)
+    {
+        throw new NotImplementedException( "Don't remove things quite yet" );
+    }
+
+    /// <summary>
+    /// Adds a new element if it doesn't exist already
+    /// </summary>
+    /// <param name="key">What key to test for uniqueness and to store</param>
+    /// <param name="data">What to store</param>
+    public virtual void UniqueAdd(TK key, TD data)
+    {
+        var place = Math.Abs( key.GetHashCode() % Table.Length );
+        var n = new Node
         {
-            public required TK Key;
-            public Node? Next;
-            public required TD Storage;
-        }
+            Key = key,
+            Storage = data
+        };
+        TableLocks[place].Lock( delegate
+        {
+            n.Next = Table[place];
+            var current = Table[place];
+            var add = true;
+            while ( current != null )
+            {
+                if ( current.Key.CompareTo( key ) == 0 )
+                {
+                    add = false;
+                    break;
+                }
+                current = current.Next;
+            }
+            if ( add )
+            {
+                Table[place] = n;
+                Interlocked.Increment( ref _Count );
+            }
+        } );
+    }
+
+    /// <summary>
+    /// This is our internal linking
+    /// </summary>
+    protected class Node
+    {
+        public required TK Key;
+        public Node? Next;
+        public required TD Storage;
     }
 }

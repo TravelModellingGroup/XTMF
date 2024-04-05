@@ -23,68 +23,67 @@ using System.Text;
 using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.Emme.Tools.NetworkEditing
+namespace TMG.Emme.Tools.NetworkEditing;
+
+[ModuleInformation(Name ="Remove Extra Nodes",
+    Description = "Use this tool to invoke the TMGToolbox tool tmg.network_editing.remove_extra_nodes"
+    )]
+public sealed class RemoveExtraNodes : IEmmeTool
 {
-    [ModuleInformation(Name ="Remove Extra Nodes",
-        Description = "Use this tool to invoke the TMGToolbox tool tmg.network_editing.remove_extra_nodes"
-        )]
-    public sealed class RemoveExtraNodes : IEmmeTool
+    private const string ToolNamespace = "tmg.network_editing.remove_extra_nodes";
+
+    [RunParameter("Scenario Number", 0, "The EMME scenario number to target.")]
+    public int ScenarioNumber;
+
+    [RunParameter("Node Filter Attribute", "", "Only remove candidate nodes whose attribute value != 0. Leave blank to remove all candidate nodes.")]
+    public string NodeFilterAttribute;
+
+    [RunParameter("Stop Filter Attribute", "", "Remove candidate transit stop nodes whose attribute value != 0. Leave blank to preserve all transit stops.")]
+    public string StopFilterAttribute;
+
+    [RunParameter("Connector Filter Attribute", "", "Remove centroid connectors attached to candidate nodes whose attribute value != 0. Leave blank to preserve all centroid connectors.")]
+    public string ConnectorFilterAttribute;
+
+    [RunParameter("Attribute Aggregation Functions", "", "Please refer to the tool tmg.network_editing.remove_extra_nodes for the format of this string.")]
+    public string AttributeAggregationFunctions;
+
+    public bool Execute(Controller controller)
     {
-        private const string ToolNamespace = "tmg.network_editing.remove_extra_nodes";
-
-        [RunParameter("Scenario Number", 0, "The EMME scenario number to target.")]
-        public int ScenarioNumber;
-
-        [RunParameter("Node Filter Attribute", "", "Only remove candidate nodes whose attribute value != 0. Leave blank to remove all candidate nodes.")]
-        public string NodeFilterAttribute;
-
-        [RunParameter("Stop Filter Attribute", "", "Remove candidate transit stop nodes whose attribute value != 0. Leave blank to preserve all transit stops.")]
-        public string StopFilterAttribute;
-
-        [RunParameter("Connector Filter Attribute", "", "Remove centroid connectors attached to candidate nodes whose attribute value != 0. Leave blank to preserve all centroid connectors.")]
-        public string ConnectorFilterAttribute;
-
-        [RunParameter("Attribute Aggregation Functions", "", "Please refer to the tool tmg.network_editing.remove_extra_nodes for the format of this string.")]
-        public string AttributeAggregationFunctions;
-
-        public bool Execute(Controller controller)
+        if (controller is ModellerController modellerController)
         {
-            if (controller is ModellerController modellerController)
-            {
-                modellerController.Run(this, ToolNamespace, GetParameters());
-                return true;
-            }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
-        }
-
-        private ModellerControllerParameter[] GetParameters()
-        {
-            //def __call__(self, baseScen, nodeFilter, stopFilter, connFilter, attAgg):
-            return new ModellerControllerParameter[]
-            {
-                new("baseScen",ScenarioNumber.ToString()),
-                new("NodeFilterAttributeId",NodeFilterAttribute),
-                new("StopFilterAttributeId",StopFilterAttribute),
-                new("ConnectorFilterAttributeId",ConnectorFilterAttribute),
-                new("AttributeAggregatorString",AttributeAggregationFunctions)
-            };
-        }
-
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (ScenarioNumber <= 0)
-            {
-                error = "The scenario number '" + ScenarioNumber
-                    + "' is an invalid scenario number!";
-                return false;
-            }
+            modellerController.Run(this, ToolNamespace, GetParameters());
             return true;
         }
+        throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
+    }
+
+    private ModellerControllerParameter[] GetParameters()
+    {
+        //def __call__(self, baseScen, nodeFilter, stopFilter, connFilter, attAgg):
+        return new ModellerControllerParameter[]
+        {
+            new("baseScen",ScenarioNumber.ToString()),
+            new("NodeFilterAttributeId",NodeFilterAttribute),
+            new("StopFilterAttributeId",StopFilterAttribute),
+            new("ConnectorFilterAttributeId",ConnectorFilterAttribute),
+            new("AttributeAggregatorString",AttributeAggregationFunctions)
+        };
+    }
+
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (ScenarioNumber <= 0)
+        {
+            error = "The scenario number '" + ScenarioNumber
+                + "' is an invalid scenario number!";
+            return false;
+        }
+        return true;
     }
 }

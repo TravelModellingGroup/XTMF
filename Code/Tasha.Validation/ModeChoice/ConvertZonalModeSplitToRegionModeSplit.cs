@@ -25,131 +25,130 @@ using TMG.Input;
 using Tasha.Common;
 using System.IO;
 
-namespace Tasha.Validation.ModeChoice
+namespace Tasha.Validation.ModeChoice;
+
+[ModuleInformation(Description = "This module reads in the output of ZonalModeSplits and aggregates it to the regional level.")]
+public class ConvertZonalModeSplitToRegionModeSplit : IPostIteration
 {
-    [ModuleInformation(Description = "This module reads in the output of ZonalModeSplits and aggregates it to the regional level.")]
-    public class ConvertZonalModeSplitToRegionModeSplit : IPostIteration
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return 0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        [SubModelInformation(Required = true, Description = "The location of the previously saved zonal mode split file.")]
-        public FileLocation ZonalModeSplitFile;
+    [SubModelInformation(Required = true, Description = "The location of the previously saved zonal mode split file.")]
+    public FileLocation ZonalModeSplitFile;
 
-        [SubModelInformation(Required = true, Description = "The location to save the regional mode split data.")]
-        public FileLocation RegionModeSplitFile;
+    [SubModelInformation(Required = true, Description = "The location to save the regional mode split data.")]
+    public FileLocation RegionModeSplitFile;
 
-        public void Execute(int iterationNumber, int totalIterations)
+    public void Execute(int iterationNumber, int totalIterations)
+    {
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        var regions = TMG.Functions.ZoneSystemHelper.CreateRegionArray<int>(zoneSystem);
+        float[][][] data = BuildData(Root.AllModes.Select(m => m.ModeName).ToArray(), zoneSystem, regions);
+        SaveData(data, regions);
+    }
+
+    private void SaveData(float[][][] data, SparseArray<int> regions)
+    {
+        var modes = Root.AllModes.ToArray();
+        var regionNumbers = regions.ValidIndexArray();
+        using StreamWriter writer = new(RegionModeSplitFile);
+        writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
+        for (int m = 0; m < data.Length; m++)
         {
-            var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var regions = TMG.Functions.ZoneSystemHelper.CreateRegionArray<int>(zoneSystem);
-            float[][][] data = BuildData(Root.AllModes.Select(m => m.ModeName).ToArray(), zoneSystem, regions);
-            SaveData(data, regions);
-        }
-
-        private void SaveData(float[][][] data, SparseArray<int> regions)
-        {
-            var modes = Root.AllModes.ToArray();
-            var regionNumbers = regions.ValidIndexArray();
-            using StreamWriter writer = new(RegionModeSplitFile);
-            writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
-            for (int m = 0; m < data.Length; m++)
+            string modeName = modes[m].ModeName + ",";
+            var oRow = data[m];
+            for (int o = 0; o < oRow.Length; o++)
             {
-                string modeName = modes[m].ModeName + ",";
-                var oRow = data[m];
-                for (int o = 0; o < oRow.Length; o++)
+                var dRow = oRow[o];
+                for (int d = 0; d < dRow.Length; d++)
                 {
-                    var dRow = oRow[o];
-                    for (int d = 0; d < dRow.Length; d++)
+                    if (dRow[d] > 0)
                     {
-                        if (dRow[d] > 0)
-                        {
-                            // this includes the comma already
-                            writer.Write(modeName);
-                            writer.Write(regionNumbers[o]);
-                            writer.Write(',');
-                            writer.Write(regionNumbers[d]);
-                            writer.Write(',');
-                            writer.WriteLine(dRow[d]);
-                        }
+                        // this includes the comma already
+                        writer.Write(modeName);
+                        writer.Write(regionNumbers[o]);
+                        writer.Write(',');
+                        writer.Write(regionNumbers[d]);
+                        writer.Write(',');
+                        writer.WriteLine(dRow[d]);
                     }
                 }
             }
         }
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    [RootModule]
+    public ITashaRuntime Root;
 
 
-        private float[][][] BuildData(string[] modeNames, SparseArray<IZone> zoneSystem, SparseArray<int> regions)
+    private float[][][] BuildData(string[] modeNames, SparseArray<IZone> zoneSystem, SparseArray<int> regions)
+    {
+        var modes = Root.AllModes.ToArray();
+        var data = new float[modes.Length][][];
+        var numberOfRegions = regions.GetFlatData().Length;
+        for(int i = 0; i < data.Length; i++)
         {
-            var modes = Root.AllModes.ToArray();
-            var data = new float[modes.Length][][];
-            var numberOfRegions = regions.GetFlatData().Length;
-            for(int i = 0; i < data.Length; i++)
+            var row = data[i] = new float[numberOfRegions][];
+            for(int j = 0; j < row.Length; j++)
             {
-                var row = data[i] = new float[numberOfRegions][];
-                for(int j = 0; j < row.Length; j++)
+                row[j] = new float[numberOfRegions];
+            }
+        }
+        using (CsvReader reader = new(ZonalModeSplitFile))
+        {
+            // burn header
+            reader.LoadLine();
+            while (reader.LoadLine(out int columns))
+            {
+                // ignore lines without the right number of columns
+                if (columns == 4)
                 {
-                    row[j] = new float[numberOfRegions];
+                    reader.Get(out string modeName, 0);
+                    reader.Get(out int originZone, 1);
+                    reader.Get(out int destinationZone, 2);
+                    reader.Get(out float expandedPersons, 3);
+                    data[ModeIndex(modeName, modeNames)][regions.GetFlatIndex(zoneSystem[originZone].RegionNumber)][regions.GetFlatIndex(zoneSystem[destinationZone].RegionNumber)]
+                        += expandedPersons;
                 }
             }
-            using (CsvReader reader = new(ZonalModeSplitFile))
+        }
+        return data;
+    }
+
+    private int ModeIndex(string modeName, string[] modeNames)
+    {
+        for(int i = 0; i < modeNames.Length; i++)
+        {
+            if(modeNames[i] == modeName)
             {
-                // burn header
-                reader.LoadLine();
-                while (reader.LoadLine(out int columns))
-                {
-                    // ignore lines without the right number of columns
-                    if (columns == 4)
-                    {
-                        reader.Get(out string modeName, 0);
-                        reader.Get(out int originZone, 1);
-                        reader.Get(out int destinationZone, 2);
-                        reader.Get(out float expandedPersons, 3);
-                        data[ModeIndex(modeName, modeNames)][regions.GetFlatIndex(zoneSystem[originZone].RegionNumber)][regions.GetFlatIndex(zoneSystem[destinationZone].RegionNumber)]
-                            += expandedPersons;
-                    }
-                }
+                return i;
             }
-            return data;
         }
+        throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '" + modeName + "'");
+    }
 
-        private int ModeIndex(string modeName, string[] modeNames)
-        {
-            for(int i = 0; i < modeNames.Length; i++)
-            {
-                if(modeNames[i] == modeName)
-                {
-                    return i;
-                }
-            }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a mode called '" + modeName + "'");
-        }
+    public void Load(IConfiguration config, int totalIterations)
+    {
 
-        public void Load(IConfiguration config, int totalIterations)
-        {
+    }
 
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

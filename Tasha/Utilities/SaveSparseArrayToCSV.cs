@@ -21,43 +21,41 @@ using XTMF;
 using Datastructure;
 using TMG.Input;
 
-namespace Tasha.Utilities
+namespace Tasha.Utilities;
+
+
+public class SaveSparseArrayToCSV : ISelfContainedModule
 {
 
-    public class SaveSparseArrayToCSV : ISelfContainedModule
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = true, Description = "The data to save.")]
+    public IResource Data;
+
+    [SubModelInformation(Required = true, Description = "The location to save to.")]
+    public FileLocation OutputTo;
+
+    public bool RuntimeValidation(ref string error)
     {
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = true, Description = "The data to save.")]
-        public IResource Data;
-
-        [SubModelInformation(Required = true, Description = "The location to save to.")]
-        public FileLocation OutputTo;
-
-        public bool RuntimeValidation(ref string error)
+        if (!Data.CheckResourceType<SparseArray<float>>())
         {
-            if (!Data.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the Data resource was not of type SparseArray<float>!";
-            }
-            return true;
+            error = "In '" + Name + "' the Data resource was not of type SparseArray<float>!";
         }
-
-        public void Start()
-        {
-            SparseArray<float> data;
-            data = Data.AcquireResource<SparseArray<float>>();
-            if (data is null)
-            {
-                throw new XTMFRuntimeException(this, $"The data loading in from {Data.Name} did not contain a valid SparseArray<Float>!");
-            }
-            TMG.Functions.SaveData.SaveVector(data, OutputTo.GetFilePath());
-        }
+        return true;
     }
 
+    public void Start()
+    {
+        SparseArray<float> data;
+        data = Data.AcquireResource<SparseArray<float>>();
+        if (data is null)
+        {
+            throw new XTMFRuntimeException(this, $"The data loading in from {Data.Name} did not contain a valid SparseArray<Float>!");
+        }
+        TMG.Functions.SaveData.SaveVector(data, OutputTo.GetFilePath());
+    }
 }

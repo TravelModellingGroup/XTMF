@@ -26,314 +26,313 @@ using System.Threading.Tasks;
 using System.Xml;
 using XTMF.Interfaces;
 
-namespace XTMF.Run
+namespace XTMF.Run;
+
+sealed class XTMFRunLocal : XTMFRun
 {
-    sealed class XTMFRunLocal : XTMFRun
+    private Thread _RunThread;
+
+    /// <summary>
+    /// The model system to execute
+    /// </summary>
+    private int _ModelSystemIndex;
+
+    /// <summary>
+    /// The model system that is currently executing
+    /// </summary>
+    private IModelSystemTemplate _MST;
+
+    /// <summary>
+    /// The project that is being executed
+    /// </summary>
+    private IProject _Project;
+
+    private readonly ModelSystemModel _model;
+
+    public override bool RunsRemotely => false;
+
+
+    public XTMFRunLocal(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
+        : base(runName, Path.Combine(config.ProjectDirectory, project.Name, runName), new ConfigurationProxy(config, project))
     {
-        private Thread _RunThread;
-
-        /// <summary>
-        /// The model system to execute
-        /// </summary>
-        private int _ModelSystemIndex;
-
-        /// <summary>
-        /// The model system that is currently executing
-        /// </summary>
-        private IModelSystemTemplate _MST;
-
-        /// <summary>
-        /// The project that is being executed
-        /// </summary>
-        private IProject _Project;
-
-        private readonly ModelSystemModel _model;
-
-        public override bool RunsRemotely => false;
-
-
-        public XTMFRunLocal(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
-            : base(runName, Path.Combine(config.ProjectDirectory, project.Name, runName), new ConfigurationProxy(config, project))
+        _Project = project;
+        ModelSystemStructureModelRoot = root.Root;
+        RunName = runName;
+        _ModelSystemIndex = modelSystemIndex;
+        _model = root;
+        if (_Project is Project p)
         {
-            _Project = project;
-            ModelSystemStructureModelRoot = root.Root;
-            RunName = runName;
-            _ModelSystemIndex = modelSystemIndex;
-            _model = root;
-            if (_Project is Project p)
-            {
-                p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, _model.LinkedParameters.GetRealLinkedParameters(),
-                    [], root.Description ?? String.Empty);
-            }
-            if (overwrite)
-            {
-                ClearFolder(RunDirectory);
-            }
+            p.SetModelSystem(_ModelSystemIndex, root.ClonedModelSystemRoot, _model.LinkedParameters.GetRealLinkedParameters(),
+                [], root.Description ?? String.Empty);
         }
-
-        public XTMFRunLocal(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite)
-            : base(runName, Path.Combine(configuration.ProjectDirectory, project.Name, runName),
-                  (project.IndexOf(model.Root.RealModelSystemStructure) >= 0 ? (IConfiguration)new ConfigurationProxy(configuration, project) : configuration))
+        if (overwrite)
         {
-            // we don't make a clone for this type of run
-            _Project = project;
-            ModelSystemStructureModelRoot = model.Root;
-            _model = model;
-            RunName = runName;
-            if (overwrite)
-            {
-                ClearFolder(RunDirectory);
-            }
+            ClearFolder(RunDirectory);
         }
-        public override bool ExitRequest()
+    }
+
+    public XTMFRunLocal(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite)
+        : base(runName, Path.Combine(configuration.ProjectDirectory, project.Name, runName),
+              (project.IndexOf(model.Root.RealModelSystemStructure) >= 0 ? (IConfiguration)new ConfigurationProxy(configuration, project) : configuration))
+    {
+        // we don't make a clone for this type of run
+        _Project = project;
+        ModelSystemStructureModelRoot = model.Root;
+        _model = model;
+        RunName = runName;
+        if (overwrite)
         {
-            return DeepExitRequest();
+            ClearFolder(RunDirectory);
         }
+    }
+    public override bool ExitRequest()
+    {
+        return DeepExitRequest();
+    }
 
-        override public void Start()
+    override public void Start()
+    {
+        _RunThread = new Thread(() =>
         {
-            _RunThread = new Thread(() =>
-            {
-                Run();
-            })
-            {
-                IsBackground = true
-            };
-            _RunThread.Start();
+            Run();
+        })
+        {
+            IsBackground = true
+        };
+        _RunThread.Start();
+    }
+
+
+    private void Run()
+    {
+        string originalWorkingDirectory = Directory.GetCurrentDirectory();
+        // create an empty error
+        ErrorWithPath error = new();
+        IModelSystemStructure mstStructure;
+        bool validationError = false;
+        try
+        {
+            mstStructure = CreateModelSystem(ref error);
         }
-
-
-        private void Run()
+        catch (Exception e)
         {
-            string originalWorkingDirectory = Directory.GetCurrentDirectory();
-            // create an empty error
-            ErrorWithPath error = new();
-            IModelSystemStructure mstStructure;
-            bool validationError = false;
+            InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, exception: e)));
+            return;
+        }
+        if (_MST == null)
+        {
+            InvokeValidationError(CreateFromSingleError(error));
+            return;
+        }
+        if (!validationError)
+        {
+            Exception caughtError = null;
             try
             {
-                mstStructure = CreateModelSystem(ref error);
+                RunModelSystem(out List<ErrorWithPath> errors, mstStructure);
             }
             catch (Exception e)
             {
-                InvokeValidationError(CreateFromSingleError(new ErrorWithPath(null, e.Message, exception: e)));
-                return;
+                if (!(e is ThreadAbortException))
+                {
+                    caughtError = e;
+                }
             }
-            if (_MST == null)
+            finally
             {
-                InvokeValidationError(CreateFromSingleError(error));
-                return;
+                mstStructure = CleanupModelSystem(originalWorkingDirectory, mstStructure, caughtError);
             }
-            if (!validationError)
+        }
+    }
+
+    private IModelSystemStructure CleanupModelSystem(string originalCWD, IModelSystemStructure mstStructure, Exception caughtError)
+    {
+        void DisposeModelSystem(IModelSystemStructure ms)
+        {
+            if (ms.Module is IDisposable disp)
             {
-                Exception caughtError = null;
                 try
                 {
-                    RunModelSystem(out List<ErrorWithPath> errors, mstStructure);
+                    disp.Dispose();
                 }
-                catch (Exception e)
+                catch
+                { }
+            }
+            var children = ms.Children;
+            if (children != null)
+            {
+                foreach (var child in children)
                 {
-                    if (!(e is ThreadAbortException))
-                    {
-                        caughtError = e;
-                    }
-                }
-                finally
-                {
-                    mstStructure = CleanupModelSystem(originalWorkingDirectory, mstStructure, caughtError);
+                    DisposeModelSystem(child);
                 }
             }
         }
-
-        private IModelSystemStructure CleanupModelSystem(string originalCWD, IModelSystemStructure mstStructure, Exception caughtError)
+        Thread.MemoryBarrier();
+        DisposeModelSystem(mstStructure);
+        mstStructure = null;
+        _MST = null;
+        if (Configuration is Configuration configuration)
         {
-            void DisposeModelSystem(IModelSystemStructure ms)
+            configuration.ModelSystemExited();
+        }
+        else
+        {
+            ((ConfigurationProxy)Configuration).ModelSystemExited();
+        }
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        Thread.MemoryBarrier();
+        GetInnermostError(ref caughtError);
+        if (caughtError != null)
+        {
+            if (caughtError is XTMFRuntimeException runError)
             {
-                if (ms.Module is IDisposable disp)
-                {
-                    try
-                    {
-                        disp.Dispose();
-                    }
-                    catch
-                    { }
-                }
-                var children = ms.Children;
-                if (children != null)
-                {
-                    foreach (var child in children)
-                    {
-                        DisposeModelSystem(child);
-                    }
-                }
-            }
-            Thread.MemoryBarrier();
-            DisposeModelSystem(mstStructure);
-            mstStructure = null;
-            _MST = null;
-            if (Configuration is Configuration configuration)
-            {
-                configuration.ModelSystemExited();
+                InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, CombineStackTrace(runError), runError?.Module?.Name, caughtError));
             }
             else
             {
-                ((ConfigurationProxy)Configuration).ModelSystemExited();
-            }
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-            Thread.MemoryBarrier();
-            GetInnermostError(ref caughtError);
-            if (caughtError != null)
-            {
-                if (caughtError is XTMFRuntimeException runError)
-                {
-                    InvokeRuntimeError(new ErrorWithPath(GetModulePath(runError.Module), runError.Message, CombineStackTrace(runError), runError?.Module?.Name, caughtError));
-                }
-                else
-                {
-                    InvokeRuntimeError(new ErrorWithPath(null, caughtError.Message, caughtError.StackTrace));
-                }
-            }
-            else
-            {
-                InvokeRunCompleted();
-            }
-            Directory.SetCurrentDirectory(originalCWD);
-            return mstStructure;
-        }
-
-        private string CombineStackTrace(XTMFRuntimeException runError)
-        {
-            if(runError.InnerException != null)
-            {
-                return string.Concat(runError.InnerException, Environment.NewLine, runError.StackTrace);
-            }
-            else
-            {
-                return runError.StackTrace;
+                InvokeRuntimeError(new ErrorWithPath(null, caughtError.Message, caughtError.StackTrace));
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="module"></param>
-        /// <returns></returns>
-        private List<int> GetModulePath(IModule module)
+        else
         {
-            if (module == null) return null;
-            List<int> ret = [];
-            bool Explore(ModelSystemStructureModel current, List<int> path, IModule lookingFor)
-            {
-                if (current.RealModelSystemStructure.Module == lookingFor)
-                {
-                    return true;
-                }
-                var children = current.Children;
-                if (children != null)
-                {
-                    path.Add(0);
-                    foreach (var child in children)
-                    {
-                        if (Explore(child, path, lookingFor))
-                        {
-                            return true;
-                        }
-                        path[path.Count - 1] += 1;
-                    }
-                    path.RemoveAt(path.Count - 1);
-                }
-                return false;
-            }
-            return Explore(ModelSystemStructureModelRoot, ret, module) ? ret : null;
-        }
-
-        private void RunModelSystem(out List<ErrorWithPath> errors, IModelSystemStructure mstStructure)
-        {
-            errors = [];
-            AlertValidationStarting();
-            // check to see if the directory exists, if it doesn't create it
-            DirectoryInfo info = new(RunDirectory);
-            if (!info.Exists)
-            {
-                info.Create();
-            }
-            Directory.SetCurrentDirectory(RunDirectory);
-            SaveRunParameters();
-
-            if (!RunTimeValidation([], errors, mstStructure))
-            {
-                InvokeRuntimeValidationError(errors);
-            }
-            else
-            {
-                SetStatusToRunning();
-                _MST.Start();
-            }
-        }
-
-        private void SaveRunParameters()
-        {
-            var runParametersPath = Path.GetFullPath("RunParameters.xml");
-            var quickParametersPath = Path.GetFullPath("QuickParameters.xml");
-            string error = null;
-            ModelSystem.Save(runParametersPath, _model.Root.RealModelSystemStructure, _model.Description,
-                _model.LinkedParameters.GetRealLinkedParameters(), Configuration, ref error);
-            ModelSystem.SaveQuickParameters(quickParametersPath, _model.Root.RealModelSystemStructure);
-        }
-
-        private IModelSystemStructure CreateModelSystem(ref ErrorWithPath error)
-        {
-            IModelSystemStructure mstStructure;
-            if (ModelSystemStructureModelRoot == null)
-            {
-                _MST = ((Project)_Project).CreateModelSystem(ref error, Configuration, _ModelSystemIndex);
-                mstStructure = _Project.ModelSystemStructure[_ModelSystemIndex];
-            }
-            else
-            {
-                _MST = ((Project)_Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
-                mstStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
-            }
-            return mstStructure;
-        }
-
-        override public void TerminateRun()
-        {
-            // TODO: Replace with a new system to replace Thread.Abort
-        }
-
-        public override float PollProgress() => _MST?.Progress ?? 0f;
-
-        public override string PollStatusMessage() => _MST?.ToString() ?? String.Empty;
-
-        public override bool DeepExitRequest()
-        {
-            bool Exit(IModelSystemStructure current)
-            {
-                if (current.Children != null)
-                {
-                    return current.Children.Aggregate(false, (acc, m) => acc | Exit(m))
-                        | (current.Module is IModelSystemTemplate mst && mst.ExitRequest());
-
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            var root = ModelSystemStructureModelRoot;
-            if (root != null)
-            {
-                return Exit(root.RealModelSystemStructure);
-            }
             InvokeRunCompleted();
+        }
+        Directory.SetCurrentDirectory(originalCWD);
+        return mstStructure;
+    }
+
+    private string CombineStackTrace(XTMFRuntimeException runError)
+    {
+        if(runError.InnerException != null)
+        {
+            return string.Concat(runError.InnerException, Environment.NewLine, runError.StackTrace);
+        }
+        else
+        {
+            return runError.StackTrace;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="module"></param>
+    /// <returns></returns>
+    private List<int> GetModulePath(IModule module)
+    {
+        if (module == null) return null;
+        List<int> ret = [];
+        bool Explore(ModelSystemStructureModel current, List<int> path, IModule lookingFor)
+        {
+            if (current.RealModelSystemStructure.Module == lookingFor)
+            {
+                return true;
+            }
+            var children = current.Children;
+            if (children != null)
+            {
+                path.Add(0);
+                foreach (var child in children)
+                {
+                    if (Explore(child, path, lookingFor))
+                    {
+                        return true;
+                    }
+                    path[path.Count - 1] += 1;
+                }
+                path.RemoveAt(path.Count - 1);
+            }
             return false;
         }
-
-        public override void Wait() => _RunThread?.Join();
-
-        public override Tuple<byte, byte, byte> PollColour() => _MST?.ProgressColour;
+        return Explore(ModelSystemStructureModelRoot, ret, module) ? ret : null;
     }
+
+    private void RunModelSystem(out List<ErrorWithPath> errors, IModelSystemStructure mstStructure)
+    {
+        errors = [];
+        AlertValidationStarting();
+        // check to see if the directory exists, if it doesn't create it
+        DirectoryInfo info = new(RunDirectory);
+        if (!info.Exists)
+        {
+            info.Create();
+        }
+        Directory.SetCurrentDirectory(RunDirectory);
+        SaveRunParameters();
+
+        if (!RunTimeValidation([], errors, mstStructure))
+        {
+            InvokeRuntimeValidationError(errors);
+        }
+        else
+        {
+            SetStatusToRunning();
+            _MST.Start();
+        }
+    }
+
+    private void SaveRunParameters()
+    {
+        var runParametersPath = Path.GetFullPath("RunParameters.xml");
+        var quickParametersPath = Path.GetFullPath("QuickParameters.xml");
+        string error = null;
+        ModelSystem.Save(runParametersPath, _model.Root.RealModelSystemStructure, _model.Description,
+            _model.LinkedParameters.GetRealLinkedParameters(), Configuration, ref error);
+        ModelSystem.SaveQuickParameters(quickParametersPath, _model.Root.RealModelSystemStructure);
+    }
+
+    private IModelSystemStructure CreateModelSystem(ref ErrorWithPath error)
+    {
+        IModelSystemStructure mstStructure;
+        if (ModelSystemStructureModelRoot == null)
+        {
+            _MST = ((Project)_Project).CreateModelSystem(ref error, Configuration, _ModelSystemIndex);
+            mstStructure = _Project.ModelSystemStructure[_ModelSystemIndex];
+        }
+        else
+        {
+            _MST = ((Project)_Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
+            mstStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
+        }
+        return mstStructure;
+    }
+
+    override public void TerminateRun()
+    {
+        // TODO: Replace with a new system to replace Thread.Abort
+    }
+
+    public override float PollProgress() => _MST?.Progress ?? 0f;
+
+    public override string PollStatusMessage() => _MST?.ToString() ?? String.Empty;
+
+    public override bool DeepExitRequest()
+    {
+        bool Exit(IModelSystemStructure current)
+        {
+            if (current.Children != null)
+            {
+                return current.Children.Aggregate(false, (acc, m) => acc | Exit(m))
+                    | (current.Module is IModelSystemTemplate mst && mst.ExitRequest());
+
+            }
+            else
+            {
+                return true;
+            }
+        }
+        var root = ModelSystemStructureModelRoot;
+        if (root != null)
+        {
+            return Exit(root.RealModelSystemStructure);
+        }
+        InvokeRunCompleted();
+        return false;
+    }
+
+    public override void Wait() => _RunThread?.Join();
+
+    public override Tuple<byte, byte, byte> PollColour() => _MST?.ProgressColour;
 }

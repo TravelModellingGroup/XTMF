@@ -19,123 +19,122 @@
 using System;
 using XTMF.Networking;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Provides access to the configuration and systems
+/// in XTMF
+/// </summary>
+public interface IConfiguration
 {
     /// <summary>
-    /// Provides access to the configuration and systems
-    /// in XTMF
+    /// This event is used after a model system exits.
     /// </summary>
-    public interface IConfiguration
-    {
-        /// <summary>
-        /// This event is used after a model system exits.
-        /// </summary>
-        event Action OnModelSystemExit;
+    event Action OnModelSystemExit;
 
-        string ConfigurationDirectory { get; }
+    string ConfigurationDirectory { get; }
 
-        /// <summary>
-        /// Provides access to all of the models in this
-        /// XTMF installation
-        /// </summary>
-        IModuleRepository ModelRepository { get; }
+    /// <summary>
+    /// Provides access to all of the models in this
+    /// XTMF installation
+    /// </summary>
+    IModuleRepository ModelRepository { get; }
 
-        /// <summary>
-        /// The directory that the model systems are stored in
-        /// </summary>
-        string ModelSystemDirectory { get; }
+    /// <summary>
+    /// The directory that the model systems are stored in
+    /// </summary>
+    string ModelSystemDirectory { get; }
 
-        /// <summary>
-        ///
-        /// </summary>
-        IModelSystemRepository ModelSystemRepository { get; }
+    /// <summary>
+    ///
+    /// </summary>
+    IModelSystemRepository ModelSystemRepository { get; }
 
-        /// <summary>
-        ///
-        /// </summary>
-        IModelSystemTemplateRepository ModelSystemTemplateRepository { get; }
+    /// <summary>
+    ///
+    /// </summary>
+    IModelSystemTemplateRepository ModelSystemTemplateRepository { get; }
 
-        /// <summary>
-        ///
-        /// </summary>
-        BindingListWithRemoving<IProgressReport> ProgressReports { get; }
+    /// <summary>
+    ///
+    /// </summary>
+    BindingListWithRemoving<IProgressReport> ProgressReports { get; }
 
-        /// <summary>
-        /// The directory that the projects are stored in
-        /// </summary>
-        string ProjectDirectory { get; }
+    /// <summary>
+    /// The directory that the projects are stored in
+    /// </summary>
+    string ProjectDirectory { get; }
 
-        /// <summary>
-        /// Provides accesss to all of the Project's in this
-        /// installation of XTMF
-        /// </summary>
-        IProjectRepository ProjectRepository { get; }
+    /// <summary>
+    /// Provides accesss to all of the Project's in this
+    /// installation of XTMF
+    /// </summary>
+    IProjectRepository ProjectRepository { get; }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="reportProgress"></param>
-        /// <param name="color"></param>
-        void CreateProgressReport(string name, Func<float> reportProgress, Tuple<byte, byte, byte>? color = null);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="reportProgress"></param>
+    /// <param name="color"></param>
+    void CreateProgressReport(string name, Func<float> reportProgress, Tuple<byte, byte, byte>? color = null);
 
-        /// <summary>
-        ///
-        /// </summary>
-        void DeleteAllProgressReport();
+    /// <summary>
+    ///
+    /// </summary>
+    void DeleteAllProgressReport();
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="name"></param>
-        void DeleteProgressReport(string name);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="name"></param>
+    void DeleteProgressReport(string name);
 
-        /// <summary>
-        /// Installs a new module into XTMF
-        /// </summary>
-        /// <param name="moduleFileName">The module to install</param>
-        /// <remarks>Avoid using this if you can, if you do this a client without administrative permissions could fail to run</remarks>
-        /// <returns>True if we could successfully install the module, false otherwise</returns>
-        bool InstallModule(string moduleFileName);
+    /// <summary>
+    /// Installs a new module into XTMF
+    /// </summary>
+    /// <param name="moduleFileName">The module to install</param>
+    /// <remarks>Avoid using this if you can, if you do this a client without administrative permissions could fail to run</remarks>
+    /// <returns>True if we could successfully install the module, false otherwise</returns>
+    bool InstallModule(string moduleFileName);
 
-        /// <summary>
-        /// Retrive the Networking Client however, do not initialize a new one if it doesn't exist already.
-        /// </summary>
-        /// <returns>The networking client module</returns>
-        IClient RetrieveCurrentNetworkingClient();
+    /// <summary>
+    /// Retrive the Networking Client however, do not initialize a new one if it doesn't exist already.
+    /// </summary>
+    /// <returns>The networking client module</returns>
+    IClient RetrieveCurrentNetworkingClient();
 
-        /// <summary>
-        /// Save the Configuration
-        /// </summary>
-        void Save();
+    /// <summary>
+    /// Save the Configuration
+    /// </summary>
+    void Save();
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="networkingClient"></param>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        bool StartupNetworkingClient(out IClient networkingClient, ref string error);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="networkingClient"></param>
+    /// <param name="error"></param>
+    /// <returns></returns>
+    bool StartupNetworkingClient(out IClient networkingClient, ref string error);
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="networkingHost"></param>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        bool StartupNetworkingHost(out IHost networkingHost, ref string error);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="networkingHost"></param>
+    /// <param name="error"></param>
+    /// <returns></returns>
+    bool StartupNetworkingHost(out IHost networkingHost, ref string error);
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="color"></param>
-        void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> color);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="color"></param>
+    void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> color);
 
-        /// <summary>
-        /// Get a string representation of the version of XTMF that is running.
-        /// </summary>
-        /// <returns>A string representation of the XTMF version.</returns>
-        string GetVersionString();
-    }
+    /// <summary>
+    /// Get a string representation of the version of XTMF that is running.
+    /// </summary>
+    /// <returns>A string representation of the XTMF version.</returns>
+    string GetVersionString();
 }

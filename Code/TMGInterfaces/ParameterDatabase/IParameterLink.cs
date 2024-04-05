@@ -18,35 +18,34 @@
 */
 using XTMF;
 
-namespace TMG.ParameterDatabase
+namespace TMG.ParameterDatabase;
+
+public interface IParameterLink : IModule
 {
-    public interface IParameterLink : IModule
-    {
-        /// <summary>
-        /// The name of the paraemter to access
-        /// </summary>
-        string ParameterName { get; }
+    /// <summary>
+    /// The name of the paraemter to access
+    /// </summary>
+    string ParameterName { get; }
 
-        /// <summary>
-        /// Assign the parameter to the variable
-        /// </summary>
-        void Assign(string value);
+    /// <summary>
+    /// Assign the parameter to the variable
+    /// </summary>
+    void Assign(string value);
 
-        /// <summary>
-        /// Work on the blending
-        /// </summary>
-        /// <param name="value">The value to try to blend</param>
-        /// <param name="ammount">From 0 to 1 of how much of this parameter to use</param>
-        void BlendedAssignment(string value, float ammount);
+    /// <summary>
+    /// Work on the blending
+    /// </summary>
+    /// <param name="value">The value to try to blend</param>
+    /// <param name="ammount">From 0 to 1 of how much of this parameter to use</param>
+    void BlendedAssignment(string value, float ammount);
 
-        /// <summary>
-        /// Complete the blending procedure
-        /// </summary>
-        void FinishBlending();
+    /// <summary>
+    /// Complete the blending procedure
+    /// </summary>
+    void FinishBlending();
 
-        /// <summary>
-        /// Start the blending mode
-        /// </summary>
-        void StartBlending();
-    }
+    /// <summary>
+    /// Start the blending mode
+    /// </summary>
+    void StartBlending();
 }

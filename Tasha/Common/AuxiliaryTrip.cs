@@ -21,168 +21,167 @@ using System.Collections.Generic;
 using TMG;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Basic storage holder for simple auxiliary trip data. This class is to be used
+/// to store trips that use vehicles that were not created by the scheduler.
+///
+/// (ie facilitate passenger trips)
+/// </summary>
+public class AuxiliaryTrip : Attachable, ITrip
 {
     /// <summary>
-    /// Basic storage holder for simple auxiliary trip data. This class is to be used
-    /// to store trips that use vehicles that were not created by the scheduler.
     ///
-    /// (ie facilitate passenger trips)
     /// </summary>
-    public class AuxiliaryTrip : Attachable, ITrip
+    public IZone DestinationZone
     {
-        /// <summary>
-        ///
-        /// </summary>
-        public IZone DestinationZone
-        {
-            get;
-            internal set;
-        }
+        get;
+        internal set;
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public IZone IntermediateZone
-        {
-            get;
-            set;
-        }
+    /// <summary>
+    ///
+    /// </summary>
+    public IZone IntermediateZone
+    {
+        get;
+        set;
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public ITashaMode Mode
-        {
-            get;
-            set;
-        }
+    /// <summary>
+    ///
+    /// </summary>
+    public ITashaMode Mode
+    {
+        get;
+        set;
+    }
 
-        public ITashaMode[] ModesChosen
+    public ITashaMode[] ModesChosen
+    {
+        get
         {
-            get
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public IZone OriginalZone
+    {
+        get;
+        internal set;
+    }
+
+    public List<ITashaPerson> Passengers
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public Activity Purpose
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public ITashaPerson SharedModeDriver { get; set; }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public ITripChain TripChain
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Create a temporary auxiliary trip with minimum information
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <param name="destination"></param>
+    /// <param name="modeChoice"></param>
+    /// <param name="startTime"></param>
+    public static AuxiliaryTrip MakeAuxiliaryTrip(IZone origin, IZone destination, ITashaMode modeChoice, Time startTime)
+    {
+        AuxiliaryTrip aux;
+        //if ( !AuxiliaryTrip.Trips.TryTake( out aux ) )
+        //{
+        aux = new AuxiliaryTrip();
+        aux.Passengers = [];
+        //}
+        aux.OriginalZone = origin;
+        aux.DestinationZone = destination;
+        aux.Mode = modeChoice;
+        aux.ActivityStartTime = startTime;
+        return aux;
+    }
+
+    public ITrip Clone()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Recycle()
+    {
+        //this.ActivityStartTime = Time.Zero;
+        //this.OriginalZone = null;
+        //this.DestinationZone = null;
+        //this.Mode = null;
+        //this.ActivityStartTime = Time.Zero;
+        //this.Passengers.Clear();
+        //this.TripChain = null;
+        //AuxiliaryTrip.Trips.Add( this );
+    }
+
+    #region ITrip Members
+
+    public int TripNumber
+    {
+        get { return TripChain.Trips.IndexOf( this ); }
+    }
+
+    #endregion ITrip Members
+
+    #region ITrip Members
+
+    public Time ActivityStartTime
+    {
+        get;
+        internal set;
+    }
+
+    public Time TravelTime
+    {
+        get { return ActivityStartTime - TripStartTime; }
+    }
+
+    public Time TripStartTime
+    {
+        get
+        {
+            if ( Mode != null )
             {
-                return null;
+                return ActivityStartTime - Mode.TravelTime( OriginalZone, DestinationZone, ActivityStartTime );
             }
+            return ActivityStartTime;
         }
+    }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public IZone OriginalZone
-        {
-            get;
-            internal set;
-        }
+    #endregion ITrip Members
 
-        public List<ITashaPerson> Passengers
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public Activity Purpose
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public ITashaPerson SharedModeDriver { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public ITripChain TripChain
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Create a temporary auxiliary trip with minimum information
-        /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="destination"></param>
-        /// <param name="modeChoice"></param>
-        /// <param name="startTime"></param>
-        public static AuxiliaryTrip MakeAuxiliaryTrip(IZone origin, IZone destination, ITashaMode modeChoice, Time startTime)
-        {
-            AuxiliaryTrip aux;
-            //if ( !AuxiliaryTrip.Trips.TryTake( out aux ) )
-            //{
-            aux = new AuxiliaryTrip();
-            aux.Passengers = [];
-            //}
-            aux.OriginalZone = origin;
-            aux.DestinationZone = destination;
-            aux.Mode = modeChoice;
-            aux.ActivityStartTime = startTime;
-            return aux;
-        }
-
-        public ITrip Clone()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Recycle()
-        {
-            //this.ActivityStartTime = Time.Zero;
-            //this.OriginalZone = null;
-            //this.DestinationZone = null;
-            //this.Mode = null;
-            //this.ActivityStartTime = Time.Zero;
-            //this.Passengers.Clear();
-            //this.TripChain = null;
-            //AuxiliaryTrip.Trips.Add( this );
-        }
-
-        #region ITrip Members
-
-        public int TripNumber
-        {
-            get { return TripChain.Trips.IndexOf( this ); }
-        }
-
-        #endregion ITrip Members
-
-        #region ITrip Members
-
-        public Time ActivityStartTime
-        {
-            get;
-            internal set;
-        }
-
-        public Time TravelTime
-        {
-            get { return ActivityStartTime - TripStartTime; }
-        }
-
-        public Time TripStartTime
-        {
-            get
-            {
-                if ( Mode != null )
-                {
-                    return ActivityStartTime - Mode.TravelTime( OriginalZone, DestinationZone, ActivityStartTime );
-                }
-                return ActivityStartTime;
-            }
-        }
-
-        #endregion ITrip Members
-
-        public void ReleaseTrip()
-        {
-            Release();
-            Mode = null;
-        }
+    public void ReleaseTrip()
+    {
+        Release();
+        Mode = null;
     }
 }

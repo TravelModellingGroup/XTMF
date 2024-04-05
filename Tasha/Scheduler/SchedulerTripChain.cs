@@ -21,215 +21,214 @@ using System.Collections.Generic;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+internal sealed class SchedulerTripChain : Attachable, ITripChain
 {
-    internal sealed class SchedulerTripChain : Attachable, ITripChain
+    private static ConcurrentQueue<SchedulerTripChain> Chains = new();
+
+    private SchedulerTripChain(ITashaPerson person)
     {
-        private static ConcurrentQueue<SchedulerTripChain> Chains = new();
+        Person = person;
+        Trips = new List<ITrip>(3);
+    }
 
-        private SchedulerTripChain(ITashaPerson person)
+    /// <summary>
+    /// The End Time of this Trip Chain (The time returned home)
+    /// </summary>
+    public Time EndTime
+    {
+        get
         {
-            Person = person;
-            Trips = new List<ITrip>(3);
+            return Trips[Trips.Count - 1].ActivityStartTime;
         }
+    }
 
-        /// <summary>
-        /// The End Time of this Trip Chain (The time returned home)
-        /// </summary>
-        public Time EndTime
+    public ITripChain GetRepTripChain
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Is this a joint trip?
+    /// </summary>
+    public bool JointTrip
+    {
+        get
         {
-            get
+            return JointTripID != 0;
+        }
+    }
+
+    public List<ITripChain> JointTripChains
+    {
+        get
+        {
+            if (!JointTrip) return null;
+
+            List<ITripChain> linkedTripChains = [];
+            foreach (var p in Person.Household.Persons)
             {
-                return Trips[Trips.Count - 1].ActivityStartTime;
-            }
-        }
-
-        public ITripChain GetRepTripChain
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Is this a joint trip?
-        /// </summary>
-        public bool JointTrip
-        {
-            get
-            {
-                return JointTripID != 0;
-            }
-        }
-
-        public List<ITripChain> JointTripChains
-        {
-            get
-            {
-                if (!JointTrip) return null;
-
-                List<ITripChain> linkedTripChains = [];
-                foreach (var p in Person.Household.Persons)
+                foreach (var tripChain in p.TripChains)
                 {
-                    foreach (var tripChain in p.TripChains)
-                    {
-                        if (tripChain.JointTripID == JointTripID)
-                            linkedTripChains.Add(tripChain);
-                    }
+                    if (tripChain.JointTripID == JointTripID)
+                        linkedTripChains.Add(tripChain);
                 }
-                return linkedTripChains;
             }
+            return linkedTripChains;
         }
+    }
 
-        /// <summary>
-        /// What is the ID of this joint trip?
-        /// </summary>
-        public int JointTripID
+    /// <summary>
+    /// What is the ID of this joint trip?
+    /// </summary>
+    public int JointTripID
+    {
+        get;
+        internal set;
+    }
+
+    /// <summary>
+    /// Is the owned the Representative for the joint trip?
+    /// </summary>
+    public bool JointTripRep
+    {
+        get;
+        internal set;
+    }
+
+    public List<ITashaPerson> Passengers
+    {
+        get { return null; }
+    }
+
+    /// <summary>
+    /// The person that this trip chain belongs to
+    /// </summary>
+    public ITashaPerson Person
+    {
+        get;
+        set;
+    }
+
+    public List<IVehicleType> RequiresVehicle
+    {
+        get
         {
-            get;
-            internal set;
-        }
+            List<IVehicleType> v = [];
 
-        /// <summary>
-        /// Is the owned the Representative for the joint trip?
-        /// </summary>
-        public bool JointTripRep
-        {
-            get;
-            internal set;
-        }
-
-        public List<ITashaPerson> Passengers
-        {
-            get { return null; }
-        }
-
-        /// <summary>
-        /// The person that this trip chain belongs to
-        /// </summary>
-        public ITashaPerson Person
-        {
-            get;
-            set;
-        }
-
-        public List<IVehicleType> RequiresVehicle
-        {
-            get
-            {
-                List<IVehicleType> v = [];
-
-                foreach (var trip in Trips)
-                {
-                    if (trip.Mode != null && trip.Mode.RequiresVehicle != null)
-                    {
-                        if (!v.Contains(trip.Mode.RequiresVehicle))
-                        {
-                            v.Add(trip.Mode.RequiresVehicle);
-                        }
-                    }
-                }
-
-                return v;
-            }
-        }
-
-        /// <summary>
-        /// The Start Time of this TripChain
-        /// </summary>
-        public Time StartTime
-        {
-            get
-            {
-                return Trips[0].TripStartTime;
-            }
-        }
-
-        public bool TripChainRequiresPV
-        {
-            get
-            {
-                foreach (var t in Trips)
-                {
-                    if (!t.Mode.NonPersonalVehicle)
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// The trips in this trip chain
-        /// </summary>
-        public List<ITrip> Trips
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Shallow clone of this trip chain (does not clone trips)
-        /// </summary>
-        /// <returns></returns>
-        public ITripChain Clone()
-        {
-            ITripChain chain = (ITripChain)MemberwiseClone();
-            chain.Trips = [.. Trips];
-            return chain;
-        }
-
-        /// <summary>
-        /// Clones this trip chain and its trips
-        /// </summary>
-        /// <returns></returns>
-        public ITripChain DeepClone()
-        {
-            //shallow clone of tripchain
-            ITripChain chain = (ITripChain)MemberwiseClone();
-            chain.Trips = [];
-            List<ITrip> trips = [];
-
-            //cloning trips as well and setting their trip chain to cloned chained
             foreach (var trip in Trips)
             {
-                ITrip t = trip.Clone();
-                t.TripChain = chain;
-                trips.Add(t);
+                if (trip.Mode != null && trip.Mode.RequiresVehicle != null)
+                {
+                    if (!v.Contains(trip.Mode.RequiresVehicle))
+                    {
+                        v.Add(trip.Mode.RequiresVehicle);
+                    }
+                }
             }
 
-            chain.Trips.AddRange(trips);
-
-            return chain;
+            return v;
         }
+    }
 
-        public void Recycle()
+    /// <summary>
+    /// The Start Time of this TripChain
+    /// </summary>
+    public Time StartTime
+    {
+        get
         {
-            Release();
+            return Trips[0].TripStartTime;
+        }
+    }
+
+    public bool TripChainRequiresPV
+    {
+        get
+        {
             foreach (var t in Trips)
             {
-                t.Release();
+                if (!t.Mode.NonPersonalVehicle)
+                {
+                    return true;
+                }
             }
-            Trips.Clear();
-            JointTripID = 0;
-            JointTripRep = false;
-            GetRepTripChain = null;
-            if (JointTripChains != null)
-            {
-                JointTripChains.Clear();
-            }
-            Person = null;
-            Chains.Enqueue(this);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// The trips in this trip chain
+    /// </summary>
+    public List<ITrip> Trips
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Shallow clone of this trip chain (does not clone trips)
+    /// </summary>
+    /// <returns></returns>
+    public ITripChain Clone()
+    {
+        ITripChain chain = (ITripChain)MemberwiseClone();
+        chain.Trips = [.. Trips];
+        return chain;
+    }
+
+    /// <summary>
+    /// Clones this trip chain and its trips
+    /// </summary>
+    /// <returns></returns>
+    public ITripChain DeepClone()
+    {
+        //shallow clone of tripchain
+        ITripChain chain = (ITripChain)MemberwiseClone();
+        chain.Trips = [];
+        List<ITrip> trips = [];
+
+        //cloning trips as well and setting their trip chain to cloned chained
+        foreach (var trip in Trips)
+        {
+            ITrip t = trip.Clone();
+            t.TripChain = chain;
+            trips.Add(t);
         }
 
-        internal static SchedulerTripChain GetTripChain(ITashaPerson person)
+        chain.Trips.AddRange(trips);
+
+        return chain;
+    }
+
+    public void Recycle()
+    {
+        Release();
+        foreach (var t in Trips)
         {
-            if (!Chains.TryDequeue(out SchedulerTripChain ret))
-            {
-                return new SchedulerTripChain(person);
-            }
-            ret.Person = person;
-            return ret;
+            t.Release();
         }
+        Trips.Clear();
+        JointTripID = 0;
+        JointTripRep = false;
+        GetRepTripChain = null;
+        if (JointTripChains != null)
+        {
+            JointTripChains.Clear();
+        }
+        Person = null;
+        Chains.Enqueue(this);
+    }
+
+    internal static SchedulerTripChain GetTripChain(ITashaPerson person)
+    {
+        if (!Chains.TryDequeue(out SchedulerTripChain ret))
+        {
+            return new SchedulerTripChain(person);
+        }
+        ret.Person = person;
+        return ret;
     }
 }

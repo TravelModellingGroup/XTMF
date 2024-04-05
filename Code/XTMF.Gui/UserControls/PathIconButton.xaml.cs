@@ -18,16 +18,15 @@
 */
 using System.Windows.Controls;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for PathIconButton.xaml
+/// </summary>
+public partial class PathIconButton : UserControl
 {
-    /// <summary>
-    /// Interaction logic for PathIconButton.xaml
-    /// </summary>
-    public partial class PathIconButton : UserControl
+    public PathIconButton()
     {
-        public PathIconButton()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

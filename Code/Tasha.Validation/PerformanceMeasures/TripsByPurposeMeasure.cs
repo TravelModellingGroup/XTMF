@@ -26,91 +26,90 @@ using TMG.Input;
 using TMG;
 using XTMF;
 
-namespace Tasha.Validation.PerformanceMeasures
+namespace Tasha.Validation.PerformanceMeasures;
+
+[ModuleInformation(
+    Description = "A Performance Measure that counts and records " +
+                   "the amount of trips created for each trip purpose." +
+                   "\nNote: The Expanded trips parameter lets the user choose " +
+                   "whether or not he/she wants to look at expansion factors or just frequencies. "
+    )]
+public class TripsByPurposeMeasure : IPostHousehold
 {
-    [ModuleInformation(
-        Description = "A Performance Measure that counts and records " +
-                       "the amount of trips created for each trip purpose." +
-                       "\nNote: The Expanded trips parameter lets the user choose " +
-                       "whether or not he/she wants to look at expansion factors or just frequencies. "
-        )]
-    public class TripsByPurposeMeasure : IPostHousehold
+
+    [SubModelInformation(Required = true, Description = "Folder name in Output Directory where you want to save the files")]
+    public FileLocation ResultsFolder;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private Dictionary<Activity, float[]> PurposeDictionary = [];
+
+    private Dictionary<Activity, float> SummaryTripCount = [];
+
+    public string Name
     {
+        get;
+        set;
+    }
 
-        [SubModelInformation(Required = true, Description = "Folder name in Output Directory where you want to save the files")]
-        public FileLocation ResultsFolder;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(120, 25, 100); }
+    }
 
-        private Dictionary<Activity, float[]> PurposeDictionary = [];
+    [RunParameter("StartTime", "6:00AM", typeof(Time), "The time to start recording.")]
+    public Time StartTime;
 
-        private Dictionary<Activity, float> SummaryTripCount = [];
+    [RunParameter("EndTime", "9:00AM", typeof(Time), "The time to end recording (exclusive).")]
+    public Time EndTime;
 
-        public string Name
+    [RunParameter("Min Age", 11, "The minimum age to record the purposes for.")]
+    public int MinAge;
+
+    [RunParameter("Origin Zones", "1-9999", typeof(RangeSet), "The origin zones to select for.")]
+    public RangeSet OriginZones;
+
+    [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
+    public RangeSet DestinationZones;
+
+    [RunParameter("Trip Start Time", true, "Set to true to get the trip's start time.  Setting this to false will give the activity start times.")]
+    public bool TripStartTime;
+
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        // only run on the last iteration
+        var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
+        if (iteration == Root.TotalIterations - 1)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
-        }
-
-        [RunParameter("StartTime", "6:00AM", typeof(Time), "The time to start recording.")]
-        public Time StartTime;
-
-        [RunParameter("EndTime", "9:00AM", typeof(Time), "The time to end recording (exclusive).")]
-        public Time EndTime;
-
-        [RunParameter("Min Age", 11, "The minimum age to record the purposes for.")]
-        public int MinAge;
-
-        [RunParameter("Origin Zones", "1-9999", typeof(RangeSet), "The origin zones to select for.")]
-        public RangeSet OriginZones;
-
-        [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
-        public RangeSet DestinationZones;
-
-        [RunParameter("Trip Start Time", true, "Set to true to get the trip's start time.  Setting this to false will give the activity start times.")]
-        public bool TripStartTime;
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            // only run on the last iteration
-            var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
-            if (iteration == Root.TotalIterations - 1)
+            foreach (var person in household.Persons)
             {
-                foreach (var person in household.Persons)
+                float amountToAddPerTrip = person.ExpansionFactor;
+                if (person.Age >= MinAge)
                 {
-                    float amountToAddPerTrip = person.ExpansionFactor;
-                    if (person.Age >= MinAge)
+                    foreach (var tripChain in person.TripChains)
                     {
-                        foreach (var tripChain in person.TripChains)
+                        foreach (var trip in tripChain.Trips)
                         {
-                            foreach (var trip in tripChain.Trips)
+                            IZone originalZone = trip.OriginalZone;
+                            IZone destinationZone = trip.DestinationZone;
+                            if (OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                             {
-                                IZone originalZone = trip.OriginalZone;
-                                IZone destinationZone = trip.DestinationZone;
-                                if (OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
+                                var tripStartTime = TripStartTime ? trip.TripStartTime : trip.ActivityStartTime;
+                                if (trip.Mode != null)
                                 {
-                                    var tripStartTime = TripStartTime ? trip.TripStartTime : trip.ActivityStartTime;
-                                    if (trip.Mode != null)
+                                    if (tripStartTime >= StartTime && tripStartTime < EndTime)
                                     {
-                                        if (tripStartTime >= StartTime && tripStartTime < EndTime)
+                                        lock (this)
                                         {
-                                            lock (this)
-                                            {
-                                                AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
-                                                AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
-                                            }
+                                            AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
+                                            AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
                                         }
                                     }
                                 }
@@ -120,85 +119,85 @@ namespace Tasha.Validation.PerformanceMeasures
                 }
             }
         }
+    }
 
-        private void AddToSummary(ITrip trip, Dictionary<Activity, float> summaryDictionary, float occurance)
+    private void AddToSummary(ITrip trip, Dictionary<Activity, float> summaryDictionary, float occurance)
+    {
+        var purpose = trip.Purpose;
+        if (!summaryDictionary.TryGetValue(purpose, out float value))
         {
-            var purpose = trip.Purpose;
-            if (!summaryDictionary.TryGetValue(purpose, out float value))
-            {
-                value = 0;
-            }
-            summaryDictionary[trip.Purpose] = value + occurance;
+            value = 0;
         }
+        summaryDictionary[trip.Purpose] = value + occurance;
+    }
 
-        private void AddTripToDictionary(Dictionary<Activity, float[]> dictionary, float occurance, ITrip trip, int homeZone)
+    private void AddTripToDictionary(Dictionary<Activity, float[]> dictionary, float occurance, ITrip trip, int homeZone)
+    {
+        var purpose = trip.Purpose;
+        if (!dictionary.TryGetValue(purpose, out float[] value))
         {
-            var purpose = trip.Purpose;
-            if (!dictionary.TryGetValue(purpose, out float[] value))
-            {
-                dictionary.Add(trip.Purpose, (value = new float[Root.ZoneSystem.ZoneArray.GetFlatData().Length]));
-            }
-            value[homeZone] += occurance;
+            dictionary.Add(trip.Purpose, (value = new float[Root.ZoneSystem.ZoneArray.GetFlatData().Length]));
         }
+        value[homeZone] += occurance;
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        var zoneFlatData = Root.ZoneSystem.ZoneArray.GetFlatData();
+        // only run on the last iteration
+        if (iteration == Root.TotalIterations - 1)
         {
-            var zoneFlatData = Root.ZoneSystem.ZoneArray.GetFlatData();
-            // only run on the last iteration
-            if (iteration == Root.TotalIterations - 1)
+            Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
+            var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");
+            using (StreamWriter writer = new(filePath))
             {
-                Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
-                var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");
-                using (StreamWriter writer = new(filePath))
+                writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
+                foreach (var pair in PurposeDictionary.OrderBy(k => k.Key))
                 {
-                    writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
-                    foreach (var pair in PurposeDictionary.OrderBy(k => k.Key))
+                    var format = pair.Key + ",{0},{1}";
+                    for (int i = 0; i < PurposeDictionary[pair.Key].Length; i++)
                     {
-                        var format = pair.Key + ",{0},{1}";
-                        for (int i = 0; i < PurposeDictionary[pair.Key].Length; i++)
-                        {
-                            writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[pair.Key][i]);
-                        }
-                    }
-                }
-
-                var summaryFilePath = Path.Combine(Path.GetFullPath(ResultsFolder), "SummaryFile.csv");
-
-                using (StreamWriter writer = new(summaryFilePath))
-                {
-                    writer.WriteLine("Purpose, Number of Occurrences");
-                    foreach (var pair in SummaryTripCount.OrderBy(k => k.Key))
-                    {
-                        writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
+                        writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[pair.Key][i]);
                     }
                 }
             }
-        }
 
-        public void Load(int maxIterations)
-        {
-        }
+            var summaryFilePath = Path.Combine(Path.GetFullPath(ResultsFolder), "SummaryFile.csv");
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void IterationStarting(int iteration)
-        {
-            if(PurposeDictionary != null)
+            using (StreamWriter writer = new(summaryFilePath))
             {
-                PurposeDictionary.Clear();
-            }
-            if(SummaryTripCount != null)
-            {
-                SummaryTripCount.Clear();
+                writer.WriteLine("Purpose, Number of Occurrences");
+                foreach (var pair in SummaryTripCount.OrderBy(k => k.Key))
+                {
+                    writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
+                }
             }
         }
+    }
 
-        public override string ToString()
+    public void Load(int maxIterations)
+    {
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        if(PurposeDictionary != null)
         {
-            return "Currently Validating Trip Purposes!";
+            PurposeDictionary.Clear();
         }
+        if(SummaryTripCount != null)
+        {
+            SummaryTripCount.Clear();
+        }
+    }
+
+    public override string ToString()
+    {
+        return "Currently Validating Trip Purposes!";
     }
 }

@@ -21,106 +21,105 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+public abstract class DemographicCategoryGeneration : IDemographicCategoryGeneration
 {
-    public abstract class DemographicCategoryGeneration : IDemographicCategoryGeneration
+    [RunParameter( "Age Category Range", "0-8", typeof( RangeSet ), "The range of different age categories to use.  Age categories are defined in the Demographics module." )]
+    public RangeSet AgeCategoryRange;
+
+    [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
+    public int DemographicParameterSetIndex;
+
+    [RunParameter( "Employment Status", "2", typeof( RangeSet ), "Defaults: FullTime = 1, PartTime = 2" )]
+    public RangeSet EmploymentStatusCategory;
+
+    [RunParameter( "ModeChoice Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
+    public int ModeChoiceParameterSetIndex;
+
+    [RunParameter( "Work Type", "1", typeof( RangeSet ), "Defaults: 0 = Unemployed, 1 = professional, 2 = general, 3 = sales, 4 = manufacturing" )]
+    public RangeSet OccupationCategory;
+
+    [RootModule]
+    public IDemographic4StepModelSystemTemplate Root;
+
+    private SparseArray<Datastructure.Range> AgeCategories;
+
+    private Datastructure.Range[] FlatAges;
+
+    [RunParameter( "Mobility Category", "0", typeof( RangeSet ), "0= No Car and License, 1= car no license, 2= 2+ cars no license, 3= No Car with license, 4= license 1 car, 5= license 2+ cars" )]
+    public RangeSet Mobility { get; set; }
+
+    public string Name
     {
-        [RunParameter( "Age Category Range", "0-8", typeof( RangeSet ), "The range of different age categories to use.  Age categories are defined in the Demographics module." )]
-        public RangeSet AgeCategoryRange;
+        get;
+        set;
+    }
 
-        [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
-        public int DemographicParameterSetIndex;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Employment Status", "2", typeof( RangeSet ), "Defaults: FullTime = 1, PartTime = 2" )]
-        public RangeSet EmploymentStatusCategory;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "ModeChoice Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
-        public int ModeChoiceParameterSetIndex;
+    /// <summary>
+    /// Create the production and attractions for this demographic
+    /// </summary>
+    /// <param name="production">The production</param>
+    /// <param name="attractions">The attraction</param>
+    public abstract void Generate(SparseArray<float> production, SparseArray<float> attractions);
 
-        [RunParameter( "Work Type", "1", typeof( RangeSet ), "Defaults: 0 = Unemployed, 1 = professional, 2 = general, 3 = sales, 4 = manufacturing" )]
-        public RangeSet OccupationCategory;
-
-        [RootModule]
-        public IDemographic4StepModelSystemTemplate Root;
-
-        private SparseArray<Datastructure.Range> AgeCategories;
-
-        private Datastructure.Range[] FlatAges;
-
-        [RunParameter( "Mobility Category", "0", typeof( RangeSet ), "0= No Car and License, 1= car no license, 2= 2+ cars no license, 3= No Car with license, 4= license 1 car, 5= license 2+ cars" )]
-        public RangeSet Mobility { get; set; }
-
-        public string Name
+    public virtual void InitializeDemographicCategory()
+    {
+        var dataBase = Root.ModeParameterDatabase;
+        if ( dataBase != null )
         {
-            get;
-            set;
+            dataBase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
         }
+    }
 
-        public float Progress
+    public bool IsContained(IPerson person)
+    {
+        var age = person.Age;
+        // Convert the age into an age category
+        if ( !TryGetAgeCat( age, out age ) )
         {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        /// <summary>
-        /// Create the production and attractions for this demographic
-        /// </summary>
-        /// <param name="production">The production</param>
-        /// <param name="attractions">The attraction</param>
-        public abstract void Generate(SparseArray<float> production, SparseArray<float> attractions);
-
-        public virtual void InitializeDemographicCategory()
-        {
-            var dataBase = Root.ModeParameterDatabase;
-            if ( dataBase != null )
-            {
-                dataBase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
-            }
-        }
-
-        public bool IsContained(IPerson person)
-        {
-            var age = person.Age;
-            // Convert the age into an age category
-            if ( !TryGetAgeCat( age, out age ) )
-            {
-                return false;
-            }
-            int mobilityCategory;
-            var cars = person.Household.Cars;
-            mobilityCategory = cars + ( person.DriversLicense ? 3 : 0 );
-            return ( EmploymentStatusCategory.Contains( person.EmploymentStatus ) ) & ( OccupationCategory.Contains( person.Occupation ) )
-                        & ( AgeCategoryRange.Contains( age ) ) & ( Mobility.Contains( mobilityCategory ) );
-        }
-
-        public virtual bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        protected bool TryGetAgeCat(int age, out int ageCat)
-        {
-            if ( AgeCategories == null )
-            {
-                var temp = Root.Demographics.AgeCategories;
-                FlatAges = temp.GetFlatData();
-                AgeCategories = temp;
-            }
-            for ( int i = 0; i < FlatAges.Length; i++ )
-            {
-                if ( FlatAges[i].ContainsInclusive( age ) )
-                {
-                    ageCat = AgeCategories.GetSparseIndex( i );
-                    return true;
-                }
-            }
-            ageCat = -1;
             return false;
         }
+        int mobilityCategory;
+        var cars = person.Household.Cars;
+        mobilityCategory = cars + ( person.DriversLicense ? 3 : 0 );
+        return ( EmploymentStatusCategory.Contains( person.EmploymentStatus ) ) & ( OccupationCategory.Contains( person.Occupation ) )
+                    & ( AgeCategoryRange.Contains( age ) ) & ( Mobility.Contains( mobilityCategory ) );
+    }
+
+    public virtual bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    protected bool TryGetAgeCat(int age, out int ageCat)
+    {
+        if ( AgeCategories == null )
+        {
+            var temp = Root.Demographics.AgeCategories;
+            FlatAges = temp.GetFlatData();
+            AgeCategories = temp;
+        }
+        for ( int i = 0; i < FlatAges.Length; i++ )
+        {
+            if ( FlatAges[i].ContainsInclusive( age ) )
+            {
+                ageCat = AgeCategories.GetSparseIndex( i );
+                return true;
+            }
+        }
+        ageCat = -1;
+        return false;
     }
 }

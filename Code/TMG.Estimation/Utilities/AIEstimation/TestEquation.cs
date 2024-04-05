@@ -19,24 +19,22 @@
 using System;
 using XTMF;
 
-namespace TMG.Estimation.Utilities.AIEstimation
+namespace TMG.Estimation.Utilities.AIEstimation;
+
+
+public abstract class TestEquation : IModule
 {
 
-    public abstract class TestEquation : IModule
+    public abstract float Evaluate();
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public virtual bool RuntimeValidation(ref string error)
     {
-
-        public abstract float Evaluate();
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public virtual bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+        return true;
     }
-
 }

@@ -25,52 +25,51 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 
-namespace XTMF.Gui.Models
+namespace XTMF.Gui.Models;
+
+public sealed class LinkedParameterDisplayModel : INotifyPropertyChanged, IDisposable
 {
-    public sealed class LinkedParameterDisplayModel : INotifyPropertyChanged, IDisposable
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private LinkedParameterModel _RealLinkedParameter;
+
+    public string Name
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private LinkedParameterModel _RealLinkedParameter;
-
-        public string Name
+        get => _RealLinkedParameter.Name;
+        set
         {
-            get => _RealLinkedParameter.Name;
-            set
-            {
-                string error = null;
-                _RealLinkedParameter.SetName(value, ref error);
-                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
-            }
+            string error = null;
+            _RealLinkedParameter.SetName(value, ref error);
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
         }
+    }
 
-        public LinkedParameterModel LinkedParameter => _RealLinkedParameter;
+    public LinkedParameterModel LinkedParameter => _RealLinkedParameter;
 
-        public LinkedParameterDisplayModel(LinkedParameterModel realLinkedParameter)
-        {
-            _RealLinkedParameter = realLinkedParameter;
-            _RealLinkedParameter.PropertyChanged += RealLinkedParameter_PropertyChanged;
-        }
+    public LinkedParameterDisplayModel(LinkedParameterModel realLinkedParameter)
+    {
+        _RealLinkedParameter = realLinkedParameter;
+        _RealLinkedParameter.PropertyChanged += RealLinkedParameter_PropertyChanged;
+    }
 
-        private void RealLinkedParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            ModelHelper.PropertyChanged(PropertyChanged, this, e.PropertyName);
-        }
+    private void RealLinkedParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        ModelHelper.PropertyChanged(PropertyChanged, this, e.PropertyName);
+    }
 
-        ~LinkedParameterDisplayModel()
-        {
-            Dispose();
-        }
+    ~LinkedParameterDisplayModel()
+    {
+        Dispose();
+    }
 
-        public void Dispose()
-        {
-            PropertyChanged = null;
-            _RealLinkedParameter.PropertyChanged -= RealLinkedParameter_PropertyChanged;
-        }
+    public void Dispose()
+    {
+        PropertyChanged = null;
+        _RealLinkedParameter.PropertyChanged -= RealLinkedParameter_PropertyChanged;
+    }
 
-        internal static ObservableCollection<LinkedParameterDisplayModel> CreateDisplayModel(ObservableCollection<LinkedParameterModel> observableCollection)
-        {
-            return new ObservableCollection<LinkedParameterDisplayModel>(observableCollection.Select(lp => new LinkedParameterDisplayModel(lp)).OrderBy(lp => lp.Name));
-        }
+    internal static ObservableCollection<LinkedParameterDisplayModel> CreateDisplayModel(ObservableCollection<LinkedParameterModel> observableCollection)
+    {
+        return new ObservableCollection<LinkedParameterDisplayModel>(observableCollection.Select(lp => new LinkedParameterDisplayModel(lp)).OrderBy(lp => lp.Name));
     }
 }

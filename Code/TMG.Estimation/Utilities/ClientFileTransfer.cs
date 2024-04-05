@@ -23,131 +23,130 @@ using XTMF.Networking;
 using System.IO;
 using System.Threading;
 
-namespace TMG.Estimation.Utilities
-{
-    [ModuleInformation(Description =
-            @"This module is designed to interact with the host model system in order to receive a file.  It is expected that sending and receiving will occur with the same channel number.  This is designed to integrate into the 
+namespace TMG.Estimation.Utilities;
+
+[ModuleInformation(Description =
+        @"This module is designed to interact with the host model system in order to receive a file.  It is expected that sending and receiving will occur with the same channel number.  This is designed to integrate into the 
 TMG.Estimation framework however it should also work with anything using XTMF.Networking.")]
-    public class ClientFileTransfer : ISelfContainedModule
+public class ClientFileTransfer : ISelfContainedModule
+{
+    [SubModelInformation(Required = true, Description = "The place to save the file")]
+    public FileLocation FileLocation;
+
+    public IClient Client;
+
+    [RunParameter("Data Channel", 10, "The custom data channel to use for receiving the request to send the file.")]
+    public int DataChannel;
+
+    [RunParameter("Only Once", true, "Should we only get the copy of the file once?")]
+    public bool OnceOnly;
+
+    [RunParameter("From Host", true, "Are we receiving a file from the host (true) or sending the file to the host?")]
+    public bool FromHost;
+
+    private bool Loaded;
+    // This is used to make sure the file is received before we continue
+    private volatile bool FileTransmitted;
+    private byte[] Data;
+
+    public void Start()
     {
-        [SubModelInformation(Required = true, Description = "The place to save the file")]
-        public FileLocation FileLocation;
-
-        public IClient Client;
-
-        [RunParameter("Data Channel", 10, "The custom data channel to use for receiving the request to send the file.")]
-        public int DataChannel;
-
-        [RunParameter("Only Once", true, "Should we only get the copy of the file once?")]
-        public bool OnceOnly;
-
-        [RunParameter("From Host", true, "Are we receiving a file from the host (true) or sending the file to the host?")]
-        public bool FromHost;
-
-        private bool Loaded;
-        // This is used to make sure the file is received before we continue
-        private volatile bool FileTransmitted;
-        private byte[] Data;
-
-        public void Start()
+        if ( FromHost )
         {
-            if ( FromHost )
+            if ( !Loaded )
             {
-                if ( !Loaded )
-                {
 
-                    Client.RegisterCustomReceiver( DataChannel, (stream) =>
-                    {
-                        var data = new byte[stream.Length];
-                        stream.Read( data, 0, data.Length );
-                        return data;
-                    } );
-                    Client.RegisterCustomMessageHandler( DataChannel, (obj) =>
-                    {
-                        var data = obj as byte[];
-                        if (data == null)
-                        {
-                            throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte array when gathering a file to send across the network.");
-                        }
-                        System.Threading.Tasks.Task.Factory.StartNew( () =>
-                        {
-                            try
-                            {
-                                var path = FileLocation.GetFilePath();
-                                File.WriteAllBytes( path, data );
-                                Thread.MemoryBarrier();
-                                FileTransmitted = true;
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine( e.Message );
-                            }
-                        } );
-                    } );
-                    Client.RegisterCustomSender( DataChannel, (data, stream) =>
-                    {
-                        // do nothing, no data is needed to trigger the send
-                    } );
-                }
-                if ( !Loaded | !OnceOnly )
+                Client.RegisterCustomReceiver( DataChannel, (stream) =>
                 {
-                    FileTransmitted = false;
-                    Client.SendCustomMessage( null, DataChannel );
-                    while ( FileTransmitted == false )
+                    var data = new byte[stream.Length];
+                    stream.Read( data, 0, data.Length );
+                    return data;
+                } );
+                Client.RegisterCustomMessageHandler( DataChannel, (obj) =>
+                {
+                    var data = obj as byte[];
+                    if (data == null)
                     {
-                        Thread.Sleep( 1 );
-                        Thread.MemoryBarrier();
+                        throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte array when gathering a file to send across the network.");
                     }
-                }
+                    System.Threading.Tasks.Task.Factory.StartNew( () =>
+                    {
+                        try
+                        {
+                            var path = FileLocation.GetFilePath();
+                            File.WriteAllBytes( path, data );
+                            Thread.MemoryBarrier();
+                            FileTransmitted = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine( e.Message );
+                        }
+                    } );
+                } );
+                Client.RegisterCustomSender( DataChannel, (data, stream) =>
+                {
+                    // do nothing, no data is needed to trigger the send
+                } );
             }
-            else
+            if ( !Loaded | !OnceOnly )
             {
-                if ( !Loaded )
+                FileTransmitted = false;
+                Client.SendCustomMessage( null, DataChannel );
+                while ( FileTransmitted == false )
                 {
-                    // register the sender
-                    Client.RegisterCustomReceiver( DataChannel, (stream) =>
-                    {
-                        return null;
-                    } );
-                        Client.RegisterCustomMessageHandler( DataChannel, (_) =>
-                    {
-                        // do nothing
-                    } );
-                        Client.RegisterCustomSender( DataChannel, (_, stream) =>
-                    {
-                        stream.Write( Data, 0, Data.Length );
-                        FileTransmitted = true;
-                    } );
-                }
-                Data = File.ReadAllBytes(FileLocation.GetFilePath());
-                if ( !FileTransmitted | !OnceOnly )
-                {
-                    FileTransmitted = false;
+                    Thread.Sleep( 1 );
                     Thread.MemoryBarrier();
-                    Client.SendCustomMessage( null, DataChannel );
-                    while ( !FileTransmitted ) Thread.Sleep( 0 );
                 }
-                // unload the data once it has been sent
-                Data = null;
             }
-            Loaded = true;
         }
-
-        public string Name { get; set; }
-
-        public float Progress
+        else
         {
-            get { return 0f; }
+            if ( !Loaded )
+            {
+                // register the sender
+                Client.RegisterCustomReceiver( DataChannel, (stream) =>
+                {
+                    return null;
+                } );
+                    Client.RegisterCustomMessageHandler( DataChannel, (_) =>
+                {
+                    // do nothing
+                } );
+                    Client.RegisterCustomSender( DataChannel, (_, stream) =>
+                {
+                    stream.Write( Data, 0, Data.Length );
+                    FileTransmitted = true;
+                } );
+            }
+            Data = File.ReadAllBytes(FileLocation.GetFilePath());
+            if ( !FileTransmitted | !OnceOnly )
+            {
+                FileTransmitted = false;
+                Thread.MemoryBarrier();
+                Client.SendCustomMessage( null, DataChannel );
+                while ( !FileTransmitted ) Thread.Sleep( 0 );
+            }
+            // unload the data once it has been sent
+            Data = null;
         }
+        Loaded = true;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
-        }
+    public string Name { get; set; }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

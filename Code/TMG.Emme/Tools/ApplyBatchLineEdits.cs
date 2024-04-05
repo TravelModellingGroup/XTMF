@@ -20,59 +20,57 @@ using System;
 using System.Linq;
 using TMG.Input;
 using XTMF;
-namespace TMG.Emme.Tools
+namespace TMG.Emme.Tools;
+
+
+public class ApplyBatchLineEdits : IEmmeTool
 {
+    private const string ToolNamespace = "tmg.XTMF_internal.apply_batch_line_edits";
 
-    public class ApplyBatchLineEdits : IEmmeTool
+    [RunParameter("Scenario Number", 0, "The EMME scenario number to target.")]
+    public int ScenarioNumber;
+
+    [SubModelInformation(Required = true, Description = "The batch line edit file to apply.")]
+    public FileLocation InputFile;
+
+    [SubModelInformation(Required = false, Description = "Additional batch input files. Each will be applied in order.")]
+    public FileLocation[] AdditionalBatchLineFiles;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool Execute(Controller controller)
     {
-        private const string ToolNamespace = "tmg.XTMF_internal.apply_batch_line_edits";
-
-        [RunParameter("Scenario Number", 0, "The EMME scenario number to target.")]
-        public int ScenarioNumber;
-
-        [SubModelInformation(Required = true, Description = "The batch line edit file to apply.")]
-        public FileLocation InputFile;
-
-        [SubModelInformation(Required = false, Description = "Additional batch input files. Each will be applied in order.")]
-        public FileLocation[] AdditionalBatchLineFiles;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool Execute(Controller controller)
+        var modeller = controller as ModellerController;
+        if(modeller == null)
         {
-            var modeller = controller as ModellerController;
-            if(modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
-            }
-            return modeller.Run(this, ToolNamespace, GetArguments());
+            throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
         }
-
-        private string GetArguments()
-        {
-            return string.Format("{0} \"{1}\" \"{2}\"", ScenarioNumber, FullPath(InputFile.GetFilePath()),
-                (AdditionalBatchLineFiles.Length <= 0 ? "None" : string.Join(";", AdditionalBatchLineFiles.Select(f => FullPath(f)).ToArray())));
-        }
-
-        private static string FullPath(string fileName)
-        {
-            return System.IO.Path.GetFullPath(fileName);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if(ScenarioNumber <= 0)
-            {
-                error = "The scenario number '" + ScenarioNumber 
-                    + "' is an invalid scenario number!";
-                return false;
-            }
-            return true;
-        }
+        return modeller.Run(this, ToolNamespace, GetArguments());
     }
 
+    private string GetArguments()
+    {
+        return string.Format("{0} \"{1}\" \"{2}\"", ScenarioNumber, FullPath(InputFile.GetFilePath()),
+            (AdditionalBatchLineFiles.Length <= 0 ? "None" : string.Join(";", AdditionalBatchLineFiles.Select(f => FullPath(f)).ToArray())));
+    }
+
+    private static string FullPath(string fileName)
+    {
+        return System.IO.Path.GetFullPath(fileName);
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(ScenarioNumber <= 0)
+        {
+            error = "The scenario number '" + ScenarioNumber 
+                + "' is an invalid scenario number!";
+            return false;
+        }
+        return true;
+    }
 }

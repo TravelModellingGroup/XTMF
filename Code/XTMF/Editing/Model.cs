@@ -23,12 +23,11 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 
-namespace XTMF
-{
-    public static class ModelHelper
-    {
-        public static void PropertyChanged(PropertyChangedEventHandler ev, object source, string propertyName) => ev?.Invoke(source, new PropertyChangedEventArgs(propertyName));
+namespace XTMF;
 
-        public static ObservableCollection<T> ToObservableCollection<T>(this List<T> us) => new(us);
-    }
+public static class ModelHelper
+{
+    public static void PropertyChanged(PropertyChangedEventHandler ev, object source, string propertyName) => ev?.Invoke(source, new PropertyChangedEventArgs(propertyName));
+
+    public static ObservableCollection<T> ToObservableCollection<T>(this List<T> us) => new(us);
 }

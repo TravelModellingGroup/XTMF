@@ -19,17 +19,16 @@
 using System;
 using Tasha.Common;
 
-namespace Tasha.XTMFModeChoice
-{
-    internal sealed class TourData
-    {
-        internal float TourUtilityModifiers;
-        internal Action<Random, ITripChain>[] OnSolution;
+namespace Tasha.XTMFModeChoice;
 
-        public TourData(float tourUtility, Action<Random, ITripChain>[] onSolution)
-        {
-            TourUtilityModifiers = tourUtility;
-            OnSolution = onSolution;
-        }
+internal sealed class TourData
+{
+    internal float TourUtilityModifiers;
+    internal Action<Random, ITripChain>[] OnSolution;
+
+    public TourData(float tourUtility, Action<Random, ITripChain>[] onSolution)
+    {
+        TourUtilityModifiers = tourUtility;
+        OnSolution = onSolution;
     }
 }

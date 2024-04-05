@@ -18,44 +18,43 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface ICalculation<O> : IModule
 {
-    public interface ICalculation<O> : IModule
-    {
-        /// <summary>
-        /// Call this before using the module
-        /// </summary>
-        void Load();
+    /// <summary>
+    /// Call this before using the module
+    /// </summary>
+    void Load();
 
-        /// <summary>
-        /// Get a result with the use of data
-        /// </summary>
-        /// <returns>A result based on the given data</returns>
-        O ProduceResult();
+    /// <summary>
+    /// Get a result with the use of data
+    /// </summary>
+    /// <returns>A result based on the given data</returns>
+    O ProduceResult();
 
-        /// <summary>
-        /// Call this after you have finished using this module, or between iterations
-        /// </summary>
-        void Unload();
-    }
+    /// <summary>
+    /// Call this after you have finished using this module, or between iterations
+    /// </summary>
+    void Unload();
+}
 
-    public interface ICalculation<D, O> : IModule
-    {
-        /// <summary>
-        /// Call this before using the module
-        /// </summary>
-        void Load();
+public interface ICalculation<D, O> : IModule
+{
+    /// <summary>
+    /// Call this before using the module
+    /// </summary>
+    void Load();
 
-        /// <summary>
-        /// Get a result for the given data
-        /// </summary>
-        /// <param name="data">The data to use to process the result</param>
-        /// <returns>A result based on the given data</returns>
-        O ProduceResult(D data);
+    /// <summary>
+    /// Get a result for the given data
+    /// </summary>
+    /// <param name="data">The data to use to process the result</param>
+    /// <returns>A result based on the given data</returns>
+    O ProduceResult(D data);
 
-        /// <summary>
-        /// Call this after you have finished using this module, or between iterations
-        /// </summary>
-        void Unload();
-    }
+    /// <summary>
+    /// Call this after you have finished using this module, or between iterations
+    /// </summary>
+    void Unload();
 }

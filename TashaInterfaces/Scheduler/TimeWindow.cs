@@ -18,49 +18,48 @@
 */
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+/// <summary>
+/// Represents a window in time
+/// </summary>
+public struct TimeWindow
 {
     /// <summary>
-    /// Represents a window in time
+    /// Creates a new time window
     /// </summary>
-    public struct TimeWindow
+    /// <param name="start">The start of this window</param>
+    /// <param name="end">The end of this window</param>
+    public TimeWindow(Time start, Time end)
+        : this()
     {
-        /// <summary>
-        /// Creates a new time window
-        /// </summary>
-        /// <param name="start">The start of this window</param>
-        /// <param name="end">The end of this window</param>
-        public TimeWindow(Time start, Time end)
-            : this()
-        {
-            StartTime = start;
-            EndTime = end;
-        }
+        StartTime = start;
+        EndTime = end;
+    }
 
-        public Time Duration
+    public Time Duration
+    {
+        get
         {
-            get
-            {
-                return EndTime - StartTime;
-            }
+            return EndTime - StartTime;
         }
+    }
 
-        /// <summary>
-        /// When the time window ends
-        /// </summary>
-        public Time EndTime
-        {
-            get;
-            set;
-        }
+    /// <summary>
+    /// When the time window ends
+    /// </summary>
+    public Time EndTime
+    {
+        get;
+        set;
+    }
 
-        /// <summary>
-        /// When the time window starts
-        /// </summary>
-        public Time StartTime
-        {
-            get;
-            set;
-        }
+    /// <summary>
+    /// When the time window starts
+    /// </summary>
+    public Time StartTime
+    {
+        get;
+        set;
     }
 }

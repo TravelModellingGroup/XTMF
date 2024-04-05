@@ -24,187 +24,186 @@ using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Annotations;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls;
+
+/// <summary>
+/// Interaction logic for ListViewControl.xaml
+/// </summary>
+public partial class ListViewControl : UserControl, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Interaction logic for ListViewControl.xaml
-    /// </summary>
-    public partial class ListViewControl : UserControl, INotifyPropertyChanged
+    public static readonly DependencyProperty TitleTextDependencyProperty =
+        DependencyProperty.Register("TitleText", typeof(string), typeof(ListViewControl), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty SubTextDependencyProperty =
+        DependencyProperty.Register("SubText", typeof(string), typeof(ListViewControl), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty StatusTextDependencyProperty =
+        DependencyProperty.Register("StatusText", typeof(string), typeof(ListViewControl), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty BitmapIconDependencyProperty =
+        DependencyProperty.Register("IsBitmapIcon", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty PathIconDependencyProperty =
+        DependencyProperty.Register("IsPathIcon", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty IsPackIconOverlapDependencyProperty =
+        DependencyProperty.Register("IsPackIconOverlap", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty IconPathDependencyProperty =
+        DependencyProperty.Register("IconPath", typeof(Path), typeof(ListViewControl), new PropertyMetadata(null));
+
+
+    public static readonly DependencyProperty IconKindDependencyProperty =
+        DependencyProperty.Register("IconKind", typeof(PackIconKind), typeof(ListViewControl), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty PackIconOverlapDependencyProperty =
+        DependencyProperty.Register("PackIconOverlap", typeof(PackIconOverlap), typeof(ListViewControl), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty IsSelectedDependencyProperty =
+        DependencyProperty.Register("IsSelected", typeof(bool), typeof(ListViewControl), new PropertyMetadata(true));
+
+    public ListViewControl()
     {
-        public static readonly DependencyProperty TitleTextDependencyProperty =
-            DependencyProperty.Register("TitleText", typeof(string), typeof(ListViewControl), new PropertyMetadata(null));
+        InitializeComponent();
+    }
 
-        public static readonly DependencyProperty SubTextDependencyProperty =
-            DependencyProperty.Register("SubText", typeof(string), typeof(ListViewControl), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty StatusTextDependencyProperty =
-            DependencyProperty.Register("StatusText", typeof(string), typeof(ListViewControl), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty BitmapIconDependencyProperty =
-            DependencyProperty.Register("IsBitmapIcon", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
-
-        public static readonly DependencyProperty PathIconDependencyProperty =
-            DependencyProperty.Register("IsPathIcon", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
-
-        public static readonly DependencyProperty IsPackIconOverlapDependencyProperty =
-            DependencyProperty.Register("IsPackIconOverlap", typeof(bool), typeof(ListViewControl), new PropertyMetadata(false));
-
-        public static readonly DependencyProperty IconPathDependencyProperty =
-            DependencyProperty.Register("IconPath", typeof(Path), typeof(ListViewControl), new PropertyMetadata(null));
-
-
-        public static readonly DependencyProperty IconKindDependencyProperty =
-            DependencyProperty.Register("IconKind", typeof(PackIconKind), typeof(ListViewControl), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty PackIconOverlapDependencyProperty =
-            DependencyProperty.Register("PackIconOverlap", typeof(PackIconOverlap), typeof(ListViewControl), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty IsSelectedDependencyProperty =
-            DependencyProperty.Register("IsSelected", typeof(bool), typeof(ListViewControl), new PropertyMetadata(true));
-
-        public ListViewControl()
+    public Visibility IconPathVisibility
+    {
+        get
         {
-            InitializeComponent();
-        }
-
-        public Visibility IconPathVisibility
-        {
-            get
+            if (IsPathIcon)
             {
-                if (IsPathIcon)
-                {
-                    return Visibility.Visible;
-                }
-                
+                return Visibility.Visible;
+            }
+            
 
+            return Visibility.Collapsed;
+        }
+    }
+
+    public Visibility IconKindVisibility
+    {
+        get
+        {
+            if (!IsPathIcon && !IsPackIconOverlap)
+            {
+                return Visibility.Visible;
+            }
+
+            return Visibility.Collapsed;
+        }
+    }
+
+    public Visibility PackIconOverlapVisibility
+    {
+        get
+        {
+            if (IsPackIconOverlap)
+            {
+                return Visibility.Visible;
+            }
+            else
+            {
                 return Visibility.Collapsed;
             }
         }
+    }
 
-        public Visibility IconKindVisibility
+    /// <summary>
+    /// 
+    /// </summary>
+    public PackIconKind IconKind
+    {
+        get => (PackIconKind)GetValue(IconKindDependencyProperty);
+        set => SetValue(IconKindDependencyProperty, value);
+    }
+
+    public PackIconOverlap PackIconOverlap
+    {
+        get => (PackIconOverlap)GetValue(PackIconOverlapDependencyProperty);
+        set => SetValue(PackIconOverlapDependencyProperty, value);
+    }
+
+
+
+    public Path IconPath
+    {
+        get => (Path)GetValue(IconPathDependencyProperty);
+        set => SetValue(IconPathDependencyProperty, value);
+    }
+
+    public bool IsBitmapIcon
+    {
+        get => (bool)GetValue(BitmapIconDependencyProperty);
+        set => SetValue(BitmapIconDependencyProperty, value);
+    }
+
+    public bool IsSelected
+    {
+        get => (bool)GetValue(IsSelectedDependencyProperty);
+        set => SetValue(IsSelectedDependencyProperty, value);
+    }
+
+    public bool IsPackIconOverlap
+    {
+        get => (bool)GetValue(IsPackIconOverlapDependencyProperty);
+        set
         {
-            get
+            if (value)
             {
-                if (!IsPathIcon && !IsPackIconOverlap)
-                {
-                    return Visibility.Visible;
-                }
-
-                return Visibility.Collapsed;
+                IsPathIcon = false;
+                IsBitmapIcon = false;
             }
+            SetValue(IsPackIconOverlapDependencyProperty, value);
         }
+    }
 
-        public Visibility PackIconOverlapVisibility
+    public bool IsPathIcon
+    {
+        get => (bool)GetValue(PathIconDependencyProperty);
+        set
         {
-            get
+            if (value)
             {
-                if (IsPackIconOverlap)
-                {
-                    return Visibility.Visible;
-                }
-                else
-                {
-                    return Visibility.Collapsed;
-                }
+                IsPackIconOverlap = false;
+                IsBitmapIcon = false;
             }
+            SetValue(PathIconDependencyProperty, value);
         }
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public PackIconKind IconKind
+    public string TitleText
+    {
+        get => (string)GetValue(TitleTextDependencyProperty);
+        set
         {
-            get => (PackIconKind)GetValue(IconKindDependencyProperty);
-            set => SetValue(IconKindDependencyProperty, value);
+            SetValue(TitleTextDependencyProperty, value);
+            Title.Text = value;
         }
+    }
 
-        public PackIconOverlap PackIconOverlap
+    public string SubText
+    {
+        get => (string)GetValue(SubTextDependencyProperty);
+        set => SetValue(SubTextDependencyProperty, value);
+    }
+
+    public string StatusText
+    {
+        get => (string)GetValue(StatusTextDependencyProperty);
+        set
         {
-            get => (PackIconOverlap)GetValue(PackIconOverlapDependencyProperty);
-            set => SetValue(PackIconOverlapDependencyProperty, value);
+            StatusTextLabel.Visibility = string.IsNullOrEmpty(value) ?
+                Visibility.Collapsed : Visibility.Visible;
+            SetValue(StatusTextDependencyProperty, value);
         }
+    }
 
+    public event PropertyChangedEventHandler PropertyChanged;
 
-
-        public Path IconPath
-        {
-            get => (Path)GetValue(IconPathDependencyProperty);
-            set => SetValue(IconPathDependencyProperty, value);
-        }
-
-        public bool IsBitmapIcon
-        {
-            get => (bool)GetValue(BitmapIconDependencyProperty);
-            set => SetValue(BitmapIconDependencyProperty, value);
-        }
-
-        public bool IsSelected
-        {
-            get => (bool)GetValue(IsSelectedDependencyProperty);
-            set => SetValue(IsSelectedDependencyProperty, value);
-        }
-
-        public bool IsPackIconOverlap
-        {
-            get => (bool)GetValue(IsPackIconOverlapDependencyProperty);
-            set
-            {
-                if (value)
-                {
-                    IsPathIcon = false;
-                    IsBitmapIcon = false;
-                }
-                SetValue(IsPackIconOverlapDependencyProperty, value);
-            }
-        }
-
-        public bool IsPathIcon
-        {
-            get => (bool)GetValue(PathIconDependencyProperty);
-            set
-            {
-                if (value)
-                {
-                    IsPackIconOverlap = false;
-                    IsBitmapIcon = false;
-                }
-                SetValue(PathIconDependencyProperty, value);
-            }
-        }
-
-        public string TitleText
-        {
-            get => (string)GetValue(TitleTextDependencyProperty);
-            set
-            {
-                SetValue(TitleTextDependencyProperty, value);
-                Title.Text = value;
-            }
-        }
-
-        public string SubText
-        {
-            get => (string)GetValue(SubTextDependencyProperty);
-            set => SetValue(SubTextDependencyProperty, value);
-        }
-
-        public string StatusText
-        {
-            get => (string)GetValue(StatusTextDependencyProperty);
-            set
-            {
-                StatusTextLabel.Visibility = string.IsNullOrEmpty(value) ?
-                    Visibility.Collapsed : Visibility.Visible;
-                SetValue(StatusTextDependencyProperty, value);
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

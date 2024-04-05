@@ -23,69 +23,68 @@ using TMG.Emme;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
-namespace TMG.Emme.Tools
+namespace TMG.Emme.Tools;
+
+public class MatrixCalculator : IEmmeTool
 {
-    public class MatrixCalculator : IEmmeTool
+
+    public enum DomainTypes
     {
-
-        public enum DomainTypes
-        {
-            Link = 0,
-            Node = 1,
-            Transit_Line = 2,
-            Transit_Segment = 3
-
-        }
-
-        private const string ToolName = "tmg.XTMF_internal.xtmf_matrix_calculator";
-
-        [RunParameter("Scenario Number", "1", "What scenario would you like to run this for?")]
-        public int ScenarioNumber;
-
-        [RunParameter("Expression", "", "Matrix calculation expression string")]
-        public string Expression;
-
-        [RunParameter("Result", "", "Matrix ID or name | partition ID | node user or extra attribute to store the result")]
-        public string Result;
-
-        public bool Execute(Controller controller)
-        {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
-            }
-            modeller.Run(this, ToolName, new[]
-            {
-              new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
-              new ModellerControllerParameter("xtmf_expression", Expression),
-              new ModellerControllerParameter("xtmf_result", Result)
-            });
-            return true;
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour => new(120, 25, 100);
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (Result == null)
-            {
-                return false;
-            }
-            return true;
-        }
+        Link = 0,
+        Node = 1,
+        Transit_Line = 2,
+        Transit_Segment = 3
 
     }
+
+    private const string ToolName = "tmg.XTMF_internal.xtmf_matrix_calculator";
+
+    [RunParameter("Scenario Number", "1", "What scenario would you like to run this for?")]
+    public int ScenarioNumber;
+
+    [RunParameter("Expression", "", "Matrix calculation expression string")]
+    public string Expression;
+
+    [RunParameter("Result", "", "Matrix ID or name | partition ID | node user or extra attribute to store the result")]
+    public string Result;
+
+    public bool Execute(Controller controller)
+    {
+        var modeller = controller as ModellerController;
+        if (modeller == null)
+        {
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
+        }
+        modeller.Run(this, ToolName, new[]
+        {
+          new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+          new ModellerControllerParameter("xtmf_expression", Expression),
+          new ModellerControllerParameter("xtmf_result", Result)
+        });
+        return true;
+    }
+
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get;
+        set;
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour => new(120, 25, 100);
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (Result == null)
+        {
+            return false;
+        }
+        return true;
+    }
+
 }

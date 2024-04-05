@@ -20,133 +20,132 @@ using Tasha.Common;
 using System;
 using System.Linq;
 
-namespace TMG.Tasha
+namespace TMG.Tasha;
+
+internal static class JointTripGenerator
 {
-    internal static class JointTripGenerator
+    internal static IMode Auto;
+    internal static string ObsMode;
+    internal static IMode Passenger;
+    internal static IMode RideShare;
+
+    internal static void Convert(ITashaHousehold house)
     {
-        internal static IMode Auto;
-        internal static string ObsMode;
-        internal static IMode Passenger;
-        internal static IMode RideShare;
-
-        internal static void Convert(ITashaHousehold house)
+        int jointTourNumber = 1;
+        // we don't need to look at the last person
+        for (int person = 0; person < house.Persons.Length - 1; person++)
         {
-            int jointTourNumber = 1;
-            // we don't need to look at the last person
-            for (int person = 0; person < house.Persons.Length - 1; person++)
+            foreach (var chain in house.Persons[person].TripChains)
             {
-                foreach (var chain in house.Persons[person].TripChains)
+                if (chain.JointTrip)
                 {
-                    if (chain.JointTrip)
+                    continue;
+                }
+                for (int otherPerson = person + 1; otherPerson < house.Persons.Length; otherPerson++)
+                {
+                    foreach (var otherChain in house.Persons[otherPerson].TripChains)
                     {
-                        continue;
-                    }
-                    for (int otherPerson = person + 1; otherPerson < house.Persons.Length; otherPerson++)
-                    {
-                        foreach (var otherChain in house.Persons[otherPerson].TripChains)
+                        if (otherChain.JointTrip)
                         {
-                            if (otherChain.JointTrip)
+                            continue;
+                        }
+                        if (AreTogether(chain, otherChain))
+                        {
+                            int tourNum = jointTourNumber;
+                            if (!chain.JointTrip)
                             {
-                                continue;
+                                ReAssignPurpose(chain);
+                                ((TripChain)chain).JointTripID = ((TripChain)otherChain).JointTripID = tourNum;
+                                ((TripChain)chain).JointTripRep = true;
+                                ReassignObservedModes(chain);
+                                jointTourNumber++;
                             }
-                            if (AreTogether(chain, otherChain))
-                            {
-                                int tourNum = jointTourNumber;
-                                if (!chain.JointTrip)
-                                {
-                                    ReAssignPurpose(chain);
-                                    ((TripChain)chain).JointTripID = ((TripChain)otherChain).JointTripID = tourNum;
-                                    ((TripChain)chain).JointTripRep = true;
-                                    ReassignObservedModes(chain);
-                                    jointTourNumber++;
-                                }
-                                ((TripChain)otherChain).JointTripID = chain.JointTripID;
-                                ((TripChain)otherChain).GetRepTripChain = chain;
-                                ReAssignPurpose(otherChain);
-                                ReassignObservedModes(otherChain);
-                            }
+                            ((TripChain)otherChain).JointTripID = chain.JointTripID;
+                            ((TripChain)otherChain).GetRepTripChain = chain;
+                            ReAssignPurpose(otherChain);
+                            ReassignObservedModes(otherChain);
                         }
                     }
                 }
             }
         }
+    }
 
-        private static bool AreTogether(ITripChain f, ITripChain s)
+    private static bool AreTogether(ITripChain f, ITripChain s)
+    {
+        if (f.Trips.Count != s.Trips.Count) return false;
+        var fTrips = f.Trips;
+        var sTrips = s.Trips;
+        for (int i = 0; i < fTrips.Count; i++)
         {
-            if (f.Trips.Count != s.Trips.Count) return false;
-            var fTrips = f.Trips;
-            var sTrips = s.Trips;
-            for (int i = 0; i < fTrips.Count; i++)
+            if (!AreTogether(fTrips[i], sTrips[i]))
             {
-                if (!AreTogether(fTrips[i], sTrips[i]))
-                {
-                    return false;
-                }
+                return false;
             }
-            return true;
         }
+        return true;
+    }
 
-        private static bool AreTogether(ITrip f, ITrip s)
+    private static bool AreTogether(ITrip f, ITrip s)
+    {
+        return (f.TripStartTime == s.TripStartTime)
+             & (f.Purpose == s.Purpose)
+             & (f.Purpose == Activity.IndividualOther | f.Purpose == Activity.Market | f.Purpose == Activity.Home)
+             & (f.OriginalZone.ZoneNumber == s.OriginalZone.ZoneNumber)
+             & (f.DestinationZone.ZoneNumber == s.DestinationZone.ZoneNumber);
+    }
+
+    private static void ReassignObservedModes(ITripChain chain)
+    {
+        if (RideShare == null)
         {
-            return (f.TripStartTime == s.TripStartTime)
-                 & (f.Purpose == s.Purpose)
-                 & (f.Purpose == Activity.IndividualOther | f.Purpose == Activity.Market | f.Purpose == Activity.Home)
-                 & (f.OriginalZone.ZoneNumber == s.OriginalZone.ZoneNumber)
-                 & (f.DestinationZone.ZoneNumber == s.DestinationZone.ZoneNumber);
+            return;
         }
-
-        private static void ReassignObservedModes(ITripChain chain)
+        if (chain.JointTripRep)
         {
-            if (RideShare == null)
+            var trips = chain.Trips;
+            var numberOfTrips = trips.Count;
+            for (int i = 0; i < numberOfTrips; i++)
             {
-                return;
-            }
-            if (chain.JointTripRep)
-            {
-                var trips = chain.Trips;
-                var numberOfTrips = trips.Count;
-                for (int i = 0; i < numberOfTrips; i++)
+                if (trips[i][ObsMode] is IMode obsMode)
                 {
-                    if (trips[i][ObsMode] is IMode obsMode)
+                    if (obsMode.ModeName == RideShare.ModeName || obsMode.ModeName == Passenger.ModeName)
                     {
-                        if (obsMode.ModeName == RideShare.ModeName || obsMode.ModeName == Passenger.ModeName)
-                        {
-                            trips[i].Attach(ObsMode, Auto);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                var trips = chain.Trips;
-                var numberOfTrips = trips.Count;
-                for (int i = 0; i < numberOfTrips; i++)
-                {
-                    if (trips[i][ObsMode] is IMode obsMode)
-                    {
-                        if (obsMode.ModeName == Auto.ModeName || obsMode.ModeName == Passenger.ModeName)
-                        {
-                            trips[i].Attach(ObsMode, RideShare);
-                        }
+                        trips[i].Attach(ObsMode, Auto);
                     }
                 }
             }
         }
-
-        private static void ReAssignPurpose(ITripChain chain)
+        else
         {
-            foreach (var t in chain.Trips)
+            var trips = chain.Trips;
+            var numberOfTrips = trips.Count;
+            for (int i = 0; i < numberOfTrips; i++)
             {
-                switch (t.Purpose)
+                if (trips[i][ObsMode] is IMode obsMode)
                 {
-                    case Activity.IndividualOther:
-                        t.Purpose = Activity.JointOther;
-                        break;
-
-                    case Activity.Market:
-                        t.Purpose = Activity.JointMarket;
-                        break;
+                    if (obsMode.ModeName == Auto.ModeName || obsMode.ModeName == Passenger.ModeName)
+                    {
+                        trips[i].Attach(ObsMode, RideShare);
+                    }
                 }
+            }
+        }
+    }
+
+    private static void ReAssignPurpose(ITripChain chain)
+    {
+        foreach (var t in chain.Trips)
+        {
+            switch (t.Purpose)
+            {
+                case Activity.IndividualOther:
+                    t.Purpose = Activity.JointOther;
+                    break;
+
+                case Activity.Market:
+                    t.Purpose = Activity.JointMarket;
+                    break;
             }
         }
     }

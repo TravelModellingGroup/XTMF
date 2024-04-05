@@ -34,54 +34,53 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using XTMF.Gui.Annotations;
 
-namespace XTMF.Gui.UserControls 
+namespace XTMF.Gui.UserControls; 
+
+/// <summary>
+/// Interaction logic for ListViewControl.xaml
+/// </summary>
+public partial class ValidationErrorListControl : UserControl, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Interaction logic for ListViewControl.xaml
-    /// </summary>
-    public partial class ValidationErrorListControl : UserControl, INotifyPropertyChanged
+    public static readonly DependencyProperty ErrorStringDependencyProperty = 
+        DependencyProperty.Register("ErrorString", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata("Test"));
+
+    public static readonly DependencyProperty ModuleNameDependencyProperty =
+        DependencyProperty.Register("ModuleName", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata(null));
+
+    public static readonly DependencyProperty IsSelectedDependencyProperty =
+        DependencyProperty.Register("IsSelected", typeof(bool), typeof(ValidationErrorListControl), new PropertyMetadata(true));
+
+    public ValidationErrorListControl()
     {
-        public static readonly DependencyProperty ErrorStringDependencyProperty = 
-            DependencyProperty.Register("ErrorString", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata("Test"));
-
-        public static readonly DependencyProperty ModuleNameDependencyProperty =
-            DependencyProperty.Register("ModuleName", typeof(string), typeof(ValidationErrorListControl), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty IsSelectedDependencyProperty =
-            DependencyProperty.Register("IsSelected", typeof(bool), typeof(ValidationErrorListControl), new PropertyMetadata(true));
-
-        public ValidationErrorListControl()
-        {
-            InitializeComponent();
-        }
-
-        public bool IsSelected
-        {
-            get => (bool)GetValue(IsSelectedDependencyProperty);
-            set => SetValue(IsSelectedDependencyProperty, value);
-        }
-
-        public string ErrorString
-        {
-            get => (string)GetValue(ErrorStringDependencyProperty);
-            set
-            {
-                SetValue(ErrorStringDependencyProperty, value);
-                ErrorStringTextBlock.Text = value;
-            }
-        }
-
-        public string ModuleName
-        {
-            get => (string)GetValue(ModuleNameDependencyProperty);
-            set
-            { 
-                SetValue(ModuleNameDependencyProperty, value);
-                ModuleNameLabel.Content = value;
-            }
-        }
-
-        #pragma warning disable CS0067
-        public event PropertyChangedEventHandler PropertyChanged;
+        InitializeComponent();
     }
+
+    public bool IsSelected
+    {
+        get => (bool)GetValue(IsSelectedDependencyProperty);
+        set => SetValue(IsSelectedDependencyProperty, value);
+    }
+
+    public string ErrorString
+    {
+        get => (string)GetValue(ErrorStringDependencyProperty);
+        set
+        {
+            SetValue(ErrorStringDependencyProperty, value);
+            ErrorStringTextBlock.Text = value;
+        }
+    }
+
+    public string ModuleName
+    {
+        get => (string)GetValue(ModuleNameDependencyProperty);
+        set
+        { 
+            SetValue(ModuleNameDependencyProperty, value);
+            ModuleNameLabel.Content = value;
+        }
+    }
+
+    #pragma warning disable CS0067
+    public event PropertyChangedEventHandler PropertyChanged;
 }

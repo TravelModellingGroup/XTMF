@@ -22,132 +22,131 @@ using Tasha.Common;
 using TMG;
 using XTMF;
 
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+/// <summary>
+/// Base class for a scheduled event.
+/// </summary>
+public abstract class Episode : IEpisode
 {
     /// <summary>
-    /// Base class for a scheduled event.
+    /// Creates a new Episode
     /// </summary>
-    public abstract class Episode : IEpisode
+    /// <param name="window">The window in time this episode occurs in</param>
+    internal Episode(TimeWindow window)
     {
-        /// <summary>
-        /// Creates a new Episode
-        /// </summary>
-        /// <param name="window">The window in time this episode occurs in</param>
-        internal Episode(TimeWindow window)
-        {
-            Window = window;
-            // originally we have no travel time
-            TravelTime = Time.Zero;
-        }
-
-        /// <summary>
-        /// The type of activity this episode is about
-        /// </summary>
-        public Activity ActivityType { get; internal set; }
-
-        /// <summary>
-        /// The number of Adults that are in this Episode
-        /// </summary>
-        public abstract int Adults { get; }
-
-        public ISchedule ContainingSchedule
-        {
-            get;set;
-        }
-
-
-        /// <summary>
-        /// How long the episode takes.  Changes to this will affect the end time.
-        /// </summary>
-        public Time Duration
-        {
-            get
-            {
-                return EndTime - StartTime;
-            }
-
-            internal set
-            {
-                EndTime = StartTime + value;
-            }
-        }
-
-        /// <summary>
-        /// The time the episode ends at
-        /// </summary>
-        public Time EndTime { get; internal set; }
-
-        /// <summary>
-        /// The original duration set for this episode
-        /// This is used for calculating the bounds of how far we can try to shift this episode
-        /// </summary>
-        public Time OriginalDuration { get; internal set; }
-
-        /// <summary>
-        /// The person who is the owner of the episode
-        /// </summary>
-        public ITashaPerson Owner { get; internal set; }
-
-        /// <summary>
-        /// The person who this episode is for
-        /// </summary>
-        public List<ITashaPerson> People
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// The time the episode starts at
-        /// </summary>
-        public Time StartTime { get; internal set; }
-
-        /// <summary>
-        /// The amount of time to get to the next activity
-        /// </summary>
-        public Time TravelTime { get; internal set; }
-
-        /// <summary>
-        /// The zone that the episode is at
-        /// </summary>
-        public abstract IZone Zone { get; internal set; }
-
-        /// <summary>
-        /// When this episode occurs
-        /// </summary>
-        internal TimeWindow Window
-        {
-            get
-            {
-                return new TimeWindow( StartTime, EndTime );
-            }
-
-            set
-            {
-                StartTime = value.StartTime;
-                EndTime = value.EndTime;
-            }
-        }
-
-        /// <summary>
-        /// Checks to see if a person is the owner of an episode
-        /// </summary>
-        public bool IsOwner(ITashaPerson person)
-        {
-            return person == Owner;
-        }
-
-        /// <summary>
-        /// Checks to see if this person is on the trip
-        /// </summary>
-        /// <param name="person">The person we are testing for</param>
-        /// <returns>True, if the person is found</returns>
-        public abstract bool IsPersonIncluded(ITashaPerson person);
-
-        /// <summary>
-        /// Includes a person in the episode
-        /// </summary>
-        /// <param name="person">The person to include</param>
-        internal abstract void AddPerson(ITashaPerson person);
+        Window = window;
+        // originally we have no travel time
+        TravelTime = Time.Zero;
     }
+
+    /// <summary>
+    /// The type of activity this episode is about
+    /// </summary>
+    public Activity ActivityType { get; internal set; }
+
+    /// <summary>
+    /// The number of Adults that are in this Episode
+    /// </summary>
+    public abstract int Adults { get; }
+
+    public ISchedule ContainingSchedule
+    {
+        get;set;
+    }
+
+
+    /// <summary>
+    /// How long the episode takes.  Changes to this will affect the end time.
+    /// </summary>
+    public Time Duration
+    {
+        get
+        {
+            return EndTime - StartTime;
+        }
+
+        internal set
+        {
+            EndTime = StartTime + value;
+        }
+    }
+
+    /// <summary>
+    /// The time the episode ends at
+    /// </summary>
+    public Time EndTime { get; internal set; }
+
+    /// <summary>
+    /// The original duration set for this episode
+    /// This is used for calculating the bounds of how far we can try to shift this episode
+    /// </summary>
+    public Time OriginalDuration { get; internal set; }
+
+    /// <summary>
+    /// The person who is the owner of the episode
+    /// </summary>
+    public ITashaPerson Owner { get; internal set; }
+
+    /// <summary>
+    /// The person who this episode is for
+    /// </summary>
+    public List<ITashaPerson> People
+    {
+        get;
+        internal set;
+    }
+
+    /// <summary>
+    /// The time the episode starts at
+    /// </summary>
+    public Time StartTime { get; internal set; }
+
+    /// <summary>
+    /// The amount of time to get to the next activity
+    /// </summary>
+    public Time TravelTime { get; internal set; }
+
+    /// <summary>
+    /// The zone that the episode is at
+    /// </summary>
+    public abstract IZone Zone { get; internal set; }
+
+    /// <summary>
+    /// When this episode occurs
+    /// </summary>
+    internal TimeWindow Window
+    {
+        get
+        {
+            return new TimeWindow( StartTime, EndTime );
+        }
+
+        set
+        {
+            StartTime = value.StartTime;
+            EndTime = value.EndTime;
+        }
+    }
+
+    /// <summary>
+    /// Checks to see if a person is the owner of an episode
+    /// </summary>
+    public bool IsOwner(ITashaPerson person)
+    {
+        return person == Owner;
+    }
+
+    /// <summary>
+    /// Checks to see if this person is on the trip
+    /// </summary>
+    /// <param name="person">The person we are testing for</param>
+    /// <returns>True, if the person is found</returns>
+    public abstract bool IsPersonIncluded(ITashaPerson person);
+
+    /// <summary>
+    /// Includes a person in the episode
+    /// </summary>
+    /// <param name="person">The person to include</param>
+    internal abstract void AddPerson(ITashaPerson person);
 }

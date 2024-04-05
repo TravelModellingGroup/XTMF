@@ -1,6 +1,5 @@
-﻿namespace XTMF
+﻿namespace XTMF;
+
+public interface IModuleMetaProperty
 {
-    public interface IModuleMetaProperty
-    {
-    }
 }

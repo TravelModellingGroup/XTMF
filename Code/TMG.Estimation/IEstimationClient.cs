@@ -20,27 +20,26 @@
 using XTMF;
 using System;
 
-namespace TMG.Estimation
+namespace TMG.Estimation;
+
+public interface IEstimationClientModelSystem : IModelSystemTemplate
 {
-    public interface IEstimationClientModelSystem : IModelSystemTemplate
-    {
-        /// <summary>
-        /// The function that will be executed in order to get the fitness of the parameters
-        /// </summary>
-        Func<float> RetrieveValue { get; set; }
-        /// <summary>
-        /// The client model system that will run for each parameter set,
-        /// </summary>
-        IModelSystemTemplate MainClient { get; }
-        /// <summary>
-        /// The current set of parameters that we are working on, and its context
-        /// </summary>
-        ClientTask CurrentTask { get; }
-        /// <summary>
-        /// A copy of the parameters.  The current value of that parameters are not reflective
-        /// of what is being processed.  Use CurrentTask for that.  The order of parameters
-        /// will be the same.
-        /// </summary>
-        ParameterSetting[] Parameters { get; }
-    }
+    /// <summary>
+    /// The function that will be executed in order to get the fitness of the parameters
+    /// </summary>
+    Func<float> RetrieveValue { get; set; }
+    /// <summary>
+    /// The client model system that will run for each parameter set,
+    /// </summary>
+    IModelSystemTemplate MainClient { get; }
+    /// <summary>
+    /// The current set of parameters that we are working on, and its context
+    /// </summary>
+    ClientTask CurrentTask { get; }
+    /// <summary>
+    /// A copy of the parameters.  The current value of that parameters are not reflective
+    /// of what is being processed.  Use CurrentTask for that.  The order of parameters
+    /// will be the same.
+    /// </summary>
+    ParameterSetting[] Parameters { get; }
 }

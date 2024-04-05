@@ -21,69 +21,68 @@ using System.IO;
 using TMG.Emme;
 using TMG.Functions;
 
-namespace XTMF.Testing.TMG.Emme
-{
-    [TestClass]
-    public class TestEmmeMatrix
-    {
-        [TestMethod]
-        public void TestSaveMatrixCompressed()
-        {
-            int[] zones = CreateZones(2000);
-            float[][] data = CreateIdentityMatrix(zones);
-            EmmeMatrix matrix = new(zones, data);
-            matrix.Save("matrix.mtx", false);
-            matrix.Save("matrix.mtx.gz", false);
-            FileInfo uncompressed = new("matrix.mtx");
-            FileInfo compressed = new("matrix.mtx.gz");
-            Assert.IsTrue(uncompressed.Length >  compressed.Length);
-        }
+namespace XTMF.Testing.TMG.Emme;
 
-        [TestMethod]
-        public void TestLoadMatrixCompressed()
+[TestClass]
+public class TestEmmeMatrix
+{
+    [TestMethod]
+    public void TestSaveMatrixCompressed()
+    {
+        int[] zones = CreateZones(2000);
+        float[][] data = CreateIdentityMatrix(zones);
+        EmmeMatrix matrix = new(zones, data);
+        matrix.Save("matrix.mtx", false);
+        matrix.Save("matrix.mtx.gz", false);
+        FileInfo uncompressed = new("matrix.mtx");
+        FileInfo compressed = new("matrix.mtx.gz");
+        Assert.IsTrue(uncompressed.Length >  compressed.Length);
+    }
+
+    [TestMethod]
+    public void TestLoadMatrixCompressed()
+    {
+        int[] zones = CreateZones(2000);
+        float[][] data = CreateIdentityMatrix(zones);
+        EmmeMatrix matrix = new(zones, data);
+        matrix.Save("matrix.mtx.gz", false);
+        EmmeMatrix loaded = default;
+        BinaryHelpers.ExecuteReader(null, (reader) =>
         {
-            int[] zones = CreateZones(2000);
-            float[][] data = CreateIdentityMatrix(zones);
-            EmmeMatrix matrix = new(zones, data);
-            matrix.Save("matrix.mtx.gz", false);
-            EmmeMatrix loaded = default;
-            BinaryHelpers.ExecuteReader(null, (reader) =>
+            loaded = new EmmeMatrix(reader);
+        }, "matrix.mtx.gz");
+        Assert.AreEqual(2, loaded.Dimensions);
+        Assert.AreEqual(zones.Length * zones.Length, loaded.FloatData.Length);
+        for (int i = 0; i < zones.Length; i++)
+        {
+            for (int j = 0; j < zones.Length; j++)
             {
-                loaded = new EmmeMatrix(reader);
-            }, "matrix.mtx.gz");
-            Assert.AreEqual(2, loaded.Dimensions);
-            Assert.AreEqual(zones.Length * zones.Length, loaded.FloatData.Length);
-            for (int i = 0; i < zones.Length; i++)
-            {
-                for (int j = 0; j < zones.Length; j++)
+                if (loaded.FloatData[i * zones.Length + j] != (i == j ? 1.0f : 0.0f))
                 {
-                    if (loaded.FloatData[i * zones.Length + j] != (i == j ? 1.0f : 0.0f))
-                    {
-                        Assert.Fail("The matrix was not loaded back correctly!");
-                    }
+                    Assert.Fail("The matrix was not loaded back correctly!");
                 }
             }
         }
+    }
 
-        private float[][] CreateIdentityMatrix(int[] zones)
+    private float[][] CreateIdentityMatrix(int[] zones)
+    {
+        var ret = new float[zones.Length][];
+        for (int i = 0; i < ret.Length; i++)
         {
-            var ret = new float[zones.Length][];
-            for (int i = 0; i < ret.Length; i++)
-            {
-                ret[i] = new float[zones.Length];
-                ret[i][i] = 1;
-            }
-            return ret;
+            ret[i] = new float[zones.Length];
+            ret[i][i] = 1;
         }
+        return ret;
+    }
 
-        private static int[] CreateZones(int numberOfZones)
+    private static int[] CreateZones(int numberOfZones)
+    {
+        var ret = new int[numberOfZones];
+        for (int i = 0; i < ret.Length; i++)
         {
-            var ret = new int[numberOfZones];
-            for (int i = 0; i < ret.Length; i++)
-            {
-                ret[i] = i + 1;
-            }
-            return ret;
+            ret[i] = i + 1;
         }
+        return ret;
     }
 }

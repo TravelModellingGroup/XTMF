@@ -26,79 +26,78 @@ using XTMF;
 using TMG.Input;
 using Datastructure;
 
-namespace TMG.Tasha.MicrosimLoader
+namespace TMG.Tasha.MicrosimLoader;
+
+/// <summary>
+/// A record storing the results of the Trip data from Microsim
+/// </summary>
+internal sealed class MicrosimTripMode
 {
     /// <summary>
-    /// A record storing the results of the Trip data from Microsim
+    /// The unique id for the household
     /// </summary>
-    internal sealed class MicrosimTripMode
+    internal readonly int HouseholdID;
+    /// <summary>
+    /// The unique id for the person within the household
+    /// </summary>
+    internal readonly int PersonID;
+    /// <summary>
+    /// The unique id for the trip in the person's day
+    /// </summary>
+    internal readonly int TripID;
+    /// <summary>
+    /// The start time of the trip.
+    /// </summary>
+    internal readonly float DepartureTime;
+    /// <summary>
+    /// The end time of the trip.
+    /// </summary>
+    internal readonly float ArrivalTime;
+
+    private MicrosimTripMode(int householdID, int personID, int tripID, float departureTime, float arrivalTime)
     {
-        /// <summary>
-        /// The unique id for the household
-        /// </summary>
-        internal readonly int HouseholdID;
-        /// <summary>
-        /// The unique id for the person within the household
-        /// </summary>
-        internal readonly int PersonID;
-        /// <summary>
-        /// The unique id for the trip in the person's day
-        /// </summary>
-        internal readonly int TripID;
-        /// <summary>
-        /// The start time of the trip.
-        /// </summary>
-        internal readonly float DepartureTime;
-        /// <summary>
-        /// The end time of the trip.
-        /// </summary>
-        internal readonly float ArrivalTime;
+        HouseholdID = householdID;
+        PersonID = personID;
+        TripID = tripID;
+        DepartureTime = departureTime;
+        ArrivalTime = arrivalTime;
+    }
 
-        private MicrosimTripMode(int householdID, int personID, int tripID, float departureTime, float arrivalTime)
+    /// <summary>
+    /// Read in a dictionary of mode records from the given Microsim file
+    /// </summary>
+    /// <param name="callingModule">The module invoking the call</param>
+    /// <param name="tripFile">The location of the trips file to load.</param>
+    /// <returns>A dictionary of all of the loaded trips indexed by the combination of the household, person, trip, and mode ids.</returns>
+    internal static Dictionary<(int householdID, int personID, int tripID), MicrosimTripMode> LoadModes(IModule callingModule, FileLocation modesFile)
+    {
+        var fileInfo = new FileInfo(modesFile.GetFilePath());
+        if (!fileInfo.Exists)
         {
-            HouseholdID = householdID;
-            PersonID = personID;
-            TripID = tripID;
-            DepartureTime = departureTime;
-            ArrivalTime = arrivalTime;
+            throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
         }
-
-        /// <summary>
-        /// Read in a dictionary of mode records from the given Microsim file
-        /// </summary>
-        /// <param name="callingModule">The module invoking the call</param>
-        /// <param name="tripFile">The location of the trips file to load.</param>
-        /// <returns>A dictionary of all of the loaded trips indexed by the combination of the household, person, trip, and mode ids.</returns>
-        internal static Dictionary<(int householdID, int personID, int tripID), MicrosimTripMode> LoadModes(IModule callingModule, FileLocation modesFile)
+        var ret = new Dictionary<(int householdID, int personID, int tripID), MicrosimTripMode>(10000000);
+        using (var reader = new CsvReader(fileInfo))
         {
-            var fileInfo = new FileInfo(modesFile.GetFilePath());
-            if (!fileInfo.Exists)
+            // burn the header
+            reader.LoadLine();
+            while (reader.LoadLine(out int columns))
             {
-                throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
-            }
-            var ret = new Dictionary<(int householdID, int personID, int tripID), MicrosimTripMode>(10000000);
-            using (var reader = new CsvReader(fileInfo))
-            {
-                // burn the header
-                reader.LoadLine();
-                while (reader.LoadLine(out int columns))
+                if (columns >= 7)
                 {
-                    if (columns >= 7)
+                    reader.Get(out int householdID, 0);
+                    reader.Get(out int personID, 1);
+                    reader.Get(out int tripID, 2);
+                    reader.Get(out float departureTime, 4);
+                    reader.Get(out float arrivalTime, 5);
+                    // We only need to get 1 of these records
+                    if (!ret.ContainsKey((householdID, personID, tripID)))
                     {
-                        reader.Get(out int householdID, 0);
-                        reader.Get(out int personID, 1);
-                        reader.Get(out int tripID, 2);
-                        reader.Get(out float departureTime, 4);
-                        reader.Get(out float arrivalTime, 5);
-                        // We only need to get 1 of these records
-                        if (!ret.ContainsKey((householdID, personID, tripID)))
-                        {
-                            ret[(householdID, personID, tripID)] = new MicrosimTripMode(householdID, personID, tripID, departureTime, arrivalTime);
-                        }
+                        ret[(householdID, personID, tripID)] = new MicrosimTripMode(householdID, personID, tripID, departureTime, arrivalTime);
                     }
                 }
             }
-            return ret;
         }
+        return ret;
     }
 }

@@ -22,114 +22,113 @@ using System.Collections.Generic;
 using TMG.Emme;
 using XTMF;
 
-namespace TMG.GTAModel
-{
-    [ModuleInformation(Description = @"This module executes a list of Emme Tools in sequence, at four different points of the Model System
+namespace TMG.GTAModel;
+
+[ModuleInformation(Description = @"This module executes a list of Emme Tools in sequence, at four different points of the Model System
                              execution: <ul>
                                 <li><b>ModelSystem Setup:</b> These tools are executed before any zonal information is loaded.
                                 <li><b>Initial Run:</b> These tools are executed prior to the first outer-loop iteration but after the zonal data has been loaded.</li>
                                 <li><b>Iteration:</b> These tools are executed once per iteration as the last step.</li>
                                 <li><b>Final Iteration:</b> These tools are executed after all of the iterations have been completed.</li>
                             </ul>")]
-    public sealed class AdvancedEmmeNetworkAssignment : INetworkAssignment, IDisposable
+public sealed class AdvancedEmmeNetworkAssignment : INetworkAssignment, IDisposable
+{
+    [RunParameter("Execute", true, "Flag for enabling/disabling execution. If set to 'false', Emme will not be launched. Used for debugging.")]
+    public bool Execute;
+
+    [SubModelInformation(Description = "Emme Tools executed posterior to the last outer-loop iteration", Required = false)]
+    public List<IEmmeTool> FinalIteration;
+
+    [SubModelInformation(Description = "Emme Tools executed prior to the first outer-loop iteration", Required = false)]
+    public List<IEmmeTool> InitialRun;
+
+    [SubModelInformation(Description = "Emme Tools executed during each outer-loop iteration.", Required = false)]
+    public List<IEmmeTool> IterationRuns;
+
+    [SubModelInformation(Description = "Emme Tools executed before any zonal information is loaded.", Required = false)]
+    public List<IEmmeTool> ModelSystemSetup;
+
+    [RunParameter("Performance Analysis", false, "Flag for logging the performance (runtime) of this module")]
+    public bool PerformanceAnalysis;
+
+    [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
+    public string EmmeProjectFile;
+
+    [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+    public string EmmeDatabank;
+
+    [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+    public string EmmePath;
+
+    private Tuple<byte, byte, byte> _progressColour = new(255, 173, 28);
+    private ModellerController Controller;
+
+    private float CurrentProgress;
+    private string CurrentToolStatus = "";
+    private Func<float> GetToolProgress = (() => 0.0f);
+    private float ProgressIncrement;
+
+    public string Name { get; set; }
+
+    public float Progress => CurrentProgress + ProgressIncrement * GetToolProgress();
+
+    public Tuple<byte, byte, byte> ProgressColour => _progressColour;
+
+    public void RunInitialAssignments() => ExecuteToolList(InitialRun);
+
+    public void RunModelSystemSetup() => ExecuteToolList(ModelSystemSetup);
+
+    public void RunNetworkAssignment() => ExecuteToolList(IterationRuns);
+
+    public void RunPostAssignments()
     {
-        [RunParameter("Execute", true, "Flag for enabling/disabling execution. If set to 'false', Emme will not be launched. Used for debugging.")]
-        public bool Execute;
-
-        [SubModelInformation(Description = "Emme Tools executed posterior to the last outer-loop iteration", Required = false)]
-        public List<IEmmeTool> FinalIteration;
-
-        [SubModelInformation(Description = "Emme Tools executed prior to the first outer-loop iteration", Required = false)]
-        public List<IEmmeTool> InitialRun;
-
-        [SubModelInformation(Description = "Emme Tools executed during each outer-loop iteration.", Required = false)]
-        public List<IEmmeTool> IterationRuns;
-
-        [SubModelInformation(Description = "Emme Tools executed before any zonal information is loaded.", Required = false)]
-        public List<IEmmeTool> ModelSystemSetup;
-
-        [RunParameter("Performance Analysis", false, "Flag for logging the performance (runtime) of this module")]
-        public bool PerformanceAnalysis;
-
-        [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
-        public string EmmeProjectFile;
-
-        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
-        public string EmmeDatabank;
-
-        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
-        public string EmmePath;
-
-        private Tuple<byte, byte, byte> _progressColour = new(255, 173, 28);
-        private ModellerController Controller;
-
-        private float CurrentProgress;
-        private string CurrentToolStatus = "";
-        private Func<float> GetToolProgress = (() => 0.0f);
-        private float ProgressIncrement;
-
-        public string Name { get; set; }
-
-        public float Progress => CurrentProgress + ProgressIncrement * GetToolProgress();
-
-        public Tuple<byte, byte, byte> ProgressColour => _progressColour;
-
-        public void RunInitialAssignments() => ExecuteToolList(InitialRun);
-
-        public void RunModelSystemSetup() => ExecuteToolList(ModelSystemSetup);
-
-        public void RunNetworkAssignment() => ExecuteToolList(IterationRuns);
-
-        public void RunPostAssignments()
+        ExecuteToolList(FinalIteration);
+        if (Controller != null)
         {
-            ExecuteToolList(FinalIteration);
-            if (Controller != null)
-            {
-                Controller.Dispose();
-                Controller = null;
-            }
-        }
-
-        public bool RuntimeValidation(ref string error) => true;
-
-        public override string ToString() => CurrentToolStatus;
-
-        private void ExecuteToolList(List<IEmmeTool> tools)
-        {
-            if (Execute)
-            {
-                if (Controller == null)
-                {
-                    Controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceAnalysis);
-                }
-                CurrentProgress = 0.0f;
-                ProgressIncrement = 1.0f / tools.Count;
-                foreach (var tool in tools)
-                {
-                    CurrentToolStatus = tool.Name;
-                    GetToolProgress = (() => tool.Progress);
-                    tool.Execute(Controller);
-                    CurrentProgress += ProgressIncrement;
-                    GetToolProgress = (() => 0.0f);
-                }
-            }
-        }
-
-        public void Dispose() => Dispose(true);
-
-        ~AdvancedEmmeNetworkAssignment()
-        {
-            Dispose(false);
-        }
-
-        private void Dispose(bool all)
-        {
-            if (all)
-            {
-                GC.SuppressFinalize(this);
-            }
-            Controller?.Dispose();
+            Controller.Dispose();
             Controller = null;
         }
+    }
+
+    public bool RuntimeValidation(ref string error) => true;
+
+    public override string ToString() => CurrentToolStatus;
+
+    private void ExecuteToolList(List<IEmmeTool> tools)
+    {
+        if (Execute)
+        {
+            if (Controller == null)
+            {
+                Controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceAnalysis);
+            }
+            CurrentProgress = 0.0f;
+            ProgressIncrement = 1.0f / tools.Count;
+            foreach (var tool in tools)
+            {
+                CurrentToolStatus = tool.Name;
+                GetToolProgress = (() => tool.Progress);
+                tool.Execute(Controller);
+                CurrentProgress += ProgressIncrement;
+                GetToolProgress = (() => 0.0f);
+            }
+        }
+    }
+
+    public void Dispose() => Dispose(true);
+
+    ~AdvancedEmmeNetworkAssignment()
+    {
+        Dispose(false);
+    }
+
+    private void Dispose(bool all)
+    {
+        if (all)
+        {
+            GC.SuppressFinalize(this);
+        }
+        Controller?.Dispose();
+        Controller = null;
     }
 }

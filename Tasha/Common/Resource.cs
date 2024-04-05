@@ -19,120 +19,119 @@
 using System;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public class Resource : IResource
 {
-    public class Resource : IResource
+    public IDataSource DataSource;
+
+    private volatile bool Loaded;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public IDataSource DataSource;
+        get { return 0; }
+    }
 
-        private volatile bool Loaded;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name { get; set; }
+    [RunParameter("Unload after acquire", false, "Should re release this resource after it has been acquired?")]
+    public bool UnloadAfterAcquired;
 
-        public float Progress
+    [RunParameter("Resource Name", "UniqueName", "The unique name for this resource.")]
+    public string ResourceName { get; set; }
+
+    public T AcquireResource<T>()
+    {
+        var source = DataSource as IDataSource<T>;
+        if(source == null)
         {
-            get { return 0; }
+            return default(T);
         }
+        // check to see if the resource needs to be loaded
 
-        public Tuple<byte, byte, byte> ProgressColour
+        lock (this)
         {
-            get { return null; }
-        }
-
-        [RunParameter("Unload after acquire", false, "Should re release this resource after it has been acquired?")]
-        public bool UnloadAfterAcquired;
-
-        [RunParameter("Resource Name", "UniqueName", "The unique name for this resource.")]
-        public string ResourceName { get; set; }
-
-        public T AcquireResource<T>()
-        {
-            var source = DataSource as IDataSource<T>;
-            if(source == null)
+            if(!Loaded)
             {
-                return default(T);
+                DataSource.LoadData();
+                Loaded = true;
             }
-            // check to see if the resource needs to be loaded
+            var data = source.GiveData();
+            if(UnloadAfterAcquired)
+            {
+                Loaded = false;
+                source.UnloadData();
+            }
+            return data;
+        }
+    }
 
+    public bool CheckResourceType(Type dataType)
+    {
+        return GetLocalType() == dataType;
+    }
+
+    public bool CheckResourceType<T>()
+    {
+        return (DataSource as IDataSource<T>) != null;
+    }
+
+    private Type GetLocalType()
+    {
+        var interfaces = DataSource.GetType().GetInterfaces();
+        Type dataSourceInterface = null;
+        foreach(var t in interfaces)
+        {
+            if(t.IsGenericType)
+            {
+                if(t.FullName.StartsWith("XTMF.IDataSource`1"))
+                {
+                    dataSourceInterface = t;
+                    break;
+                }
+            }
+        }
+        var genericArguments = dataSourceInterface?.GetGenericArguments();
+        if(genericArguments == null || genericArguments.Length != 1)
+        {
+            return null;
+        }
+        return genericArguments[0];
+    }
+
+    public Type GetResourceType()
+    {
+        return GetLocalType();
+    }
+
+    public void ReleaseResource()
+    {
+        if(Loaded)
+        {
+            // Unload the data
             lock (this)
             {
-                if(!Loaded)
+                if(Loaded)
                 {
-                    DataSource.LoadData();
-                    Loaded = true;
-                }
-                var data = source.GiveData();
-                if(UnloadAfterAcquired)
-                {
+                    DataSource.UnloadData();
                     Loaded = false;
-                    source.UnloadData();
-                }
-                return data;
-            }
-        }
-
-        public bool CheckResourceType(Type dataType)
-        {
-            return GetLocalType() == dataType;
-        }
-
-        public bool CheckResourceType<T>()
-        {
-            return (DataSource as IDataSource<T>) != null;
-        }
-
-        private Type GetLocalType()
-        {
-            var interfaces = DataSource.GetType().GetInterfaces();
-            Type dataSourceInterface = null;
-            foreach(var t in interfaces)
-            {
-                if(t.IsGenericType)
-                {
-                    if(t.FullName.StartsWith("XTMF.IDataSource`1"))
-                    {
-                        dataSourceInterface = t;
-                        break;
-                    }
-                }
-            }
-            var genericArguments = dataSourceInterface?.GetGenericArguments();
-            if(genericArguments == null || genericArguments.Length != 1)
-            {
-                return null;
-            }
-            return genericArguments[0];
-        }
-
-        public Type GetResourceType()
-        {
-            return GetLocalType();
-        }
-
-        public void ReleaseResource()
-        {
-            if(Loaded)
-            {
-                // Unload the data
-                lock (this)
-                {
-                    if(Loaded)
-                    {
-                        DataSource.UnloadData();
-                        Loaded = false;
-                    }
                 }
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public IDataSource GetDataSource()
-        {
-            return DataSource;
-        }
+    public IDataSource GetDataSource()
+    {
+        return DataSource;
     }
 }

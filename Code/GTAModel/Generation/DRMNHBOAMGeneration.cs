@@ -24,316 +24,315 @@ using Datastructure;
 using TMG.GTAModel.DataUtility;
 using XTMF;
 
-namespace TMG.GTAModel.Generation
+namespace TMG.GTAModel.Generation;
+
+// ReSharper disable once InconsistentNaming
+public class DRMNHBOAMGeneration : IDemographicCategoryGeneration
 {
-    // ReSharper disable once InconsistentNaming
-    public class DRMNHBOAMGeneration : IDemographicCategoryGeneration
+    [RunParameter( "Auto Drive Name", "ADrive", "The name of the auto drive mode." )]
+    public string AutoDriveModeName;
+
+    public List<int> AutoDrivePath;
+
+    [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
+    public int DemographicParameterSetIndex;
+
+    [RunParameter( "HBO Purpose Name", "HBO", "The name of the work purpose." )]
+    public string HomeBasedOtherPurposeName;
+
+    [RunParameter( "ModeChoice Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
+    public int ModeChoiceParameterSetIndex;
+
+    [RunParameter( "Region Constant Parameters", "1.591954326,-2.812772298,-2.203225809,-34.79059286", typeof( FloatList ), "The region parameters for Auto Times." )]
+    public FloatList RegionConstantsParameter;
+
+    [RunParameter( "Region General Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the General Employment." )]
+    public FloatList RegionEmploymentGeneralParameter;
+
+    [RunParameter( "Region Manufacturing Parameters", "0.097629818,0.208416925,0.096070043,0.162521643", typeof( FloatList ), "The region parameters for the Manufacturing Employment." )]
+    public FloatList RegionEmploymentManufacturingParameter;
+
+    [RunParameter( "Region Professional Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Professional Employment." )]
+    public FloatList RegionEmploymentProfessionalParameter;
+
+    [RunParameter( "Region Sales Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Sales Employment." )]
+    public FloatList RegionEmploymentSalesParameter;
+
+    [RunParameter( "Region Home-Other Drive Parameters", "0.899332965,0.801837132,0.680872577,0.752931716", typeof( FloatList ), "The region parameters for the Population." )]
+    public FloatList RegionHomeOtherDriveParameter;
+
+    [RunParameter( "Region Home-Other Other Parameters", "0.155969455,0.190094001,0.573941756,0.882749914", typeof( FloatList ), "The region parameters for the Population." )]
+    public FloatList RegionHomeOtherOtherParameter;
+
+    [RunParameter( "Region Home-School Drive Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Population." )]
+    public FloatList RegionHomeSchoolDriveParameter;
+
+    [RunParameter( "Region Home-School Other Parameters", "0.010840853,0.056333868,0.094647873,0.063186155", typeof( FloatList ), "The region parameters for the Population." )]
+    public FloatList RegionHomeSchoolOtherParameter;
+
+    [RunParameter( "Region Home-Work Drive Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Population." )]
+    public FloatList RegionHomeWorkDriveParameter;
+
+    [RunParameter( "Region Home-Work Other Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Population." )]
+    public FloatList RegionHomeWorkOtherParameter;
+
+    [RunParameter( "Region Numbers", "1,2,3,4", typeof( NumberList ), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters." )]
+    public NumberList RegionNumbers;
+
+    [RootModule]
+    public IDemographic4StepModelSystemTemplate Root;
+
+    [RunParameter( "School Purpose Name", "School", "The name of the school purpose." )]
+    public string SchoolPurposeName;
+
+    [RunParameter( "Work Purpose Name", "Work", "The name of the work purpose." )]
+    public string WorkPurposeName;
+
+    [DoNotAutomate]
+    private IPurpose HomeBasedOtherPurpose;
+
+    [DoNotAutomate]
+    private IPurpose SchoolPurpose;
+
+    [DoNotAutomate]
+    private IPurpose WorkPurpose;
+
+    public string Name
     {
-        [RunParameter( "Auto Drive Name", "ADrive", "The name of the auto drive mode." )]
-        public string AutoDriveModeName;
+        get;
+        set;
+    }
 
-        public List<int> AutoDrivePath;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
-        public int DemographicParameterSetIndex;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "HBO Purpose Name", "HBO", "The name of the work purpose." )]
-        public string HomeBasedOtherPurposeName;
-
-        [RunParameter( "ModeChoice Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
-        public int ModeChoiceParameterSetIndex;
-
-        [RunParameter( "Region Constant Parameters", "1.591954326,-2.812772298,-2.203225809,-34.79059286", typeof( FloatList ), "The region parameters for Auto Times." )]
-        public FloatList RegionConstantsParameter;
-
-        [RunParameter( "Region General Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the General Employment." )]
-        public FloatList RegionEmploymentGeneralParameter;
-
-        [RunParameter( "Region Manufacturing Parameters", "0.097629818,0.208416925,0.096070043,0.162521643", typeof( FloatList ), "The region parameters for the Manufacturing Employment." )]
-        public FloatList RegionEmploymentManufacturingParameter;
-
-        [RunParameter( "Region Professional Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Professional Employment." )]
-        public FloatList RegionEmploymentProfessionalParameter;
-
-        [RunParameter( "Region Sales Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Sales Employment." )]
-        public FloatList RegionEmploymentSalesParameter;
-
-        [RunParameter( "Region Home-Other Drive Parameters", "0.899332965,0.801837132,0.680872577,0.752931716", typeof( FloatList ), "The region parameters for the Population." )]
-        public FloatList RegionHomeOtherDriveParameter;
-
-        [RunParameter( "Region Home-Other Other Parameters", "0.155969455,0.190094001,0.573941756,0.882749914", typeof( FloatList ), "The region parameters for the Population." )]
-        public FloatList RegionHomeOtherOtherParameter;
-
-        [RunParameter( "Region Home-School Drive Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Population." )]
-        public FloatList RegionHomeSchoolDriveParameter;
-
-        [RunParameter( "Region Home-School Other Parameters", "0.010840853,0.056333868,0.094647873,0.063186155", typeof( FloatList ), "The region parameters for the Population." )]
-        public FloatList RegionHomeSchoolOtherParameter;
-
-        [RunParameter( "Region Home-Work Drive Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Population." )]
-        public FloatList RegionHomeWorkDriveParameter;
-
-        [RunParameter( "Region Home-Work Other Parameters", "0,0,0,0", typeof( FloatList ), "The region parameters for the Population." )]
-        public FloatList RegionHomeWorkOtherParameter;
-
-        [RunParameter( "Region Numbers", "1,2,3,4", typeof( NumberList ), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters." )]
-        public NumberList RegionNumbers;
-
-        [RootModule]
-        public IDemographic4StepModelSystemTemplate Root;
-
-        [RunParameter( "School Purpose Name", "School", "The name of the school purpose." )]
-        public string SchoolPurposeName;
-
-        [RunParameter( "Work Purpose Name", "Work", "The name of the work purpose." )]
-        public string WorkPurposeName;
-
-        [DoNotAutomate]
-        private IPurpose HomeBasedOtherPurpose;
-
-        [DoNotAutomate]
-        private IPurpose SchoolPurpose;
-
-        [DoNotAutomate]
-        private IPurpose WorkPurpose;
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Generate(SparseArray<float> production, SparseArray<float> attractions)
-        {
-            // no init since we are using raw auto times
-            //this.InitializeDemographicCategory();
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfZones = zones.Length;
-            // Work
-            AddPurposeData( WorkPurpose, LookUpPurposeData( WorkPurpose ), production,
-                RegionHomeWorkDriveParameter, RegionHomeWorkOtherParameter );
-            // School
-            AddPurposeData( SchoolPurpose, LookUpPurposeData( SchoolPurpose ), production,
-                RegionHomeSchoolDriveParameter, RegionHomeSchoolOtherParameter );
-            //HBO
-            AddPurposeData( HomeBasedOtherPurpose, LookUpPurposeData( HomeBasedOtherPurpose ), production,
-                RegionHomeOtherDriveParameter, RegionHomeOtherOtherParameter );
-            // Now that all of the purposes have been added in we can go and add in the professions
-            var flatProduction = production.GetFlatData();
-            Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+    public void Generate(SparseArray<float> production, SparseArray<float> attractions)
+    {
+        // no init since we are using raw auto times
+        //this.InitializeDemographicCategory();
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfZones = zones.Length;
+        // Work
+        AddPurposeData( WorkPurpose, LookUpPurposeData( WorkPurpose ), production,
+            RegionHomeWorkDriveParameter, RegionHomeWorkOtherParameter );
+        // School
+        AddPurposeData( SchoolPurpose, LookUpPurposeData( SchoolPurpose ), production,
+            RegionHomeSchoolDriveParameter, RegionHomeSchoolOtherParameter );
+        //HBO
+        AddPurposeData( HomeBasedOtherPurpose, LookUpPurposeData( HomeBasedOtherPurpose ), production,
+            RegionHomeOtherDriveParameter, RegionHomeOtherOtherParameter );
+        // Now that all of the purposes have been added in we can go and add in the professions
+        var flatProduction = production.GetFlatData();
+        Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+                {
+                    var increment = 0f;
+                    if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
                     {
-                        var increment = 0f;
-                        if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
-                        {
-                            // if this zone isn't part of a region we are processing just continue
-                            return;
-                        }
-                        increment += RegionEmploymentProfessionalParameter[regionIndex] * zones[i].ProfessionalEmployment;
-                        increment += RegionEmploymentGeneralParameter[regionIndex] * zones[i].GeneralEmployment;
-                        increment += RegionEmploymentSalesParameter[regionIndex] * zones[i].RetailEmployment;
-                        increment += RegionEmploymentManufacturingParameter[regionIndex] * zones[i].ManufacturingEmployment;
-                        flatProduction[i] += increment + RegionConstantsParameter[regionIndex];
-                        // make sure we don't end up with negative trips
-                        if ( flatProduction[i] < 0 ) flatProduction[i] = 0;
-                    } );
-        }
+                        // if this zone isn't part of a region we are processing just continue
+                        return;
+                    }
+                    increment += RegionEmploymentProfessionalParameter[regionIndex] * zones[i].ProfessionalEmployment;
+                    increment += RegionEmploymentGeneralParameter[regionIndex] * zones[i].GeneralEmployment;
+                    increment += RegionEmploymentSalesParameter[regionIndex] * zones[i].RetailEmployment;
+                    increment += RegionEmploymentManufacturingParameter[regionIndex] * zones[i].ManufacturingEmployment;
+                    flatProduction[i] += increment + RegionConstantsParameter[regionIndex];
+                    // make sure we don't end up with negative trips
+                    if ( flatProduction[i] < 0 ) flatProduction[i] = 0;
+                } );
+    }
 
-        public void InitializeDemographicCategory()
-        {
-            Root.ModeParameterDatabase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
-        }
+    public void InitializeDemographicCategory()
+    {
+        Root.ModeParameterDatabase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
+    }
 
-        public bool IsContained(IPerson person)
-        {
-            return true;
-        }
+    public bool IsContained(IPerson person)
+    {
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        // link the purpose names
+        if ( !LinkPurposeName( WorkPurposeName, out WorkPurpose ) )
         {
-            // link the purpose names
-            if ( !LinkPurposeName( WorkPurposeName, out WorkPurpose ) )
-            {
-                error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
-                return false;
-            }
-            if ( !LinkPurposeName( SchoolPurposeName, out SchoolPurpose ) )
-            {
-                error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
-                return false;
-            }
-            if ( !LinkPurposeName( HomeBasedOtherPurposeName, out HomeBasedOtherPurpose ) )
-            {
-                error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
-                return false;
-            }
-            // link in the mode path so we can quickly look it up
-            if ( !LinkModeName( AutoDriveModeName ) )
-            {
-                error = "We were unable to find the mode that represents auto drive!";
-                return false;
-            }
-            return true;
+            error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
+            return false;
         }
-
-        private void AddPurposeData(IPurpose purpose, float[][] driveData, SparseArray<float> production, FloatList purposeDrive, FloatList purposeOther)
+        if ( !LinkPurposeName( SchoolPurposeName, out SchoolPurpose ) )
         {
-            var modes = purpose.Flows;
-            if ( modes == null ) return;
-            var length = modes.Count;
+            error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
+            return false;
+        }
+        if ( !LinkPurposeName( HomeBasedOtherPurposeName, out HomeBasedOtherPurpose ) )
+        {
+            error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
+            return false;
+        }
+        // link in the mode path so we can quickly look it up
+        if ( !LinkModeName( AutoDriveModeName ) )
+        {
+            error = "We were unable to find the mode that represents auto drive!";
+            return false;
+        }
+        return true;
+    }
+
+    private void AddPurposeData(IPurpose purpose, float[][] driveData, SparseArray<float> production, FloatList purposeDrive, FloatList purposeOther)
+    {
+        var modes = purpose.Flows;
+        if ( modes == null ) return;
+        var length = modes.Count;
+        for ( int i = 0; i < length; i++ )
+        {
+            AddPurposeData( driveData, modes[i], production, purposeDrive, purposeOther );
+        }
+    }
+
+    private void AddPurposeData(float[][] driveData, TreeData<float[][]> current, SparseArray<float> production, FloatList purposeDrive, FloatList purposeOther)
+    {
+        var cat = current.Children;
+        if ( cat != null )
+        {
+            var length = cat.Length;
             for ( int i = 0; i < length; i++ )
             {
-                AddPurposeData( driveData, modes[i], production, purposeDrive, purposeOther );
+                AddPurposeData( driveData, cat[i], production, purposeDrive, purposeOther );
             }
         }
-
-        private void AddPurposeData(float[][] driveData, TreeData<float[][]> current, SparseArray<float> production, FloatList purposeDrive, FloatList purposeOther)
+        else
         {
-            var cat = current.Children;
-            if ( cat != null )
+            // we only add in end nodes
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            var numberOfZones = zones.Length;
+            var data = current.Result;
+            // shortcut invalid modes
+            if ( data == null ) return;
+            var flatProduction = production.GetFlatData();
+            if ( driveData == data )
             {
-                var length = cat.Length;
-                for ( int i = 0; i < length; i++ )
+                // Auto drive case
+                Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                 {
-                    AddPurposeData( driveData, cat[i], production, purposeDrive, purposeOther );
-                }
+                    if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
+                    {
+                        // if this zone isn't part of a region we are processing just continue
+                        return;
+                    }
+                    flatProduction[i] += purposeDrive[regionIndex] * SumWentHere(current, i);
+                } );
             }
             else
             {
-                // we only add in end nodes
-                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                var numberOfZones = zones.Length;
-                var data = current.Result;
-                // shortcut invalid modes
-                if ( data == null ) return;
-                var flatProduction = production.GetFlatData();
-                if ( driveData == data )
+                // not auto drive case
+                Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                 {
-                    // Auto drive case
-                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+                    if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
                     {
-                        if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
-                        {
-                            // if this zone isn't part of a region we are processing just continue
-                            return;
-                        }
-                        flatProduction[i] += purposeDrive[regionIndex] * SumWentHere(current, i);
-                    } );
-                }
-                else
-                {
-                    // not auto drive case
-                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
-                    {
-                        if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
-                        {
-                            // if this zone isn't part of a region we are processing just continue
-                            return;
-                        }
-                        flatProduction[i] += purposeOther[regionIndex] * SumWentHere(current, i);
-                    } );
-                }
+                        // if this zone isn't part of a region we are processing just continue
+                        return;
+                    }
+                    flatProduction[i] += purposeOther[regionIndex] * SumWentHere(current, i);
+                } );
             }
         }
+    }
 
-        private bool InverseLookup(int regionNumber, out int regionIndex)
-        {
-            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
-        }
+    private bool InverseLookup(int regionNumber, out int regionIndex)
+    {
+        return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
+    }
 
-        private bool LinkModeName(string p)
+    private bool LinkModeName(string p)
+    {
+        var modes = Root.Modes;
+        var length = modes.Count;
+        AutoDrivePath = [];
+        for ( int i = 0; i < length; i++ )
         {
-            var modes = Root.Modes;
-            var length = modes.Count;
-            AutoDrivePath = [];
-            for ( int i = 0; i < length; i++ )
+            if ( LinkModeName( p, modes[i] ) )
             {
-                if ( LinkModeName( p, modes[i] ) )
-                {
-                    // insert at the front
-                    AutoDrivePath.Insert( 0, i );
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool LinkModeName(string p, IModeChoiceNode current)
-        {
-            if ( current.ModeName == p )
-            {
+                // insert at the front
+                AutoDrivePath.Insert( 0, i );
                 return true;
             }
-            if (current is IModeCategory cat)
-            {
-                var modes = cat.Children;
-                var length = modes.Count;
-                for (int i = 0; i < length; i++)
-                {
-                    if (LinkModeName(p, modes[i]))
-                    {
-                        // insert at the front
-                        AutoDrivePath.Insert(0, i);
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
+        return false;
+    }
 
-        private bool LinkPurposeName(string purposeName, out IPurpose destinationPurpose)
+    private bool LinkModeName(string p, IModeChoiceNode current)
+    {
+        if ( current.ModeName == p )
         {
-            var purposes = Root.Purpose;
-            foreach ( var p in purposes )
+            return true;
+        }
+        if (current is IModeCategory cat)
+        {
+            var modes = cat.Children;
+            var length = modes.Count;
+            for (int i = 0; i < length; i++)
             {
-                if ( p.PurposeName == purposeName )
+                if (LinkModeName(p, modes[i]))
                 {
-                    destinationPurpose = p;
+                    // insert at the front
+                    AutoDrivePath.Insert(0, i);
                     return true;
                 }
             }
-            // if we haven't found it, fill it in here
-            destinationPurpose = null;
-            return false;
         }
+        return false;
+    }
 
-        private float[][] LookUpPurposeData(IPurpose purpose)
+    private bool LinkPurposeName(string purposeName, out IPurpose destinationPurpose)
+    {
+        var purposes = Root.Purpose;
+        foreach ( var p in purposes )
         {
-            var data = purpose.Flows;
-            if ( data == null ) return null;
-            TreeData<float[][]> currentPoint = data[AutoDrivePath[0]];
-            var length = AutoDrivePath.Count;
-            for ( int i = 1; i < length; i++ )
+            if ( p.PurposeName == purposeName )
             {
-                currentPoint = currentPoint.Children[AutoDrivePath[i]];
+                destinationPurpose = p;
+                return true;
             }
-            return currentPoint.Result;
         }
+        // if we haven't found it, fill it in here
+        destinationPurpose = null;
+        return false;
+    }
 
-        private float SumWentHere(TreeData<float[][]> current, int flatZoneIndex)
+    private float[][] LookUpPurposeData(IPurpose purpose)
+    {
+        var data = purpose.Flows;
+        if ( data == null ) return null;
+        TreeData<float[][]> currentPoint = data[AutoDrivePath[0]];
+        var length = AutoDrivePath.Count;
+        for ( int i = 1; i < length; i++ )
         {
-            var data = current.Result;
-            // fast way to ditch modes
-            if ( data == null ) return 0;
-            var length = data.Length;
-            var count = 0f;
-            for ( int i = 0; i < length; i++ )
-            {
-                if ( data[i] != null )
-                {
-                    count += data[i][flatZoneIndex];
-                }
-            }
-            return count;
+            currentPoint = currentPoint.Children[AutoDrivePath[i]];
         }
+        return currentPoint.Result;
+    }
+
+    private float SumWentHere(TreeData<float[][]> current, int flatZoneIndex)
+    {
+        var data = current.Result;
+        // fast way to ditch modes
+        if ( data == null ) return 0;
+        var length = data.Length;
+        var count = 0f;
+        for ( int i = 0; i < length; i++ )
+        {
+            if ( data[i] != null )
+            {
+                count += data[i][flatZoneIndex];
+            }
+        }
+        return count;
     }
 }

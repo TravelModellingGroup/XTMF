@@ -18,48 +18,46 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface ITripComponentData : INetworkData
 {
-    public interface ITripComponentData : INetworkData
-    {
-        Time BoardingTime(IZone origin, IZone destination, Time time);
+    Time BoardingTime(IZone origin, IZone destination, Time time);
 
-        Time BoardingTime(int flatOrigin, int flatDestination, Time time);
+    Time BoardingTime(int flatOrigin, int flatDestination, Time time);
 
-        int[] ClosestStations(IZone zone);
+    int[] ClosestStations(IZone zone);
 
-        bool GetAllData(IZone origin, IZone destination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
+    bool GetAllData(IZone origin, IZone destination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
 
-        bool GetAllData(IZone origin, IZone destination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost);
+    bool GetAllData(IZone origin, IZone destination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost);
 
-        bool GetAllData(int flatOrigin, int flatDestination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
+    bool GetAllData(int flatOrigin, int flatDestination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost);
 
-        bool GetAllData(int flatOrigin, int flatDestination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost);
+    bool GetAllData(int flatOrigin, int flatDestination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost);
 
-        Time InVehicleTravelTime(IZone origin, IZone destination, Time time);
+    Time InVehicleTravelTime(IZone origin, IZone destination, Time time);
 
-        Time InVehicleTravelTime(int flatOrigin, int flatDestination, Time time);
+    Time InVehicleTravelTime(int flatOrigin, int flatDestination, Time time);
 
-        ITransitStation Station(IZone stationZone);
+    ITransitStation Station(IZone stationZone);
 
-        Time WaitTime(IZone origin, IZone destination, Time time);
+    Time WaitTime(IZone origin, IZone destination, Time time);
 
-        Time WaitTime(int flatOrigin, int flatDestination, Time time);
+    Time WaitTime(int flatOrigin, int flatDestination, Time time);
 
-        Time WalkTime(IZone origin, IZone destination, Time time);
+    Time WalkTime(IZone origin, IZone destination, Time time);
 
-        Time WalkTime(int flatOrigin, int flatDestination, Time time);
-    }
+    Time WalkTime(int flatOrigin, int flatDestination, Time time);
+}
 
-    public interface ITripComponentCompleteData : ITripComponentData
-    {
-        /// <summary>
-        /// Returns all of the data for the time period in an array with the following format.
-        /// This method is not recommended unless performance is key.
-        /// For each origin, for each destination, [time,wait,walk,cost,boarding]
-        /// </summary>
-        /// <returns></returns>
-        float[] GetTimePeriodData(Time time);
-    }
-
+public interface ITripComponentCompleteData : ITripComponentData
+{
+    /// <summary>
+    /// Returns all of the data for the time period in an array with the following format.
+    /// This method is not recommended unless performance is key.
+    /// For each origin, for each destination, [time,wait,walk,cost,boarding]
+    /// </summary>
+    /// <returns></returns>
+    float[] GetTimePeriodData(Time time);
 }

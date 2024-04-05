@@ -20,40 +20,39 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace XTMF
+namespace XTMF;
+
+public class ModuleRepository : IModuleRepository
 {
-    public class ModuleRepository : IModuleRepository
+    private List<Type> _ContainedModules = [];
+
+    public IList<Type> Modules => _ContainedModules;
+
+    public bool AddModule(Type module)
     {
-        private List<Type> _ContainedModules = [];
-
-        public IList<Type> Modules => _ContainedModules;
-
-        public bool AddModule(Type module)
+        if ( !_ContainedModules.Contains( module ) )
         {
-            if ( !_ContainedModules.Contains( module ) )
+            _ContainedModules.Add( module );
+            _ContainedModules.Sort( delegate(Type first, Type second)
             {
-                _ContainedModules.Add( module );
-                _ContainedModules.Sort( delegate(Type first, Type second)
-                {
-                    return first.Name.CompareTo( second.Name );
-                } );
-                return true;
-            }
-            return false;
+                return first.Name.CompareTo( second.Name );
+            } );
+            return true;
         }
-
-        public IEnumerator<Type> GetEnumerator() => _ContainedModules.GetEnumerator();
-
-        public Type GetModuleType(string typeName)
-        {
-            return _ContainedModules.FirstOrDefault(model => model.FullName == typeName);
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return _ContainedModules.GetEnumerator();
-        }
-
-        public void Unload(Type type) => _ContainedModules.Remove(type);
+        return false;
     }
+
+    public IEnumerator<Type> GetEnumerator() => _ContainedModules.GetEnumerator();
+
+    public Type GetModuleType(string typeName)
+    {
+        return _ContainedModules.FirstOrDefault(model => model.FullName == typeName);
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return _ContainedModules.GetEnumerator();
+    }
+
+    public void Unload(Type type) => _ContainedModules.Remove(type);
 }

@@ -22,236 +22,235 @@ using System.Collections.Generic;
 using System.Threading;
 using TMG;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// This represents one household in the simulation
+/// </summary>
+public sealed class Household : Attachable, ITashaHousehold
 {
+    public static int HouseholdsMade;
+    private static ConcurrentBag<Household> Households = [];
+
+    private int _NumberOfAdults = -1;
+
     /// <summary>
-    /// This represents one household in the simulation
+    /// Households can only be created by loading them from file
     /// </summary>
-    public sealed class Household : Attachable, ITashaHousehold
+    public Household()
     {
-        public static int HouseholdsMade;
-        private static ConcurrentBag<Household> Households = [];
+    }
 
-        private int _NumberOfAdults = -1;
+    public Household(int id, ITashaPerson[] persons, IVehicle[] vehicles, float expansion, IZone zone)
+    {
+        //this.auxiliaryTripChains = new List<ITripChain>(7);
+        HouseholdId = id;
+        Persons = persons;
+        Vehicles = vehicles;
+        ExpansionFactor = expansion;
+        HomeZone = zone;
+    }
 
-        /// <summary>
-        /// Households can only be created by loading them from file
-        /// </summary>
-        public Household()
+    public DwellingType DwellingType { get; set; }
+
+    /// <summary>
+    /// How many households this represents
+    /// </summary>
+    public float ExpansionFactor
+    {
+        get;
+        set;
+    }
+
+    public IZone HomeZone { get; set; }
+
+    /// <summary>
+    /// Used for stuff like ordering of the households
+    /// </summary>
+    public int HouseholdId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Number of Adults in the household
+    /// </summary>
+    public int NumberOfAdults
+    {
+        get
         {
-        }
-
-        public Household(int id, ITashaPerson[] persons, IVehicle[] vehicles, float expansion, IZone zone)
-        {
-            //this.auxiliaryTripChains = new List<ITripChain>(7);
-            HouseholdId = id;
-            Persons = persons;
-            Vehicles = vehicles;
-            ExpansionFactor = expansion;
-            HomeZone = zone;
-        }
-
-        public DwellingType DwellingType { get; set; }
-
-        /// <summary>
-        /// How many households this represents
-        /// </summary>
-        public float ExpansionFactor
-        {
-            get;
-            set;
-        }
-
-        public IZone HomeZone { get; set; }
-
-        /// <summary>
-        /// Used for stuff like ordering of the households
-        /// </summary>
-        public int HouseholdId
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Number of Adults in the household
-        /// </summary>
-        public int NumberOfAdults
-        {
-            get
+            if (_NumberOfAdults == -1)
             {
-                if (_NumberOfAdults == -1)
+                _NumberOfAdults = 0;
+                foreach (ITashaPerson p in Persons)
                 {
-                    _NumberOfAdults = 0;
-                    foreach (ITashaPerson p in Persons)
-                    {
-                        if (p.Adult) _NumberOfAdults++;
-                    }
-                }
-                return _NumberOfAdults;
-            }
-        }
-
-        /// <summary>
-        /// Number of Children in the household (Non adults)
-        /// </summary>
-        public int NumberOfChildren
-        {
-            get
-            {
-                return Persons.Length - NumberOfAdults;
-            }
-        }
-
-        /// <summary>
-        /// The people in this household
-        /// </summary>
-        public ITashaPerson[] Persons
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The vehicles that belong to this household
-        /// </summary>
-        public IVehicle[] Vehicles
-        {
-            get;
-            set;
-        }
-
-        public static Household MakeHousehold()
-        {
-            if (Households.TryTake(out Household h))
-            {
-                return h;
-            }
-            HouseholdsMade++;
-            return new Household();
-        }
-
-        public List<ITashaPerson> GetJointTourMembers(int tourID)
-        {
-            List<ITashaPerson> persons = new(Persons.Length);
-            foreach (var person in Persons)
-            {
-                foreach (var tripchain in person.TripChains)
-                {
-                    if (tripchain.JointTripID == tourID)
-                        persons.Add(person);
+                    if (p.Adult) _NumberOfAdults++;
                 }
             }
-
-            return persons;
+            return _NumberOfAdults;
         }
+    }
 
-        public ITripChain GetJointTourTripChain(int tourID, ITashaPerson person)
+    /// <summary>
+    /// Number of Children in the household (Non adults)
+    /// </summary>
+    public int NumberOfChildren
+    {
+        get
+        {
+            return Persons.Length - NumberOfAdults;
+        }
+    }
+
+    /// <summary>
+    /// The people in this household
+    /// </summary>
+    public ITashaPerson[] Persons
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// The vehicles that belong to this household
+    /// </summary>
+    public IVehicle[] Vehicles
+    {
+        get;
+        set;
+    }
+
+    public static Household MakeHousehold()
+    {
+        if (Households.TryTake(out Household h))
+        {
+            return h;
+        }
+        HouseholdsMade++;
+        return new Household();
+    }
+
+    public List<ITashaPerson> GetJointTourMembers(int tourID)
+    {
+        List<ITashaPerson> persons = new(Persons.Length);
+        foreach (var person in Persons)
         {
             foreach (var tripchain in person.TripChains)
             {
                 if (tripchain.JointTripID == tourID)
-                    return tripchain;
+                    persons.Add(person);
             }
-
-            return null;
         }
 
-        public void Recycle()
+        return persons;
+    }
+
+    public ITripChain GetJointTourTripChain(int tourID, ITashaPerson person)
+    {
+        foreach (var tripchain in person.TripChains)
         {
-            Release();
-            var persons = Persons;
-            for (int i = 0; i < persons.Length; i++)
-            {
-                persons[i].Recycle();
-            }
-            var vehicles = Vehicles;
-            for (int i = 0; i < vehicles.Length; i++)
-            {
-                vehicles[i].Recycle();
-            }
-            _NumberOfAdults = -1;
-            Households.Add(this);
+            if (tripchain.JointTripID == tourID)
+                return tripchain;
         }
 
-        internal static void ReleaseHouseholdPool()
+        return null;
+    }
+
+    public void Recycle()
+    {
+        Release();
+        var persons = Persons;
+        for (int i = 0; i < persons.Length; i++)
         {
-            Households = [];
+            persons[i].Recycle();
         }
-
-        #region IHousehold Members
-
-        public Dictionary<int, List<ITripChain>> JointTours
+        var vehicles = Vehicles;
+        for (int i = 0; i < vehicles.Length; i++)
         {
-            get
-            {
-                Dictionary<int, List<ITripChain>> jointTours = [];
+            vehicles[i].Recycle();
+        }
+        _NumberOfAdults = -1;
+        Households.Add(this);
+    }
 
-                foreach (var person in Persons)
+    internal static void ReleaseHouseholdPool()
+    {
+        Households = [];
+    }
+
+    #region IHousehold Members
+
+    public Dictionary<int, List<ITripChain>> JointTours
+    {
+        get
+        {
+            Dictionary<int, List<ITripChain>> jointTours = [];
+
+            foreach (var person in Persons)
+            {
+                foreach (var tc in person.TripChains)
                 {
-                    foreach (var tc in person.TripChains)
-                    {
-                        if (tc.JointTripChains == null)
-                            continue;
+                    if (tc.JointTripChains == null)
+                        continue;
 
-                        foreach (var jtc in tc.JointTripChains)
+                    foreach (var jtc in tc.JointTripChains)
+                    {
+                        if (jointTours.TryGetValue(jtc.JointTripID, out List<ITripChain> jointTour))
                         {
-                            if (jointTours.TryGetValue(jtc.JointTripID, out List<ITripChain> jointTour))
+                            if (!jointTour.Contains(jtc))
                             {
-                                if (!jointTour.Contains(jtc))
-                                {
-                                    jointTour.Add(jtc);
-                                }
+                                jointTour.Add(jtc);
                             }
-                            else
+                        }
+                        else
+                        {
+                            jointTour = new List<ITripChain>(4)
                             {
-                                jointTour = new List<ITripChain>(4)
-                                {
-                                    jtc
-                                };
-                                jointTours.Add(jtc.JointTripID, jointTour);
-                            }
+                                jtc
+                            };
+                            jointTours.Add(jtc.JointTripID, jointTour);
                         }
                     }
                 }
-                return jointTours;
             }
+            return jointTours;
         }
-
-        #endregion IHousehold Members
-
-        #region IHousehold Members
-
-        public HouseholdType HhType
-        {
-            get;
-            set;
-        }
-        public int IncomeClass { get; set; }
-
-        #endregion IHousehold Members
-
-        #region IHousehold Members
-
-        public ITashaHousehold Clone()
-        {
-            Household newH = (Household)MemberwiseClone();
-            newH.Variables = [];
-            newH.Attach("Maintainer", this["Maintainer"]);
-            newH.Persons = new ITashaPerson[Persons.Length];
-            for (int i = 0; i < Persons.Length; i++)
-            {
-                Person newPerson = (Person)Persons[i].Clone();
-                newPerson.Household = newH;
-                newH.Persons[i] = newPerson;
-            }
-            return newH;
-        }
-
-        #endregion IHousehold Members
-
-        #region IHousehold Members
-
-        #endregion IHousehold Members
     }
+
+    #endregion IHousehold Members
+
+    #region IHousehold Members
+
+    public HouseholdType HhType
+    {
+        get;
+        set;
+    }
+    public int IncomeClass { get; set; }
+
+    #endregion IHousehold Members
+
+    #region IHousehold Members
+
+    public ITashaHousehold Clone()
+    {
+        Household newH = (Household)MemberwiseClone();
+        newH.Variables = [];
+        newH.Attach("Maintainer", this["Maintainer"]);
+        newH.Persons = new ITashaPerson[Persons.Length];
+        for (int i = 0; i < Persons.Length; i++)
+        {
+            Person newPerson = (Person)Persons[i].Clone();
+            newPerson.Household = newH;
+            newH.Persons[i] = newPerson;
+        }
+        return newH;
+    }
+
+    #endregion IHousehold Members
+
+    #region IHousehold Members
+
+    #endregion IHousehold Members
 }

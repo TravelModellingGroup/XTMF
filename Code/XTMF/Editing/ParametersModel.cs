@@ -23,84 +23,83 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace XTMF
+namespace XTMF;
+
+public class ParametersModel : INotifyPropertyChanged
 {
-    public class ParametersModel : INotifyPropertyChanged
+    private readonly ModelSystemEditingSession _Session;
+
+    public ParametersModel(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession session)
     {
-        private readonly ModelSystemEditingSession _Session;
+        _Session = session;
+        ModelSystemStructure = modelSystemStructure;
+        Parameters = CreateParameterModels(modelSystemStructure, _Session);
+    }
 
-        public ParametersModel(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession session)
+    public bool IsDirty => Parameters == null || Parameters.Any(p => p.IsDirty);
+
+    public ModelSystemStructureModel ModelSystemStructure { get; private set; }
+
+    internal List<ParameterModel> Parameters { get; private set; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private static List<ParameterModel> CreateParameterModels(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession Session)
+    {
+        var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters?.Parameters;
+        if (realParameters == null) return null;
+        var ret = new List<ParameterModel>(realParameters.Count);
+        for (int i = 0; i < realParameters.Count; i++)
         {
-            _Session = session;
-            ModelSystemStructure = modelSystemStructure;
-            Parameters = CreateParameterModels(modelSystemStructure, _Session);
+            ret.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session, modelSystemStructure));
         }
+        return ret;
+    }
 
-        public bool IsDirty => Parameters == null || Parameters.Any(p => p.IsDirty);
+    public ObservableCollection<ParameterModel> GetParameters()
+    {
+        return Parameters != null ? Parameters.ToObservableCollection() : [];
+    }
 
-        public ModelSystemStructureModel ModelSystemStructure { get; private set; }
-
-        internal List<ParameterModel> Parameters { get; private set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private static List<ParameterModel> CreateParameterModels(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession Session)
+    /// <summary>
+    /// Call this to check if there is a parameter name or
+    /// a parameter value that contains the given filter text
+    /// </summary>
+    /// <param name="filterText">The text to filter for.</param>
+    /// <returns>True if it was found, false otherwise.</returns>
+    public bool HasParameterContaining(string filterText)
+    {
+        if (Parameters is null) return false;
+        foreach (var param in Parameters)
         {
-            var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters?.Parameters;
-            if (realParameters == null) return null;
-            var ret = new List<ParameterModel>(realParameters.Count);
-            for (int i = 0; i < realParameters.Count; i++)
+            if (param.Name.Contains(filterText, StringComparison.OrdinalIgnoreCase)
+                || param.Value.Contains(filterText, StringComparison.OrdinalIgnoreCase))
             {
-                ret.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session, modelSystemStructure));
+                return true;
             }
-            return ret;
         }
+        return false;
+    }
 
-        public ObservableCollection<ParameterModel> GetParameters()
+    internal void Update()
+    {
+        var parameters = Parameters;
+        var modelSystemStructure = ModelSystemStructure;
+        if (modelSystemStructure.RealModelSystemStructure.Parameters == null) return;
+        var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters.Parameters;
+        if (realParameters == null) return;
+        if (Parameters != null)
         {
-            return Parameters != null ? Parameters.ToObservableCollection() : [];
+            Parameters.Clear();
         }
-
-        /// <summary>
-        /// Call this to check if there is a parameter name or
-        /// a parameter value that contains the given filter text
-        /// </summary>
-        /// <param name="filterText">The text to filter for.</param>
-        /// <returns>True if it was found, false otherwise.</returns>
-        public bool HasParameterContaining(string filterText)
+        else
         {
-            if (Parameters is null) return false;
-            foreach (var param in Parameters)
-            {
-                if (param.Name.Contains(filterText, StringComparison.OrdinalIgnoreCase)
-                    || param.Value.Contains(filterText, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            return false;
+            Parameters = parameters = new List<ParameterModel>(realParameters.Count);
         }
-
-        internal void Update()
+        for (int i = 0; i < realParameters.Count; i++)
         {
-            var parameters = Parameters;
-            var modelSystemStructure = ModelSystemStructure;
-            if (modelSystemStructure.RealModelSystemStructure.Parameters == null) return;
-            var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters.Parameters;
-            if (realParameters == null) return;
-            if (Parameters != null)
-            {
-                Parameters.Clear();
-            }
-            else
-            {
-                Parameters = parameters = new List<ParameterModel>(realParameters.Count);
-            }
-            for (int i = 0; i < realParameters.Count; i++)
-            {
-                parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, _Session, modelSystemStructure));
-            }
-            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Parameters));
+            parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, _Session, modelSystemStructure));
         }
+        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Parameters));
     }
 }

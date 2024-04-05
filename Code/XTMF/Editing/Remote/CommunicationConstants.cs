@@ -22,85 +22,84 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF.Editing.Remote
+namespace XTMF.Editing.Remote;
+
+/// <summary>
+/// Component definitions
+/// </summary>
+internal enum ComponentTypes
 {
-    /// <summary>
-    /// Component definitions
-    /// </summary>
-    internal enum ComponentTypes
-    {
-        LinkedParameterModel = 0,
-        LinkedParametersModel = 1,
-        ModelSystemEditingSession = 2,
-        ModelSystemModel = 3,
-        ModelSystemStructureModel = 4,
-        ModuleParameter = 5,
-        ModuleParameters = 6,
-        ParameterModel = 7,
-        ParametersModel = 8,
-        ProjectEditingSession = 9
-    }
+    LinkedParameterModel = 0,
+    LinkedParametersModel = 1,
+    ModelSystemEditingSession = 2,
+    ModelSystemModel = 3,
+    ModelSystemStructureModel = 4,
+    ModuleParameter = 5,
+    ModuleParameters = 6,
+    ParameterModel = 7,
+    ParametersModel = 8,
+    ProjectEditingSession = 9
+}
 
-    internal enum LinkedParameterModelCommands
-    {
-    }
-    internal enum LinkedParametersModelCommands
-    {
-    }
-    internal enum ModelSystemEditingSessionCommands
-    {
-    }
-    internal enum ModelSystemModelCommands
-    {
-    }
-    internal enum ModelSystemStructureModelCommands
-    {
-    }
-    internal enum ModuleParameterCommands
-    {
-    }
-    internal enum ModuleParametersCommands
-    {
-    }
-    internal enum ParameterModelCommands
-    {
-    }
-    internal enum ParametersModelCommands
-    {
-    }
-    internal enum ProjectEditingSessionCommands
-    {
-    }
+internal enum LinkedParameterModelCommands
+{
+}
+internal enum LinkedParametersModelCommands
+{
+}
+internal enum ModelSystemEditingSessionCommands
+{
+}
+internal enum ModelSystemModelCommands
+{
+}
+internal enum ModelSystemStructureModelCommands
+{
+}
+internal enum ModuleParameterCommands
+{
+}
+internal enum ModuleParametersCommands
+{
+}
+internal enum ParameterModelCommands
+{
+}
+internal enum ParametersModelCommands
+{
+}
+internal enum ProjectEditingSessionCommands
+{
+}
 
 
-    internal enum LinkedParameterModelUpdate
-    {
-    }
-    internal enum LinkedParametersModelUpdate
-    {
-    }
-    internal enum ModelSystemEditingSessionUpdate
-    {
-    }
-    internal enum ModelSystemModelUpdate
-    {
-    }
-    internal enum ModelSystemStructureModelUpdate
-    {
-    }
-    internal enum ModuleParameterUpdate
-    {
-    }
-    internal enum ModuleParametersUpdate
-    {
-    }
-    internal enum ParameterModelUpdate
-    {
-    }
-    internal enum ParametersModelUpdate
-    {
-    }
-    internal enum ProjectEditingSessionUpdate
-    {
-    }
+internal enum LinkedParameterModelUpdate
+{
+}
+internal enum LinkedParametersModelUpdate
+{
+}
+internal enum ModelSystemEditingSessionUpdate
+{
+}
+internal enum ModelSystemModelUpdate
+{
+}
+internal enum ModelSystemStructureModelUpdate
+{
+}
+internal enum ModuleParameterUpdate
+{
+}
+internal enum ModuleParametersUpdate
+{
+}
+internal enum ParameterModelUpdate
+{
+}
+internal enum ParametersModelUpdate
+{
+}
+internal enum ProjectEditingSessionUpdate
+{
 }

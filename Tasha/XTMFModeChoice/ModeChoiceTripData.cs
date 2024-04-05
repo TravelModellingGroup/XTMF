@@ -17,19 +17,18 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Tasha.XTMFModeChoice
-{
-    public struct ModeChoiceTripData
-    {
-        public float[] Error;
-        public bool[] Feasible;
-        public float[] V;
+namespace Tasha.XTMFModeChoice;
 
-        public ModeChoiceTripData(int numberOfModes)
-        {
-            Feasible = new bool[numberOfModes];
-            Error = new float[numberOfModes];
-            V = new float[numberOfModes];
-        }
+public struct ModeChoiceTripData
+{
+    public float[] Error;
+    public bool[] Feasible;
+    public float[] V;
+
+    public ModeChoiceTripData(int numberOfModes)
+    {
+        Feasible = new bool[numberOfModes];
+        Error = new float[numberOfModes];
+        V = new float[numberOfModes];
     }
 }

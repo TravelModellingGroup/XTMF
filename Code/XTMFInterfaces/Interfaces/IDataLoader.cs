@@ -18,28 +18,27 @@
 */
 using System.Collections.Concurrent;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// Loads the data for the given type T
+/// </summary>
+public interface IDataLoader<T> : IProducerConsumerCollection<T>, IModule
 {
     /// <summary>
-    /// Loads the data for the given type T
+    /// If there is no more data to load, this will
+    /// be set to true.
     /// </summary>
-    public interface IDataLoader<T> : IProducerConsumerCollection<T>, IModule
-    {
-        /// <summary>
-        /// If there is no more data to load, this will
-        /// be set to true.
-        /// </summary>
-        bool OutOfData { get; }
+    bool OutOfData { get; }
 
-        /// <summary>
-        /// Load the data for this data source
-        /// </summary>
-        void LoadData();
+    /// <summary>
+    /// Load the data for this data source
+    /// </summary>
+    void LoadData();
 
-        /// <summary>
-        /// This is called when we want to load the data
-        /// from the beginning again
-        /// </summary>
-        void Reset();
-    }
+    /// <summary>
+    /// This is called when we want to load the data
+    /// from the beginning again
+    /// </summary>
+    void Reset();
 }

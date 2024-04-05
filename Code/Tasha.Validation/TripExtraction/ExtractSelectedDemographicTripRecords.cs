@@ -24,64 +24,63 @@ using System.IO;
 using XTMF;
 using Datastructure;
 
-namespace Tasha.Validation.TripExtraction
+namespace Tasha.Validation.TripExtraction;
+
+[ModuleInformation(
+    Description =
+    @"This module is designed to export trip records where for persons within the selected household zones and then further restricted by employment zones."
+    )]
+public class ExtractSelectedDemographicTripRecords : IPostHouseholdIteration, IDisposable
 {
-    [ModuleInformation(
-        Description =
-        @"This module is designed to export trip records where for persons within the selected household zones and then further restricted by employment zones."
-        )]
-    public class ExtractSelectedDemographicTripRecords : IPostHouseholdIteration, IDisposable
+    [RootModule]
+    public ITashaRuntime Root;
+
+    [SubModelInformation(Required = true, Description = "The location to save to.")]
+    public FileLocation SaveTo;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [RunParameter("Employment Zones", "0", typeof(RangeSet), "The employment zones that should be selected for.")]
+    public RangeSet SelectedEmploymentZones;
+
+    [RunParameter("Household Zones", "0", typeof(RangeSet), "The household zones that should be selected for.")]
+    public RangeSet SelectedHouseholdZones;
+
+    StreamWriter Writer;
+    private bool WriteThisIteration;
+
+    private SparseTwinIndex<float> ZoneDistances;
+
+    public void HouseholdComplete(ITashaHousehold household, bool success)
     {
-        [RootModule]
-        public ITashaRuntime Root;
-
-        [SubModelInformation(Required = true, Description = "The location to save to.")]
-        public FileLocation SaveTo;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [RunParameter("Employment Zones", "0", typeof(RangeSet), "The employment zones that should be selected for.")]
-        public RangeSet SelectedEmploymentZones;
-
-        [RunParameter("Household Zones", "0", typeof(RangeSet), "The household zones that should be selected for.")]
-        public RangeSet SelectedHouseholdZones;
-
-        StreamWriter Writer;
-        private bool WriteThisIteration;
-
-        private SparseTwinIndex<float> ZoneDistances;
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
+        if (WriteThisIteration)
         {
-            if (WriteThisIteration)
+            if (SelectedHouseholdZones.Contains(household.HomeZone.ZoneNumber))
             {
-                if (SelectedHouseholdZones.Contains(household.HomeZone.ZoneNumber))
+                var householdNumber = household.HouseholdId;
+                lock (this)
                 {
-                    var householdNumber = household.HouseholdId;
-                    lock (this)
+                    int personNumber = 0;
+                    foreach (var person in household.Persons)
                     {
-                        int personNumber = 0;
-                        foreach (var person in household.Persons)
+                        personNumber++;
+                        var empZone = person.EmploymentZone;
+                        var employmentZone = empZone == null ? 0 : empZone.ZoneNumber;
+                        if (SelectedEmploymentZones.Contains(employmentZone))
                         {
-                            personNumber++;
-                            var empZone = person.EmploymentZone;
-                            var employmentZone = empZone == null ? 0 : empZone.ZoneNumber;
-                            if (SelectedEmploymentZones.Contains(employmentZone))
+                            foreach (var tripChain in person.TripChains)
                             {
-                                foreach (var tripChain in person.TripChains)
+                                var tripNumber = 1;
+                                var numberOfWorkTrips = tripChain.Trips.Count(trip => trip.Purpose == Activity.PrimaryWork || trip.Purpose == Activity.SecondaryWork || trip.Purpose == Activity.WorkBasedBusiness);
+                                var numberOfTripInTour = tripChain.Trips.Count;
+                                foreach (var trip in tripChain.Trips)
                                 {
-                                    var tripNumber = 1;
-                                    var numberOfWorkTrips = tripChain.Trips.Count(trip => trip.Purpose == Activity.PrimaryWork || trip.Purpose == Activity.SecondaryWork || trip.Purpose == Activity.WorkBasedBusiness);
-                                    var numberOfTripInTour = tripChain.Trips.Count;
-                                    foreach (var trip in tripChain.Trips)
-                                    {
-                                        SaveTrip(trip, householdNumber, personNumber, tripNumber, numberOfWorkTrips, numberOfTripInTour);
-                                        tripNumber++;
-                                    }
+                                    SaveTrip(trip, householdNumber, personNumber, tripNumber, numberOfWorkTrips, numberOfTripInTour);
+                                    tripNumber++;
                                 }
                             }
                         }
@@ -89,106 +88,105 @@ namespace Tasha.Validation.TripExtraction
                 }
             }
         }
+    }
 
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+
+    }
+
+
+    private void WriteHeader()
+    {
+        var allModes = Root.AllModes;
+        Writer.Write("HouseholdID,PersonID,TripNumber,OriginZone,DestinationZone,Purpose,TripStartTime,ActivityStartTime,Distance,NumberOfWorkTrips,NumberOfTripsInTour,");
+        Writer.WriteLine(string.Join(",", allModes.Select(m => m.ModeName)));
+    }
+
+    private void SaveTrip(ITrip trip, int householdNumber, int personNumber, int tripNumber, int numberOfWorkTrips, int numberOfTripsInTour)
+    {
+        var writer = Writer;
+        writer.Write(householdNumber);
+        writer.Write(',');
+        writer.Write(personNumber);
+        writer.Write(',');
+        writer.Write(tripNumber);
+        writer.Write(',');
+        writer.Write(trip.OriginalZone.ZoneNumber);
+        writer.Write(',');
+        writer.Write(trip.DestinationZone.ZoneNumber);
+        writer.Write(',');
+        writer.Write(GetPurposeName(trip.Purpose));
+        writer.Write(',');
+        writer.Write(trip.TripStartTime);
+        writer.Write(',');
+        writer.Write(trip.ActivityStartTime);
+        writer.Write(',');
+        writer.Write(GetTripDistance(trip));
+        writer.Write(',');
+        writer.Write(numberOfWorkTrips);
+        writer.Write(',');
+        writer.Write(numberOfTripsInTour);
+        var modesChosen = trip.ModesChosen;
+        for (int i = 0; i < AllModes.Length; i++)
         {
-
+            writer.Write(',');
+            writer.Write(modesChosen.Count(m => m == AllModes[i]));
         }
+        writer.WriteLine();
+    }
 
+    private float GetTripDistance(ITrip trip)
+    {
+        var origin = trip.OriginalZone.ZoneNumber;
+        var dest = trip.DestinationZone.ZoneNumber;
+        return ZoneDistances[origin, dest];
+    }
 
-        private void WriteHeader()
+    private string GetPurposeName(Activity purpose)
+    {
+        return Enum.GetName(typeof(Activity), purpose);
+    }
+
+    public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    {
+
+    }
+
+    public void IterationFinished(int iteration, int totalIterations)
+    {
+        if (WriteThisIteration)
         {
-            var allModes = Root.AllModes;
-            Writer.Write("HouseholdID,PersonID,TripNumber,OriginZone,DestinationZone,Purpose,TripStartTime,ActivityStartTime,Distance,NumberOfWorkTrips,NumberOfTripsInTour,");
-            Writer.WriteLine(string.Join(",", allModes.Select(m => m.ModeName)));
-        }
-
-        private void SaveTrip(ITrip trip, int householdNumber, int personNumber, int tripNumber, int numberOfWorkTrips, int numberOfTripsInTour)
-        {
-            var writer = Writer;
-            writer.Write(householdNumber);
-            writer.Write(',');
-            writer.Write(personNumber);
-            writer.Write(',');
-            writer.Write(tripNumber);
-            writer.Write(',');
-            writer.Write(trip.OriginalZone.ZoneNumber);
-            writer.Write(',');
-            writer.Write(trip.DestinationZone.ZoneNumber);
-            writer.Write(',');
-            writer.Write(GetPurposeName(trip.Purpose));
-            writer.Write(',');
-            writer.Write(trip.TripStartTime);
-            writer.Write(',');
-            writer.Write(trip.ActivityStartTime);
-            writer.Write(',');
-            writer.Write(GetTripDistance(trip));
-            writer.Write(',');
-            writer.Write(numberOfWorkTrips);
-            writer.Write(',');
-            writer.Write(numberOfTripsInTour);
-            var modesChosen = trip.ModesChosen;
-            for (int i = 0; i < AllModes.Length; i++)
-            {
-                writer.Write(',');
-                writer.Write(modesChosen.Count(m => m == AllModes[i]));
-            }
-            writer.WriteLine();
-        }
-
-        private float GetTripDistance(ITrip trip)
-        {
-            var origin = trip.OriginalZone.ZoneNumber;
-            var dest = trip.DestinationZone.ZoneNumber;
-            return ZoneDistances[origin, dest];
-        }
-
-        private string GetPurposeName(Activity purpose)
-        {
-            return Enum.GetName(typeof(Activity), purpose);
-        }
-
-        public void HouseholdStart(ITashaHousehold household, int householdIterations)
-        {
-
-        }
-
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-            if (WriteThisIteration)
-            {
-                Writer.Close();
-                Writer = null;
-            }
-        }
-
-        private ITashaMode[] AllModes;
-
-        public void IterationStarting(int iteration, int totalIterations)
-        {
-            WriteThisIteration = iteration == totalIterations - 1;
-            if (WriteThisIteration)
-            {
-                AllModes = Root.AllModes.ToArray();
-                ZoneDistances = Root.ZoneSystem.Distances;
-                Writer = new StreamWriter(SaveTo);
-                WriteHeader();
-            }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Dispose()
-        {
-            if (Writer != null)
-            {
-                Writer.Close();
-                Writer = null;
-            }
+            Writer.Close();
+            Writer = null;
         }
     }
 
+    private ITashaMode[] AllModes;
+
+    public void IterationStarting(int iteration, int totalIterations)
+    {
+        WriteThisIteration = iteration == totalIterations - 1;
+        if (WriteThisIteration)
+        {
+            AllModes = Root.AllModes.ToArray();
+            ZoneDistances = Root.ZoneSystem.Distances;
+            Writer = new StreamWriter(SaveTo);
+            WriteHeader();
+        }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void Dispose()
+    {
+        if (Writer != null)
+        {
+            Writer.Close();
+            Writer = null;
+        }
+    }
 }

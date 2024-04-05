@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
-{
-    public class TreeData<T>
-    {
-        public TreeData<T>[] Children;
+namespace TMG;
 
-        public T Result;
-    }
+public class TreeData<T>
+{
+    public TreeData<T>[] Children;
+
+    public T Result;
 }

@@ -19,43 +19,42 @@
 using System;
 using XTMF;
 
-namespace TMG.Estimation.Utilities
+namespace TMG.Estimation.Utilities;
+
+[ModuleInformation(
+    Description = "This module will bind the fitness function of the client to get the data from the given source to be the result."
+    )]
+public class ReportFloatDatasource : ISelfContainedModule
 {
-    [ModuleInformation(
-        Description = "This module will bind the fitness function of the client to get the data from the given source to be the result."
-        )]
-    public class ReportFloatDatasource : ISelfContainedModule
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
+        return true;
+    }
 
-        public string Name { get; set; }
+    [SubModelInformation(Required = true, Description = "The source that will be giving our fitness function.")]
+    public IDataSource<float> DataToReturn;
 
-        public float Progress { get; set; }
+    [RootModule]
+    public IEstimationClientModelSystem Root;
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
+    public void Start()
+    {
+        Root.RetrieveValue = () =>
         {
-            return true;
-        }
-
-        [SubModelInformation(Required = true, Description = "The source that will be giving our fitness function.")]
-        public IDataSource<float> DataToReturn;
-
-        [RootModule]
-        public IEstimationClientModelSystem Root;
-
-        public void Start()
-        {
-            Root.RetrieveValue = () =>
+            if(!DataToReturn.Loaded)
             {
-                if(!DataToReturn.Loaded)
-                {
-                    DataToReturn.LoadData();
-                }
-                var ret = DataToReturn.GiveData();
-                DataToReturn.UnloadData();
-                return ret;
-            };
-        }
+                DataToReturn.LoadData();
+            }
+            var ret = DataToReturn.GiveData();
+            DataToReturn.UnloadData();
+            return ret;
+        };
     }
 }

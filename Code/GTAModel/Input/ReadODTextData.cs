@@ -23,10 +23,10 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
-{
-    [ModuleInformation(Description =
-        @"<p>This module provides the ability to read OD data from .txt formats or .csv formats.  
+namespace TMG.GTAModel.Input;
+
+[ModuleInformation(Description =
+    @"<p>This module provides the ability to read OD data from .txt formats or .csv formats.  
 It works by reading in the first three “columns”, where they could be separated by spaces, or tabs, or commas.  
 It also tries to read in the standard</p>
 <p>-----------------</p>
@@ -34,205 +34,230 @@ It also tries to read in the standard</p>
 <p>--------------------------</p>
 <p>headers and ignore them.  If one of these headers is not present or the header parameter is set 
 it will skip the first line so that standard csv data will also work.</p>"
-        )]
-    public class ReadODTextData : IReadODData<float>
+    )]
+public class ReadODTextData : IReadODData<float>
+{
+    [RunParameter("Contains Dimension Information", false, "Does the input file contain a row after the header containing information about the dimensionality of the data?")]
+    public bool ContainsDimensionInformation;
+
+    [RunParameter("File Name", "ODData.txt", "The name of the file to read in (.txt or .csv) relative to the input directory.")]
+    public string FileName;
+
+    [RunParameter("Header", true, "Does this file contain a header?")]
+    public bool Header;
+
+    [RunParameter("From Input Directory", true, "Should we load from the input directory (true), or the output directory (false)?")]
+    public bool FromInputDirectory;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    public string Name
     {
-        [RunParameter("Contains Dimension Information", false, "Does the input file contain a row after the header containing information about the dimensionality of the data?")]
-        public bool ContainsDimensionInformation;
+        get;
+        set;
+    }
 
-        [RunParameter("File Name", "ODData.txt", "The name of the file to read in (.txt or .csv) relative to the input directory.")]
-        public string FileName;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("Header", true, "Does this file contain a header?")]
-        public bool Header;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("From Input Directory", true, "Should we load from the input directory (true), or the output directory (false)?")]
-        public bool FromInputDirectory;
-
-        [RootModule]
-        public IModelSystemTemplate Root;
-
-        public string Name
+    public IEnumerable<ODData<float>> Read()
+    {
+        BinaryReader reader;
+        var fileName = FromInputDirectory ? GetInputFileName(FileName) : FileName;
+        try
         {
-            get;
-            set;
+            reader = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
         }
-
-        public float Progress
+        catch (IOException)
         {
-            get;
-            set;
+            throw new XTMFRuntimeException(this, "Unable to read the file " + fileName + " please make sure that this file exists!");
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        // you can not have a try while using yield
+        using (reader)
         {
-            get;
-            set;
-        }
-
-        public IEnumerable<ODData<float>> Read()
-        {
-            BinaryReader reader;
-            var fileName = FromInputDirectory ? GetInputFileName(FileName) : FileName;
-            try
+            char c = reader.ReadChar();
+            // check to see if this file has a header
+            if (c == '/' | c == '-' | Header)
             {
-                reader = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
-            }
-            catch (IOException)
-            {
-                throw new XTMFRuntimeException(this, "Unable to read the file " + fileName + " please make sure that this file exists!");
-            }
-            // you can not have a try while using yield
-            using (reader)
-            {
-                char c = reader.ReadChar();
-                // check to see if this file has a header
-                if (c == '/' | c == '-' | Header)
+                // Check to see if it is a CSV header or the --- header type
+                if (c == '-')
                 {
-                    // Check to see if it is a CSV header or the --- header type
-                    if (c == '-')
+                    // burn the rest of the line, and all lines until after the next set
+                    do
                     {
-                        // burn the rest of the line, and all lines until after the next set
-                        do
-                        {
-                            BurnLine(reader);
-                        } while (reader.ReadChar() != '-');
-                        // burn the line before the rest of the text
                         BurnLine(reader);
-                        if (ContainsDimensionInformation)
+                    } while (reader.ReadChar() != '-');
+                    // burn the line before the rest of the text
+                    BurnLine(reader);
+                    if (ContainsDimensionInformation)
+                    {
+                        // if it has dimensionality information we should also burn an extra line
+                        BurnLine(reader);
+                    }
+                }
+                else if (c == '/')
+                {
+                    do
+                    {
+                        c = reader.ReadChar();
+                        if (c != '/')
                         {
-                            // if it has dimensionality information we should also burn an extra line
-                            BurnLine(reader);
+                            reader.BaseStream.Position--;
+                            break;
                         }
-                    }
-                    else if (c == '/')
-                    {
-                        do
-                        {
-                            c = reader.ReadChar();
-                            if (c != '/')
-                            {
-                                reader.BaseStream.Position--;
-                                break;
-                            }
-                            BurnLine(reader);
-                            c = reader.ReadChar();
-                        } while (reader.BaseStream.Position < reader.BaseStream.Length &&
-                            c == '/');
-                    }
-                    // the csv header only needs to burn the one line
-                    if (Header)
-                    {
                         BurnLine(reader);
-                    }
-                    // if we are at the end of file break
-                    if (EndOfFile(reader)) yield break;
-                    reader.ReadChar();
+                        c = reader.ReadChar();
+                    } while (reader.BaseStream.Position < reader.BaseStream.Length &&
+                        c == '/');
                 }
-                reader.BaseStream.Position--;
-                // start to process the data
-                while (!EndOfFile(reader))
+                // the csv header only needs to burn the one line
+                if (Header)
                 {
-                    if (ReadDataLine(reader, out ODData<float> data))
-                    {
-                        yield return data;
-                    }
+                    BurnLine(reader);
+                }
+                // if we are at the end of file break
+                if (EndOfFile(reader)) yield break;
+                reader.ReadChar();
+            }
+            reader.BaseStream.Position--;
+            // start to process the data
+            while (!EndOfFile(reader))
+            {
+                if (ReadDataLine(reader, out ODData<float> data))
+                {
+                    yield return data;
                 }
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    protected static bool WhiteSpace(char p)
+    {
+        switch (p)
         {
-            return true;
+            case '\t':
+            case ' ':
+            case ',':
+                return true;
+
+            default:
+                return false;
         }
+    }
 
-        protected static bool WhiteSpace(char p)
+    protected void BurnLine(BinaryReader reader)
+    {
+        // read until we are at the end of file or when we hit a new line
+        while (!EndOfFile(reader) && reader.ReadChar() != '\n')
         {
-            switch (p)
+        }
+    }
+
+    protected void BurnWhiteSpace(BinaryReader reader, ref char c)
+    {
+        while (!EndOfFile(reader) && WhiteSpace(c = reader.ReadChar()))
+        {
+        }
+    }
+
+    protected bool EndOfFile(BinaryReader reader)
+    {
+        var bs = reader.BaseStream;
+        var length = bs.Length;
+        var position = bs.Position;
+        Progress = (float)position / length;
+        return length == position;
+    }
+
+    protected string GetInputFileName(string localPath)
+    {
+        var fullPath = localPath;
+        if (!Path.IsPathRooted(fullPath))
+        {
+            fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
+        }
+        return fullPath;
+    }
+
+    protected virtual bool ReadDataLine(BinaryReader reader, out ODData<float> data)
+    {
+        char c = '\0';
+        // Read in the origin
+        data.O = 0;
+        data.D = 0;
+        data.Data = 0f;
+        if (!ReadInteger(reader, ref c, out data.O)) return false;
+        if (!ReadInteger(reader, ref c, out data.D)) return false;
+        if (!ReadFloat(reader, ref c, out data.Data)) return false;
+        // burn the remainder of the line
+        if (c != '\n')
+        {
+            BurnLine(reader);
+        }
+        return true;
+    }
+
+    protected bool ReadFloat(BinaryReader reader, ref char c, out float p)
+    {
+        // Read in the Data
+        BurnWhiteSpace(reader, ref c);
+        int pastDecimal = -1;
+        int exponent = 0;
+        p = 0;
+        bool exponential = false;
+        bool negative = false;
+        bool negativeExponential = false;
+        do
+        {
+            if (exponential)
             {
-                case '\t':
-                case ' ':
-                case ',':
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-
-        protected void BurnLine(BinaryReader reader)
-        {
-            // read until we are at the end of file or when we hit a new line
-            while (!EndOfFile(reader) && reader.ReadChar() != '\n')
-            {
-            }
-        }
-
-        protected void BurnWhiteSpace(BinaryReader reader, ref char c)
-        {
-            while (!EndOfFile(reader) && WhiteSpace(c = reader.ReadChar()))
-            {
-            }
-        }
-
-        protected bool EndOfFile(BinaryReader reader)
-        {
-            var bs = reader.BaseStream;
-            var length = bs.Length;
-            var position = bs.Position;
-            Progress = (float)position / length;
-            return length == position;
-        }
-
-        protected string GetInputFileName(string localPath)
-        {
-            var fullPath = localPath;
-            if (!Path.IsPathRooted(fullPath))
-            {
-                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
-            }
-            return fullPath;
-        }
-
-        protected virtual bool ReadDataLine(BinaryReader reader, out ODData<float> data)
-        {
-            char c = '\0';
-            // Read in the origin
-            data.O = 0;
-            data.D = 0;
-            data.Data = 0f;
-            if (!ReadInteger(reader, ref c, out data.O)) return false;
-            if (!ReadInteger(reader, ref c, out data.D)) return false;
-            if (!ReadFloat(reader, ref c, out data.Data)) return false;
-            // burn the remainder of the line
-            if (c != '\n')
-            {
-                BurnLine(reader);
-            }
-            return true;
-        }
-
-        protected bool ReadFloat(BinaryReader reader, ref char c, out float p)
-        {
-            // Read in the Data
-            BurnWhiteSpace(reader, ref c);
-            int pastDecimal = -1;
-            int exponent = 0;
-            p = 0;
-            bool exponential = false;
-            bool negative = false;
-            bool negativeExponential = false;
-            do
-            {
-                if (exponential)
+                if (c == '-')
                 {
-                    if (c == '-')
+                    negativeExponential = true;
+                }
+                else if (c == '+')
+                {
+                    // do nothing
+                }
+                else if ((c < '0' | c > '9'))
+                {
+                    throw new XTMFRuntimeException(this, "In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
+                }
+                else
+                {
+                    exponent = exponent * 10 + (c - '0');
+                }
+            }
+            else
+            {
+                if ((c == '.'))
+                {
+                    pastDecimal = 0;
+                }
+                else
+                {
+                    if (c == 'e' | c == 'E')
                     {
-                        negativeExponential = true;
+                        exponential = true;
                     }
-                    else if (c == '+')
+                    else if (c == '-')
                     {
-                        // do nothing
+                        negative = true;
                     }
                     else if ((c < '0' | c > '9'))
                     {
@@ -240,73 +265,47 @@ it will skip the first line so that standard csv data will also work.</p>"
                     }
                     else
                     {
-                        exponent = exponent * 10 + (c - '0');
-                    }
-                }
-                else
-                {
-                    if ((c == '.'))
-                    {
-                        pastDecimal = 0;
-                    }
-                    else
-                    {
-                        if (c == 'e' | c == 'E')
+                        p = p * 10 + (c - '0');
+                        if (pastDecimal >= 0)
                         {
-                            exponential = true;
-                        }
-                        else if (c == '-')
-                        {
-                            negative = true;
-                        }
-                        else if ((c < '0' | c > '9'))
-                        {
-                            throw new XTMFRuntimeException(this, "In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
-                        }
-                        else
-                        {
-                            p = p * 10 + (c - '0');
-                            if (pastDecimal >= 0)
-                            {
-                                pastDecimal++;
-                            }
+                            pastDecimal++;
                         }
                     }
                 }
-            } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != '\n' & c != '\r' & c != ' ' & c != ',');
-            if (negativeExponential)
-            {
-                exponent = -exponent;
             }
-            if (pastDecimal > 0)
-            {
-                p = p * (float)Math.Pow(0.1, pastDecimal - exponent);
-            }
-            if (negative)
-            {
-                p = -p;
-            }
-            return true;
-        }
-
-        protected bool ReadInteger(BinaryReader reader, ref char c, out int p)
+        } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != '\n' & c != '\r' & c != ' ' & c != ',');
+        if (negativeExponential)
         {
-            p = 0;
-            BurnWhiteSpace(reader, ref c);
-            do
-            {
-                if (c == '\n' | c == '\r')
-                {
-                    p = -1;
-                    return false;
-                }
-                if (c < '0' | c > '9')
-                {
-                    throw new XTMFRuntimeException(this, "In " + Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
-                }
-                p = p * 10 + (c - '0');
-            } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != ' ' & c != ',');
-            return true;
+            exponent = -exponent;
         }
+        if (pastDecimal > 0)
+        {
+            p = p * (float)Math.Pow(0.1, pastDecimal - exponent);
+        }
+        if (negative)
+        {
+            p = -p;
+        }
+        return true;
+    }
+
+    protected bool ReadInteger(BinaryReader reader, ref char c, out int p)
+    {
+        p = 0;
+        BurnWhiteSpace(reader, ref c);
+        do
+        {
+            if (c == '\n' | c == '\r')
+            {
+                p = -1;
+                return false;
+            }
+            if (c < '0' | c > '9')
+            {
+                throw new XTMFRuntimeException(this, "In " + Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
+            }
+            p = p * 10 + (c - '0');
+        } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != ' ' & c != ',');
+        return true;
     }
 }

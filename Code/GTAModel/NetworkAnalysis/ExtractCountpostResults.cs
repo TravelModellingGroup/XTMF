@@ -22,62 +22,61 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.NetworkAnalysis
+namespace TMG.GTAModel.NetworkAnalysis;
+
+[ModuleInformation(Description = "<b>NOT IMPLEMENTED</b><br/>Exports traffic assignment results on links flagged with a countpost number.")]
+public class ExtractCountpostResults : IEmmeTool
 {
-    [ModuleInformation(Description = "<b>NOT IMPLEMENTED</b><br/>Exports traffic assignment results on links flagged with a countpost number.")]
-    public class ExtractCountpostResults : IEmmeTool
+    [RunParameter("Scenario", 0, "The number of the Emme scenario")]
+    public int ScenarioNumber;
+
+    [RunParameter("Countpost Attribute", "@stn1", "The ID of a link extra attribute containing countpost ids; including the '@' symbol")]
+    public string CountpostAttributeId;
+
+    [RunParameter("Alternate Countpost Attribute", "@stn2", "The ID of an alternate link extra attribute containing countpost ids, for when two countposts share a link" + 
+        "; including the '@' symbol")]
+    public string AlternateCountpostAttributeId;
+
+    [SubModelInformation(Description="Export File", Required=true)]
+    public FileLocation ExportFile;
+
+    private const string ToolName = "";
+
+    public bool Execute(Controller controller)
     {
-        [RunParameter("Scenario", 0, "The number of the Emme scenario")]
-        public int ScenarioNumber;
-
-        [RunParameter("Countpost Attribute", "@stn1", "The ID of a link extra attribute containing countpost ids; including the '@' symbol")]
-        public string CountpostAttributeId;
-
-        [RunParameter("Alternate Countpost Attribute", "@stn2", "The ID of an alternate link extra attribute containing countpost ids, for when two countposts share a link" + 
-            "; including the '@' symbol")]
-        public string AlternateCountpostAttributeId;
-
-        [SubModelInformation(Description="Export File", Required=true)]
-        public FileLocation ExportFile;
-
-        private const string ToolName = "";
-
-        public bool Execute(Controller controller)
+        var mc = controller as ModellerController;
+        if (mc == null)
         {
-            var mc = controller as ModellerController;
-            if (mc == null)
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
-            }
-            
-            string args = ScenarioNumber + " " + CountpostAttributeId + " " + AlternateCountpostAttributeId + " " + ExportFile.GetFilePath();
-            string result = "";
-
-            return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+            throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
         }
+        
+        string args = ScenarioNumber + " " + CountpostAttributeId + " " + AlternateCountpostAttributeId + " " + ExportFile.GetFilePath();
+        string result = "";
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        return mc.Run(this, ToolName, args, (p => Progress = p), ref result);
+    }
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

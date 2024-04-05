@@ -19,15 +19,14 @@
 using System.Collections.Generic;
 using TMG.AgentBased.Tours;
 
-namespace TMG.AgentBased.Agents
-{
-    public interface IHouseholdAgent : IHousehold
-    {
-        List<IHouseholdActivityEpisode> HouseholdActivities { get; }
+namespace TMG.AgentBased.Agents;
 
-        IPersonAgent this[int index]
-        {
-            get;
-        }
+public interface IHouseholdAgent : IHousehold
+{
+    List<IHouseholdActivityEpisode> HouseholdActivities { get; }
+
+    IPersonAgent this[int index]
+    {
+        get;
     }
 }

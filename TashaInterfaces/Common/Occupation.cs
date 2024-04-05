@@ -16,54 +16,53 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// Describes what type of job a person does
+///
+/// G General Office/Clerical
+/// M Manufacturing/Construction/Trades
+/// P Professional/Management/Technical
+/// S Retail Sales and Service
+/// O Not Employed
+/// 9 Refused/Unknown
+///
+/// </summary>
+public enum Occupation
 {
     /// <summary>
-    /// Describes what type of job a person does
-    ///
-    /// G General Office/Clerical
-    /// M Manufacturing/Construction/Trades
-    /// P Professional/Management/Technical
-    /// S Retail Sales and Service
-    /// O Not Employed
-    /// 9 Refused/Unknown
     ///
     /// </summary>
-    public enum Occupation
-    {
-        /// <summary>
-        ///
-        /// </summary>
-        Office = 'G',
+    Office = 'G',
 
-        /// <summary>
-        ///
-        /// </summary>
-        Manufacturing = 'M',
+    /// <summary>
+    ///
+    /// </summary>
+    Manufacturing = 'M',
 
-        /// <summary>
-        ///
-        /// </summary>
-        Professional = 'P',
+    /// <summary>
+    ///
+    /// </summary>
+    Professional = 'P',
 
-        /// <summary>
-        ///
-        /// </summary>
-        Retail = 'S',
+    /// <summary>
+    ///
+    /// </summary>
+    Retail = 'S',
 
-        /// <summary>
-        ///
-        /// </summary>
-        Farmer = 'F',
+    /// <summary>
+    ///
+    /// </summary>
+    Farmer = 'F',
 
-        /// <summary>
-        ///
-        /// </summary>
-        NotEmployed = 'O',
+    /// <summary>
+    ///
+    /// </summary>
+    NotEmployed = 'O',
 
-        /// <summary>
-        ///
-        /// </summary>
-        Unknown = '9'
-    }
+    /// <summary>
+    ///
+    /// </summary>
+    Unknown = '9'
 }

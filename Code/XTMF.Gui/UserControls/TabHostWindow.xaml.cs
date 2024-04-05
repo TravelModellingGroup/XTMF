@@ -14,19 +14,18 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 
-namespace XTMF.Gui.UserControls
-{
-    /// <summary>
-    /// Interaction logic for TabHostWindow.xaml
-    /// </summary>
-    public partial class TabHostWindow : MetroWindow
-    {
-        public TabHostWindow()
-        {
-            InitializeComponent();
+namespace XTMF.Gui.UserControls;
 
-            TabablzControl.InterTabController.InterTabClient = new InterTabClient();
-            
-        }
+/// <summary>
+/// Interaction logic for TabHostWindow.xaml
+/// </summary>
+public partial class TabHostWindow : MetroWindow
+{
+    public TabHostWindow()
+    {
+        InitializeComponent();
+
+        TabablzControl.InterTabController.InterTabClient = new InterTabClient();
+        
     }
 }

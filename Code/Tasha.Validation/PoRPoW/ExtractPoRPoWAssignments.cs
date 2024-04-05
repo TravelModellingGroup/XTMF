@@ -26,157 +26,156 @@ using TMG;
 using TMG.Input;
 using System.IO;
 
-namespace Tasha.Validation.PoRPoW
+namespace Tasha.Validation.PoRPoW;
+
+[ModuleInformation(Description = 
+@"This module is designed to extract the assignments of place of residence - place of work by analyzing the population as they are being processed through the TASHA pipeline.  It will produce eight files, one for each occupation category, for full-time and part-time employment.")]
+// ReSharper disable once InconsistentNaming
+public class ExtractPoRPoWAssignments : IPostHousehold
 {
-    [ModuleInformation(Description = 
- @"This module is designed to extract the assignments of place of residence - place of work by analyzing the population as they are being processed through the TASHA pipeline.  It will produce eight files, one for each occupation category, for full-time and part-time employment.")]
-    // ReSharper disable once InconsistentNaming
-    public class ExtractPoRPoWAssignments : IPostHousehold
+    public string Name { get; set; }
+
+    public float Progress
     {
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return 0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        SpinLock WriteLock = new(false);
-        Dictionary<Occupation, Dictionary<TTSEmploymentStatus, float[][]>> Data = [];
-        public void Execute(ITashaHousehold household, int iteration)
+    SpinLock WriteLock = new(false);
+    Dictionary<Occupation, Dictionary<TTSEmploymentStatus, float[][]>> Data = [];
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        var homeIndex = zoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
+        foreach(var person in household.Persons)
         {
-            var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var homeIndex = zoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
-            foreach(var person in household.Persons)
+            var expansionFactor = person.ExpansionFactor;
+            var occ = person.Occupation;
+            if (occ != Occupation.NotEmployed && Data.TryGetValue(occ, out Dictionary<TTSEmploymentStatus, float[][]> occDictionary))
             {
-                var expansionFactor = person.ExpansionFactor;
-                var occ = person.Occupation;
-                if (occ != Occupation.NotEmployed && Data.TryGetValue(occ, out Dictionary<TTSEmploymentStatus, float[][]> occDictionary))
+                if (occDictionary.TryGetValue(person.EmploymentStatus, out float[][] empData))
                 {
-                    if (occDictionary.TryGetValue(person.EmploymentStatus, out float[][] empData))
+                    var zone = person.EmploymentZone;
+                    if (zone != null)
                     {
-                        var zone = person.EmploymentZone;
-                        if (zone != null)
+                        var employmentZone = zoneSystem.GetFlatIndex(zone.ZoneNumber);
+                        if (employmentZone >= 0)
                         {
-                            var employmentZone = zoneSystem.GetFlatIndex(zone.ZoneNumber);
-                            if (employmentZone >= 0)
-                            {
-                                var row = empData[homeIndex];
-                                bool taken = false;
-                                WriteLock.Enter(ref taken);
-                                row[employmentZone] += expansionFactor;
-                                if (taken) WriteLock.Exit(true);
-                            }
+                            var row = empData[homeIndex];
+                            bool taken = false;
+                            WriteLock.Enter(ref taken);
+                            row[employmentZone] += expansionFactor;
+                            if (taken) WriteLock.Exit(true);
                         }
                     }
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        foreach(var occDict in Data)
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            foreach(var occDict in Data)
+            var occ = occDict.Key;
+            foreach(var empStatData in occDict.Value)
             {
-                var occ = occDict.Key;
-                foreach(var empStatData in occDict.Value)
-                {
-                    var empStat = empStatData.Key;
-                    TMG.Functions.SaveData.SaveMatrix(zones, empStatData.Value, BuildFileName(occ, empStat));
-                }
+                var empStat = empStatData.Key;
+                TMG.Functions.SaveData.SaveMatrix(zones, empStatData.Value, BuildFileName(occ, empStat));
             }
         }
+    }
 
-        [SubModelInformation(Required = true, Description = "The directory in which we will save the data.")]
-        public FileLocation DirectoryLocation;
+    [SubModelInformation(Required = true, Description = "The directory in which we will save the data.")]
+    public FileLocation DirectoryLocation;
 
-        private string BuildFileName(Occupation occ, TTSEmploymentStatus empStat)
+    private string BuildFileName(Occupation occ, TTSEmploymentStatus empStat)
+    {
+        var dirPath = DirectoryLocation.GetFilePath();
+        var info = new DirectoryInfo(dirPath);
+        if(!info.Exists)
         {
-            var dirPath = DirectoryLocation.GetFilePath();
-            var info = new DirectoryInfo(dirPath);
-            if(!info.Exists)
-            {
-                info.Create();
-            }
-            StringBuilder buildFileName = new();
-            switch(occ)
-            {
-                case Occupation.Professional:
-                    buildFileName.Append("Professional-");
-                    break;
-                case Occupation.Office:
-                    buildFileName.Append("General-");
-                    break;
-                case Occupation.Retail:
-                    buildFileName.Append("Sales-");
-                    break;
-                case Occupation.Manufacturing:
-                    buildFileName.Append("Manufacturing-");
-                    break;
-            }
-            switch(empStat)
-            {
-                case TTSEmploymentStatus.FullTime:
-                    buildFileName.Append("FullTime.csv");
-                    break;
-                case TTSEmploymentStatus.PartTime:
-                    buildFileName.Append("PartTime.csv");
-                    break;
-            }
-            return Path.Combine(dirPath, buildFileName.ToString());
+            info.Create();
         }
-
-        public void Load(int maxIterations)
+        StringBuilder buildFileName = new();
+        switch(occ)
         {
+            case Occupation.Professional:
+                buildFileName.Append("Professional-");
+                break;
+            case Occupation.Office:
+                buildFileName.Append("General-");
+                break;
+            case Occupation.Retail:
+                buildFileName.Append("Sales-");
+                break;
+            case Occupation.Manufacturing:
+                buildFileName.Append("Manufacturing-");
+                break;
         }
-
-        public bool RuntimeValidation(ref string error)
+        switch(empStat)
         {
-            return true;
+            case TTSEmploymentStatus.FullTime:
+                buildFileName.Append("FullTime.csv");
+                break;
+            case TTSEmploymentStatus.PartTime:
+                buildFileName.Append("PartTime.csv");
+                break;
         }
+        return Path.Combine(dirPath, buildFileName.ToString());
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public void Load(int maxIterations)
+    {
+    }
 
-        private void AddOccupation(Occupation occ)
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    private void AddOccupation(Occupation occ)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var occDic = new Dictionary<TTSEmploymentStatus, float[][]>();
+        Data[occ] = occDic;
+        occDic[TTSEmploymentStatus.FullTime] = Create2DArray<float>(zones.Length);
+        occDic[TTSEmploymentStatus.PartTime] = Create2DArray<float>(zones.Length);
+    }
+
+    private static T[][] Create2DArray<T>(int length)
+    {
+        T[][] ret = new T[length][];
+        for(int i = 0; i < ret.Length; i++)
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var occDic = new Dictionary<TTSEmploymentStatus, float[][]>();
-            Data[occ] = occDic;
-            occDic[TTSEmploymentStatus.FullTime] = Create2DArray<float>(zones.Length);
-            occDic[TTSEmploymentStatus.PartTime] = Create2DArray<float>(zones.Length);
+            ret[i] = new T[length];
         }
+        return ret;
+    }
 
-        private static T[][] Create2DArray<T>(int length)
+    public void IterationStarting(int iteration)
+    {
+        if(iteration > 0)
         {
-            T[][] ret = new T[length][];
-            for(int i = 0; i < ret.Length; i++)
-            {
-                ret[i] = new T[length];
-            }
-            return ret;
+            Data.Clear();
         }
-
-        public void IterationStarting(int iteration)
-        {
-            if(iteration > 0)
-            {
-                Data.Clear();
-            }
-            AddOccupation(Occupation.Professional);
-            AddOccupation(Occupation.Office);
-            AddOccupation(Occupation.Retail);
-            AddOccupation(Occupation.Manufacturing);
-        }
+        AddOccupation(Occupation.Professional);
+        AddOccupation(Occupation.Office);
+        AddOccupation(Occupation.Retail);
+        AddOccupation(Occupation.Manufacturing);
     }
 }

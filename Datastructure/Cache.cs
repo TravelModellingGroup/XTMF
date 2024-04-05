@@ -19,64 +19,63 @@
 using System;
 using System.Threading;
 
-namespace Datastructure
+namespace Datastructure;
+
+/// <summary>
+/// A cache is a data structure that provides order of 1 access
+/// to data contained within it.  By adding new items you can
+/// end up removing older ones.
+///
+/// Thread Safe
+/// </summary>
+/// <typeparam name="TK">The type for the key</typeparam>
+/// <typeparam name="TD">The type for the data</typeparam>
+public class Cache<TK, TD> : Hashtable<TK, TD> where TK : IComparable<TK>
 {
     /// <summary>
-    /// A cache is a data structure that provides order of 1 access
-    /// to data contained within it.  By adding new items you can
-    /// end up removing older ones.
-    ///
-    /// Thread Safe
+    /// Create a new Cache
     /// </summary>
-    /// <typeparam name="TK">The type for the key</typeparam>
-    /// <typeparam name="TD">The type for the data</typeparam>
-    public class Cache<TK, TD> : Hashtable<TK, TD> where TK : IComparable<TK>
+    public Cache()
+        : this( 100 )
     {
-        /// <summary>
-        /// Create a new Cache
-        /// </summary>
-        public Cache()
-            : this( 100 )
-        {
-        }
+    }
 
-        /// <summary>
-        /// Creates a new cache with a certain amount of entries
-        /// </summary>
-        /// <param name="capacity"></param>
-        public Cache(int capacity)
-            : base( capacity )
-        {
-        }
+    /// <summary>
+    /// Creates a new cache with a certain amount of entries
+    /// </summary>
+    /// <param name="capacity"></param>
+    public Cache(int capacity)
+        : base( capacity )
+    {
+    }
 
-        /// <summary>
-        /// Adds a new entry into the cache
-        /// </summary>
-        /// <param name="key">The key for this entry</param>
-        /// <param name="data">The data contained for this key</param>
-        public override void Add(TK key, TD data)
+    /// <summary>
+    /// Adds a new entry into the cache
+    /// </summary>
+    /// <param name="key">The key for this entry</param>
+    /// <param name="data">The data contained for this key</param>
+    public override void Add(TK key, TD data)
+    {
+        var place = Math.Abs( ( key.GetHashCode() ) % Table.Length );
+        TableLocks[place].Lock( ()=>
         {
-            var place = Math.Abs( ( key.GetHashCode() ) % Table.Length );
-            TableLocks[place].Lock( ()=>
+            if (Table[place] == null )
             {
-                if (Table[place] == null )
+                var n = new Node
                 {
-                    var n = new Node
-                    {
-                        Key = key,
-                        Storage = data,
-                        Next = null
-                    };
-                    Table[place] = n;
-                    Interlocked.Increment( ref _Count);
-                }
-                else
-                {
-                    Table[place].Key = key;
-                    Table[place].Storage = data;
-                    Table[place].Next = null;
-                }
-            } );
-        }
+                    Key = key,
+                    Storage = data,
+                    Next = null
+                };
+                Table[place] = n;
+                Interlocked.Increment( ref _Count);
+            }
+            else
+            {
+                Table[place].Key = key;
+                Table[place].Storage = data;
+                Table[place].Next = null;
+            }
+        } );
     }
 }

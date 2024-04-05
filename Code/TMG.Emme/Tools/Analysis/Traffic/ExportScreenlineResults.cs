@@ -21,90 +21,88 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.Tools.Analysis.Traffic
+namespace TMG.Emme.Tools.Analysis.Traffic;
+
+
+public class ExportScreenlineResults : IEmmeTool
 {
+    private const string ToolName = "tmg.analysis.traffic.export_screenline_results";
+    public string Name { get; set; }
 
-    public class ExportScreenlineResults : IEmmeTool
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
+    public int ScenarioNumber;
+
+    [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
+    public string CountpostAttributeFlag;
+
+    [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
+    public string AlternateCountpostAttributeFlag;
+
+
+    [SubModelInformation(Required = true, Description = "The location to save the results to")]
+    public FileLocation SaveTo;
+
+    [SubModelInformation(Required = true, Description = "The location for the definition file for screenlines")]
+    public FileLocation ScreenlineDefinitions;
+
+    public bool Execute(Controller controller)
     {
-        private const string ToolName = "tmg.analysis.traffic.export_screenline_results";
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
-        public int ScenarioNumber;
-
-        [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
-        public string CountpostAttributeFlag;
-
-        [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
-        public string AlternateCountpostAttributeFlag;
-
-
-        [SubModelInformation(Required = true, Description = "The location to save the results to")]
-        public FileLocation SaveTo;
-
-        [SubModelInformation(Required = true, Description = "The location for the definition file for screenlines")]
-        public FileLocation ScreenlineDefinitions;
-
-        public bool Execute(Controller controller)
+        var modeller = controller as ModellerController;
+        if (modeller == null)
         {
-            var modeller = controller as ModellerController;
-            if (modeller == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
-            }
-            EnsureDirectoryExists(SaveTo);
-            return modeller.Run(this, ToolName, GetParameters());
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
         }
+        EnsureDirectoryExists(SaveTo);
+        return modeller.Run(this, ToolName, GetParameters());
+    }
 
-        private void EnsureDirectoryExists(FileLocation saveTo)
+    private void EnsureDirectoryExists(FileLocation saveTo)
+    {
+        try
         {
-            try
+            DirectoryInfo directoryInfo = new(Path.GetDirectoryName(saveTo));
+            if(!directoryInfo.Exists)
             {
-                DirectoryInfo directoryInfo = new(Path.GetDirectoryName(saveTo));
-                if(!directoryInfo.Exists)
-                {
-                    directoryInfo.Create();
-                }
-            }
-            catch(IOException e)
-            {
-                throw new XTMFRuntimeException(this, e, e.Message);
+                directoryInfo.Create();
             }
         }
-
-        private string GetParameters()
+        catch(IOException e)
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo));
-        }
-
-        private static string AddQuotes(string toQuote)
-        {
-            return String.Concat("\"", toQuote, "\"");
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
-                || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
-        {
-            if (String.IsNullOrWhiteSpace(flag))
-            {
-                error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
-                return true;
-            }
-            return false;
+            throw new XTMFRuntimeException(this, e, e.Message);
         }
     }
 
+    private string GetParameters()
+    {
+        return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo));
+    }
+
+    private static string AddQuotes(string toQuote)
+    {
+        return String.Concat("\"", toQuote, "\"");
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
+            || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
+    {
+        if (String.IsNullOrWhiteSpace(flag))
+        {
+            error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
+            return true;
+        }
+        return false;
+    }
 }

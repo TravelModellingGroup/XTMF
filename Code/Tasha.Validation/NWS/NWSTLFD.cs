@@ -27,220 +27,219 @@ using TMG;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation.NWS
+namespace Tasha.Validation.NWS;
+
+[ModuleInformation(Description = "This module produces the information to compare against the following file format." +
+    " FROM,TO,ABB,HBM,HBO,NHB")]
+public class NWSTLFD : IPostHousehold
 {
-    [ModuleInformation(Description = "This module produces the information to compare against the following file format." +
-        " FROM,TO,ABB,HBM,HBO,NHB")]
-    public class NWSTLFD : IPostHousehold
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Step Size", 2.0, "The number of KM to include within a bin.")]
+    public float StepSize;
+
+    [RunParameter("Number Of Bins" , 200, "The number of bins before storing the result to the remainder bin.")]
+    public int NumberOfBins;
+
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
+
+    [SubModelInformation(Required = true, Description = "The location to store the validation to.")]
+    public FileLocation SaveTo;
+
+    private sealed class Bin
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        public string Name { get; private set; }
+        public float[] Bins { get; private set; }
+        public float Intrazonal { get; private set; }
+        public float BeyondMax { get; private set; }
+        private readonly float _stride;
+        public int NumberOfBins => Bins.Length;
 
-        [RunParameter("Step Size", 2.0, "The number of KM to include within a bin.")]
-        public float StepSize;
-
-        [RunParameter("Number Of Bins" , 200, "The number of bins before storing the result to the remainder bin.")]
-        public int NumberOfBins;
-
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
-
-        [SubModelInformation(Required = true, Description = "The location to store the validation to.")]
-        public FileLocation SaveTo;
-
-        private sealed class Bin
+        public Bin(string name, float stride, int numberOfBins)
         {
-            public string Name { get; private set; }
-            public float[] Bins { get; private set; }
-            public float Intrazonal { get; private set; }
-            public float BeyondMax { get; private set; }
-            private readonly float _stride;
-            public int NumberOfBins => Bins.Length;
+            Name = name;
+            _stride = stride;
+            Bins = new float[numberOfBins];
+            Intrazonal = 0f;
+            BeyondMax = 0f;
+        }
 
-            public Bin(string name, float stride, int numberOfBins)
+        internal void Record(bool intraZonal, float distance, float expFactor)
+        {
+            if(intraZonal)
             {
-                Name = name;
-                _stride = stride;
-                Bins = new float[numberOfBins];
-                Intrazonal = 0f;
-                BeyondMax = 0f;
+                Intrazonal += expFactor;
             }
-
-            internal void Record(bool intraZonal, float distance, float expFactor)
+            var index = (int)(distance / _stride);
+            // if it is less than our max size
+            if(index < Bins.Length)
             {
-                if(intraZonal)
-                {
-                    Intrazonal += expFactor;
-                }
-                var index = (int)(distance / _stride);
-                // if it is less than our max size
-                if(index < Bins.Length)
-                {
-                    Bins[index] += expFactor;
-                }
-                else
-                {
-                    BeyondMax += expFactor;
-                }
+                Bins[index] += expFactor;
+            }
+            else
+            {
+                BeyondMax += expFactor;
             }
         }
+    }
 
-        private Bin _abb;
-        private Bin _hbm;
-        private Bin _hbo;
-        private Bin _nhb;
+    private Bin _abb;
+    private Bin _hbm;
+    private Bin _hbo;
+    private Bin _nhb;
 
-        public void Load(int maxIterations)
+    public void Load(int maxIterations)
+    {
+        
+    }
+
+    public void IterationStarting(int iteration)
+    {
+        _abb = new Bin("ABB", StepSize, NumberOfBins);
+        _hbm = new Bin("HBM", StepSize, NumberOfBins);
+        _hbo = new Bin("HBO", StepSize, NumberOfBins);
+        _nhb = new Bin("NHB", StepSize, NumberOfBins);
+    }
+
+    private static float ComputeManhattanDistance(IZone origin, IZone episodeZone, IZone destinationZone)
+    {
+        var deltaX = Math.Abs(origin.X - episodeZone.X);
+        var deltaY = Math.Abs(origin.Y - episodeZone.Y);
+        float deltaX2 = 0.0f;
+        float deltaY2 = 0.0f;
+        if(destinationZone != null)
         {
-            
+            deltaX2 = Math.Abs(destinationZone.X - episodeZone.X);
+            deltaY2 = Math.Abs(destinationZone.Y - episodeZone.Y);
         }
+        // Convert it to KMs
+        return (deltaX + deltaY + deltaX2 + deltaY2)/1000f;
+    }
 
-        public void IterationStarting(int iteration)
-        {
-            _abb = new Bin("ABB", StepSize, NumberOfBins);
-            _hbm = new Bin("HBM", StepSize, NumberOfBins);
-            _hbo = new Bin("HBO", StepSize, NumberOfBins);
-            _nhb = new Bin("NHB", StepSize, NumberOfBins);
-        }
 
-        private static float ComputeManhattanDistance(IZone origin, IZone episodeZone, IZone destinationZone)
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        lock (this)
         {
-            var deltaX = Math.Abs(origin.X - episodeZone.X);
-            var deltaY = Math.Abs(origin.Y - episodeZone.Y);
-            float deltaX2 = 0.0f;
-            float deltaY2 = 0.0f;
-            if(destinationZone != null)
+            foreach (var person in household.Persons)
             {
-                deltaX2 = Math.Abs(destinationZone.X - episodeZone.X);
-                deltaY2 = Math.Abs(destinationZone.Y - episodeZone.Y);
-            }
-            // Convert it to KMs
-            return (deltaX + deltaY + deltaX2 + deltaY2)/1000f;
-        }
-
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            lock (this)
-            {
-                foreach (var person in household.Persons)
+                var expFactor = person.ExpansionFactor;
+                foreach (var tripChain in person.TripChains)
                 {
-                    var expFactor = person.ExpansionFactor;
-                    foreach (var tripChain in person.TripChains)
+                    var trips = tripChain.Trips;
+                    for (int i = 0; i < trips.Count; i++)
                     {
-                        var trips = tripChain.Trips;
-                        for (int i = 0; i < trips.Count; i++)
-                        {
-                            Store(trips, i, expFactor);
-                        }
+                        Store(trips, i, expFactor);
                     }
                 }
             }
         }
+    }
 
-        private void Store(List<ITrip> trips, int i, float expFactor)
+    private void Store(List<ITrip> trips, int i, float expFactor)
+    {
+        bool isHomeBased = (i == 0);
+        var o = trips[i].OriginalZone;
+        var d = trips[i].DestinationZone;
+        var d2 = trips.Count > i + 1 ? trips[i + 1].DestinationZone : null;
+        float distance = ComputeManhattanDistance(o, d, d2);
+        bool intraZonal = (o == d);
+
+        switch(trips[i].Purpose)
         {
-            bool isHomeBased = (i == 0);
-            var o = trips[i].OriginalZone;
-            var d = trips[i].DestinationZone;
-            var d2 = trips.Count > i + 1 ? trips[i + 1].DestinationZone : null;
-            float distance = ComputeManhattanDistance(o, d, d2);
-            bool intraZonal = (o == d);
-
-            switch(trips[i].Purpose)
-            {
-                case Activity.IndividualOther:
-                case Activity.JointOther:
-                    (isHomeBased ? _hbo : _nhb).Record(intraZonal, distance, expFactor);
-                    break;
-                case Activity.JointMarket:
-                case Activity.Market:
-                    (isHomeBased ? _hbm : _nhb).Record(intraZonal, distance, expFactor);
-                    break;
-                case Activity.WorkBasedBusiness:
-                case Activity.SecondaryWork:
-                    // We double count work based business trips if they are not home based
-                    _abb.Record(intraZonal, distance, expFactor);
-                    if (!isHomeBased)
-                    {
-                        _nhb.Record(intraZonal, distance, expFactor);
-                    }
-                    break;
-            }
+            case Activity.IndividualOther:
+            case Activity.JointOther:
+                (isHomeBased ? _hbo : _nhb).Record(intraZonal, distance, expFactor);
+                break;
+            case Activity.JointMarket:
+            case Activity.Market:
+                (isHomeBased ? _hbm : _nhb).Record(intraZonal, distance, expFactor);
+                break;
+            case Activity.WorkBasedBusiness:
+            case Activity.SecondaryWork:
+                // We double count work based business trips if they are not home based
+                _abb.Record(intraZonal, distance, expFactor);
+                if (!isHomeBased)
+                {
+                    _nhb.Record(intraZonal, distance, expFactor);
+                }
+                break;
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        using var writer = new StreamWriter(SaveTo);
+        var bins = _abb.NumberOfBins;
+        WriteHeader(writer);
+        float from = 0f;
+        // intrazonal
+        writer.Write("intrazonal,0");
+        writer.Write(',');
+        writer.Write(_abb.Intrazonal);
+        writer.Write(',');
+        writer.Write(_hbm.Intrazonal);
+        writer.Write(',');
+        writer.Write(_hbo.Intrazonal);
+        writer.Write(',');
+        writer.WriteLine(_nhb.Intrazonal);
+        // bins
+        for (int i = 0; i < bins; i++)
         {
-            using var writer = new StreamWriter(SaveTo);
-            var bins = _abb.NumberOfBins;
-            WriteHeader(writer);
-            float from = 0f;
-            // intrazonal
-            writer.Write("intrazonal,0");
-            writer.Write(',');
-            writer.Write(_abb.Intrazonal);
-            writer.Write(',');
-            writer.Write(_hbm.Intrazonal);
-            writer.Write(',');
-            writer.Write(_hbo.Intrazonal);
-            writer.Write(',');
-            writer.WriteLine(_nhb.Intrazonal);
-            // bins
-            for (int i = 0; i < bins; i++)
-            {
-                writer.Write(from);
-                writer.Write(',');
-                writer.Write(from + StepSize);
-                writer.Write(',');
-                writer.Write(_abb.Bins[i]);
-                writer.Write(',');
-                writer.Write(_hbm.Bins[i]);
-                writer.Write(',');
-                writer.Write(_hbo.Bins[i]);
-                writer.Write(',');
-                writer.WriteLine(_nhb.Bins[i]);
-                from += StepSize;
-            }
-            // over last bin
             writer.Write(from);
-            writer.Write(",inf,");
-            writer.Write(_abb.BeyondMax);
             writer.Write(',');
-            writer.Write(_hbm.BeyondMax);
+            writer.Write(from + StepSize);
             writer.Write(',');
-            writer.Write(_hbo.BeyondMax);
+            writer.Write(_abb.Bins[i]);
             writer.Write(',');
-            writer.WriteLine(_nhb.BeyondMax);
+            writer.Write(_hbm.Bins[i]);
+            writer.Write(',');
+            writer.Write(_hbo.Bins[i]);
+            writer.Write(',');
+            writer.WriteLine(_nhb.Bins[i]);
+            from += StepSize;
         }
+        // over last bin
+        writer.Write(from);
+        writer.Write(",inf,");
+        writer.Write(_abb.BeyondMax);
+        writer.Write(',');
+        writer.Write(_hbm.BeyondMax);
+        writer.Write(',');
+        writer.Write(_hbo.BeyondMax);
+        writer.Write(',');
+        writer.WriteLine(_nhb.BeyondMax);
+    }
 
-        private void WriteHeader(StreamWriter writer)
-        {
-            writer.Write("from,to,");
-            writer.Write(_abb.Name);
-            writer.Write(',');
-            writer.Write(_hbm.Name);
-            writer.Write(',');
-            writer.Write(_hbo.Name);
-            writer.Write(',');
-            writer.WriteLine(_nhb.Name);
-        }
+    private void WriteHeader(StreamWriter writer)
+    {
+        writer.Write("from,to,");
+        writer.Write(_abb.Name);
+        writer.Write(',');
+        writer.Write(_hbm.Name);
+        writer.Write(',');
+        writer.Write(_hbo.Name);
+        writer.Write(',');
+        writer.WriteLine(_nhb.Name);
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public bool RuntimeValidation(ref string error)
+    {
+        if(StepSize <= 0)
         {
-            if(StepSize <= 0)
-            {
-                error = "The step size must be greater than zero!";
-                return false;
-            }
-            if(NumberOfBins <= 0)
-            {
-                error = "The number of bins must be greater than zero!";
-                return false;
-            }
-            return true;
+            error = "The step size must be greater than zero!";
+            return false;
         }
+        if(NumberOfBins <= 0)
+        {
+            error = "The number of bins must be greater than zero!";
+            return false;
+        }
+        return true;
     }
 }

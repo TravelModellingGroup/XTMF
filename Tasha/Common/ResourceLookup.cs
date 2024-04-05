@@ -20,111 +20,110 @@ using System;
 using TMG;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public class ResourceLookup : IResource
 {
-    public class ResourceLookup : IResource
+    [RootModule]
+    public IResourceSource Root;
+
+    private IConfiguration Config;
+
+    public ResourceLookup(IConfiguration config)
     {
-        [RootModule]
-        public IResourceSource Root;
+        Config = config;
+    }
 
-        private IConfiguration Config;
+    private IResource LinkedResource;
 
-        public ResourceLookup(IConfiguration config)
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    [RunParameter( "Resource Name", "UniqueName", "The unique name for this resource." )]
+    public string ResourceName
+    {
+        get;
+        set;
+    }
+
+    public T AcquireResource<T>()
+    {
+        return LinkedResource.AcquireResource<T>();
+    }
+
+    public bool CheckResourceType(Type dataType)
+    {
+        EnsureLink();
+        return LinkedResource.CheckResourceType( dataType );
+    }
+
+    public bool CheckResourceType<T>()
+    {
+        EnsureLink();
+        return LinkedResource.CheckResourceType<T>();
+    }
+
+    public Type GetResourceType()
+    {
+        EnsureLink();
+        return LinkedResource.GetResourceType();
+    }
+
+    private void EnsureLink()
+    {
+        if (LinkedResource == null )
         {
-            Config = config;
-        }
-
-        private IResource LinkedResource;
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        [RunParameter( "Resource Name", "UniqueName", "The unique name for this resource." )]
-        public string ResourceName
-        {
-            get;
-            set;
-        }
-
-        public T AcquireResource<T>()
-        {
-            return LinkedResource.AcquireResource<T>();
-        }
-
-        public bool CheckResourceType(Type dataType)
-        {
-            EnsureLink();
-            return LinkedResource.CheckResourceType( dataType );
-        }
-
-        public bool CheckResourceType<T>()
-        {
-            EnsureLink();
-            return LinkedResource.CheckResourceType<T>();
-        }
-
-        public Type GetResourceType()
-        {
-            EnsureLink();
-            return LinkedResource.GetResourceType();
-        }
-
-        private void EnsureLink()
-        {
-            if (LinkedResource == null )
+            string error = null;
+            if ( !RuntimeValidation( ref error ) )
             {
-                string error = null;
-                if ( !RuntimeValidation( ref error ) )
-                {
-                    throw new XTMFRuntimeException(this, error );
-                }
+                throw new XTMFRuntimeException(this, error );
             }
         }
+    }
 
 
 
-        public void ReleaseResource()
+    public void ReleaseResource()
+    {
+        LinkedResource.ReleaseResource();
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+        for (int i = ancestry.Count - 1; i >= 0; i--)
         {
-            LinkedResource.ReleaseResource();
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
-            for (int i = ancestry.Count - 1; i >= 0; i--)
+            if (ancestry[i]?.Module is IResourceSource source)
             {
-                if (ancestry[i]?.Module is IResourceSource source)
+                foreach (var resource in source.Resources)
                 {
-                    foreach (var resource in source.Resources)
+                    if (resource.ResourceName == ResourceName)
                     {
-                        if (resource.ResourceName == ResourceName)
-                        {
-                            LinkedResource = resource;
-                            return true;
-                        }
+                        LinkedResource = resource;
+                        return true;
                     }
                 }
             }
-            error = "In '" + Name + "' we were unable to find a resource in the closest resource source with the name '" + ResourceName + "'";
-            return false;
         }
+        error = "In '" + Name + "' we were unable to find a resource in the closest resource source with the name '" + ResourceName + "'";
+        return false;
+    }
 
-        public IDataSource GetDataSource()
-        {
-            return LinkedResource.GetDataSource();
-        }
+    public IDataSource GetDataSource()
+    {
+        return LinkedResource.GetDataSource();
     }
 }

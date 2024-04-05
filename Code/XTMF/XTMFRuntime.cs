@@ -22,71 +22,70 @@ using System.Reflection;
 using XTMF.Controller;
 using XTMF.Networking;
 
-namespace XTMF
+namespace XTMF;
+
+public class XTMFRuntime
 {
-    public class XTMFRuntime
+    /// <summary>
+    /// The configuration used for all of the settings
+    /// and holding the data for the XTMF installation
+    /// </summary>
+    public Configuration Configuration { get; private set; }
+
+    public ModelSystemController ModelSystemController { get; private set; }
+
+    public ProjectController ProjectController { get; private set; }
+
+    public RunController RunController { get; private set; } = new RunController();
+
+    public XTMFRuntime(Configuration configuration = null)
     {
-        /// <summary>
-        /// The configuration used for all of the settings
-        /// and holding the data for the XTMF installation
-        /// </summary>
-        public Configuration Configuration { get; private set; }
+        Configuration = configuration ?? BuildConfiguration();
+        ModelSystemController = new ModelSystemController(this);
+        ProjectController = new ProjectController(this);
+    }
 
-        public ModelSystemController ModelSystemController { get; private set; }
-
-        public ProjectController ProjectController { get; private set; }
-
-        public RunController RunController { get; private set; } = new RunController();
-
-        public XTMFRuntime(Configuration configuration = null)
+    private Configuration BuildConfiguration()
+    {
+        var localInstanceDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var localConfigurationFileName = Path.Combine(localInstanceDirectory, "LocalXTMFConfiguration.xml");
+        if (File.Exists(localConfigurationFileName))
         {
-            Configuration = configuration ?? BuildConfiguration();
-            ModelSystemController = new ModelSystemController(this);
-            ProjectController = new ProjectController(this);
-        }
+            return new Configuration(localConfigurationFileName);
+        }  
+        return new Configuration();
+    }
 
-        private Configuration BuildConfiguration()
-        {
-            var localInstanceDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var localConfigurationFileName = Path.Combine(localInstanceDirectory, "LocalXTMFConfiguration.xml");
-            if (File.Exists(localConfigurationFileName))
-            {
-                return new Configuration(localConfigurationFileName);
-            }  
-            return new Configuration();
-        }
+    /// <summary>
+    /// Creates a new instance of XTMF allowing for you to
+    /// run all of the systems contained within
+    /// </summary>
+    public IHost ActiveHost => Configuration.GetActiveHost();
 
-        /// <summary>
-        /// Creates a new instance of XTMF allowing for you to
-        /// run all of the systems contained within
-        /// </summary>
-        public IHost ActiveHost => Configuration.GetActiveHost();
+    public IClient InitializeRemoteClient(string address, int port)
+    {
+        string error = null;
+        Configuration.RemoteServerAddress = address;
+        Configuration.RemoteServerPort = port;
+        return Configuration.StartupNetworkingClient(out IClient client, ref error) ? client : null;
+    }
 
-        public IClient InitializeRemoteClient(string address, int port)
-        {
-            string error = null;
-            Configuration.RemoteServerAddress = address;
-            Configuration.RemoteServerPort = port;
-            return Configuration.StartupNetworkingClient(out IClient client, ref error) ? client : null;
-        }
+    /// <summary>
+    /// Terminate the runtime
+    /// </summary>
+    public void ShutDown()
+    {
+    }
 
-        /// <summary>
-        /// Terminate the runtime
-        /// </summary>
-        public void ShutDown()
-        {
-        }
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool all)
-        {
-            Configuration?.Dispose();
-            Configuration = null;
-        }
+    protected virtual void Dispose(bool all)
+    {
+        Configuration?.Dispose();
+        Configuration = null;
     }
 }

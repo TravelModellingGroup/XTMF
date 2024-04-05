@@ -17,10 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace XTMF
+namespace XTMF;
+
+public interface ISetableDataSource<T> : IDataSource<T>
 {
-    public interface ISetableDataSource<T> : IDataSource<T>
-    {
-        void SetData(T newValue);
-    }
+    void SetData(T newValue);
 }

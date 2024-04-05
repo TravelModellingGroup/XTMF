@@ -21,124 +21,123 @@ using System.Numerics;
 using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 
-namespace TMG.Functions
+namespace TMG.Functions;
+
+public static partial class VectorHelper
 {
-    public static partial class VectorHelper
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagIfLessThanOrEqual(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
     {
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagIfLessThanOrEqual(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+        if (Vector512.IsHardwareAccelerated)
         {
-            if (Vector512.IsHardwareAccelerated)
+            var zero = Vector512<float>.Zero;
+            var one = Vector512<float>.One;
+            if ((destIndex | lhsIndex | rhsIndex) == 0)
             {
-                var zero = Vector512<float>.Zero;
-                var one = Vector512<float>.One;
-                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                int i = 0;
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    int i = 0;
-                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var f = Vector512.LoadUnsafe(ref lhs[i]);
-                        var s = Vector512.LoadUnsafe(ref rhs[i]);
-                        var local = Vector512.ConditionalSelect(Vector512.LessThanOrEqual(f, s), one, zero);
-                        Vector512.StoreUnsafe(local, ref destination[i]);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        destination[i] = lhs[i] <= rhs[i] ? 1 : 0;
-                    }
+                    var f = Vector512.LoadUnsafe(ref lhs[i]);
+                    var s = Vector512.LoadUnsafe(ref rhs[i]);
+                    var local = Vector512.ConditionalSelect(Vector512.LessThanOrEqual(f, s), one, zero);
+                    Vector512.StoreUnsafe(local, ref destination[i]);
                 }
-                else
+                // copy the remainder
+                for (; i < length; i++)
                 {
-                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var f = Vector512.LoadUnsafe(ref lhs[i + lhsIndex]);
-                        var s = Vector512.LoadUnsafe(ref rhs[i + rhsIndex]);
-                        var local = Vector512.ConditionalSelect(Vector512.LessThanOrEqual(f, s), one, zero);
-                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
-                    {
-                        destination[i + destIndex] = lhs[i + lhsIndex] <= rhs[i + rhsIndex] ? 1 : 0;
-                    }
-                }
-            }
-            else if (Vector.IsHardwareAccelerated)
-            {
-                var zero = Vector<float>.Zero;
-                var one = Vector<float>.One;
-                if ((destIndex | lhsIndex | rhsIndex) == 0)
-                {
-                    int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        var f = new Vector<float>(lhs, i);
-                        var s = new Vector<float>(rhs, i);
-                        Vector.ConditionalSelect(Vector.LessThanOrEqual(f, s), one, zero).CopyTo(destination, i);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        destination[i] = lhs[i] <= rhs[i] ? 1 : 0;
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        Vector.ConditionalSelect(Vector.LessThanOrEqual(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
-                            .CopyTo(destination, i + destIndex);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                    {
-                        destination[i + destIndex] = lhs[i + lhsIndex] <= rhs[i + rhsIndex] ? 1 : 0;
-                    }
+                    destination[i] = lhs[i] <= rhs[i] ? 1 : 0;
                 }
             }
             else
             {
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var f = Vector512.LoadUnsafe(ref lhs[i + lhsIndex]);
+                    var s = Vector512.LoadUnsafe(ref rhs[i + rhsIndex]);
+                    var local = Vector512.ConditionalSelect(Vector512.LessThanOrEqual(f, s), one, zero);
+                    Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector512<float>.Count); i < length; i++)
                 {
                     destination[i + destIndex] = lhs[i + lhsIndex] <= rhs[i + rhsIndex] ? 1 : 0;
                 }
             }
         }
-
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagIfLessThanOrEqual(float[][] dest, float[][] data, float literalValue)
+        else if (Vector.IsHardwareAccelerated)
         {
-            Parallel.For(0, dest.Length, i =>
+            var zero = Vector<float>.Zero;
+            var one = Vector<float>.One;
+            if ((destIndex | lhsIndex | rhsIndex) == 0)
             {
-                FlagIfLessThanOrEqual(dest[i], data[i], literalValue);
-            });
+                int i = 0;
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = new Vector<float>(lhs, i);
+                    var s = new Vector<float>(rhs, i);
+                    Vector.ConditionalSelect(Vector.LessThanOrEqual(f, s), one, zero).CopyTo(destination, i);
+                }
+                // copy the remainder
+                for (; i < length; i++)
+                {
+                    destination[i] = lhs[i] <= rhs[i] ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    Vector.ConditionalSelect(Vector.LessThanOrEqual(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
+                        .CopyTo(destination, i + destIndex);
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] <= rhs[i + rhsIndex] ? 1 : 0;
+                }
+            }
         }
-
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagIfLessThanOrEqual(float[][] dest, float[][] lhs, float[][] rhs)
+        else
         {
-            Parallel.For(0, dest.Length, i =>
+            for (int i = 0; i < length; i++)
             {
-                FlagIfLessThanOrEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
-            });
+                destination[i + destIndex] = lhs[i + lhsIndex] <= rhs[i + rhsIndex] ? 1 : 0;
+            }
         }
+    }
 
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagIfLessThanOrEqual(float[][] dest, float literalValue, float[][] data)
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagIfLessThanOrEqual(float[][] dest, float[][] data, float literalValue)
+    {
+        Parallel.For(0, dest.Length, i =>
         {
-            Parallel.For(0, dest.Length, i =>
-            {
-                FlagIfLessThanOrEqual(dest[i], literalValue, data[i]);
-            });
-        }
+            FlagIfLessThanOrEqual(dest[i], data[i], literalValue);
+        });
+    }
+
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagIfLessThanOrEqual(float[][] dest, float[][] lhs, float[][] rhs)
+    {
+        Parallel.For(0, dest.Length, i =>
+        {
+            FlagIfLessThanOrEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+        });
+    }
+
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagIfLessThanOrEqual(float[][] dest, float literalValue, float[][] data)
+    {
+        Parallel.For(0, dest.Length, i =>
+        {
+            FlagIfLessThanOrEqual(dest[i], literalValue, data[i]);
+        });
     }
 }

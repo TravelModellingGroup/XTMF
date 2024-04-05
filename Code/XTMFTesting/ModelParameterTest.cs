@@ -18,10 +18,9 @@
 */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XTMF.Testing
+namespace XTMF.Testing;
+
+[TestClass]
+public class ModelParameterTest : XTMFTestBase
 {
-    [TestClass]
-    public class ModelParameterTest : XTMFTestBase
-    {
-    }
 }

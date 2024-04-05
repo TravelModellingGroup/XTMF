@@ -23,129 +23,128 @@ using System.Linq;
 using Tasha.Common;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+[ModuleInformation(
+    Description = "<p>A validation module which gives us start time vs duration information " +
+                    "for the different purposes. As an input, it takes in the newly scheduled " +
+                    "households and then produces different files for the different purposes. " +
+                    "For each purpose, the module records when the trips start (hour). It then " +
+                    "computes and records the average duration for all trips that start at a common " +
+                    "start hour. As an output, the module produces average durations for each start hour data " +
+                    "for all observed trip purposes scheduled by TASHA.</p>" +
+
+                    "Note: The module can also be used on real data instead of TASHA run data. This is important " +
+                    "when one wants to validate the duration of trips that TASHA is scheduling."
+    )]
+public class DurationsVsStartTimes : IPostHousehold
 {
-    [ModuleInformation(
-        Description = "<p>A validation module which gives us start time vs duration information " +
-                        "for the different purposes. As an input, it takes in the newly scheduled " +
-                        "households and then produces different files for the different purposes. " +
-                        "For each purpose, the module records when the trips start (hour). It then " +
-                        "computes and records the average duration for all trips that start at a common " +
-                        "start hour. As an output, the module produces average durations for each start hour data " +
-                        "for all observed trip purposes scheduled by TASHA.</p>" +
+    public Dictionary<KeyValuePair<Activity, int>, List<int>> DurationsDict = [];
 
-                        "Note: The module can also be used on real data instead of TASHA run data. This is important " +
-                        "when one wants to validate the duration of trips that TASHA is scheduling."
-        )]
-    public class DurationsVsStartTimes : IPostHousehold
+    [RunParameter( "Real data?", false, "Are you running this on the real data?" )]
+    public bool RealData;
+
+    [RootModule]
+    public ITashaRuntime Root;
+
+    public string Name
     {
-        public Dictionary<KeyValuePair<Activity, int>, List<int>> DurationsDict = [];
+        get;
+        set;
+    }
 
-        [RunParameter( "Real data?", false, "Are you running this on the real data?" )]
-        public bool RealData;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITashaRuntime Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 32, 76, 169 ); }
+    }
 
-        public string Name
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        lock ( this )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 32, 76, 169 ); }
-        }
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            lock ( this )
+            foreach ( var person in household.Persons )
             {
-                foreach ( var person in household.Persons )
+                foreach ( var tripChain in person.TripChains )
                 {
-                    foreach ( var tripChain in person.TripChains )
+                    var chain = tripChain.Trips;
+                    for ( int i = 0; i < ( chain.Count - 1 ); i++ )
                     {
-                        var chain = tripChain.Trips;
-                        for ( int i = 0; i < ( chain.Count - 1 ); i++ )
+                        var thisTrip = chain[i];
+                        var nextTrip = chain[i + 1];
+                        var currentMode = thisTrip.Mode;
+                        thisTrip.Mode = Root.AutoMode;
+                        var hours = thisTrip.ActivityStartTime.Hours;
+                        var duration = (int)( ( nextTrip.TripStartTime - thisTrip.ActivityStartTime ).ToMinutes() );
+
+                        KeyValuePair<Activity, int> bob = new( thisTrip.Purpose, hours );
+                        if (DurationsDict.TryGetValue(bob, out List<int> ourList))
                         {
-                            var thisTrip = chain[i];
-                            var nextTrip = chain[i + 1];
-                            var currentMode = thisTrip.Mode;
-                            thisTrip.Mode = Root.AutoMode;
-                            var hours = thisTrip.ActivityStartTime.Hours;
-                            var duration = (int)( ( nextTrip.TripStartTime - thisTrip.ActivityStartTime ).ToMinutes() );
-
-                            KeyValuePair<Activity, int> bob = new( thisTrip.Purpose, hours );
-                            if (DurationsDict.TryGetValue(bob, out List<int> ourList))
-                            {
-                                ourList.Add(duration);
-                            }
-                            else
-                            {
-                                ourList = [duration];
-                                DurationsDict[bob] = ourList;
-                            }
-
-                            thisTrip.Mode = currentMode;
+                            ourList.Add(duration);
                         }
+                        else
+                        {
+                            ourList = [duration];
+                            DurationsDict[bob] = ourList;
+                        }
+
+                        thisTrip.Mode = currentMode;
                     }
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iteration)
+    public void IterationFinished(int iteration)
+    {
+        Dictionary<Activity, StreamWriter> writerDict = [];
+        try
         {
-            Dictionary<Activity, StreamWriter> writerDict = [];
-            try
+            lock (this)
             {
-                lock (this)
+                foreach ( var pair in DurationsDict )
                 {
-                    foreach ( var pair in DurationsDict )
+                    string fileName;
+                    var purpose = pair.Key.Key;
+                    var hour = pair.Key.Value;
+                    var averageDur = pair.Value.Average();
+                    if ( !writerDict.ContainsKey( purpose ) )
                     {
-                        string fileName;
-                        var purpose = pair.Key.Key;
-                        var hour = pair.Key.Value;
-                        var averageDur = pair.Value.Average();
-                        if ( !writerDict.ContainsKey( purpose ) )
-                        {
-                            fileName = RealData ? purpose + "DurationsData.csv" : purpose + "DurationsTasha.csv";
-                            writerDict[purpose] = new StreamWriter( fileName );
-                            writerDict[purpose].WriteLine( "Start Times, Durations" );
-                        }
-                        writerDict[purpose].WriteLine( "{0}, {1}", hour, averageDur );
+                        fileName = RealData ? purpose + "DurationsData.csv" : purpose + "DurationsTasha.csv";
+                        writerDict[purpose] = new StreamWriter( fileName );
+                        writerDict[purpose].WriteLine( "Start Times, Durations" );
                     }
-                }
-            }
-            catch(IOException)
-            {
-            }
-            finally
-            {
-                foreach ( var pair in writerDict )
-                {
-                    pair.Value.Dispose();
+                    writerDict[purpose].WriteLine( "{0}, {1}", hour, averageDur );
                 }
             }
         }
-
-        public void Load(int maxIterations)
+        catch(IOException)
         {
         }
-
-        public bool RuntimeValidation(ref string error)
+        finally
         {
-            return true;
+            foreach ( var pair in writerDict )
+            {
+                pair.Value.Dispose();
+            }
         }
+    }
 
-        public void IterationStarting(int iteration)
-        {
-        }
+    public void Load(int maxIterations)
+    {
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void IterationStarting(int iteration)
+    {
     }
 }

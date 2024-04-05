@@ -18,57 +18,56 @@
 */
 using System;
 
-namespace TMG.Frameworks.Data.Synthesis.Gibbs
+namespace TMG.Frameworks.Data.Synthesis.Gibbs;
+
+internal sealed class PoolSegment
 {
-    internal sealed class PoolSegment
+    private int Seed;
+
+    private Attribute[] Attributes;
+    private Conditional[] Conditionals;
+    private int IterationsBeforeAccept;
+
+    internal int[][] Result;
+
+    public PoolSegment(Pool parent, int seed)
     {
-        private int Seed;
+        Seed = seed;
+        Attributes = parent.Attributes;
+        Conditionals = parent.Conditionals;
+        IterationsBeforeAccept = parent.IterationsBeforeAccept;
+    }
 
-        private Attribute[] Attributes;
-        private Conditional[] Conditionals;
-        private int IterationsBeforeAccept;
-
-        internal int[][] Result;
-
-        public PoolSegment(Pool parent, int seed)
+    internal void ProcessSegment(int elementsToCreate)
+    {
+        var r = new Random(Seed);
+        var result = new int[elementsToCreate][];
+        for (int el = 0; el < result.Length; el++)
         {
-            Seed = seed;
-            Attributes = parent.Attributes;
-            Conditionals = parent.Conditionals;
-            IterationsBeforeAccept = parent.IterationsBeforeAccept;
+            result[el] = CreateElement(r);
         }
+        Result = result;
+    }
 
-        internal void ProcessSegment(int elementsToCreate)
+    private int[] CreateElement(Random r)
+    {
+        int[] result = new int[Attributes.Length];
+        var conditionals = Conditionals;
+        //create the initial values
+        for (int i = 0; i < Attributes.Length; i++)
         {
-            var r = new Random(Seed);
-            var result = new int[elementsToCreate][];
-            for (int el = 0; el < result.Length; el++)
-            {
-                result[el] = CreateElement(r);
-            }
-            Result = result;
+            // assign everything randomly from the possible values
+            result[i] = (int)(Attributes[i].PossibleValues.Length * r.NextDouble());
         }
-
-        private int[] CreateElement(Random r)
+        //run the conditionals, going through them all the number of iterations before saving the state
+        for (int iteration = 0; iteration < IterationsBeforeAccept; iteration++)
         {
-            int[] result = new int[Attributes.Length];
-            var conditionals = Conditionals;
-            //create the initial values
-            for (int i = 0; i < Attributes.Length; i++)
+            for (int i = 0; i < conditionals.Length; i++)
             {
-                // assign everything randomly from the possible values
-                result[i] = (int)(Attributes[i].PossibleValues.Length * r.NextDouble());
+                var pop = (float)r.NextDouble();
+                conditionals[i].Apply(result, pop);
             }
-            //run the conditionals, going through them all the number of iterations before saving the state
-            for (int iteration = 0; iteration < IterationsBeforeAccept; iteration++)
-            {
-                for (int i = 0; i < conditionals.Length; i++)
-                {
-                    var pop = (float)r.NextDouble();
-                    conditionals[i].Apply(result, pop);
-                }
-            }
-            return result;
         }
+        return result;
     }
 }

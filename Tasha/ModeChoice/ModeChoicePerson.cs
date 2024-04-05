@@ -18,26 +18,25 @@
 */
 using Tasha.Common;
 
-namespace Tasha.ModeChoice
+namespace Tasha.ModeChoice;
+
+internal static class ModeChoicePerson
 {
-    internal static class ModeChoicePerson
+    /// <summary>
+    /// Calculate the Loglikelihood for this person
+    /// </summary>
+    /// <param name="person">The person to calculate</param>
+    public static void CalculateLoglikelihood(this ITashaPerson person)
     {
-        /// <summary>
-        /// Calculate the Loglikelihood for this person
-        /// </summary>
-        /// <param name="person">The person to calculate</param>
-        public static void CalculateLoglikelihood(this ITashaPerson person)
+        // Generate the best possible trips for each person
+        // for each vehicle type
+        foreach ( var chain in person.TripChains )
         {
-            // Generate the best possible trips for each person
-            // for each vehicle type
-            foreach ( var chain in person.TripChains )
-            {
-                // Now we need to generate all of the different ways
-                // that we can possibly go, that are feasible
-                chain.GenerateModeSets();
-                // Then select the best modeset for each vehicle type
-                chain.SelectBestPerVehicleType();
-            }
+            // Now we need to generate all of the different ways
+            // that we can possibly go, that are feasible
+            chain.GenerateModeSets();
+            // Then select the best modeset for each vehicle type
+            chain.SelectBestPerVehicleType();
         }
     }
 }

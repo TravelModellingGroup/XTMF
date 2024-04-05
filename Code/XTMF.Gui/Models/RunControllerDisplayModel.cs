@@ -23,15 +23,14 @@ using System.Text;
 using System.Threading.Tasks;
 using XTMF.Controller;
 
-namespace XTMF.Gui.Models
-{
-    public sealed class RunControllerDisplayModel
-    {
-        private readonly RunController _runController;
+namespace XTMF.Gui.Models;
 
-        public RunControllerDisplayModel(XTMFRuntime runtime)
-        {
-            _runController = runtime.RunController;
-        }
+public sealed class RunControllerDisplayModel
+{
+    private readonly RunController _runController;
+
+    public RunControllerDisplayModel(XTMFRuntime runtime)
+    {
+        _runController = runtime.RunController;
     }
 }

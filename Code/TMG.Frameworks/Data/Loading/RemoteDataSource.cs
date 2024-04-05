@@ -19,117 +19,116 @@
 using System;
 using XTMF;
 
-namespace TMG.Frameworks.Data
+namespace TMG.Frameworks.Data;
+
+[ModuleInformation(Description = "This module provides that ability to load a data source from a resource.")]
+public class RemoteDataSource<T> : IDataSource<T>
 {
-    [ModuleInformation(Description = "This module provides that ability to load a data source from a resource.")]
-    public class RemoteDataSource<T> : IDataSource<T>
+    [RootModule]
+    public IResourceSource Root;
+
+    [RunParameter("Resource Name", "", "The name of the resource to bind to.")]
+    public string ResourceName;
+
+    [RunParameter("Unload Resource", false, "If true unload requests will be passed to the resource.")]
+    public bool UnloadResource;
+
+    private IResource Linked;
+
+    private IConfiguration Config;
+
+    public RemoteDataSource(IConfiguration config)
     {
-        [RootModule]
-        public IResourceSource Root;
+        Config = config;
+    }
 
-        [RunParameter("Resource Name", "", "The name of the resource to bind to.")]
-        public string ResourceName;
 
-        [RunParameter("Unload Resource", false, "If true unload requests will be passed to the resource.")]
-        public bool UnloadResource;
-
-        private IResource Linked;
-
-        private IConfiguration Config;
-
-        public RemoteDataSource(IConfiguration config)
+    public bool Loaded
+    {
+        get
         {
-            Config = config;
+            return Linked.GetDataSource().Loaded;
         }
+    }
 
+    public string Name { get; set; }
 
-        public bool Loaded
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public T GiveData()
+    {
+        if(Linked == null)
         {
-            get
+            Link();
+        }
+        return Linked.AcquireResource<T>();
+    }
+
+
+    public void LoadData()
+    {
+
+    }
+
+    private IResource Link(string resourceName)
+    {
+        var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+        for (int i = ancestry.Count - 1; i >= 0; i--)
+        {
+            if (ancestry[i]?.Module is IResourceSource source)
             {
-                return Linked.GetDataSource().Loaded;
-            }
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public T GiveData()
-        {
-            if(Linked == null)
-            {
-                Link();
-            }
-            return Linked.AcquireResource<T>();
-        }
-
-
-        public void LoadData()
-        {
-
-        }
-
-        private IResource Link(string resourceName)
-        {
-            var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
-            for (int i = ancestry.Count - 1; i >= 0; i--)
-            {
-                if (ancestry[i]?.Module is IResourceSource source)
+                foreach (var resource in source.Resources)
                 {
-                    foreach (var resource in source.Resources)
+                    if (resource.ResourceName == resourceName)
                     {
-                        if (resource.ResourceName == resourceName)
-                        {
-                            return resource;
-                        }
+                        return resource;
                     }
                 }
             }
-            return null;
         }
+        return null;
+    }
 
-        private void Link()
+    private void Link()
+    {
+        IResource linked;
+        if ((linked = Link(ResourceName)) == null)
         {
-            IResource linked;
-            if ((linked = Link(ResourceName)) == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!");
-            }
-            if (!linked.CheckResourceType<T>())
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' the resource was not of type '" + typeof(T).Name
-                    + "' instead of was of type '" + linked.GetResourceType().Name + "'!");
-            }
-            Linked = linked;
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!");
         }
-
-        public bool RuntimeValidation(ref string error)
+        if (!linked.CheckResourceType<T>())
         {
-            IResource linked;
-            if ((linked = Link(ResourceName)) == null)
-            {
-                error = "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!";
-                return false;
-            }
-            if (!linked.CheckResourceType<T>())
-            {
-                error = "In '" + Name + "' the resource was not of type '" + typeof(T).Name
-                    + "' instead of was of type '" + linked.GetResourceType().Name + "'!";
-                return false;
-            }
-            Linked = linked;
-            return true;
+            throw new XTMFRuntimeException(this, "In '" + Name + "' the resource was not of type '" + typeof(T).Name
+                + "' instead of was of type '" + linked.GetResourceType().Name + "'!");
         }
+        Linked = linked;
+    }
 
-        public void UnloadData()
+    public bool RuntimeValidation(ref string error)
+    {
+        IResource linked;
+        if ((linked = Link(ResourceName)) == null)
         {
-            if (UnloadResource)
-            {
-                Linked.ReleaseResource();
-            }
+            error = "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!";
+            return false;
+        }
+        if (!linked.CheckResourceType<T>())
+        {
+            error = "In '" + Name + "' the resource was not of type '" + typeof(T).Name
+                + "' instead of was of type '" + linked.GetResourceType().Name + "'!";
+            return false;
+        }
+        Linked = linked;
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        if (UnloadResource)
+        {
+            Linked.ReleaseResource();
         }
     }
 }

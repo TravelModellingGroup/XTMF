@@ -24,120 +24,119 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadEmme4BinaryMatrix : IReadODData<float>
 {
-    public class ReadEmme4BinaryMatrix : IReadODData<float>
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation(Required = true, Description = "The file to read from.")]
+    public FileLocation InputFile;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [SubModelInformation(Required = true, Description = "The file to read from.")]
-        public FileLocation InputFile;
-
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return 0f;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        public IEnumerable<ODData<float>> Read()
+    public IEnumerable<ODData<float>> Read()
+    {
+        if (!File.Exists(InputFile))
         {
-            if (!File.Exists(InputFile))
-            {
-                throw new XTMFRuntimeException(this, $"Unable to read an EMME Binary Matrix located at {InputFile.GetFilePath()}");
-            }
-            using BinaryReader reader = TMG.Functions.BinaryHelpers.CreateReader(this, InputFile);
-            EmmeMatrix matrix = new(reader);
-            if (!matrix.IsValidHeader())
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'");
-            }
-            ODData<float> result = new();
-            int pos = 0;
-            var indexes = matrix.Indexes;
-            var originIndexes = indexes[0];
-            var destinationIndexes = indexes[1];
-            switch (matrix.Type)
-            {
-                case EmmeMatrix.DataType.Float:
+            throw new XTMFRuntimeException(this, $"Unable to read an EMME Binary Matrix located at {InputFile.GetFilePath()}");
+        }
+        using BinaryReader reader = TMG.Functions.BinaryHelpers.CreateReader(this, InputFile);
+        EmmeMatrix matrix = new(reader);
+        if (!matrix.IsValidHeader())
+        {
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'");
+        }
+        ODData<float> result = new();
+        int pos = 0;
+        var indexes = matrix.Indexes;
+        var originIndexes = indexes[0];
+        var destinationIndexes = indexes[1];
+        switch (matrix.Type)
+        {
+            case EmmeMatrix.DataType.Float:
+                {
+                    var data = matrix.FloatData;
+                    for (int i = 0; i < originIndexes.Length; i++)
                     {
-                        var data = matrix.FloatData;
-                        for (int i = 0; i < originIndexes.Length; i++)
+                        result.O = originIndexes[i];
+                        for (int j = 0; j < destinationIndexes.Length; j++)
                         {
-                            result.O = originIndexes[i];
-                            for (int j = 0; j < destinationIndexes.Length; j++)
-                            {
-                                result.D = destinationIndexes[j];
-                                result.Data = data[pos++];
-                                yield return result;
-                            }
+                            result.D = destinationIndexes[j];
+                            result.Data = data[pos++];
+                            yield return result;
                         }
                     }
-                    break;
-                case EmmeMatrix.DataType.Double:
+                }
+                break;
+            case EmmeMatrix.DataType.Double:
+                {
+                    var data = matrix.DoubleData;
+                    for (int i = 0; i < originIndexes.Length; i++)
                     {
-                        var data = matrix.DoubleData;
-                        for (int i = 0; i < originIndexes.Length; i++)
+                        result.O = originIndexes[i];
+                        for (int j = 0; j < destinationIndexes.Length; j++)
                         {
-                            result.O = originIndexes[i];
-                            for (int j = 0; j < destinationIndexes.Length; j++)
-                            {
-                                result.D = destinationIndexes[j];
-                                result.Data = (float)data[pos++];
-                                yield return result;
-                            }
+                            result.D = destinationIndexes[j];
+                            result.Data = (float)data[pos++];
+                            yield return result;
                         }
                     }
-                    break;
-                case EmmeMatrix.DataType.SignedInteger:
+                }
+                break;
+            case EmmeMatrix.DataType.SignedInteger:
+                {
+                    var data = matrix.SignedIntData;
+                    for (int i = 0; i < originIndexes.Length; i++)
                     {
-                        var data = matrix.SignedIntData;
-                        for (int i = 0; i < originIndexes.Length; i++)
+                        result.O = originIndexes[i];
+                        for (int j = 0; j < destinationIndexes.Length; j++)
                         {
-                            result.O = originIndexes[i];
-                            for (int j = 0; j < destinationIndexes.Length; j++)
-                            {
-                                result.D = destinationIndexes[j];
-                                result.Data = data[pos++];
-                                yield return result;
-                            }
+                            result.D = destinationIndexes[j];
+                            result.Data = data[pos++];
+                            yield return result;
                         }
                     }
-                    break;
-                case EmmeMatrix.DataType.UnsignedInteger:
+                }
+                break;
+            case EmmeMatrix.DataType.UnsignedInteger:
+                {
+                    var data = matrix.UnsignedIntData;
+                    for (int i = 0; i < originIndexes.Length; i++)
                     {
-                        var data = matrix.UnsignedIntData;
-                        for (int i = 0; i < originIndexes.Length; i++)
+                        result.O = originIndexes[i];
+                        for (int j = 0; j < destinationIndexes.Length; j++)
                         {
-                            result.O = originIndexes[i];
-                            for (int j = 0; j < destinationIndexes.Length; j++)
-                            {
-                                result.D = destinationIndexes[j];
-                                result.Data = data[pos++];
-                                yield return result;
-                            }
+                            result.D = destinationIndexes[j];
+                            result.Data = data[pos++];
+                            yield return result;
                         }
                     }
-                    break;
-            }
+                }
+                break;
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

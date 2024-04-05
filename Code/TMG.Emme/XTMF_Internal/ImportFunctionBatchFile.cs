@@ -24,48 +24,47 @@ using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Emme.XTMF_Internal
+namespace TMG.Emme.XTMF_Internal;
+
+[ModuleInformation(Description = "This module allows the model system to load in a VDF batch file into an EMME project.  This" +
+    " is useful after loading in a NWP to modify it without editing the NWP directly.")]
+public sealed class ImportFunctionBatchFile : IEmmeTool
 {
-    [ModuleInformation(Description = "This module allows the model system to load in a VDF batch file into an EMME project.  This" +
-        " is useful after loading in a NWP to modify it without editing the NWP directly.")]
-    public sealed class ImportFunctionBatchFile : IEmmeTool
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+    [SubModelInformation(Required = true, Description = "The location of the transaction file to load.")]
+    public FileLocation TransactionFile;
+
+    [RunParameter("Scenario Number", 0, "The scenario number to use.")]
+    public int ScenarioNumber;
+
+    public bool Execute(Controller controller)
     {
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        [SubModelInformation(Required = true, Description = "The location of the transaction file to load.")]
-        public FileLocation TransactionFile;
-
-        [RunParameter("Scenario Number", 0, "The scenario number to use.")]
-        public int ScenarioNumber;
-
-        public bool Execute(Controller controller)
+        if (controller is ModellerController mc)
         {
-            if (controller is ModellerController mc)
+            return mc.Run(this, "tmg.XTMF_internal.import_function_batch_file", new ModellerControllerParameter[]
             {
-                return mc.Run(this, "tmg.XTMF_internal.import_function_batch_file", new ModellerControllerParameter[]
-                {
-                    new("batch_file", TransactionFile),
-                    new("scenario_number", ScenarioNumber.ToString()),
-                });
-            }
-            else
-            {
-                throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-            }
+                new("batch_file", TransactionFile),
+                new("scenario_number", ScenarioNumber.ToString()),
+            });
         }
-
-        public bool RuntimeValidation(ref string error)
+        else
         {
-            if(ScenarioNumber <= 0)
-            {
-                error = $"The scenario number {ScenarioNumber} is invalid!";
-                return false;
-            }
-            return true;
+            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(ScenarioNumber <= 0)
+        {
+            error = $"The scenario number {ScenarioNumber} is invalid!";
+            return false;
+        }
+        return true;
     }
 }

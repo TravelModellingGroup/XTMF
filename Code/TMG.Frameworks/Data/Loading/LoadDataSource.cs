@@ -19,37 +19,35 @@
 using System;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Loading
+namespace TMG.Frameworks.Data.Loading;
+
+[ModuleInformation(Description = "This module will force the data source to be loaded, and if it has already been previously, reload.")]
+public class LoadDataSource<T> : ISelfContainedModule
 {
-    [ModuleInformation(Description = "This module will force the data source to be loaded, and if it has already been previously, reload.")]
-    public class LoadDataSource<T> : ISelfContainedModule
+
+    [RunParameter("Reload", true, "Reload the data source if it has already been loaded?")]
+    public bool Reload;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = true, Description = "The data source to load/reload.")]
+    public IDataSource<T> ToLoad;
+
+    public bool RuntimeValidation(ref string error)
     {
-
-        [RunParameter("Reload", true, "Reload the data source if it has already been loaded?")]
-        public bool Reload;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = true, Description = "The data source to load/reload.")]
-        public IDataSource<T> ToLoad;
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            if(Reload && ToLoad.Loaded)
-            {
-                ToLoad.UnloadData();
-            }
-            ToLoad.LoadData();
-        }
+        return true;
     }
 
+    public void Start()
+    {
+        if(Reload && ToLoad.Loaded)
+        {
+            ToLoad.UnloadData();
+        }
+        ToLoad.LoadData();
+    }
 }

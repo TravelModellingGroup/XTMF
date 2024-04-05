@@ -22,162 +22,161 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TMG.GTAModel.DataUtility
+namespace TMG.GTAModel.DataUtility;
+
+public class NumberList : IList<int>
 {
-    public class NumberList : IList<int>
+    protected int[] Values;
+
+    public int Count
     {
-        protected int[] Values;
+        get { return Values.Length; }
+    }
 
-        public int Count
+    public bool IsReadOnly
+    {
+        get { return false; }
+    }
+
+    public int this[int index]
+    {
+        get
         {
-            get { return Values.Length; }
+            return Values[index];
         }
 
-        public bool IsReadOnly
+        set
         {
-            get { return false; }
+            Values[index] = value;
         }
+    }
 
-        public int this[int index]
+    public static bool TryParse(string input, out NumberList data)
+    {
+        string error = null;
+        return TryParse( ref error, input, out data );
+    }
+
+    public static bool TryParse(ref string error, string input, out NumberList data)
+    {
+        data = null;
+        var values = new List<int>();
+        var i = 0;
+        BurnWhiteSpace( ref i, input );
+        var length = input.Length;
+        while ( i < length )
         {
-            get
+            var number = 0;
+            var c = input[i];
+            do
             {
-                return Values[index];
-            }
-
-            set
-            {
-                Values[index] = value;
-            }
-        }
-
-        public static bool TryParse(string input, out NumberList data)
-        {
-            string error = null;
-            return TryParse( ref error, input, out data );
-        }
-
-        public static bool TryParse(ref string error, string input, out NumberList data)
-        {
-            data = null;
-            var values = new List<int>();
-            var i = 0;
-            BurnWhiteSpace( ref i, input );
-            var length = input.Length;
-            while ( i < length )
-            {
-                var number = 0;
-                var c = input[i];
-                do
+                if ( c == '\n' | c == '\r' )
                 {
-                    if ( c == '\n' | c == '\r' )
-                    {
-                        error = "Unexpected newline while trying to read in a number string!";
-                        return false;
-                    }
-                    if ( c < '0' | c > '9' )
-                    {
-                        error = "We found a(n) '" + c + "' while trying to read a number!";
-                        return false;
-                    }
-                    number = number * 10 + ( c - '0' );
-                } while ( ++i < length && ( ( c = input[i] ) != '\t' & c != ' ' & c != ',' ) );
-                BurnWhiteSpace( ref i, input );
-                values.Add( number );
-            }
-            data = [];
-            data.Values = values.ToArray();
-            return true;
-        }
-
-        public void Add(int item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void Clear()
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool Contains(int item)
-        {
-            return IndexOf( item ) != -1;
-        }
-
-        public void CopyTo(int[] array, int arrayIndex)
-        {
-            Array.Copy( Values, 0, array, arrayIndex, Values.Length );
-        }
-
-        public IEnumerator<int> GetEnumerator()
-        {
-            return ( (ICollection<int>)Values ).GetEnumerator();
-        }
-
-        public int IndexOf(int item)
-        {
-            for ( var i = 0; i < Values.Length; i++ )
-            {
-                if ( item == Values[i] )
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        public void Insert(int index, int item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool Remove(int item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new NotSupportedException();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Values.GetEnumerator();
-        }
-
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-            for ( var i = 0; i < Values.Length; i++ )
-            {
-                builder.Append( Values[i] );
-                builder.Append( ',' );
-            }
-            return builder.ToString( 0, builder.Length - 1 );
-        }
-
-        private static void BurnWhiteSpace(ref int i, string input)
-        {
-            while ( i < input.Length && WhiteSpace( input[i] ) )
-            {
-                i++;
-            }
-        }
-
-        private static bool WhiteSpace(char p)
-        {
-            switch ( p )
-            {
-                case '\t':
-                case ' ':
-                case ',':
-                    return true;
-
-                default:
+                    error = "Unexpected newline while trying to read in a number string!";
                     return false;
+                }
+                if ( c < '0' | c > '9' )
+                {
+                    error = "We found a(n) '" + c + "' while trying to read a number!";
+                    return false;
+                }
+                number = number * 10 + ( c - '0' );
+            } while ( ++i < length && ( ( c = input[i] ) != '\t' & c != ' ' & c != ',' ) );
+            BurnWhiteSpace( ref i, input );
+            values.Add( number );
+        }
+        data = [];
+        data.Values = values.ToArray();
+        return true;
+    }
+
+    public void Add(int item)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Clear()
+    {
+        throw new NotSupportedException();
+    }
+
+    public bool Contains(int item)
+    {
+        return IndexOf( item ) != -1;
+    }
+
+    public void CopyTo(int[] array, int arrayIndex)
+    {
+        Array.Copy( Values, 0, array, arrayIndex, Values.Length );
+    }
+
+    public IEnumerator<int> GetEnumerator()
+    {
+        return ( (ICollection<int>)Values ).GetEnumerator();
+    }
+
+    public int IndexOf(int item)
+    {
+        for ( var i = 0; i < Values.Length; i++ )
+        {
+            if ( item == Values[i] )
+            {
+                return i;
             }
+        }
+        return -1;
+    }
+
+    public void Insert(int index, int item)
+    {
+        throw new NotSupportedException();
+    }
+
+    public bool Remove(int item)
+    {
+        throw new NotSupportedException();
+    }
+
+    public void RemoveAt(int index)
+    {
+        throw new NotSupportedException();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return Values.GetEnumerator();
+    }
+
+    public override string ToString()
+    {
+        var builder = new StringBuilder();
+        for ( var i = 0; i < Values.Length; i++ )
+        {
+            builder.Append( Values[i] );
+            builder.Append( ',' );
+        }
+        return builder.ToString( 0, builder.Length - 1 );
+    }
+
+    private static void BurnWhiteSpace(ref int i, string input)
+    {
+        while ( i < input.Length && WhiteSpace( input[i] ) )
+        {
+            i++;
+        }
+    }
+
+    private static bool WhiteSpace(char p)
+    {
+        switch ( p )
+        {
+            case '\t':
+            case ' ':
+            case ',':
+                return true;
+
+            default:
+                return false;
         }
     }
 }

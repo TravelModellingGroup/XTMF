@@ -18,29 +18,28 @@
 */
 using System;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// An IProgressReport helps provide information
+/// to the user about how the system is
+/// </summary>
+public interface IProgressReport
 {
     /// <summary>
-    /// An IProgressReport helps provide information
-    /// to the user about how the system is
+    /// A colour attribute for this progress report.
+    /// In R,G,B format.
     /// </summary>
-    public interface IProgressReport
-    {
-        /// <summary>
-        /// A colour attribute for this progress report.
-        /// In R,G,B format.
-        /// </summary>
-        /// <remarks>Typically this is for the colour of a client's progress bar</remarks>
-        Tuple<byte, byte, byte> Colour { get; set; }
+    /// <remarks>Typically this is for the colour of a client's progress bar</remarks>
+    Tuple<byte, byte, byte> Colour { get; set; }
 
-        /// <summary>
-        /// A function that provides the current progress to report.
-        /// </summary>
-        Func<float> GetProgress { get; }
+    /// <summary>
+    /// A function that provides the current progress to report.
+    /// </summary>
+    Func<float> GetProgress { get; }
 
-        /// <summary>
-        /// The name of this progress report.
-        /// </summary>
-        string Name { get; }
-    }
+    /// <summary>
+    /// The name of this progress report.
+    /// </summary>
+    string Name { get; }
 }

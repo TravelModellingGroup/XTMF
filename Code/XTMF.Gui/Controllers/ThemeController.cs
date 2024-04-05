@@ -26,143 +26,142 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 
-namespace XTMF.Gui.Controllers
+namespace XTMF.Gui.Controllers;
+
+public class ThemeController
 {
-    public class ThemeController
+    private static readonly Uri[] RequiredResources =
     {
-        private static readonly Uri[] RequiredResources =
-        {
-            new("Resources/ControlStyles.xaml", UriKind.RelativeOrAbsolute),
-            new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
-            new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
-         
-        };
+        new("Resources/ControlStyles.xaml", UriKind.RelativeOrAbsolute),
+        new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
+        new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
+     
+    };
 
-        public class Theme
-        {
-            public string Name;
-            public string ThemeFile;
-            public ResourceDictionary ThemeResourceDictionary;
+    public class Theme
+    {
+        public string Name;
+        public string ThemeFile;
+        public ResourceDictionary ThemeResourceDictionary;
 
-            public Theme(string name, string themeFile, ResourceDictionary tDictionary)
-            {
-                Name = name;
-                ThemeFile = themeFile;
-                ThemeResourceDictionary = tDictionary;
-            }
+        public Theme(string name, string themeFile, ResourceDictionary tDictionary)
+        {
+            Name = name;
+            ThemeFile = themeFile;
+            ThemeResourceDictionary = tDictionary;
         }
+    }
 
-        internal List<Theme> Themes { get; } = [];
+    internal List<Theme> Themes { get; } = [];
 
-        private string _Configuration;
+    private string _Configuration;
 
-        public void LoadTheme(string theme)
+    public void LoadTheme(string theme)
+    {
+
+        Application.Current.Resources.MergedDictionaries.Clear();
+        Uri NewTheme = new(theme + ".thm", UriKind.Relative);
+        ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
+        Application.Current.Resources.MergedDictionaries.Add(dictionary);
+    }
+
+    /// <summary>
+    /// Default theme loading, resources are pulled from application resources
+    /// and not from file. Loads the default (dark) theme.
+    /// </summary>
+    private void LoadDefaultDarkTheme()
+    {
+        return;
+    }
+
+    private void ClearThemeDictionaries()
+    {
+        foreach (var d in Themes)
         {
-
-            Application.Current.Resources.MergedDictionaries.Clear();
-            Uri NewTheme = new(theme + ".thm", UriKind.Relative);
-            ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
-            Application.Current.Resources.MergedDictionaries.Add(dictionary);
+            Application.Current.Resources.MergedDictionaries.Remove(d.ThemeResourceDictionary);
         }
+    }
 
-        /// <summary>
-        /// Default theme loading, resources are pulled from application resources
-        /// and not from file. Loads the default (dark) theme.
-        /// </summary>
-        private void LoadDefaultDarkTheme()
+    public Theme GetDefaultTheme()
+    {
+        return Themes[0];
+    }
+
+    public void SetThemeActive(Theme theme)
+    {
+        Application.Current.Resources.MergedDictionaries.RemoveAt(Application.Current.Resources.MergedDictionaries.Count - 1);
+        Application.Current.Resources.MergedDictionaries.Add(theme.ThemeResourceDictionary);
+        foreach (var uri in RequiredResources)
+        {
+            Application.Current.Resources.MergedDictionaries.RemoveAt(0);
+           Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
+
+        }
+        /* Look up Avalon Theme if present */
+        if (!theme.ThemeResourceDictionary.Contains("AvalonDockTheme"))
         {
             return;
         }
-
-        private void ClearThemeDictionaries()
+        try
         {
-            foreach (var d in Themes)
-            {
-                Application.Current.Resources.MergedDictionaries.Remove(d.ThemeResourceDictionary);
-            }
+            string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
+            Type themeType = Type.GetType(themeClass);
         }
-
-        public Theme GetDefaultTheme()
+        catch (Exception e)
         {
-            return Themes[0];
+            Console.WriteLine(e);
         }
+    }
 
-        public void SetThemeActive(Theme theme)
+    public Theme FindThemeByName(string name) => Themes.Find(t => t.Name == name);
+
+    /// <summary>
+    /// Default theme loading, resources are pulled from application resources
+    /// and not from file. Loads the default (light) theme.
+    /// </summary>
+    private void LoadDefaultLightTheme()
+    {
+      
+    }
+
+    private void LoadDefaultWarmTheme()
+    {
+
+    }
+
+    private void LoadDefaultForestTheme()
+    {
+       
+    }
+
+    public ThemeController(string configuration)
+    {
+        /* Load themes from Configuration and search for themes in the current configuration
+         * directory .*/
+        _Configuration = Path.Combine(configuration, "Themes");
+        LoadDefaultDarkTheme();
+        LoadDefaultLightTheme();
+        LoadDefaultWarmTheme();
+        LoadDefaultForestTheme();
+        if (!Directory.Exists(_Configuration))
         {
-            Application.Current.Resources.MergedDictionaries.RemoveAt(Application.Current.Resources.MergedDictionaries.Count - 1);
-            Application.Current.Resources.MergedDictionaries.Add(theme.ThemeResourceDictionary);
-            foreach (var uri in RequiredResources)
-            {
-                Application.Current.Resources.MergedDictionaries.RemoveAt(0);
-               Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
-
-            }
-            /* Look up Avalon Theme if present */
-            if (!theme.ThemeResourceDictionary.Contains("AvalonDockTheme"))
-            {
-                return;
-            }
-            try
-            {
-                string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
-                Type themeType = Type.GetType(themeClass);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            return;
         }
-
-        public Theme FindThemeByName(string name) => Themes.Find(t => t.Name == name);
-
-        /// <summary>
-        /// Default theme loading, resources are pulled from application resources
-        /// and not from file. Loads the default (light) theme.
-        /// </summary>
-        private void LoadDefaultLightTheme()
+        foreach (var file in Directory.EnumerateFiles(_Configuration))
         {
-          
-        }
-
-        private void LoadDefaultWarmTheme()
-        {
-
-        }
-
-        private void LoadDefaultForestTheme()
-        {
-           
-        }
-
-        public ThemeController(string configuration)
-        {
-            /* Load themes from Configuration and search for themes in the current configuration
-             * directory .*/
-            _Configuration = Path.Combine(configuration, "Themes");
-            LoadDefaultDarkTheme();
-            LoadDefaultLightTheme();
-            LoadDefaultWarmTheme();
-            LoadDefaultForestTheme();
-            if (!Directory.Exists(_Configuration))
+            if (file.EndsWith(".thm"))
             {
-                return;
-            }
-            foreach (var file in Directory.EnumerateFiles(_Configuration))
-            {
-                if (file.EndsWith(".thm"))
+                try
                 {
-                    try
-                    {
-                        var themeDictionary = XamlReader.Load(new FileStream(file, FileMode.Open)) as ResourceDictionary;
-                        //ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(themeUri);
-                        Theme theme = new(themeDictionary["ThemeName"].ToString(), file, themeDictionary);
-                        Themes.Add(theme);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
+                    var themeDictionary = XamlReader.Load(new FileStream(file, FileMode.Open)) as ResourceDictionary;
+                    //ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(themeUri);
+                    Theme theme = new(themeDictionary["ThemeName"].ToString(), file, themeDictionary);
+                    Themes.Add(theme);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
                 }
             }
         }

@@ -24,53 +24,52 @@ using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Processing.AST
+namespace TMG.Frameworks.Data.Processing.AST;
+
+public sealed class Negate : MonoExpression
 {
-    public sealed class Negate : MonoExpression
+    public Negate(int start) : base(start)
     {
-        public Negate(int start) : base(start)
-        {
-        }
+    }
 
-        internal override bool OptimizeAst(ref Expression ex, ref string error)
+    internal override bool OptimizeAst(ref Expression ex, ref string error)
+    {
+        // Optimize our children first
+        if (!InnerExpression.OptimizeAst(ref InnerExpression, ref error))
         {
-            // Optimize our children first
-            if (!InnerExpression.OptimizeAst(ref InnerExpression, ref error))
-            {
-                return false;
-            }
-            // optimize the case that we are a negative literal
-            if (ex is Literal l)
-            {
-                ex = new Literal(Start, -l.Value);
-            }
-            return true;
+            return false;
         }
-
-        public override ComputationResult Evaluate(IDataSource[] dataSources)
+        // optimize the case that we are a negative literal
+        if (ex is Literal l)
         {
-            var inner = InnerExpression.Evaluate(dataSources);
-            if(inner.IsValue)
+            ex = new Literal(Start, -l.Value);
+        }
+        return true;
+    }
+
+    public override ComputationResult Evaluate(IDataSource[] dataSources)
+    {
+        var inner = InnerExpression.Evaluate(dataSources);
+        if(inner.IsValue)
+        {
+            return new ComputationResult(-inner.LiteralValue);
+        }
+        else if(inner.IsVectorResult)
+        {
+            var ret = inner.Accumulator ? inner.VectorData : inner.VectorData.CreateSimilarArray<float>();
+            VectorHelper.Negate(ret.GetFlatData(), inner.VectorData.GetFlatData());
+            return new ComputationResult(ret, true, inner.Direction);
+        }
+        else
+        {
+            var ret = inner.Accumulator ? inner.OdData : inner.OdData.CreateSimilarArray<float>();
+            var flatRet = ret.GetFlatData();
+            var flatInner = inner.OdData.GetFlatData();
+            for (int i = 0; i < flatRet.Length; i++)
             {
-                return new ComputationResult(-inner.LiteralValue);
+                VectorHelper.Negate(flatRet[i], flatInner[i]);
             }
-            else if(inner.IsVectorResult)
-            {
-                var ret = inner.Accumulator ? inner.VectorData : inner.VectorData.CreateSimilarArray<float>();
-                VectorHelper.Negate(ret.GetFlatData(), inner.VectorData.GetFlatData());
-                return new ComputationResult(ret, true, inner.Direction);
-            }
-            else
-            {
-                var ret = inner.Accumulator ? inner.OdData : inner.OdData.CreateSimilarArray<float>();
-                var flatRet = ret.GetFlatData();
-                var flatInner = inner.OdData.GetFlatData();
-                for (int i = 0; i < flatRet.Length; i++)
-                {
-                    VectorHelper.Negate(flatRet[i], flatInner[i]);
-                }
-                return new ComputationResult(ret, true);
-            }
+            return new ComputationResult(ret, true);
         }
     }
 }

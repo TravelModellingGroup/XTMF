@@ -16,29 +16,28 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace Tasha.Scheduler
+namespace Tasha.Scheduler;
+
+/// <summary>
+/// Something an agent uses.
+/// </summary>
+public abstract class Project
 {
     /// <summary>
-    /// Something an agent uses.
+    /// Creates a new project
     /// </summary>
-    public abstract class Project
+    /// <param name="schedule">The schedule for this project</param>
+    internal Project(Schedule schedule)
     {
-        /// <summary>
-        /// Creates a new project
-        /// </summary>
-        /// <param name="schedule">The schedule for this project</param>
-        internal Project(Schedule schedule)
-        {
-            Schedule = schedule;
-        }
+        Schedule = schedule;
+    }
 
-        /// <summary>
-        /// The schedule for the current project
-        /// </summary>
-        public Schedule Schedule
-        {
-            get;
-            internal set;
-        }
+    /// <summary>
+    /// The schedule for the current project
+    /// </summary>
+    public Schedule Schedule
+    {
+        get;
+        internal set;
     }
 }

@@ -23,108 +23,107 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class PDFloatDataSource : IDataSource<SparseTwinIndex<float>>
 {
-    public class PDFloatDataSource : IDataSource<SparseTwinIndex<float>>
+    [SubModelInformation( Required = true, Description = "The module that reads in the data that we will aggregate." )]
+    public IReadODData<float> Reader;
+
+    [RunParameter("Apply Default", false, "Should we apply the default value before loading in the data?")]
+    public bool ApplyDefault;
+
+    [RunParameter("Default Value", 0.0f, "The default value to use.")]
+    public float DefaultValue;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseTwinIndex<float> Data;
+
+    public string Name
     {
-        [SubModelInformation( Required = true, Description = "The module that reads in the data that we will aggregate." )]
-        public IReadODData<float> Reader;
+        get;
+        set;
+    }
 
-        [RunParameter("Apply Default", false, "Should we apply the default value before loading in the data?")]
-        public bool ApplyDefault;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter("Default Value", 0.0f, "The default value to use.")]
-        public float DefaultValue;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public SparseTwinIndex<float> GiveData()
+    {
+        return Data;
+    }
 
-        private SparseTwinIndex<float> Data;
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        public string Name
+    public void LoadData()
+    {
+        var temp = CreatePDArray().CreateSquareTwinArray<float>();
+        if (ApplyDefault)
         {
-            get;
-            set;
+            ApplyDefaultToData( temp );
         }
-
-        public float Progress
+        foreach ( var point in Reader.Read() )
         {
-            get { return 0; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public SparseTwinIndex<float> GiveData()
-        {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            var temp = CreatePDArray().CreateSquareTwinArray<float>();
-            if (ApplyDefault)
+            if ( temp.ContainsIndex( point.O, point.D ) )
             {
-                ApplyDefaultToData( temp );
-            }
-            foreach ( var point in Reader.Read() )
-            {
-                if ( temp.ContainsIndex( point.O, point.D ) )
-                {
-                    temp[point.O, point.D] = point.Data;
-                }
-            }
-            Data = temp;
-        }
-
-        private void ApplyDefaultToData(SparseTwinIndex<float> temp)
-        {
-            var value = DefaultValue;
-            var data = temp.GetFlatData();
-            if ( data.Length == 0 ) return;
-            var row = data[0];
-            for (int i = 0; i < row.Length; i++ )
-            {
-                row[i] = value;
-            }
-            var length = row.Length * sizeof(float);
-            for (int i = 1; i < data.Length; i++)
-            {
-                Buffer.BlockCopy( row, 0, data[i], 0, length );
+                temp[point.O, point.D] = point.Data;
             }
         }
+        Data = temp;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    private void ApplyDefaultToData(SparseTwinIndex<float> temp)
+    {
+        var value = DefaultValue;
+        var data = temp.GetFlatData();
+        if ( data.Length == 0 ) return;
+        var row = data[0];
+        for (int i = 0; i < row.Length; i++ )
         {
-            return true;
+            row[i] = value;
         }
-
-        public void UnloadData()
+        var length = row.Length * sizeof(float);
+        for (int i = 1; i < data.Length; i++)
         {
-            Data = null;
+            Buffer.BlockCopy( row, 0, data[i], 0, length );
         }
+    }
 
-        private SparseArray<int> CreatePDArray()
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+    }
+
+    private SparseArray<int> CreatePDArray()
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        List<int> pdNumbersFound = new( 10 );
+        for ( int i = 0; i < zones.Length; i++ )
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            List<int> pdNumbersFound = new( 10 );
-            for ( int i = 0; i < zones.Length; i++ )
+            var pdID = zones[i].PlanningDistrict;
+            if ( !pdNumbersFound.Contains( pdID ) )
             {
-                var pdID = zones[i].PlanningDistrict;
-                if ( !pdNumbersFound.Contains( pdID ) )
-                {
-                    pdNumbersFound.Add( pdID );
-                }
+                pdNumbersFound.Add( pdID );
             }
-            var pdArray = pdNumbersFound.ToArray();
-            return SparseArray<int>.CreateSparseArray( pdArray, pdArray );
         }
+        var pdArray = pdNumbersFound.ToArray();
+        return SparseArray<int>.CreateSparseArray( pdArray, pdArray );
     }
 }

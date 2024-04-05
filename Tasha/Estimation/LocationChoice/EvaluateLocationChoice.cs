@@ -27,303 +27,302 @@ using TMG.Input;
 using Datastructure;
 using TMG;
 
-namespace Tasha.Estimation.LocationChoice
+namespace Tasha.Estimation.LocationChoice;
+
+public class EvaluateLocationChoice : IPostHousehold
 {
-    public class EvaluateLocationChoice : IPostHousehold
+    [SubModelInformation(Required = true, Description = "The location choice model to evaluate.")]
+    public ILocationChoiceModel LocationChoice;
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    [SubModelInformation(Required = false, Description = "The location to save a confusion matrix for validation.")]
+    public FileLocation ConfusionMatrix;
+
+    [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+    public FileLocation ModelWorkOD;
+
+    [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+    public FileLocation ModelMarketOD;
+
+    [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+    public FileLocation ModelOtherOD;
+
+    [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+    public FileLocation ObservedWorkOD;
+
+    [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+    public FileLocation ObservedMarketOD;
+
+    [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+    public FileLocation ObservedOtherOD;
+
+    SparseTwinIndex<float> Choices;
+
+    SpinLock ChoicesLock = new(false);
+
+    public string Name
     {
-        [SubModelInformation(Required = true, Description = "The location choice model to evaluate.")]
-        public ILocationChoiceModel LocationChoice;
+        get; set;
+    }
 
-        [RootModule]
-        public IEstimationClientModelSystem Root;
-
-        [SubModelInformation(Required = false, Description = "The location to save a confusion matrix for validation.")]
-        public FileLocation ConfusionMatrix;
-
-        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
-        public FileLocation ModelWorkOD;
-
-        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
-        public FileLocation ModelMarketOD;
-
-        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
-        public FileLocation ModelOtherOD;
-
-        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
-        public FileLocation ObservedWorkOD;
-
-        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
-        public FileLocation ObservedMarketOD;
-
-        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
-        public FileLocation ObservedOtherOD;
-
-        SparseTwinIndex<float> Choices;
-
-        SpinLock ChoicesLock = new(false);
-
-        public string Name
+    public float Progress
+    {
+        get
         {
-            get; set;
+            return 0f;
         }
+    }
 
-        public float Progress
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
         {
-            get
-            {
-                return 0f;
-            }
+            return null;
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    SpinLock FitnessLock = new(false);
+    private float Fitness;
+
+    private SparseArray<IZone> ZoneSystem;
+
+    public void Execute(ITashaHousehold household, int iteration)
+    {
+        var localFitness = 0.0f;
+        var persons = household.Persons;
+        bool taken;
+        if (ConfusionMatrix == null)
         {
-            get
+            for (int personIndex = 0; personIndex < persons.Length; personIndex++)
             {
-                return null;
-            }
-        }
-
-        SpinLock FitnessLock = new(false);
-        private float Fitness;
-
-        private SparseArray<IZone> ZoneSystem;
-
-        public void Execute(ITashaHousehold household, int iteration)
-        {
-            var localFitness = 0.0f;
-            var persons = household.Persons;
-            bool taken;
-            if (ConfusionMatrix == null)
-            {
-                for (int personIndex = 0; personIndex < persons.Length; personIndex++)
+                var tripChains = persons[personIndex].TripChains;
+                for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
                 {
-                    var tripChains = persons[personIndex].TripChains;
-                    for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
+                    var trips = tripChains[tcIndex].Trips;
+                    IEpisode[] episodes = BuildScheduleFromTrips(trips);
+                    for (int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
                     {
-                        var trips = tripChains[tcIndex].Trips;
-                        IEpisode[] episodes = BuildScheduleFromTrips(trips);
-                        for (int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
+                        var activtiyType = episodes[tripIndex].ActivityType;
+                        int revieldChoice = ZoneSystem.GetFlatIndex(trips[tripIndex].DestinationZone.ZoneNumber);
+                        switch (activtiyType)
                         {
-                            var activtiyType = episodes[tripIndex].ActivityType;
-                            int revieldChoice = ZoneSystem.GetFlatIndex(trips[tripIndex].DestinationZone.ZoneNumber);
-                            switch (activtiyType)
-                            {
-                                case Activity.WorkBasedBusiness:
-                                case Activity.Market:
-                                case Activity.IndividualOther:
-                                case Activity.JointMarket:
-                                case Activity.JointOther:
-                                    {
-                                        var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
-                                        var correct = Math.Min(choices[revieldChoice] + 1e-20f, 1.0f);
-                                        localFitness += (float)Math.Log(correct);
-                                        break;
-                                    }
-                            }
+                            case Activity.WorkBasedBusiness:
+                            case Activity.Market:
+                            case Activity.IndividualOther:
+                            case Activity.JointMarket:
+                            case Activity.JointOther:
+                                {
+                                    var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
+                                    var correct = Math.Min(choices[revieldChoice] + 1e-20f, 1.0f);
+                                    localFitness += (float)Math.Log(correct);
+                                    break;
+                                }
                         }
                     }
                 }
             }
-            else
+        }
+        else
+        {
+            var flatChoices = Choices.GetFlatData();
+            for (int personIndex = 0; personIndex < persons.Length; personIndex++)
             {
-                var flatChoices = Choices.GetFlatData();
-                for (int personIndex = 0; personIndex < persons.Length; personIndex++)
+                var tripChains = persons[personIndex].TripChains;
+                var expansionFactor = persons[personIndex].ExpansionFactor;
+                for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
                 {
-                    var tripChains = persons[personIndex].TripChains;
-                    var expansionFactor = persons[personIndex].ExpansionFactor;
-                    for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
+                    var trips = tripChains[tcIndex].Trips;
+                    IEpisode[] episodes = BuildScheduleFromTrips(trips);
+                    for (int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
                     {
-                        var trips = tripChains[tcIndex].Trips;
-                        IEpisode[] episodes = BuildScheduleFromTrips(trips);
-                        for (int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
+                        var activtiyType = episodes[tripIndex].ActivityType;
+                        int origin = ZoneSystem.GetFlatIndex(trips[tripIndex].OriginalZone.ZoneNumber);
+                        int revieldChoice = ZoneSystem.GetFlatIndex(trips[tripIndex].DestinationZone.ZoneNumber);
+                        switch (activtiyType)
                         {
-                            var activtiyType = episodes[tripIndex].ActivityType;
-                            int origin = ZoneSystem.GetFlatIndex(trips[tripIndex].OriginalZone.ZoneNumber);
-                            int revieldChoice = ZoneSystem.GetFlatIndex(trips[tripIndex].DestinationZone.ZoneNumber);
-                            switch (activtiyType)
-                            {
-                                case Activity.WorkBasedBusiness:
-                                case Activity.Market:
-                                case Activity.IndividualOther:
-                                case Activity.JointMarket:
-                                case Activity.JointOther:
+                            case Activity.WorkBasedBusiness:
+                            case Activity.Market:
+                            case Activity.IndividualOther:
+                            case Activity.JointMarket:
+                            case Activity.JointOther:
+                                {
+                                    var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
+                                    var correct = Math.Min(choices[revieldChoice] + 0.001f, 1.0f);
+                                    taken = false;
+                                    ChoicesLock.Enter(ref taken);
+                                    for (int i = 0; i < choices.Length; i++)
                                     {
-                                        var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
-                                        var correct = Math.Min(choices[revieldChoice] + 0.001f, 1.0f);
-                                        taken = false;
-                                        ChoicesLock.Enter(ref taken);
-                                        for (int i = 0; i < choices.Length; i++)
-                                        {
-                                            flatChoices[i][revieldChoice] += choices[i];
-                                            switch (activtiyType)
-                                            {
-                                                case Activity.WorkBasedBusiness:
-                                                    if (ModelWork != null)
-                                                    {
-                                                        ModelWork[i][revieldChoice] += choices[i];
-                                                    }
-                                                    break;
-                                                case Activity.Market:
-                                                case Activity.JointMarket:
-                                                    if (ModelMarket != null)
-                                                    {
-                                                        ModelMarket[i][revieldChoice] += choices[i];
-                                                    }
-                                                    break;
-                                                case Activity.IndividualOther:
-                                                case Activity.JointOther:
-                                                    if (ModelOther != null)
-                                                    {
-                                                        ModelOther[i][revieldChoice] += choices[i];
-                                                    }
-                                                    break;
-                                            }
-                                        }
+                                        flatChoices[i][revieldChoice] += choices[i];
                                         switch (activtiyType)
                                         {
                                             case Activity.WorkBasedBusiness:
-                                                AddIfExists(ObservedWork, origin, revieldChoice);
+                                                if (ModelWork != null)
+                                                {
+                                                    ModelWork[i][revieldChoice] += choices[i];
+                                                }
                                                 break;
                                             case Activity.Market:
                                             case Activity.JointMarket:
-                                                AddIfExists(ObservedMarket, origin, revieldChoice);
+                                                if (ModelMarket != null)
+                                                {
+                                                    ModelMarket[i][revieldChoice] += choices[i];
+                                                }
                                                 break;
                                             case Activity.IndividualOther:
                                             case Activity.JointOther:
-                                                AddIfExists(ObservedOther, origin, revieldChoice);
+                                                if (ModelOther != null)
+                                                {
+                                                    ModelOther[i][revieldChoice] += choices[i];
+                                                }
                                                 break;
                                         }
-                                        if (taken) ChoicesLock.Exit(false);
-                                        localFitness += (float)Math.Log(correct);
-                                        break;
                                     }
-                            }
+                                    switch (activtiyType)
+                                    {
+                                        case Activity.WorkBasedBusiness:
+                                            AddIfExists(ObservedWork, origin, revieldChoice);
+                                            break;
+                                        case Activity.Market:
+                                        case Activity.JointMarket:
+                                            AddIfExists(ObservedMarket, origin, revieldChoice);
+                                            break;
+                                        case Activity.IndividualOther:
+                                        case Activity.JointOther:
+                                            AddIfExists(ObservedOther, origin, revieldChoice);
+                                            break;
+                                    }
+                                    if (taken) ChoicesLock.Exit(false);
+                                    localFitness += (float)Math.Log(correct);
+                                    break;
+                                }
                         }
                     }
                 }
             }
-            taken = false;
-            // evaluate the household
-            FitnessLock.Enter(ref taken);
-            Fitness += localFitness;
-            if (taken) FitnessLock.Exit(true);
         }
+        taken = false;
+        // evaluate the household
+        FitnessLock.Enter(ref taken);
+        Fitness += localFitness;
+        if (taken) FitnessLock.Exit(true);
+    }
 
-        private void AddIfExists(float[][] observedWork, int origin, int revieldChoice)
+    private void AddIfExists(float[][] observedWork, int origin, int revieldChoice)
+    {
+        if (observedWork != null)
         {
-            if (observedWork != null)
+            observedWork[origin][revieldChoice]++;
+        }
+    }
+
+    private IEpisode[] BuildScheduleFromTrips(List<ITrip> trips)
+    {
+        ITashaPerson owner = trips[0].TripChain.Person;
+        PersonSchedule schedule = new(owner);
+        // we don't do the last trip since it is always to home.
+        for (int i = 0; i < trips.Count - 1; i++)
+        {
+            Episode ep = CreateEpisode(trips[i], trips[i + 1], owner);
+            ep.Zone = trips[i].DestinationZone;
+            schedule.InsertAt(ep, i);
+        }
+        return schedule.Episodes;
+    }
+
+    private Episode CreateEpisode(ITrip trip, ITrip nextTrip, ITashaPerson owner)
+    {
+        return new ActivityEpisode(new TimeWindow(trip.ActivityStartTime, nextTrip.ActivityStartTime), trip.Purpose, owner);
+    }
+
+    public void IterationFinished(int iteration)
+    {
+        Root.RetrieveValue = () => Fitness;
+
+        if (ConfusionMatrix != null)
+        {
+            TMG.Functions.SaveData.SaveMatrix(Choices, ConfusionMatrix);
+        }
+        SaveIfExists(ObservedWork, ObservedWorkOD);
+        SaveIfExists(ObservedMarket, ObservedMarketOD);
+        SaveIfExists(ObservedOther, ObservedOtherOD);
+
+        SaveIfExists(ModelWork, ModelWorkOD);
+        SaveIfExists(ModelMarket, ModelMarketOD);
+        SaveIfExists(ModelOther, ModelOtherOD);
+    }
+
+    private void SaveIfExists(float[][] observedWork, FileLocation observedWorkOD)
+    {
+        if (observedWork != null)
+        {
+            TMG.Functions.SaveData.SaveMatrix(RealRoot.ZoneSystem.ZoneArray.GetFlatData()
+                , observedWork, observedWorkOD);
+        }
+    }
+
+    private float[][] ObservedWork;
+    private float[][] ObservedMarket;
+    private float[][] ObservedOther;
+
+    private float[][] ModelWork;
+    private float[][] ModelMarket;
+    private float[][] ModelOther;
+
+
+    public void IterationStarting(int iteration)
+    {
+        Fitness = 0.0f;
+        if (ConfusionMatrix != null)
+        {
+            Choices = ((ITravelDemandModel)Root.MainClient).ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        }
+        // reload all of the probabilities
+        LocationChoice.LoadLocationChoiceCache();
+        ZoneSystem = RealRoot.ZoneSystem.ZoneArray;
+        CreateIfObserved(out ObservedWork, ObservedWorkOD);
+        CreateIfObserved(out ObservedMarket, ObservedMarketOD);
+        CreateIfObserved(out ObservedOther, ObservedOtherOD);
+
+        CreateIfObserved(out ModelWork, ObservedWorkOD);
+        CreateIfObserved(out ModelMarket, ObservedMarketOD);
+        CreateIfObserved(out ModelOther, ObservedOtherOD);
+    }
+
+    private void CreateIfObserved(out float[][] observedDataSet, FileLocation observedDatasetOutputLocation)
+    {
+        if (observedDatasetOutputLocation == null)
+        {
+            observedDataSet = null;
+        }
+        else
+        {
+            var zones = RealRoot.ZoneSystem.ZoneArray.GetFlatData().Length;
+            observedDataSet = new float[zones][];
+            for (int i = 0; i < observedDataSet.Length; i++)
             {
-                observedWork[origin][revieldChoice]++;
+                observedDataSet[i] = new float[zones];
             }
         }
+    }
 
-        private IEpisode[] BuildScheduleFromTrips(List<ITrip> trips)
+    public void Load(int maxIterations)
+    {
+
+    }
+
+    private ITravelDemandModel RealRoot;
+
+    public bool RuntimeValidation(ref string error)
+    {
+        var realRoot = Root.MainClient as ITravelDemandModel;
+        if (realRoot == null)
         {
-            ITashaPerson owner = trips[0].TripChain.Person;
-            PersonSchedule schedule = new(owner);
-            // we don't do the last trip since it is always to home.
-            for (int i = 0; i < trips.Count - 1; i++)
-            {
-                Episode ep = CreateEpisode(trips[i], trips[i + 1], owner);
-                ep.Zone = trips[i].DestinationZone;
-                schedule.InsertAt(ep, i);
-            }
-            return schedule.Episodes;
+            error = "'" + Name + "' is unable to run because the model system that is being estimated is not based on an ITravelDemandModel!";
+            return false;
         }
-
-        private Episode CreateEpisode(ITrip trip, ITrip nextTrip, ITashaPerson owner)
-        {
-            return new ActivityEpisode(new TimeWindow(trip.ActivityStartTime, nextTrip.ActivityStartTime), trip.Purpose, owner);
-        }
-
-        public void IterationFinished(int iteration)
-        {
-            Root.RetrieveValue = () => Fitness;
-
-            if (ConfusionMatrix != null)
-            {
-                TMG.Functions.SaveData.SaveMatrix(Choices, ConfusionMatrix);
-            }
-            SaveIfExists(ObservedWork, ObservedWorkOD);
-            SaveIfExists(ObservedMarket, ObservedMarketOD);
-            SaveIfExists(ObservedOther, ObservedOtherOD);
-
-            SaveIfExists(ModelWork, ModelWorkOD);
-            SaveIfExists(ModelMarket, ModelMarketOD);
-            SaveIfExists(ModelOther, ModelOtherOD);
-        }
-
-        private void SaveIfExists(float[][] observedWork, FileLocation observedWorkOD)
-        {
-            if (observedWork != null)
-            {
-                TMG.Functions.SaveData.SaveMatrix(RealRoot.ZoneSystem.ZoneArray.GetFlatData()
-                    , observedWork, observedWorkOD);
-            }
-        }
-
-        private float[][] ObservedWork;
-        private float[][] ObservedMarket;
-        private float[][] ObservedOther;
-
-        private float[][] ModelWork;
-        private float[][] ModelMarket;
-        private float[][] ModelOther;
-
-
-        public void IterationStarting(int iteration)
-        {
-            Fitness = 0.0f;
-            if (ConfusionMatrix != null)
-            {
-                Choices = ((ITravelDemandModel)Root.MainClient).ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            }
-            // reload all of the probabilities
-            LocationChoice.LoadLocationChoiceCache();
-            ZoneSystem = RealRoot.ZoneSystem.ZoneArray;
-            CreateIfObserved(out ObservedWork, ObservedWorkOD);
-            CreateIfObserved(out ObservedMarket, ObservedMarketOD);
-            CreateIfObserved(out ObservedOther, ObservedOtherOD);
-
-            CreateIfObserved(out ModelWork, ObservedWorkOD);
-            CreateIfObserved(out ModelMarket, ObservedMarketOD);
-            CreateIfObserved(out ModelOther, ObservedOtherOD);
-        }
-
-        private void CreateIfObserved(out float[][] observedDataSet, FileLocation observedDatasetOutputLocation)
-        {
-            if (observedDatasetOutputLocation == null)
-            {
-                observedDataSet = null;
-            }
-            else
-            {
-                var zones = RealRoot.ZoneSystem.ZoneArray.GetFlatData().Length;
-                observedDataSet = new float[zones][];
-                for (int i = 0; i < observedDataSet.Length; i++)
-                {
-                    observedDataSet[i] = new float[zones];
-                }
-            }
-        }
-
-        public void Load(int maxIterations)
-        {
-
-        }
-
-        private ITravelDemandModel RealRoot;
-
-        public bool RuntimeValidation(ref string error)
-        {
-            var realRoot = Root.MainClient as ITravelDemandModel;
-            if (realRoot == null)
-            {
-                error = "'" + Name + "' is unable to run because the model system that is being estimated is not based on an ITravelDemandModel!";
-                return false;
-            }
-            RealRoot = realRoot;
-            return true;
-        }
+        RealRoot = realRoot;
+        return true;
     }
 }

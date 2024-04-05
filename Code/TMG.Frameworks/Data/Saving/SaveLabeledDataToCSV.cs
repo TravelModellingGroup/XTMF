@@ -23,64 +23,62 @@ using TMG.Frameworks.Data.DataTypes;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Saving
+namespace TMG.Frameworks.Data.Saving;
+
+// ReSharper disable once InconsistentNaming
+public class SaveLabeledDataToCSV<T> : ISelfContainedModule
 {
-    // ReSharper disable once InconsistentNaming
-    public class SaveLabeledDataToCSV<T> : ISelfContainedModule
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-        public string Name { get; set; }
+        return true;
+    }
 
-        public float Progress { get; set; }
+    [SubModelInformation(Required = true, Description = "The data to save.")]
+    public IDataSource<LabeledData<T>> DataToSave;
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+    [SubModelInformation(Required = true, Description = "The location to save to.")]
+    public FileLocation SaveTo;
 
-        public bool RuntimeValidation(ref string error)
+    public void Start()
+    {
+        var weNeedToLoad = !DataToSave.Loaded;
+        if(weNeedToLoad)
         {
-            return true;
+            DataToSave.LoadData();
         }
-
-        [SubModelInformation(Required = true, Description = "The data to save.")]
-        public IDataSource<LabeledData<T>> DataToSave;
-
-        [SubModelInformation(Required = true, Description = "The location to save to.")]
-        public FileLocation SaveTo;
-
-        public void Start()
+        var data = DataToSave.GiveData();
+        if(weNeedToLoad)
         {
-            var weNeedToLoad = !DataToSave.Loaded;
-            if(weNeedToLoad)
+            DataToSave.UnloadData();
+        }
+        // now that we have the data save to to disk
+        using var writer = new StreamWriter(SaveTo);
+        writer.WriteLine("Label,Value");
+        // provide an optimized path for float
+        if (typeof(T) == typeof(float))
+        {
+            var fData = (LabeledData<float>)(object)data;
+            foreach (var element in fData.OrderBy(e => e.Key))
             {
-                DataToSave.LoadData();
+                writer.Write(element.Key);
+                writer.Write(',');
+                writer.WriteLine(element.Value);
             }
-            var data = DataToSave.GiveData();
-            if(weNeedToLoad)
+        }
+        else
+        {
+            foreach (var element in data.OrderBy(e => e.Key))
             {
-                DataToSave.UnloadData();
-            }
-            // now that we have the data save to to disk
-            using var writer = new StreamWriter(SaveTo);
-            writer.WriteLine("Label,Value");
-            // provide an optimized path for float
-            if (typeof(T) == typeof(float))
-            {
-                var fData = (LabeledData<float>)(object)data;
-                foreach (var element in fData.OrderBy(e => e.Key))
-                {
-                    writer.Write(element.Key);
-                    writer.Write(',');
-                    writer.WriteLine(element.Value);
-                }
-            }
-            else
-            {
-                foreach (var element in data.OrderBy(e => e.Key))
-                {
-                    writer.Write(element.Key);
-                    writer.Write(',');
-                    writer.WriteLine(element.Value.ToString());
-                }
+                writer.Write(element.Key);
+                writer.Write(',');
+                writer.WriteLine(element.Value.ToString());
             }
         }
     }
-
 }

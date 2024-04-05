@@ -23,89 +23,88 @@ using TMG.GTAModel.Modes.UtilityComponents;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.V2.Distribution
+namespace TMG.GTAModel.V2.Distribution;
+
+public class WCatParameters : IModule
 {
-    public class WCatParameters : IModule
+    [SubModelInformation( Description = "The list of constants to apply.", Required = false )]
+    public List<SpatialDiscriminationConstantUtilityComponent> Constants;
+
+    [SubModelInformation( Description = "Loads the parameters from disk.", Required = true )]
+    public IDataLineSource<float[]> LoadWCatParamaterFile;
+
+    private float[][] Parameters;
+
+    public float LSum { get; set; }
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [SubModelInformation( Description = "The list of constants to apply.", Required = false )]
-        public List<SpatialDiscriminationConstantUtilityComponent> Constants;
+        get { return 0f; }
+    }
 
-        [SubModelInformation( Description = "Loads the parameters from disk.", Required = true )]
-        public IDataLineSource<float[]> LoadWCatParamaterFile;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        private float[][] Parameters;
-
-        public float LSum { get; set; }
-
-        public string Name { get; set; }
-
-        public float Progress
+    public float CalculateConstantV(IZone origin, IZone destination, Time time)
+    {
+        float total = 0f;
+        for ( int i = 0; i < Constants.Count; i++ )
         {
-            get { return 0f; }
+            total += Constants[i].CalculateV( origin, destination, time );
         }
+        // Same is actually multiplied!
+        return (float)( Math.Exp( total ) );
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    public void LoadData()
+    {
+        // Load our data
+        List<float[]> p = [.. LoadWCatParamaterFile.Read()];
+        Parameters = p.ToArray();
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    /// <summary>
+    /// Set
+    /// </summary>
+    /// <param name="wcat">(Occupation - 1) * 5 + mobility</param>
+    public void SetDemographicCategory(int wcat)
+    {
+        if ( Parameters == null )
         {
-            get { return null; }
+            throw new XTMFRuntimeException(this, Name + " needs to be loaded before accessing its data!" );
         }
-
-        public float CalculateConstantV(IZone origin, IZone destination, Time time)
+        if ( Parameters.Length <= wcat )
         {
-            float total = 0f;
-            for ( int i = 0; i < Constants.Count; i++ )
-            {
-                total += Constants[i].CalculateV( origin, destination, time );
-            }
-            // Same is actually multiplied!
-            return (float)( Math.Exp( total ) );
+            throw new XTMFRuntimeException(this, Name + " was accessed for a wcat#" + wcat + " where only " + Parameters.Length + " are available!" );
         }
-
-        public void LoadData()
+        if ( Parameters.Length < 0 )
         {
-            // Load our data
-            List<float[]> p = [.. LoadWCatParamaterFile.Read()];
-            Parameters = p.ToArray();
+            throw new XTMFRuntimeException(this, Name + " was accessed for a wcat#" + wcat + ".  Only positive wcats are acceptable." );
         }
+        AssignSet( wcat );
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public void UnloadData()
+    {
+        // unload all of the data
+        Parameters = null;
+    }
 
-        /// <summary>
-        /// Set
-        /// </summary>
-        /// <param name="wcat">(Occupation - 1) * 5 + mobility</param>
-        public void SetDemographicCategory(int wcat)
+    private void AssignSet(int wcat)
+    {
+        LSum = Parameters[wcat][0];
+        for ( int i = 0; i < Constants.Count; i++ )
         {
-            if ( Parameters == null )
-            {
-                throw new XTMFRuntimeException(this, Name + " needs to be loaded before accessing its data!" );
-            }
-            if ( Parameters.Length <= wcat )
-            {
-                throw new XTMFRuntimeException(this, Name + " was accessed for a wcat#" + wcat + " where only " + Parameters.Length + " are available!" );
-            }
-            if ( Parameters.Length < 0 )
-            {
-                throw new XTMFRuntimeException(this, Name + " was accessed for a wcat#" + wcat + ".  Only positive wcats are acceptable." );
-            }
-            AssignSet( wcat );
-        }
-
-        public void UnloadData()
-        {
-            // unload all of the data
-            Parameters = null;
-        }
-
-        private void AssignSet(int wcat)
-        {
-            LSum = Parameters[wcat][0];
-            for ( int i = 0; i < Constants.Count; i++ )
-            {
-                Constants[i].Constant = Parameters[wcat][i + 1];
-            }
+            Constants[i].Constant = Parameters[wcat][i + 1];
         }
     }
 }

@@ -20,71 +20,70 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.UtilityComponents
+namespace TMG.GTAModel.Modes.UtilityComponents;
+
+public abstract class RegionPDUtilityComponent : RegionUtilityComponent
 {
-    public abstract class RegionPDUtilityComponent : RegionUtilityComponent
+    [RunParameter( "Contains Both PD", false, "Will apply if both of the origin/destination are in the region.  Only one Contains X PD can be set to true." )]
+    public bool ContainsBothPD;
+
+    [RunParameter( "Contains None PD", false, "Will apply if neither the origin or destination are in the specified planning districts.  Only one Contains X PD can be set to true." )]
+    public bool ContainsNonePD;
+
+    [RunParameter( "Contains One PD", true, "Will apply if either of the origin/destination are in the region.  Only one Contains X PD can be set to true.." )]
+    public bool ContainsOnePD;
+
+    [RunParameter( "Exlusive OR PD", false, "Only one of the origin/destination can be in the region?  Only one Contains X PD can be set to true." )]
+    public bool ExclusiveOrPD;
+
+    [RunParameter( "Must be same PD", false, "If true, the PD must be the same." )]
+    public bool OriginDestinationPDSame;
+
+    [RunParameter( "Valid Planning Districts", "1", typeof( RangeSet ), "A set of ranges for planning districts that will trigger this utility component to be included."
+        + " These are in addition to the region restrictions." )]
+    public RangeSet ValidPlanningDistricts;
+
+    protected override bool IsContained(IZone origin, IZone destination)
     {
-        [RunParameter( "Contains Both PD", false, "Will apply if both of the origin/destination are in the region.  Only one Contains X PD can be set to true." )]
-        public bool ContainsBothPD;
+        return CheckPDContained( origin, destination ) && base.IsContained( origin, destination );
+    }
 
-        [RunParameter( "Contains None PD", false, "Will apply if neither the origin or destination are in the specified planning districts.  Only one Contains X PD can be set to true." )]
-        public bool ContainsNonePD;
-
-        [RunParameter( "Contains One PD", true, "Will apply if either of the origin/destination are in the region.  Only one Contains X PD can be set to true.." )]
-        public bool ContainsOnePD;
-
-        [RunParameter( "Exlusive OR PD", false, "Only one of the origin/destination can be in the region?  Only one Contains X PD can be set to true." )]
-        public bool ExclusiveOrPD;
-
-        [RunParameter( "Must be same PD", false, "If true, the PD must be the same." )]
-        public bool OriginDestinationPDSame;
-
-        [RunParameter( "Valid Planning Districts", "1", typeof( RangeSet ), "A set of ranges for planning districts that will trigger this utility component to be included."
-            + " These are in addition to the region restrictions." )]
-        public RangeSet ValidPlanningDistricts;
-
-        protected override bool IsContained(IZone origin, IZone destination)
+    protected override bool SubRuntimeValidation(ref string error)
+    {
+        if ( !ContainsBothPD ^ ContainsNonePD ^ ContainsOnePD ^ ExclusiveOrPD )
         {
-            return CheckPDContained( origin, destination ) && base.IsContained( origin, destination );
+            error = "In '" + Name + "', exactly one of the Contains X PD parameters must be set to true!";
+            return false;
         }
+        return true;
+    }
 
-        protected override bool SubRuntimeValidation(ref string error)
+    private bool CheckPDContained(IZone origin, IZone destination)
+    {
+        var containsOrigin = ValidPlanningDistricts.Contains( origin.PlanningDistrict );
+        var containsDestination = ValidPlanningDistricts.Contains( destination.PlanningDistrict );
+
+        if ( OriginDestinationPDSame )
         {
-            if ( !ContainsBothPD ^ ContainsNonePD ^ ContainsOnePD ^ ExclusiveOrPD )
+            if ( origin.PlanningDistrict != destination.PlanningDistrict )
             {
-                error = "In '" + Name + "', exactly one of the Contains X PD parameters must be set to true!";
                 return false;
             }
-            return true;
+            return containsOrigin;
         }
 
-        private bool CheckPDContained(IZone origin, IZone destination)
+        if ( ExclusiveOrPD )
         {
-            var containsOrigin = ValidPlanningDistricts.Contains( origin.PlanningDistrict );
-            var containsDestination = ValidPlanningDistricts.Contains( destination.PlanningDistrict );
-
-            if ( OriginDestinationPDSame )
-            {
-                if ( origin.PlanningDistrict != destination.PlanningDistrict )
-                {
-                    return false;
-                }
-                return containsOrigin;
-            }
-
-            if ( ExclusiveOrPD )
-            {
-                return containsOrigin ^ containsDestination;
-            }
-            if ( ContainsOnePD )
-            {
-                return containsOrigin | containsDestination;
-            }
-            if ( ContainsBothPD )
-            {
-                return containsOrigin & containsDestination;
-            }
-            return !( containsOrigin | containsDestination );
+            return containsOrigin ^ containsDestination;
         }
+        if ( ContainsOnePD )
+        {
+            return containsOrigin | containsDestination;
+        }
+        if ( ContainsBothPD )
+        {
+            return containsOrigin & containsDestination;
+        }
+        return !( containsOrigin | containsDestination );
     }
 }

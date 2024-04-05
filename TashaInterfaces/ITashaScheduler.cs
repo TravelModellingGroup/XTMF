@@ -19,29 +19,28 @@
 using TMG;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ITashaScheduler : IModule
 {
-    public interface ITashaScheduler : IModule
-    {
-        /// <summary>
-        /// Load the data that the scheduler needs to initialize
-        /// </summary>
-        void LoadOneTimeLocalData();
+    /// <summary>
+    /// Load the data that the scheduler needs to initialize
+    /// </summary>
+    void LoadOneTimeLocalData();
 
-        /// <summary>
-        /// Run the scheduler on the given household
-        /// </summary>
-        /// <param name="household"></param>
-        void Run(ITashaHousehold household);
+    /// <summary>
+    /// Run the scheduler on the given household
+    /// </summary>
+    /// <param name="household"></param>
+    void Run(ITashaHousehold household);
 
-        /// <summary>
-        /// Calculate the travel time between two different zones
-        /// </summary>
-        /// <param name="person">The person that is travelling</param>
-        /// <param name="origin">The starting zone</param>
-        /// <param name="destination">The ending zone</param>
-        /// <param name="tashaTime">The start time of the trip</param>
-        /// <returns>The length of time needed to make the trip</returns>
-        Time TravelTime(ITashaPerson person, IZone origin, IZone destination, Time tashaTime);
-    }
+    /// <summary>
+    /// Calculate the travel time between two different zones
+    /// </summary>
+    /// <param name="person">The person that is travelling</param>
+    /// <param name="origin">The starting zone</param>
+    /// <param name="destination">The ending zone</param>
+    /// <param name="tashaTime">The start time of the trip</param>
+    /// <returns>The length of time needed to make the trip</returns>
+    Time TravelTime(ITashaPerson person, IZone origin, IZone destination, Time tashaTime);
 }

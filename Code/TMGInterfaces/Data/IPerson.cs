@@ -16,26 +16,25 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG
+namespace TMG;
+
+public interface IPerson
 {
-    public interface IPerson
-    {
-        int Age { get; }
+    int Age { get; }
 
-        bool DriversLicense { get; }
+    bool DriversLicense { get; }
 
-        int EmploymentStatus { get; }
+    int EmploymentStatus { get; }
 
-        float ExpansionFactor { get; }
+    float ExpansionFactor { get; }
 
-        IHousehold Household { get; }
+    IHousehold Household { get; }
 
-        int Occupation { get; }
+    int Occupation { get; }
 
-        IZone SchoolZone { get; set; }
+    IZone SchoolZone { get; set; }
 
-        int StudentStatus { get; }
+    int StudentStatus { get; }
 
-        IZone WorkZone { get; set; }
-    }
+    IZone WorkZone { get; set; }
 }

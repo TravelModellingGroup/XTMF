@@ -19,86 +19,85 @@
 using System;
 using XTMF;
 
-namespace TMG.Emme
-{
-    [ModuleInformation(Description=@"Execute Modeller is similar to EmmeTool however 
+namespace TMG.Emme;
+
+[ModuleInformation(Description=@"Execute Modeller is similar to EmmeTool however 
 it is a model system template and will create the connection to EMME through the modeller interface. 
 In addition to the parameters in EmmeTool ExecuteModeller requires a 
 path to where the Emme project is located. It also has another parameter called “Performance Testing”. If you enable this inside of the modeller logbook the time it takes to execute the tool will be recorded.")]
-    public class ExecuteModeller : IModelSystemTemplate
+public class ExecuteModeller : IModelSystemTemplate
+{
+    [RunParameter( "Clean Logbook", false, "Delete the logbook before running." )]
+    public bool CleanLogbook;
+
+    [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
+    public string EmmeProjectFile;
+
+    [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
+    public string EmmeDatabank;
+
+    [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
+    public string EmmePath;
+
+    [RunParameter( "Emme Tool Arguments", "", "The arguments to pass to this tool" )]
+    public string EmmeToolArguments;
+
+    [RunParameter( "Emme Tool Name", "", "The name of the tool to execute" )]
+    public string EmmeToolName;
+
+    [RunParameter( "Performance Testing", false, "Test the performance of the tool, results are saved in the logbook." )]
+    public bool PerformanceTesting;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
+
+    [RunParameter( "Input Directory", "../../Input", "The input directory for the Model System" )]
+    public string InputBaseDirectory
     {
-        [RunParameter( "Clean Logbook", false, "Delete the logbook before running." )]
-        public bool CleanLogbook;
+        get;
+        set;
+    }
 
-        [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
-        public string EmmeProjectFile;
+    public string Name
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("Emme Databank", "", "The name of the emme databank to work with.  Leave this as empty to select the default.")]
-        public string EmmeDatabank;
+    public string OutputBaseDirectory
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
-        public string EmmePath;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter( "Emme Tool Arguments", "", "The arguments to pass to this tool" )]
-        public string EmmeToolArguments;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        [RunParameter( "Emme Tool Name", "", "The name of the tool to execute" )]
-        public string EmmeToolName;
+    public bool ExitRequest()
+    {
+        return false;
+    }
 
-        [RunParameter( "Performance Testing", false, "Test the performance of the tool, results are saved in the logbook." )]
-        public bool PerformanceTesting;
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
-
-        [RunParameter( "Input Directory", "../../Input", "The input directory for the Model System" )]
-        public string InputBaseDirectory
+    public void Start()
+    {
+        using ModellerController controller = new(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceTesting);
+        if (CleanLogbook)
         {
-            get;
-            set;
+            controller.CleanLogbook(this);
         }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public string OutputBaseDirectory
-        {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool ExitRequest()
-        {
-            return false;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            using ModellerController controller = new(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceTesting);
-            if (CleanLogbook)
-            {
-                controller.CleanLogbook(this);
-            }
-            string ret = null;
-            controller.Run(this, EmmeToolName, EmmeToolArguments, (p) => Progress = p, ref ret);
-        }
+        string ret = null;
+        controller.Run(this, EmmeToolName, EmmeToolArguments, (p) => Progress = p, ref ret);
     }
 }

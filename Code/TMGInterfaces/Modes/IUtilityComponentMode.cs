@@ -18,16 +18,15 @@
 */
 using System.Collections.Generic;
 
-namespace TMG.Modes
+namespace TMG.Modes;
+
+/// <summary>
+/// A mode that contains utility components.  Use this to allow for flexible parameter updating
+/// </summary>
+public interface IUtilityComponentMode : IModeChoiceNode
 {
     /// <summary>
-    /// A mode that contains utility components.  Use this to allow for flexible parameter updating
+    /// The list of utility components for this mode
     /// </summary>
-    public interface IUtilityComponentMode : IModeChoiceNode
-    {
-        /// <summary>
-        /// The list of utility components for this mode
-        /// </summary>
-        List<IUtilityComponent> UtilityComponents { get; }
-    }
+    List<IUtilityComponent> UtilityComponents { get; }
 }

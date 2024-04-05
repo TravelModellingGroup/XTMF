@@ -23,60 +23,59 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Output
+namespace TMG.GTAModel.Output;
+
+[ModuleInformation( Description = "Provides a way of deleting files/directories during a model run." )]
+public class DeleteFiles : ISelfContainedModule
 {
-    [ModuleInformation( Description = "Provides a way of deleting files/directories during a model run." )]
-    public class DeleteFiles : ISelfContainedModule
+    [SubModelInformation( Required = false, Description = "The paths to the files that should be deleted." )]
+    public List<FileLocation> Files;
+
+    [RunParameter( "Ignore Errors", false, "Should we ignore errors such as the file not existing?" )]
+    public bool IgnoreErrors;
+
+    public string Name
     {
-        [SubModelInformation( Required = false, Description = "The paths to the files that should be deleted." )]
-        public List<FileLocation> Files;
+        get;
+        set;
+    }
 
-        [RunParameter( "Ignore Errors", false, "Should we ignore errors such as the file not existing?" )]
-        public bool IgnoreErrors;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void Start()
+    {
+        for ( int i = 0; i < Files.Count; i++ )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            for ( int i = 0; i < Files.Count; i++ )
+            try
             {
-                try
+                var path = Files[i].GetFilePath();
+                if ( Directory.Exists( path ) )
                 {
-                    var path = Files[i].GetFilePath();
-                    if ( Directory.Exists( path ) )
-                    {
-                        Directory.Delete( path, true );
-                    }
-                    else
-                    {
-                        File.Delete( path );
-                    }
+                    Directory.Delete( path, true );
                 }
-                catch ( IOException )
+                else
                 {
-                    if ( !IgnoreErrors )
-                    {
-                        throw new XTMFRuntimeException(this, "The file '" + Files[i].GetFilePath() + "' was unable to be deleted." );
-                    }
+                    File.Delete( path );
+                }
+            }
+            catch ( IOException )
+            {
+                if ( !IgnoreErrors )
+                {
+                    throw new XTMFRuntimeException(this, "The file '" + Files[i].GetFilePath() + "' was unable to be deleted." );
                 }
             }
         }

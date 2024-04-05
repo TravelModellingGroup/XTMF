@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF.Interfaces
+namespace XTMF.Interfaces;
+
+public interface IRegionGroup
 {
-    public interface IRegionGroup
-    {
-        string Name { get; set; }
+    string Name { get; set; }
 
-        List<IModelSystemStructure> Modules { get; set; }
+    List<IModelSystemStructure> Modules { get; set; }
 
-        
-    }
+    
 }

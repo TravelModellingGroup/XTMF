@@ -22,15 +22,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF
-{
-    public class RedirectModule : Attribute
-    {
-        public string FromType { get; }
+namespace XTMF;
 
-        public RedirectModule(string fromType)
-        {
-            FromType = fromType;
-        }
-    } 
-}
+public class RedirectModule : Attribute
+{
+    public string FromType { get; }
+
+    public RedirectModule(string fromType)
+    {
+        FromType = fromType;
+    }
+} 

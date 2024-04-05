@@ -23,238 +23,237 @@ using TMG;
 using TMG.Input;
 using Datastructure;
 using System.IO;
-namespace Tasha.DataExtraction
+namespace Tasha.DataExtraction;
+
+public class GatherEmploymentByAgeByPD : ISelfContainedModule
 {
-    public class GatherEmploymentByAgeByPD : ISelfContainedModule
+    [SubModelInformation( Required = true, Description = "A resource containing the zone system." )]
+    public IResource ZoneSystem;
+
+    [SubModelInformation( Required = true, Description = "A resource containing a connection to the database." )]
+    public IResource DatabaseConnection;
+
+    [SubModelInformation( Required = true, Description = "The name of the file to save to in csv format." )]
+    public FileLocation OutputFileName;
+
+    [RunParameter( "Age Sets", "0-10,11-15,16-18,19-25,26-30,31-100", typeof( RangeSet ), "The different age categories to break the population into." )]
+    public RangeSet AgeSets;
+
+    [RunParameter( "Zone System", 2006, "Which zone system should we load?" )]
+    public int ZoneSystemNumber;
+
+    [RunParameter( "TTSYear", 2011, "Which TTSYear should we use?" )]
+    public int TTSYear;
+
+    [RunParameter( "TTSYear Column", "TTSYear", "The name of the column containing what TTS year it is." )]
+    public string TTSYearColumn;
+
+    [RunParameter( "Person's Table", "Persons", "The name of the Person's table." )]
+    public string PersonsTable;
+
+    [RunParameter( "Expansion Factor Column Name", "ExpansionFactor", "The name of the expansion factor column." )]
+    public string ExpansionFactorColumnName;
+
+    [RunParameter( "Home Zone Table Name", "HouseholdZones", "The name of the table that links zones to household ID's" )]
+    public string HomeZoneTableName;
+
+    [RunParameter( "Zone Number Column", "Zone", "The name of the column that gives the zone number for the household." )]
+    public string ZoneNumberColumn;
+
+    [RunParameter( "Zone System Column", "ZoneSystem", "The name of the column that identifies the zone system." )]
+    public string ZoneSystemColumn;
+
+    [RunParameter( "HouseholdID Column", "HouseholdID", "The name of the column that represents the household's id." )]
+    public string HouseholdIDColumn;
+
+    [RunParameter( "Employment Status Column", "EmploymentStatus", "The name of the column that represents the person's employment status." )]
+    public string EmploymentStatusColumn;
+
+    [RunParameter( "Age Column", "Age", "The name of the column that represents the age of the person." )]
+    public string AgeColumn;
+
+    [RunParameter( "Employment Statuses", "OFP", "The different characters used for employment status." )]
+    public string EmploymentStatusString;
+
+    public void Start()
     {
-        [SubModelInformation( Required = true, Description = "A resource containing the zone system." )]
-        public IResource ZoneSystem;
-
-        [SubModelInformation( Required = true, Description = "A resource containing a connection to the database." )]
-        public IResource DatabaseConnection;
-
-        [SubModelInformation( Required = true, Description = "The name of the file to save to in csv format." )]
-        public FileLocation OutputFileName;
-
-        [RunParameter( "Age Sets", "0-10,11-15,16-18,19-25,26-30,31-100", typeof( RangeSet ), "The different age categories to break the population into." )]
-        public RangeSet AgeSets;
-
-        [RunParameter( "Zone System", 2006, "Which zone system should we load?" )]
-        public int ZoneSystemNumber;
-
-        [RunParameter( "TTSYear", 2011, "Which TTSYear should we use?" )]
-        public int TTSYear;
-
-        [RunParameter( "TTSYear Column", "TTSYear", "The name of the column containing what TTS year it is." )]
-        public string TTSYearColumn;
-
-        [RunParameter( "Person's Table", "Persons", "The name of the Person's table." )]
-        public string PersonsTable;
-
-        [RunParameter( "Expansion Factor Column Name", "ExpansionFactor", "The name of the expansion factor column." )]
-        public string ExpansionFactorColumnName;
-
-        [RunParameter( "Home Zone Table Name", "HouseholdZones", "The name of the table that links zones to household ID's" )]
-        public string HomeZoneTableName;
-
-        [RunParameter( "Zone Number Column", "Zone", "The name of the column that gives the zone number for the household." )]
-        public string ZoneNumberColumn;
-
-        [RunParameter( "Zone System Column", "ZoneSystem", "The name of the column that identifies the zone system." )]
-        public string ZoneSystemColumn;
-
-        [RunParameter( "HouseholdID Column", "HouseholdID", "The name of the column that represents the household's id." )]
-        public string HouseholdIDColumn;
-
-        [RunParameter( "Employment Status Column", "EmploymentStatus", "The name of the column that represents the person's employment status." )]
-        public string EmploymentStatusColumn;
-
-        [RunParameter( "Age Column", "Age", "The name of the column that represents the age of the person." )]
-        public string AgeColumn;
-
-        [RunParameter( "Employment Statuses", "OFP", "The different characters used for employment status." )]
-        public string EmploymentStatusString;
-
-        public void Start()
+        var zones = ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
+        var numberOfZones = zones.GetFlatData().Length;
+        var connection = DatabaseConnection.AcquireResource<IDbConnection>();
+        float[][][] populationByAge;
+        using ( var command = connection.CreateCommand() )
         {
-            var zones = ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
-            var numberOfZones = zones.GetFlatData().Length;
-            var connection = DatabaseConnection.AcquireResource<IDbConnection>();
-            float[][][] populationByAge;
-            using ( var command = connection.CreateCommand() )
-            {
-                populationByAge = new float[AgeSets.Count][][];
-                FillInPopulationByZone( zones, numberOfZones, command, populationByAge );
-            }
-            WriteOutData( populationByAge, zones );
+            populationByAge = new float[AgeSets.Count][][];
+            FillInPopulationByZone( zones, numberOfZones, command, populationByAge );
         }
+        WriteOutData( populationByAge, zones );
+    }
 
-        private void WriteOutData(float[][][] populationByAge, SparseArray<IZone> zones)
+    private void WriteOutData(float[][][] populationByAge, SparseArray<IZone> zones)
+    {
+        for ( int i = 0; i < populationByAge.Length; i++ )
         {
-            for ( int i = 0; i < populationByAge.Length; i++ )
+            var pdData = new SparseArray<float>[EmploymentStatusString.Length];
+            BuildPlanningDistrictData( populationByAge[i], zones, pdData );
+            NormalizeData( pdData );
+            SaveData( pdData, i );
+        }
+    }
+
+    private void SaveData(SparseArray<float>[] pdData, int ageCat)
+    {
+        var pdIndexes = pdData[0].ValidIndexArray();
+        using var writer = new StreamWriter(OutputFileName.GetFilePath(), ageCat != 0);
+        if (ageCat == 0)
+        {
+            writer.WriteLine("PD,EmploymentStatus,AgeCategory,ExpandedPopulation");
+        }
+        for (int empStat = 0; empStat < pdData.Length; empStat++)
+        {
+            var pdArray = pdData[empStat];
+            for (int j = 0; j < pdIndexes.Length; j++)
             {
-                var pdData = new SparseArray<float>[EmploymentStatusString.Length];
-                BuildPlanningDistrictData( populationByAge[i], zones, pdData );
-                NormalizeData( pdData );
-                SaveData( pdData, i );
+                writer.Write(pdIndexes[j]);
+                writer.Write(',');
+                writer.Write(empStat);
+                writer.Write(',');
+                writer.Write(ageCat);
+                writer.Write(',');
+                writer.WriteLine(pdArray[pdIndexes[j]]);
             }
         }
+    }
 
-        private void SaveData(SparseArray<float>[] pdData, int ageCat)
+    private static void BuildPlanningDistrictData(float[][] populationByAge, SparseArray<IZone> zones, SparseArray<float>[] pdData)
+    {
+        pdData[0] = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>( zones );
+        for ( int i = 1; i < pdData.Length; i++ )
         {
-            var pdIndexes = pdData[0].ValidIndexArray();
-            using var writer = new StreamWriter(OutputFileName.GetFilePath(), ageCat != 0);
-            if (ageCat == 0)
+            pdData[i] = pdData[0].CreateSimilarArray<float>();
+        }
+        var flatZones = zones.GetFlatData();
+        for ( int i = 0; i < populationByAge.Length; i++ )
+        {
+            //the first step is to clear out the data
+            var array = populationByAge[i];
+            var pdArray = pdData[i];
+            for ( int j = 0; j < array.Length; j++ )
             {
-                writer.WriteLine("PD,EmploymentStatus,AgeCategory,ExpandedPopulation");
-            }
-            for (int empStat = 0; empStat < pdData.Length; empStat++)
-            {
-                var pdArray = pdData[empStat];
-                for (int j = 0; j < pdIndexes.Length; j++)
-                {
-                    writer.Write(pdIndexes[j]);
-                    writer.Write(',');
-                    writer.Write(empStat);
-                    writer.Write(',');
-                    writer.Write(ageCat);
-                    writer.Write(',');
-                    writer.WriteLine(pdArray[pdIndexes[j]]);
-                }
+                pdArray[flatZones[j].PlanningDistrict] += array[j];
             }
         }
+    }
 
-        private static void BuildPlanningDistrictData(float[][] populationByAge, SparseArray<IZone> zones, SparseArray<float>[] pdData)
+    private static void NormalizeData(SparseArray<float>[] pdData)
+    {
+        var numberOfPD = pdData[0].GetFlatData().Length;
+        for ( int i = 0; i < numberOfPD; i++ )
         {
-            pdData[0] = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>( zones );
-            for ( int i = 1; i < pdData.Length; i++ )
+            var total = 0.0f;
+            for ( int j = 0; j < pdData.Length; j++ )
             {
-                pdData[i] = pdData[0].CreateSimilarArray<float>();
+                total += pdData[j].GetFlatData()[i];
             }
-            var flatZones = zones.GetFlatData();
-            for ( int i = 0; i < populationByAge.Length; i++ )
+            var factor = 1 / total;
+            if ( float.IsNaN( factor ) | float.IsInfinity( factor ) )
             {
-                //the first step is to clear out the data
-                var array = populationByAge[i];
-                var pdArray = pdData[i];
-                for ( int j = 0; j < array.Length; j++ )
-                {
-                    pdArray[flatZones[j].PlanningDistrict] += array[j];
-                }
+                continue;
             }
-        }
-
-        private static void NormalizeData(SparseArray<float>[] pdData)
-        {
-            var numberOfPD = pdData[0].GetFlatData().Length;
-            for ( int i = 0; i < numberOfPD; i++ )
+            for ( int j = 0; j < pdData.Length; j++ )
             {
-                var total = 0.0f;
-                for ( int j = 0; j < pdData.Length; j++ )
-                {
-                    total += pdData[j].GetFlatData()[i];
-                }
-                var factor = 1 / total;
-                if ( float.IsNaN( factor ) | float.IsInfinity( factor ) )
-                {
-                    continue;
-                }
-                for ( int j = 0; j < pdData.Length; j++ )
-                {
-                    pdData[j].GetFlatData()[i] *= factor;
-                }
+                pdData[j].GetFlatData()[i] *= factor;
             }
         }
+    }
 
-        private void FillInPopulationByZone(SparseArray<IZone> zones, int numberOfZones, IDbCommand command, float[][][] populationByAge)
+    private void FillInPopulationByZone(SparseArray<IZone> zones, int numberOfZones, IDbCommand command, float[][][] populationByAge)
+    {
+        for ( int j = 0; j < AgeSets.Count; j++ )
         {
-            for ( int j = 0; j < AgeSets.Count; j++ )
+            populationByAge[j] = new float[EmploymentStatusString.Length][];
+            for ( int i = 0; i < EmploymentStatusString.Length; i++ )
             {
-                populationByAge[j] = new float[EmploymentStatusString.Length][];
-                for ( int i = 0; i < EmploymentStatusString.Length; i++ )
-                {
-                    populationByAge[j][i] = new float[numberOfZones];
-                    command.CommandText =
-                    String.Format( @"SELECT [{3}].[{0}], SUM([{2}].[{1}])
+                populationByAge[j][i] = new float[numberOfZones];
+                command.CommandText =
+                String.Format( @"SELECT [{3}].[{0}], SUM([{2}].[{1}])
 FROM [{2}] INNER JOIN [{3}] ON
 [{2}].[{4}] = [{3}].[{4}] AND [{2}].[{5}] = [{3}].[{5}] 
 WHERE [{2}].[{5}] = {6} AND [{3}].[{7}] = {8} AND [{2}].[{9}] >= {10} AND [{2}].[{9}] <= {11}
     AND [{2}].[{13}] = '{12}'
 GROUP BY [{3}].[{0}];",
-                        //0
-                            ZoneNumberColumn,
-                        //1
-                            ExpansionFactorColumnName,
-                        //2
-                            PersonsTable,
-                        //3
-                            HomeZoneTableName,
-                        //4
-                            HouseholdIDColumn,
-                        //5
-                            TTSYearColumn,
-                        //6
-                            TTSYear,
-                        //7
-                            ZoneSystemColumn,
-                        //8
-                            ZoneSystemNumber,
-                        //9
-                            AgeColumn,
-                        //10
-                            AgeSets[j].Start,
-                        //11
-                            AgeSets[j].Stop,
-                        //12
-                            EmploymentStatusString[i],
-                        //13
-                            EmploymentStatusColumn );
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
+                    //0
+                        ZoneNumberColumn,
+                    //1
+                        ExpansionFactorColumnName,
+                    //2
+                        PersonsTable,
+                    //3
+                        HomeZoneTableName,
+                    //4
+                        HouseholdIDColumn,
+                    //5
+                        TTSYearColumn,
+                    //6
+                        TTSYear,
+                    //7
+                        ZoneSystemColumn,
+                    //8
+                        ZoneSystemNumber,
+                    //9
+                        AgeColumn,
+                    //10
+                        AgeSets[j].Start,
+                    //11
+                        AgeSets[j].Stop,
+                    //12
+                        EmploymentStatusString[i],
+                    //13
+                        EmploymentStatusColumn );
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var zone = reader.GetInt32(0);
+                    var index = zones.GetFlatIndex(zone);
+                    if (index >= 0)
                     {
-                        var zone = reader.GetInt32(0);
-                        var index = zones.GetFlatIndex(zone);
-                        if (index >= 0)
-                        {
-                            populationByAge[j][i][index] = (float)reader.GetDouble(1);
-                        }
+                        populationByAge[j][i][index] = (float)reader.GetDouble(1);
                     }
                 }
             }
         }
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if ( !DatabaseConnection.CheckResourceType<IDbConnection>() )
         {
-            get { return 0f; }
+            error = "In '" + Name + "' the database connection resource does not contain a database connection!\r\n"
+                + " Instead it contains '" + DatabaseConnection.GetResourceType() + "'!";
+            return false;
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        if ( !ZoneSystem.CheckResourceType<IZoneSystem>() )
         {
-            get { return null; }
+            error = "In '" + Name + "' the zone system resource does not contain a zone system!\r\n"
+                + " Instead it contains '" + ZoneSystem.GetResourceType() + "'!";
+            return false;
         }
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            if ( !DatabaseConnection.CheckResourceType<IDbConnection>() )
-            {
-                error = "In '" + Name + "' the database connection resource does not contain a database connection!\r\n"
-                    + " Instead it contains '" + DatabaseConnection.GetResourceType() + "'!";
-                return false;
-            }
-            if ( !ZoneSystem.CheckResourceType<IZoneSystem>() )
-            {
-                error = "In '" + Name + "' the zone system resource does not contain a zone system!\r\n"
-                    + " Instead it contains '" + ZoneSystem.GetResourceType() + "'!";
-                return false;
-            }
-            return true;
-        }
-
-        public override string ToString()
-        {
-            return "Getting Age Rates";
-        }
+    public override string ToString()
+    {
+        return "Getting Age Rates";
     }
 }

@@ -20,34 +20,33 @@ using System;
 
 using System.Threading;
 
-namespace XTMF.Networking
+namespace XTMF.Networking;
+
+internal class DelayedResult : IDisposable
 {
-    internal class DelayedResult : IDisposable
+    internal object Data;
+
+    internal SemaphoreSlim Lock;
+
+    internal string Name;
+
+    public DelayedResult() => Lock = new SemaphoreSlim(0);
+
+    public void Dispose() => Dispose(true);
+
+    protected virtual void Dispose(bool includeManaged)
     {
-        internal object Data;
-
-        internal SemaphoreSlim Lock;
-
-        internal string Name;
-
-        public DelayedResult() => Lock = new SemaphoreSlim(0);
-
-        public void Dispose() => Dispose(true);
-
-        protected virtual void Dispose(bool includeManaged)
+        if ( Lock != null )
         {
-            if ( Lock != null )
-            {
-                Lock.Dispose();
-                Lock = null;
-            }
+            Lock.Dispose();
+            Lock = null;
         }
     }
+}
 
-    internal class Result
-    {
-        internal object Data;
+internal class Result
+{
+    internal object Data;
 
-        internal string Name;
-    }
+    internal string Name;
 }

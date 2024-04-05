@@ -16,25 +16,24 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-namespace TMG.GTAModel
+namespace TMG.GTAModel;
+
+public class Household : IHousehold
 {
-    public class Household : IHousehold
+    public int Cars
     {
-        public int Cars
-        {
-            get;
-            set;
-        }
+        get;
+        set;
+    }
 
-        public IZone Zone
-        {
-            get;
-            set;
-        }
+    public IZone Zone
+    {
+        get;
+        set;
+    }
 
-        public override string ToString()
-        {
-            return Zone.ZoneNumber + ":" + Cars;
-        }
+    public override string ToString()
+    {
+        return Zone.ZoneNumber + ":" + Cars;
     }
 }

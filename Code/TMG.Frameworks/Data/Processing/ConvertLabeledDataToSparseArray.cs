@@ -22,58 +22,56 @@ using System.Linq;
 using TMG.Frameworks.Data.DataTypes;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Processing
+namespace TMG.Frameworks.Data.Processing;
+
+
+public class ConvertLabeledDataToSparseArray : IDataSource<SparseArray<float>>
 {
+    public bool Loaded { get; set; }
 
-    public class ConvertLabeledDataToSparseArray : IDataSource<SparseArray<float>>
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    [SubModelInformation(Required = true, Description = "")]
+    public IDataSource<LabeledData<float>> Labeled;
+
+    private SparseArray<float> _Data;
+
+    public SparseArray<float> GiveData()
     {
-        public bool Loaded { get; set; }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [SubModelInformation(Required = true, Description = "")]
-        public IDataSource<LabeledData<float>> Labeled;
-
-        private SparseArray<float> _Data;
-
-        public SparseArray<float> GiveData()
-        {
-            return _Data;
-        }
-
-        public void LoadData()
-        {
-            LabeledData<float> baseData;
-            var alreadyLoaded = Labeled.Loaded;
-            if (!alreadyLoaded)
-            {
-                Labeled.LoadData();
-                baseData = Labeled.GiveData();
-                Labeled.UnloadData();
-            }
-            else
-            {
-                baseData = Labeled.GiveData();
-            }
-            var data = baseData.OrderBy(k => k.Key).Select(pair => pair.Value).ToArray();
-            _Data = new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = data.Length - 1 } } }, data);
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void UnloadData()
-        {
-            Loaded = false;
-            _Data = null;
-        }
+        return _Data;
     }
 
+    public void LoadData()
+    {
+        LabeledData<float> baseData;
+        var alreadyLoaded = Labeled.Loaded;
+        if (!alreadyLoaded)
+        {
+            Labeled.LoadData();
+            baseData = Labeled.GiveData();
+            Labeled.UnloadData();
+        }
+        else
+        {
+            baseData = Labeled.GiveData();
+        }
+        var data = baseData.OrderBy(k => k.Key).Select(pair => pair.Value).ToArray();
+        _Data = new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = data.Length - 1 } } }, data);
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void UnloadData()
+    {
+        Loaded = false;
+        _Data = null;
+    }
 }

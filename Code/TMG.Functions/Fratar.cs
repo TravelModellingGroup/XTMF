@@ -20,97 +20,96 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TMG.Functions
+namespace TMG.Functions;
+
+public static class Fratar
 {
-    public static class Fratar
+    public static void Run(float[][] ret, float[] o, float[] d, float[][] baseYearObservations, float maximumError, int maxIterations)
     {
-        public static void Run(float[][] ret, float[] o, float[] d, float[][] baseYearObservations, float maximumError, int maxIterations)
+        float[] dStar = new float[o.Length];
+        float[][] originalNormalizedProbabilities = NormalizeObservations( baseYearObservations );
+        for ( int i = 0; i < dStar.Length; i++ )
         {
-            float[] dStar = new float[o.Length];
-            float[][] originalNormalizedProbabilities = NormalizeObservations( baseYearObservations );
-            for ( int i = 0; i < dStar.Length; i++ )
+            dStar[i] = 1f;
+        }
+        for ( int i = 0; i < maxIterations; i++ )
+        {
+            Apply( ret, o, dStar, originalNormalizedProbabilities );
+            if ( CheckError( ret, d, dStar, maximumError ) )
             {
-                dStar[i] = 1f;
+                return;
             }
-            for ( int i = 0; i < maxIterations; i++ )
+        }
+    }
+
+    private static void Apply(float[][] ret, float[] o, float[] dStar, float[][] obsProb)
+    {
+        Parallel.For( 0, o.Length, i =>
             {
-                Apply( ret, o, dStar, originalNormalizedProbabilities );
-                if ( CheckError( ret, d, dStar, maximumError ) )
+                if ( o[i] <= 0 )
                 {
                     return;
                 }
-            }
-        }
-
-        private static void Apply(float[][] ret, float[] o, float[] dStar, float[][] obsProb)
-        {
-            Parallel.For( 0, o.Length, i =>
+                var sum = 0.0;
+                for ( int j = 0; j < o.Length; j++ )
                 {
-                    if ( o[i] <= 0 )
-                    {
-                        return;
-                    }
-                    var sum = 0.0;
+                    sum += dStar[j] * obsProb[i][j];
+                }
+                // normalize the factors
+                var factor = 1f / (float)sum;
+                if ( !float.IsInfinity( factor ) )
+                {
                     for ( int j = 0; j < o.Length; j++ )
                     {
-                        sum += dStar[j] * obsProb[i][j];
+                        ret[i][j] = o[i] * dStar[j] * obsProb[i][j] * factor;
                     }
-                    // normalize the factors
-                    var factor = 1f / (float)sum;
-                    if ( !float.IsInfinity( factor ) )
-                    {
-                        for ( int j = 0; j < o.Length; j++ )
-                        {
-                            ret[i][j] = o[i] * dStar[j] * obsProb[i][j] * factor;
-                        }
-                    }
-                } );
-        }
-
-        private static bool CheckError(float[][] ret, float[] d, float[] dStar, float maximumError)
-        {
-            bool nonePastMaxError = true;
-            Parallel.For( 0, d.Length, j =>
-                {
-                    if ( d[j] <= 0 ) return;
-                    var total = 0.0;
-                    for ( int i = 0; i < d.Length; i++ )
-                    {
-                        total += ret[i][j];
-                    }
-                    total = 1.0 / total;
-                    if ( !double.IsInfinity( total ) )
-                    {
-                        var factor = d[j] * (float)total;
-                        if ( Math.Abs( 1 - factor ) > maximumError )
-                        {
-                            nonePastMaxError = false;
-                        }
-                        dStar[j] *= factor;
-                    }
-                } );
-            return nonePastMaxError;
-        }
-
-        private static float[][] NormalizeObservations(float[][] baseYearObservations)
-        {
-            var ret = new float[baseYearObservations.Length][];
-            Parallel.For( 0, baseYearObservations.Length, i =>
-            {
-                ret[i] = new float[baseYearObservations.Length];
-                var total = baseYearObservations[i].Sum();
-                // if there are no trips, there are no probabilities
-                if ( total <= 0 )
-                {
-                    return;
-                }
-                var normalizingFactor = 1f / total;
-                for ( int j = 0; j < ret[i].Length; j++ )
-                {
-                    ret[i][j] = baseYearObservations[i][j] * normalizingFactor;
                 }
             } );
-            return ret;
-        }
+    }
+
+    private static bool CheckError(float[][] ret, float[] d, float[] dStar, float maximumError)
+    {
+        bool nonePastMaxError = true;
+        Parallel.For( 0, d.Length, j =>
+            {
+                if ( d[j] <= 0 ) return;
+                var total = 0.0;
+                for ( int i = 0; i < d.Length; i++ )
+                {
+                    total += ret[i][j];
+                }
+                total = 1.0 / total;
+                if ( !double.IsInfinity( total ) )
+                {
+                    var factor = d[j] * (float)total;
+                    if ( Math.Abs( 1 - factor ) > maximumError )
+                    {
+                        nonePastMaxError = false;
+                    }
+                    dStar[j] *= factor;
+                }
+            } );
+        return nonePastMaxError;
+    }
+
+    private static float[][] NormalizeObservations(float[][] baseYearObservations)
+    {
+        var ret = new float[baseYearObservations.Length][];
+        Parallel.For( 0, baseYearObservations.Length, i =>
+        {
+            ret[i] = new float[baseYearObservations.Length];
+            var total = baseYearObservations[i].Sum();
+            // if there are no trips, there are no probabilities
+            if ( total <= 0 )
+            {
+                return;
+            }
+            var normalizingFactor = 1f / total;
+            for ( int j = 0; j < ret[i].Length; j++ )
+            {
+                ret[i][j] = baseYearObservations[i][j] * normalizingFactor;
+            }
+        } );
+        return ret;
     }
 }

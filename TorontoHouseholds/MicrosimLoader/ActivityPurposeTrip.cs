@@ -23,162 +23,161 @@ using Tasha.Common;
 using TMG;
 using XTMF;
 
-namespace TMG.Tasha.MicrosimLoader
+namespace TMG.Tasha.MicrosimLoader;
+
+internal sealed class ActivityPurposeTrip : Attachable, ITrip
 {
-    internal sealed class ActivityPurposeTrip : Attachable, ITrip
+    private static ConcurrentQueue<ActivityPurposeTrip> Trips = new();
+
+    #region ITrip Members
+
+    private ActivityPurposeTrip(int householdIterations)
     {
-        private static ConcurrentQueue<ActivityPurposeTrip> Trips = new();
-
-        #region ITrip Members
-
-        private ActivityPurposeTrip(int householdIterations)
-        {
-            Mode = null;
-            ModesChosen = new ITashaMode[householdIterations];
-        }
-
-        private Time _ActivityStartTime;
-        /// <summary>
-        /// What time does this trip start at?
-        /// </summary>
-        public Time ActivityStartTime
-        {
-            get
-            {
-                return _ActivityStartTime;
-            }
-            internal set
-            {
-                _ActivityStartTime = value;
-                RecalculateTripStartTime = true;
-            }
-        }
-
-        public IZone DestinationZone
-        {
-            get;
-            internal set;
-        }
-
-        public IZone IntermediateZone
-        {
-            get;
-            set;
-        }
-
-        private ITashaMode _Mode;
-        public ITashaMode Mode
-        {
-            get
-            {
-                return _Mode;
-            }
-            set
-            {
-                _Mode = value;
-                RecalculateTripStartTime = true;
-            }
-        }
-
-        public ITashaMode[] ModesChosen
-        {
-            get;
-            internal set;
-        }
-
-        public IZone OriginalZone
-        {
-            get;
-            internal set;
-        }
-
-        public List<ITashaPerson> Passengers
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// TODO: Relate this to cPurpose
-        /// </summary>
-        public Activity Purpose
-        {
-            get;
-            set;
-        }
-
-        public ITashaPerson SharedModeDriver { get; set; }
-
-        public Time TravelTime
-        {
-            get { return ActivityStartTime - TripStartTime; }
-        }
-
-        public ITripChain TripChain
-        {
-            get;
-            set;
-        }
-
-        public int TripNumber
-        {
-            get;
-            set;
-        }
-
-        private bool RecalculateTripStartTime = true;
-        private Time _TripStartTime;
-        public Time TripStartTime
-        {
-            get
-            {
-                if (RecalculateTripStartTime)
-                {
-                    if (Mode != null)
-                    {
-                        _TripStartTime = ActivityStartTime - Mode.TravelTime(OriginalZone, DestinationZone, ActivityStartTime);
-                    }
-                    else
-                    {
-                        _TripStartTime = ActivityStartTime;
-                    }
-                    RecalculateTripStartTime = false;
-                }
-                return _TripStartTime;
-            }
-        }
-
-        public ITrip Clone()
-        {
-            return (ITrip)MemberwiseClone();
-        }
-
-        public void Recycle()
-        {
-            if (Trips.Count < 100)
-            {
-                Release();
-                Mode = null;
-                TripChain = null;
-                OriginalZone = null;
-                DestinationZone = null;
-                ActivityStartTime = Time.Zero;
-                TripNumber = -1;
-                Array.Clear(ModesChosen, 0, ModesChosen.Length);
-                RecalculateTripStartTime = true;
-                Trips.Enqueue(this);
-            }
-        }
-
-        internal static ActivityPurposeTrip GetTrip(int householdIterations)
-        {
-            if (!Trips.TryDequeue(out ActivityPurposeTrip ret))
-            {
-                return new ActivityPurposeTrip(householdIterations);
-            }
-            return ret;
-        }
-
-        #endregion ITrip Members
+        Mode = null;
+        ModesChosen = new ITashaMode[householdIterations];
     }
+
+    private Time _ActivityStartTime;
+    /// <summary>
+    /// What time does this trip start at?
+    /// </summary>
+    public Time ActivityStartTime
+    {
+        get
+        {
+            return _ActivityStartTime;
+        }
+        internal set
+        {
+            _ActivityStartTime = value;
+            RecalculateTripStartTime = true;
+        }
+    }
+
+    public IZone DestinationZone
+    {
+        get;
+        internal set;
+    }
+
+    public IZone IntermediateZone
+    {
+        get;
+        set;
+    }
+
+    private ITashaMode _Mode;
+    public ITashaMode Mode
+    {
+        get
+        {
+            return _Mode;
+        }
+        set
+        {
+            _Mode = value;
+            RecalculateTripStartTime = true;
+        }
+    }
+
+    public ITashaMode[] ModesChosen
+    {
+        get;
+        internal set;
+    }
+
+    public IZone OriginalZone
+    {
+        get;
+        internal set;
+    }
+
+    public List<ITashaPerson> Passengers
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// TODO: Relate this to cPurpose
+    /// </summary>
+    public Activity Purpose
+    {
+        get;
+        set;
+    }
+
+    public ITashaPerson SharedModeDriver { get; set; }
+
+    public Time TravelTime
+    {
+        get { return ActivityStartTime - TripStartTime; }
+    }
+
+    public ITripChain TripChain
+    {
+        get;
+        set;
+    }
+
+    public int TripNumber
+    {
+        get;
+        set;
+    }
+
+    private bool RecalculateTripStartTime = true;
+    private Time _TripStartTime;
+    public Time TripStartTime
+    {
+        get
+        {
+            if (RecalculateTripStartTime)
+            {
+                if (Mode != null)
+                {
+                    _TripStartTime = ActivityStartTime - Mode.TravelTime(OriginalZone, DestinationZone, ActivityStartTime);
+                }
+                else
+                {
+                    _TripStartTime = ActivityStartTime;
+                }
+                RecalculateTripStartTime = false;
+            }
+            return _TripStartTime;
+        }
+    }
+
+    public ITrip Clone()
+    {
+        return (ITrip)MemberwiseClone();
+    }
+
+    public void Recycle()
+    {
+        if (Trips.Count < 100)
+        {
+            Release();
+            Mode = null;
+            TripChain = null;
+            OriginalZone = null;
+            DestinationZone = null;
+            ActivityStartTime = Time.Zero;
+            TripNumber = -1;
+            Array.Clear(ModesChosen, 0, ModesChosen.Length);
+            RecalculateTripStartTime = true;
+            Trips.Enqueue(this);
+        }
+    }
+
+    internal static ActivityPurposeTrip GetTrip(int householdIterations)
+    {
+        if (!Trips.TryDequeue(out ActivityPurposeTrip ret))
+        {
+            return new ActivityPurposeTrip(householdIterations);
+        }
+        return ret;
+    }
+
+    #endregion ITrip Members
 }

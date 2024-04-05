@@ -23,52 +23,51 @@ using TMG.Estimation;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+[ModuleInformation(Description= "Renames a file by appending ([Generation] - [Index]) to the filename. This allows users to " +
+                                "use a client model system to produce multiples of one file type for each Task being assigned.")]
+public class RenameClientFile : ISelfContainedModule
 {
-    [ModuleInformation(Description= "Renames a file by appending ([Generation] - [Index]) to the filename. This allows users to " +
-                                    "use a client model system to produce multiples of one file type for each Task being assigned.")]
-    public class RenameClientFile : ISelfContainedModule
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    [SubModelInformation(Description= "File to Rename", Required= true)]
+    public FileLocation FileToRename;
+
+    private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+
+    public string Name
     {
+        get;
+        set;
+    }
 
-        [RootModule]
-        public IEstimationClientModelSystem Root;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [SubModelInformation(Description= "File to Rename", Required= true)]
-        public FileLocation FileToRename;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _ProgressColour; }
+    }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+    public void Start()
+    {
+        var task = Root.CurrentTask;
+        string id = task.Generation + "-" + task.Index;
 
-        public float Progress
-        {
-            get;
-            set;
-        }
+        var filepath = FileToRename.GetFilePath();
+        var newFilepath = Path.GetFileNameWithoutExtension(filepath) + "(" + id + ")" + Path.GetExtension(filepath);
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _ProgressColour; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            var task = Root.CurrentTask;
-            string id = task.Generation + "-" + task.Index;
-
-            var filepath = FileToRename.GetFilePath();
-            var newFilepath = Path.GetFileNameWithoutExtension(filepath) + "(" + id + ")" + Path.GetExtension(filepath);
-
-            File.Move(filepath, newFilepath);
-        }
+        File.Move(filepath, newFilepath);
     }
 }

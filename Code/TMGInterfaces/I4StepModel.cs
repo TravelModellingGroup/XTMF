@@ -18,23 +18,22 @@
 */
 using System.Collections.Generic;
 
-namespace TMG
+namespace TMG;
+
+public interface I4StepModel : ITravelDemandModel, IIterativeModel
 {
-    public interface I4StepModel : ITravelDemandModel, IIterativeModel
-    {
-        /// <summary>
-        /// The different kinds of modes available
-        /// </summary>
-        List<IModeChoiceNode> Modes { get; }
+    /// <summary>
+    /// The different kinds of modes available
+    /// </summary>
+    List<IModeChoiceNode> Modes { get; }
 
-        /// <summary>
-        /// The model that will assign the data to the network
-        /// </summary>
-        INetworkAssignment NetworkAssignment { get; }
+    /// <summary>
+    /// The model that will assign the data to the network
+    /// </summary>
+    INetworkAssignment NetworkAssignment { get; }
 
-        /// <summary>
-        /// The list of different purpose
-        /// </summary>
-        List<IPurpose> Purpose { get; }
-    }
+    /// <summary>
+    /// The list of different purpose
+    /// </summary>
+    List<IPurpose> Purpose { get; }
 }

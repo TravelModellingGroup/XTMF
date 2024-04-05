@@ -22,168 +22,167 @@ using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.Functions
-{
-    public static partial class VectorHelper
-    {
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagOr(float[] dest, float value, float[] data)
-        {
-            // check if we are supposed to just copy everything and use a faster function for that
-            if (value == 0.0f)
-            {
-                Array.Copy(dest, 0, data, 0, dest.Length);
-            }
-            else
-            {
-                int i = 0;
-                if (Vector512.IsHardwareAccelerated)
-                {
-                    var one = Vector512<float>.One;
-                    for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        Vector512.StoreUnsafe(one, ref dest[i]);
-                    }
-                }
-                if (Vector.IsHardwareAccelerated)
-                {
-                    // the vector implementation performed faster than the serial version by multiples
-                    var one = Vector<float>.One;
-                    for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        one.CopyTo(dest, i);
-                    }
-                }
-                // copy the remainder
-                for (; i < dest.Length; i++)
-                {
-                    dest[i] = 1.0f;
-                }
-            }
-        }
+namespace TMG.Functions;
 
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagOr(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+public static partial class VectorHelper
+{
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagOr(float[] dest, float value, float[] data)
+    {
+        // check if we are supposed to just copy everything and use a faster function for that
+        if (value == 0.0f)
         {
+            Array.Copy(dest, 0, data, 0, dest.Length);
+        }
+        else
+        {
+            int i = 0;
             if (Vector512.IsHardwareAccelerated)
             {
                 var one = Vector512<float>.One;
-                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    int i = 0;
-                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var f = Vector512.LoadUnsafe(ref lhs[i]);
-                        var s = Vector512.LoadUnsafe(ref rhs[i]);
-                        var local = Vector512.ConditionalSelect(Vector512.Equals(f, one), one, s);
-                        Vector512.StoreUnsafe(local, ref destination[i]);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        destination[i] = lhs[i] == 1.0f ? 1.0f : rhs[i];
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var f = Vector512.LoadUnsafe(ref lhs[i + lhsIndex]);
-                        var s = Vector512.LoadUnsafe(ref rhs[i + rhsIndex]);
-                        var local = Vector512.ConditionalSelect(Vector512.Equals(f, one), one, s);
-                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector512<float>.Count); i < length; i++)
-                    {
-                        destination[i + destIndex] = lhs[i + lhsIndex] == 1.0f ? 1.0f : rhs[i + rhsIndex];
-                    }
+                    Vector512.StoreUnsafe(one, ref dest[i]);
                 }
             }
-            else if (Vector.IsHardwareAccelerated)
+            if (Vector.IsHardwareAccelerated)
             {
+                // the vector implementation performed faster than the serial version by multiples
                 var one = Vector<float>.One;
-                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        var f = new Vector<float>(lhs, i);
-                        var s = new Vector<float>(rhs, i);
-                        Vector.ConditionalSelect(Vector.Equals(f, one), one, s).CopyTo(destination, i);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        destination[i] = lhs[i] == 1.0f ? 1.0f : rhs[i];
-                    }
+                    one.CopyTo(dest, i);
                 }
-                else
+            }
+            // copy the remainder
+            for (; i < dest.Length; i++)
+            {
+                dest[i] = 1.0f;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagOr(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+    {
+        if (Vector512.IsHardwareAccelerated)
+        {
+            var one = Vector512<float>.One;
+            if ((destIndex | lhsIndex | rhsIndex) == 0)
+            {
+                int i = 0;
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        Vector.ConditionalSelect(Vector.Equals(new Vector<float>(lhs, i + lhsIndex), one), one, new Vector<float>(rhs, i + rhsIndex))
-                            .CopyTo(destination, i + destIndex);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                    {
-                        destination[i + destIndex] = lhs[i + lhsIndex] == 1.0f ? 1.0f : rhs[i + rhsIndex];
-                    }
+                    var f = Vector512.LoadUnsafe(ref lhs[i]);
+                    var s = Vector512.LoadUnsafe(ref rhs[i]);
+                    var local = Vector512.ConditionalSelect(Vector512.Equals(f, one), one, s);
+                    Vector512.StoreUnsafe(local, ref destination[i]);
+                }
+                // copy the remainder
+                for (; i < length; i++)
+                {
+                    destination[i] = lhs[i] == 1.0f ? 1.0f : rhs[i];
                 }
             }
             else
             {
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var f = Vector512.LoadUnsafe(ref lhs[i + lhsIndex]);
+                    var s = Vector512.LoadUnsafe(ref rhs[i + rhsIndex]);
+                    var local = Vector512.ConditionalSelect(Vector512.Equals(f, one), one, s);
+                    Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector512<float>.Count); i < length; i++)
                 {
                     destination[i + destIndex] = lhs[i + lhsIndex] == 1.0f ? 1.0f : rhs[i + rhsIndex];
                 }
             }
         }
-
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagOr(float[][] dest, float[][] data, float literalValue)
+        else if (Vector.IsHardwareAccelerated)
         {
-            Parallel.For(0, dest.Length, i =>
+            var one = Vector<float>.One;
+            if ((destIndex | lhsIndex | rhsIndex) == 0)
             {
-                FlagOr(dest[i], data[i], literalValue);
-            });
-        }
-
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagOr(float[] dest, float[] data, float literalValue)
-        {
-            FlagOr(dest, literalValue, data);
-        }
-
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagOr(float[][] dest, float[][] lhs, float[][] rhs)
-        {
-            Parallel.For(0, dest.Length, i =>
+                int i = 0;
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = new Vector<float>(lhs, i);
+                    var s = new Vector<float>(rhs, i);
+                    Vector.ConditionalSelect(Vector.Equals(f, one), one, s).CopyTo(destination, i);
+                }
+                // copy the remainder
+                for (; i < length; i++)
+                {
+                    destination[i] = lhs[i] == 1.0f ? 1.0f : rhs[i];
+                }
+            }
+            else
             {
-                FlagOr(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
-            });
+                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    Vector.ConditionalSelect(Vector.Equals(new Vector<float>(lhs, i + lhsIndex), one), one, new Vector<float>(rhs, i + rhsIndex))
+                        .CopyTo(destination, i + destIndex);
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] == 1.0f ? 1.0f : rhs[i + rhsIndex];
+                }
+            }
         }
-
-        /// <summary>
-        /// Set the value to one if the condition is met.
-        /// </summary>
-        public static void FlagOr(float[][] v1, float literalValue, float[][] v2)
+        else
         {
-            Parallel.For(0, v1.Length, i =>
+            for (int i = 0; i < length; i++)
             {
-                FlagOr(v1[i], literalValue, v2[i]);
-            });
+                destination[i + destIndex] = lhs[i + lhsIndex] == 1.0f ? 1.0f : rhs[i + rhsIndex];
+            }
         }
+    }
+
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagOr(float[][] dest, float[][] data, float literalValue)
+    {
+        Parallel.For(0, dest.Length, i =>
+        {
+            FlagOr(dest[i], data[i], literalValue);
+        });
+    }
+
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagOr(float[] dest, float[] data, float literalValue)
+    {
+        FlagOr(dest, literalValue, data);
+    }
+
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagOr(float[][] dest, float[][] lhs, float[][] rhs)
+    {
+        Parallel.For(0, dest.Length, i =>
+        {
+            FlagOr(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+        });
+    }
+
+    /// <summary>
+    /// Set the value to one if the condition is met.
+    /// </summary>
+    public static void FlagOr(float[][] v1, float literalValue, float[][] v2)
+    {
+        Parallel.For(0, v1.Length, i =>
+        {
+            FlagOr(v1[i], literalValue, v2[i]);
+        });
     }
 }

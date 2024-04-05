@@ -22,85 +22,84 @@ using Datastructure;
 using TMG.GTAModel.DataUtility;
 using XTMF;
 
-namespace TMG.GTAModel.Generation
+namespace TMG.GTAModel.Generation;
+
+// ReSharper disable once InconsistentNaming
+public class DRMNHBOPMGeneration : IDemographicCategoryGeneration
 {
-    // ReSharper disable once InconsistentNaming
-    public class DRMNHBOPMGeneration : IDemographicCategoryGeneration
+    [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
+    public int DemographicParameterSetIndex;
+
+    [RunParameter( "ModeChoice Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
+    public int ModeChoiceParameterSetIndex;
+
+    [RunParameter( "Region Constant Parameters", "97.80036347,0,0,35.25847232", typeof( FloatList ), "The region parameters for Auto Times." )]
+    public FloatList RegionConstantsParameter;
+
+    [RunParameter( "Region Employment Parameter", "0.123741227,0.158434606,0.158219114,0.1190458", typeof( FloatList ), "The region parameter for the log of the employment." )]
+    public FloatList RegionEmploymentParameter;
+
+    [RunParameter( "Region Numbers", "1,2,3,4", typeof( NumberList ), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters." )]
+    public NumberList RegionNumbers;
+
+    [RunParameter( "Region Population Parameter", "0.015253473,0.026917103,0.017423103,0.013863011", typeof( FloatList ), "The region parameter for the log of the employment." )]
+    public FloatList RegionPopulationParameter;
+
+    [RootModule]
+    public IDemographic4StepModelSystemTemplate Root;
+
+    public string Name
     {
-        [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
-        public int DemographicParameterSetIndex;
+        get;
+        set;
+    }
 
-        [RunParameter( "ModeChoice Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
-        public int ModeChoiceParameterSetIndex;
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        [RunParameter( "Region Constant Parameters", "97.80036347,0,0,35.25847232", typeof( FloatList ), "The region parameters for Auto Times." )]
-        public FloatList RegionConstantsParameter;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RunParameter( "Region Employment Parameter", "0.123741227,0.158434606,0.158219114,0.1190458", typeof( FloatList ), "The region parameter for the log of the employment." )]
-        public FloatList RegionEmploymentParameter;
-
-        [RunParameter( "Region Numbers", "1,2,3,4", typeof( NumberList ), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters." )]
-        public NumberList RegionNumbers;
-
-        [RunParameter( "Region Population Parameter", "0.015253473,0.026917103,0.017423103,0.013863011", typeof( FloatList ), "The region parameter for the log of the employment." )]
-        public FloatList RegionPopulationParameter;
-
-        [RootModule]
-        public IDemographic4StepModelSystemTemplate Root;
-
-        public string Name
+    public void Generate(SparseArray<float> production, SparseArray<float> attractions)
+    {
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfzones = zones.Length;
+        var flatProduction = production.GetFlatData();
+        for ( int i = 0; i < numberOfzones; i++ )
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Generate(SparseArray<float> production, SparseArray<float> attractions)
-        {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfzones = zones.Length;
-            var flatProduction = production.GetFlatData();
-            for ( int i = 0; i < numberOfzones; i++ )
+            if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
             {
-                if (!InverseLookup(zones[i].RegionNumber, out int regionIndex))
-                {
-                    // if this region is not included just continue
-                    flatProduction[i] = 0;
-                    continue;
-                }
-                flatProduction[i] = zones[i].Population * RegionPopulationParameter[regionIndex]
-                    + zones[i].Employment * RegionEmploymentParameter[regionIndex]
-                    + RegionConstantsParameter[regionIndex];
+                // if this region is not included just continue
+                flatProduction[i] = 0;
+                continue;
             }
+            flatProduction[i] = zones[i].Population * RegionPopulationParameter[regionIndex]
+                + zones[i].Employment * RegionEmploymentParameter[regionIndex]
+                + RegionConstantsParameter[regionIndex];
         }
+    }
 
-        public void InitializeDemographicCategory()
-        {
-            Root.ModeParameterDatabase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
-        }
+    public void InitializeDemographicCategory()
+    {
+        Root.ModeParameterDatabase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
+    }
 
-        public bool IsContained(IPerson person)
-        {
-            return true;
-        }
+    public bool IsContained(IPerson person)
+    {
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        private bool InverseLookup(int regionNumber, out int regionIndex)
-        {
-            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
-        }
+    private bool InverseLookup(int regionNumber, out int regionIndex)
+    {
+        return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
     }
 }

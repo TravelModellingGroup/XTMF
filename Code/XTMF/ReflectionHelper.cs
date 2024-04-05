@@ -23,59 +23,56 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF
+namespace XTMF;
+
+/// <summary>
+/// This class provides the ability to work jointly with fields and properties disregarding
+/// their differences.
+/// </summary>
+public abstract class UnifiedFieldType
 {
-    /// <summary>
-    /// This class provides the ability to work jointly with fields and properties disregarding
-    /// their differences.
-    /// </summary>
-    public abstract class UnifiedFieldType
+    public abstract string Name { get; }
+
+    public abstract object[] GetAttributes();
+
+    public abstract bool IsPublic { get; }
+
+    public static IEnumerable<UnifiedFieldType> GetMembers(Type t)
     {
-        public abstract string Name { get; }
+        var fields = t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(m => (UnifiedFieldType)new FieldType(m));
+        var properties = t.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(m => (UnifiedFieldType)new PropertyType(m));
+        return fields.Union(properties);
+    }
 
-        public abstract object[] GetAttributes();
+    private class FieldType : UnifiedFieldType
+    {
+        private FieldInfo _Member;
 
-        public abstract bool IsPublic { get; }
+        public FieldType(FieldInfo field) => _Member = field;
 
-        public static IEnumerable<UnifiedFieldType> GetMembers(Type t)
-        {
-            var fields = t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(m => (UnifiedFieldType)new FieldType(m));
-            var properties = t.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(m => (UnifiedFieldType)new PropertyType(m));
-            return fields.Union(properties);
-        }
+        public override string Name => _Member.Name;
 
-        private class FieldType : UnifiedFieldType
-        {
-            private FieldInfo _Member;
+        public override bool IsPublic => _Member.IsPublic;
 
-            public FieldType(FieldInfo field) => _Member = field;
-
-            public override string Name => _Member.Name;
-
-            public override bool IsPublic => _Member.IsPublic;
-
-            public override object[] GetAttributes() => _Member.GetCustomAttributes(true);
-        }
-
-
-        private class PropertyType : UnifiedFieldType
-        {
-            private PropertyInfo _Member;
-
-            public PropertyType(PropertyInfo field) => _Member = field;
-
-            public override string Name => _Member.Name;
-
-            public override bool IsPublic => 
-                (_Member.GetMethod == null || _Member.GetMethod.IsPublic) &&
-                (_Member.SetMethod == null || _Member.SetMethod.IsPublic);
-
-            public override object[] GetAttributes()
-            {
-                return _Member.GetCustomAttributes(true);
-            }
-        }
+        public override object[] GetAttributes() => _Member.GetCustomAttributes(true);
     }
 
 
+    private class PropertyType : UnifiedFieldType
+    {
+        private PropertyInfo _Member;
+
+        public PropertyType(PropertyInfo field) => _Member = field;
+
+        public override string Name => _Member.Name;
+
+        public override bool IsPublic => 
+            (_Member.GetMethod == null || _Member.GetMethod.IsPublic) &&
+            (_Member.SetMethod == null || _Member.SetMethod.IsPublic);
+
+        public override object[] GetAttributes()
+        {
+            return _Member.GetCustomAttributes(true);
+        }
+    }
 }

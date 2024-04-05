@@ -26,10 +26,10 @@ using TMG.Emme;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
-namespace TMG.GTAModel.NetworkAssignment
-{
-    [ModuleInformation(Name = "Legacy Fare-Based Transit Assignment",
-                        Description = @"Executes a <b>fare-based transit assignment</b> (FBTA) as described
+namespace TMG.GTAModel.NetworkAssignment;
+
+[ModuleInformation(Name = "Legacy Fare-Based Transit Assignment",
+                    Description = @"Executes a <b>fare-based transit assignment</b> (FBTA) as described
                             in the GTAModel Version 3 documentation: Using special functions
                             on centroid connectors and transit time functions. This requires
                             a compatible network, which can currently only be created by
@@ -39,198 +39,197 @@ namespace TMG.GTAModel.NetworkAssignment
                             This Tool executes an Extended Transit Assignment, which allows
                             for subsequent analyses; such as those that can be found in
                             TMG2.Assignment.TransitAnalysis.")]
-    public class LegacyFBTA : IEmmeTool
+public class LegacyFBTA : IEmmeTool
+{
+    private const string ToolName = "tmg.assignment.transit.V3_FBTA";
+    private const string OldToolName = "TMG2.Assignment.TransitAssignment.LegacyFBTA";
+    private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+    private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
+    [Parameter("Boarding Parameter", 1.0f, "The perception factor for boarding penalties.")]
+    public float BoardingPerception;
+
+    [RunParameter("Demand File Name", "", "Should we save the demand after tallying?  If so what should we name the file? (Blank will use a temporary file)")]
+    public string DemandFileName;
+
+    [RunParameter("Demand Matrix Number", 0, "The number of the full matrix to save the transit demand in. If it already exists, it will be overwritten. Set to 0 to use a scalar matrix of '0'")]
+    public int DemandMatrixNumber;
+
+    [Parameter("Fare Perception", 0.0f, "The time-value-of-money for converting fares to generalized cost. Set to 0.0 to disable fare-based impedance.")]
+    public float FarePerception;
+
+    [Parameter("In-vehicle Perception", 1.0f, "The perception factor for in-vehicle time.")]
+    public float InVehiclePerception;
+
+    [RunParameter("Modes", "blmstuvwy", "The string of modes to assign.")]
+    public string Modes;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter("Scenario Number", 0, "The number of the scenario in which to run the assignment")]
+    public int ScenarioNumber;
+
+    [SubModelInformation(Description = "Optional Tallies for exporting transit demand data. Must be empty for scalar assignment, and vice-versa.", Required = false)]
+    public List<IModeAggregationTally> Tallies;
+
+    [Parameter("Use Additive Demand", false, "Set to true to add this assignment's volumes to those of a previous assignment. The default setting of false indicates a new assignment.")]
+    public bool UseAdditiveDemand;
+
+    [Parameter("Wait Factor", 0.5f, "The wait time factor used to estimate waiting time at stops. This should never change from 0.5")]
+    public float WaitFactor;
+
+    [Parameter("Wait Perception", 2.0f, "The perception factor for waiting time.")]
+    public float WaitPerception;
+
+    [Parameter("Walk Perception", 2.0f, "The perception factor for walking (auxiliary transit) time.")]
+    public float WalkPerception;
+
+    [Parameter("Walk Speed", 6.0f, "Walking speed, in km/hr")]
+    public float WalkSpeed;
+
+    [RunParameter("EMME Demand Matrix Name", "Demand", "A name to attach to the matrix.")]
+    public string DemandMatrixName;
+
+    /*
+    ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, \
+             WalkPerception, InVehiclePerception, BoardingPerception, FarePerception, \
+             UseAdditiveDemand, WaitFactor
+    */
+    private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
+
+    public string Name
     {
-        private const string ToolName = "tmg.assignment.transit.V3_FBTA";
-        private const string OldToolName = "TMG2.Assignment.TransitAssignment.LegacyFBTA";
-        private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
-        private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
-        [Parameter("Boarding Parameter", 1.0f, "The perception factor for boarding penalties.")]
-        public float BoardingPerception;
+        get;
+        set;
+    }
 
-        [RunParameter("Demand File Name", "", "Should we save the demand after tallying?  If so what should we name the file? (Blank will use a temporary file)")]
-        public string DemandFileName;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [RunParameter("Demand Matrix Number", 0, "The number of the full matrix to save the transit demand in. If it already exists, it will be overwritten. Set to 0 to use a scalar matrix of '0'")]
-        public int DemandMatrixNumber;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return _progressColour; }
+    }
 
-        [Parameter("Fare Perception", 0.0f, "The time-value-of-money for converting fares to generalized cost. Set to 0.0 to disable fare-based impedance.")]
-        public float FarePerception;
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController;
+        if(mc == null)
+            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
 
-        [Parameter("In-vehicle Perception", 1.0f, "The perception factor for in-vehicle time.")]
-        public float InVehiclePerception;
-
-        [RunParameter("Modes", "blmstuvwy", "The string of modes to assign.")]
-        public string Modes;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [RunParameter("Scenario Number", 0, "The number of the scenario in which to run the assignment")]
-        public int ScenarioNumber;
-
-        [SubModelInformation(Description = "Optional Tallies for exporting transit demand data. Must be empty for scalar assignment, and vice-versa.", Required = false)]
-        public List<IModeAggregationTally> Tallies;
-
-        [Parameter("Use Additive Demand", false, "Set to true to add this assignment's volumes to those of a previous assignment. The default setting of false indicates a new assignment.")]
-        public bool UseAdditiveDemand;
-
-        [Parameter("Wait Factor", 0.5f, "The wait time factor used to estimate waiting time at stops. This should never change from 0.5")]
-        public float WaitFactor;
-
-        [Parameter("Wait Perception", 2.0f, "The perception factor for waiting time.")]
-        public float WaitPerception;
-
-        [Parameter("Walk Perception", 2.0f, "The perception factor for walking (auxiliary transit) time.")]
-        public float WalkPerception;
-
-        [Parameter("Walk Speed", 6.0f, "Walking speed, in km/hr")]
-        public float WalkSpeed;
-
-        [RunParameter("EMME Demand Matrix Name", "Demand", "A name to attach to the matrix.")]
-        public string DemandMatrixName;
-
-        /*
-        ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, \
-                 WalkPerception, InVehiclePerception, BoardingPerception, FarePerception, \
-                 UseAdditiveDemand, WaitFactor
-        */
-        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
-
-        public string Name
+        if(DemandMatrixNumber != 0)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _progressColour; }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if(mc == null)
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
-
-            if(DemandMatrixNumber != 0)
+            // if false then there were no records saved and we need to skip the assignment.
+            if(!PassMatrixIntoEmme(mc))
             {
-                // if false then there were no records saved and we need to skip the assignment.
-                if(!PassMatrixIntoEmme(mc))
+                return true;
+            }
+        }
+
+        //Setup space-delimited args for the Emme tool
+        var sb = new StringBuilder();
+        sb.AppendFormat("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
+            ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, WalkPerception,
+            InVehiclePerception, BoardingPerception, FarePerception, UseAdditiveDemand, WaitFactor);
+        string result = null;
+        if(mc.CheckToolExists(this, ToolName))
+        {
+            return mc.Run(this, ToolName, sb.ToString(), (p => Progress = p), ref result);
+        }
+        return mc.Run(this, OldToolName, sb.ToString(), (p => Progress = p), ref result);
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if((Tallies == null || Tallies.Count == 0) && DemandMatrixNumber != 0)
+        {
+            //There are no Tallies, and a scalar is not being assigned
+            error = "No Tallies were found, but a scalar matrix was not selected! Please either add a Tally or change the" +
+                " Demand Matrix Number to 0";
+            return false;
+        }
+        return true;
+    }
+
+    private bool PassMatrixIntoEmme(ModellerController mc)
+    {
+        var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        var numberOfZones = flatZones.Length;
+        // Load the data from the flows and save it to our temporary file
+        var useTempFile = String.IsNullOrWhiteSpace(DemandFileName);
+        string outputFileName = useTempFile ? Path.GetTempFileName() : DemandFileName;
+        float[][] tally = new float[numberOfZones][];
+        for(int i = 0; i < numberOfZones; i++)
+        {
+            tally[i] = new float[numberOfZones];
+        }
+        for(int i = Tallies.Count - 1; i >= 0; i--)
+        {
+            Tallies[i].IncludeTally(tally);
+        }
+        var dir = Path.GetDirectoryName(outputFileName);
+        if(!String.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        using (StreamWriter writer = new(outputFileName))
+        {
+            writer.WriteLine("t matrices\r\na matrix=mf{0} name={1} default=0 descr=generated", DemandMatrixNumber, DemandMatrixName.Replace(" ", ""));
+            StringBuilder[] builders = new StringBuilder[numberOfZones];
+            bool any = false;
+            Parallel.For(0, numberOfZones, delegate (int o)
+            {
+                var build = builders[o] = new StringBuilder();
+                var strBuilder = new StringBuilder(10);
+                var convertedO = flatZones[o].ZoneNumber;
+                var localAny = false;
+                for(int d = 0; d < numberOfZones; d++)
                 {
-                    return true;
+                    var result = tally[o][d];
+                    if(result > 0)
+                    {
+                        localAny = true;
+                        Controller.ToEmmeFloat(result, strBuilder);
+                        build.AppendFormat("{0,-4:G} {1,-4:G} {2}\r\n",
+                            convertedO, flatZones[d].ZoneNumber, strBuilder);
+                    }
                 }
-            }
-
-            //Setup space-delimited args for the Emme tool
-            var sb = new StringBuilder();
-            sb.AppendFormat("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
-                ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, WalkPerception,
-                InVehiclePerception, BoardingPerception, FarePerception, UseAdditiveDemand, WaitFactor);
-            string result = null;
-            if(mc.CheckToolExists(this, ToolName))
+                if(localAny)
+                {
+                    any = true;
+                }
+            });
+            if(!any)
             {
-                return mc.Run(this, ToolName, sb.ToString(), (p => Progress = p), ref result);
-            }
-            return mc.Run(this, OldToolName, sb.ToString(), (p => Progress = p), ref result);
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            if((Tallies == null || Tallies.Count == 0) && DemandMatrixNumber != 0)
-            {
-                //There are no Tallies, and a scalar is not being assigned
-                error = "No Tallies were found, but a scalar matrix was not selected! Please either add a Tally or change the" +
-                    " Demand Matrix Number to 0";
                 return false;
             }
-            return true;
-        }
-
-        private bool PassMatrixIntoEmme(ModellerController mc)
-        {
-            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var numberOfZones = flatZones.Length;
-            // Load the data from the flows and save it to our temporary file
-            var useTempFile = String.IsNullOrWhiteSpace(DemandFileName);
-            string outputFileName = useTempFile ? Path.GetTempFileName() : DemandFileName;
-            float[][] tally = new float[numberOfZones][];
             for(int i = 0; i < numberOfZones; i++)
             {
-                tally[i] = new float[numberOfZones];
+                writer.Write(builders[i]);
             }
-            for(int i = Tallies.Count - 1; i >= 0; i--)
-            {
-                Tallies[i].IncludeTally(tally);
-            }
-            var dir = Path.GetDirectoryName(outputFileName);
-            if(!String.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-            using (StreamWriter writer = new(outputFileName))
-            {
-                writer.WriteLine("t matrices\r\na matrix=mf{0} name={1} default=0 descr=generated", DemandMatrixNumber, DemandMatrixName.Replace(" ", ""));
-                StringBuilder[] builders = new StringBuilder[numberOfZones];
-                bool any = false;
-                Parallel.For(0, numberOfZones, delegate (int o)
-                {
-                    var build = builders[o] = new StringBuilder();
-                    var strBuilder = new StringBuilder(10);
-                    var convertedO = flatZones[o].ZoneNumber;
-                    var localAny = false;
-                    for(int d = 0; d < numberOfZones; d++)
-                    {
-                        var result = tally[o][d];
-                        if(result > 0)
-                        {
-                            localAny = true;
-                            Controller.ToEmmeFloat(result, strBuilder);
-                            build.AppendFormat("{0,-4:G} {1,-4:G} {2}\r\n",
-                                convertedO, flatZones[d].ZoneNumber, strBuilder);
-                        }
-                    }
-                    if(localAny)
-                    {
-                        any = true;
-                    }
-                });
-                if(!any)
-                {
-                    return false;
-                }
-                for(int i = 0; i < numberOfZones; i++)
-                {
-                    writer.Write(builders[i]);
-                }
-            }
-
-            try
-            {
-                if(mc.CheckToolExists(this, ImportToolName))
-                {
-                    mc.Run(this, ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
-                }
-                else
-                {
-                    mc.Run(this, OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
-                }
-            }
-            finally
-            {
-                if(useTempFile)
-                {
-                    File.Delete(outputFileName);
-                }
-            }
-            return true;
         }
+
+        try
+        {
+            if(mc.CheckToolExists(this, ImportToolName))
+            {
+                mc.Run(this, ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+            }
+            else
+            {
+                mc.Run(this, OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+            }
+        }
+        finally
+        {
+            if(useTempFile)
+            {
+                File.Delete(outputFileName);
+            }
+        }
+        return true;
     }
 }

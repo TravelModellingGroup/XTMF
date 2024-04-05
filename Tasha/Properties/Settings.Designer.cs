@@ -8,97 +8,96 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Tasha.Properties {
+namespace Tasha.Properties; 
+
+
+[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
+public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
     
+    private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
     
-    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
-    public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
-        private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-        
-        public static Settings Default {
-            get {
-                return defaultInstance;
-            }
+    public static Settings Default {
+        get {
+            return defaultInstance;
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Tasha#")]
-        public string ApplicationName {
-            get {
-                return ((string)(this["ApplicationName"]));
-            }
+    }
+    
+    [global::System.Configuration.ApplicationScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("Tasha#")]
+    public string ApplicationName {
+        get {
+            return ((string)(this["ApplicationName"]));
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("v. 1.00.00")]
-        public string ApplicationVersion {
-            get {
-                return ((string)(this["ApplicationVersion"]));
-            }
+    }
+    
+    [global::System.Configuration.ApplicationScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("v. 1.00.00")]
+    public string ApplicationVersion {
+        get {
+            return ((string)(this["ApplicationVersion"]));
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("TashaConfigForDebug.xml")]
-        public string ConfigurationFile {
-            get {
-                return ((string)(this["ConfigurationFile"]));
-            }
-            set {
-                this["ConfigurationFile"] = value;
-            }
+    }
+    
+    [global::System.Configuration.UserScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("TashaConfigForDebug.xml")]
+    public string ConfigurationFile {
+        get {
+            return ((string)(this["ConfigurationFile"]));
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Configuration")]
-        public string ConfigurationDirectory {
-            get {
-                return ((string)(this["ConfigurationDirectory"]));
-            }
-            set {
-                this["ConfigurationDirectory"] = value;
-            }
+        set {
+            this["ConfigurationFile"] = value;
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("TashaLog.txt")]
-        public string LogFile {
-            get {
-                return ((string)(this["LogFile"]));
-            }
-            set {
-                this["LogFile"] = value;
-            }
+    }
+    
+    [global::System.Configuration.UserScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("Configuration")]
+    public string ConfigurationDirectory {
+        get {
+            return ((string)(this["ConfigurationDirectory"]));
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Logs")]
-        public string LogDirectory {
-            get {
-                return ((string)(this["LogDirectory"]));
-            }
-            set {
-                this["LogDirectory"] = value;
-            }
+        set {
+            this["ConfigurationDirectory"] = value;
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Error")]
-        public global::System.Diagnostics.SourceLevels LogLevel {
-            get {
-                return ((global::System.Diagnostics.SourceLevels)(this["LogLevel"]));
-            }
-            set {
-                this["LogLevel"] = value;
-            }
+    }
+    
+    [global::System.Configuration.UserScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("TashaLog.txt")]
+    public string LogFile {
+        get {
+            return ((string)(this["LogFile"]));
+        }
+        set {
+            this["LogFile"] = value;
+        }
+    }
+    
+    [global::System.Configuration.UserScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("Logs")]
+    public string LogDirectory {
+        get {
+            return ((string)(this["LogDirectory"]));
+        }
+        set {
+            this["LogDirectory"] = value;
+        }
+    }
+    
+    [global::System.Configuration.UserScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("Error")]
+    public global::System.Diagnostics.SourceLevels LogLevel {
+        get {
+            return ((global::System.Diagnostics.SourceLevels)(this["LogLevel"]));
+        }
+        set {
+            this["LogLevel"] = value;
         }
     }
 }

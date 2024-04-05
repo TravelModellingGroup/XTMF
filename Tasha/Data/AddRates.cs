@@ -22,86 +22,85 @@ using TMG;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+[ModuleInformation(Description =
+    @"This module is designed to add multiple rates for each zone.")]
+public class AddRates : IDataSource<SparseArray<float>>
 {
-    [ModuleInformation(Description =
-        @"This module is designed to add multiple rates for each zone.")]
-    public class AddRates : IDataSource<SparseArray<float>>
+    private SparseArray<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation(Required = false, Description = "The resources to add together.")]
+    public IResource[] ResourcesToAdd;
+
+    [SubModelInformation(Required = false, Description = "The data sources to add together.")]
+    public IDataSource<SparseArray<float>>[] ResourcesToAddRaw;
+
+    [RunParameter("Save by PD", true, "Should we save our combined rate by PD?  If true then all rates are treated as if by PD!")]
+    public bool SaveRatesBasedOnPD;
+
+    public SparseArray<float> GiveData()
     {
-        private SparseArray<float> Data;
+        return Data;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public bool Loaded
+    {
+        get { return Data != null; }
+    }
 
-        [SubModelInformation(Required = false, Description = "The resources to add together.")]
-        public IResource[] ResourcesToAdd;
-
-        [SubModelInformation(Required = false, Description = "The data sources to add together.")]
-        public IDataSource<SparseArray<float>>[] ResourcesToAddRaw;
-
-        [RunParameter("Save by PD", true, "Should we save our combined rate by PD?  If true then all rates are treated as if by PD!")]
-        public bool SaveRatesBasedOnPD;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        public bool Loaded
-        {
-            get { return Data != null; }
-        }
-
-        public void LoadData()
-        {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var resources = ResourcesToAdd.Select(resource => resource.AcquireResource<SparseArray<float>>().GetFlatData()).Union(
-                    ResourcesToAddRaw.Select(source =>
-                    {
-                        source.LoadData();
-                        var ret = source.GiveData();
-                        source.UnloadData();
-                        return ret.GetFlatData();
-                    })
-                ).ToArray();
-            SparseArray<float> data;
-            data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePdArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
-            var flatData = data.GetFlatData();
-            for (int j = 0; j < resources.Length; j++)
-            {
-                VectorHelper.Add(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
-            }
-            Data = data;
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress
-        {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            for (int i = 0; i < ResourcesToAdd.Length; i++)
-            {
-                if (!ResourcesToAdd[i].CheckResourceType<SparseArray<float>>())
+    public void LoadData()
+    {
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        var resources = ResourcesToAdd.Select(resource => resource.AcquireResource<SparseArray<float>>().GetFlatData()).Union(
+                ResourcesToAddRaw.Select(source =>
                 {
-                    error = "In '" + Name + "' the resource '" + ResourcesToAdd[i].Name + "' is not of type SparseArray<float>!";
-                    return false;
-                }
-            }
-            return true;
+                    source.LoadData();
+                    var ret = source.GiveData();
+                    source.UnloadData();
+                    return ret.GetFlatData();
+                })
+            ).ToArray();
+        SparseArray<float> data;
+        data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePdArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
+        var flatData = data.GetFlatData();
+        for (int j = 0; j < resources.Length; j++)
+        {
+            VectorHelper.Add(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
         }
+        Data = data;
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+    }
+
+    public string Name { get; set; }
+
+    public float Progress
+    {
+        get { return 0f; }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        for (int i = 0; i < ResourcesToAdd.Length; i++)
+        {
+            if (!ResourcesToAdd[i].CheckResourceType<SparseArray<float>>())
+            {
+                error = "In '" + Name + "' the resource '" + ResourcesToAdd[i].Name + "' is not of type SparseArray<float>!";
+                return false;
+            }
+        }
+        return true;
     }
 }

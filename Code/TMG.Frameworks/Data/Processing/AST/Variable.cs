@@ -20,41 +20,40 @@ using Datastructure;
 using System.Linq;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Processing.AST
+namespace TMG.Frameworks.Data.Processing.AST;
+
+public sealed class Variable : Value
 {
-    public sealed class Variable : Value
+    public readonly string Name;
+
+    public Variable(int start, string name) : base(start)
     {
-        public readonly string Name;
+        Name = name;
+    }
 
-        public Variable(int start, string name) : base(start)
+    public override ComputationResult Evaluate(IDataSource[] dataSources)
+    {
+        var source = dataSources.FirstOrDefault(d => d.Name == Name);
+        if (source == null)
         {
-            Name = name;
+            return new ComputationResult("Unable to find a data source named '" + Name + "'!");
         }
-
-        public override ComputationResult Evaluate(IDataSource[] dataSources)
+        if (!source.Loaded)
         {
-            var source = dataSources.FirstOrDefault(d => d.Name == Name);
-            if (source == null)
-            {
-                return new ComputationResult("Unable to find a data source named '" + Name + "'!");
-            }
-            if (!source.Loaded)
-            {
-                source.LoadData();
-            }
-            if (source is IDataSource<SparseTwinIndex<float>> odSource)
-            {
-                return new ComputationResult(odSource.GiveData(), false);
-            }
-            if (source is IDataSource<SparseArray<float>> vectorSource)
-            {
-                return new ComputationResult(vectorSource.GiveData(), false);
-            }
-            if (source is IDataSource<float> valueSource)
-            {
-                return new ComputationResult(valueSource.GiveData());
-            }
-            return new ComputationResult("The data source '" + Name + "' was not of a valid resource type!");
+            source.LoadData();
         }
+        if (source is IDataSource<SparseTwinIndex<float>> odSource)
+        {
+            return new ComputationResult(odSource.GiveData(), false);
+        }
+        if (source is IDataSource<SparseArray<float>> vectorSource)
+        {
+            return new ComputationResult(vectorSource.GiveData(), false);
+        }
+        if (source is IDataSource<float> valueSource)
+        {
+            return new ComputationResult(valueSource.GiveData());
+        }
+        return new ComputationResult("The data source '" + Name + "' was not of a valid resource type!");
     }
 }

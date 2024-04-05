@@ -22,90 +22,89 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace XTMF.Gui
+namespace XTMF.Gui;
+
+/// <summary>
+/// Interaction logic for StartWindow.xaml
+/// </summary>
+public partial class StartWindow : UserControl
 {
-    /// <summary>
-    /// Interaction logic for StartWindow.xaml
-    /// </summary>
-    public partial class StartWindow : UserControl
+
+
+    public StartWindow()
     {
-
-
-        public StartWindow()
+        InitializeComponent();
+        MainWindow.Us.RecentProjectsUpdated += Us_RecentProjectsUpdated;
+        if (MainWindow.Us.RuntimeAvailable)
         {
-            InitializeComponent();
-            MainWindow.Us.RecentProjectsUpdated += Us_RecentProjectsUpdated;
-            if (MainWindow.Us.RuntimeAvailable)
+            Us_RecentProjectsUpdated(null, null);
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Us_RecentProjectsUpdated(object sender, EventArgs e)
+    {
+        var k = Application.Current.FindResource("HoverLabel");
+
+        RecentProjectsStackPanel.Children.Clear();
+        foreach (var recentProject in MainWindow.Us.RecentProjects)
+        {
+            Button b = new()
             {
-                Us_RecentProjectsUpdated(null, null);
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Us_RecentProjectsUpdated(object sender, EventArgs e)
-        {
-            var k = Application.Current.FindResource("HoverLabel");
-
-            RecentProjectsStackPanel.Children.Clear();
-            foreach (var recentProject in MainWindow.Us.RecentProjects)
+                Content = recentProject,
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                Style = (Style)FindResource("MaterialDesignFlatButton")
+            };
+            b.Click += (senderx, EventArgs) =>
             {
-                Button b = new()
-                {
-                    Content = recentProject,
-                    HorizontalContentAlignment = HorizontalAlignment.Left,
-                    Style = (Style)FindResource("MaterialDesignFlatButton")
-                };
-                b.Click += (senderx, EventArgs) =>
-                {
-                    MainWindow.Us.LoadProjectByName(recentProject);
-                };
-                RecentProjectsStackPanel.Children.Add(b);
-            }
-
+                MainWindow.Us.LoadProjectByName(recentProject);
+            };
+            RecentProjectsStackPanel.Children.Add(b);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-        {
-            MainWindow.Us.NewProject(MainWindow.Us.RootDialogHost);
-        }
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenProjectButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            MainWindow.Us.OpenProject();
-        }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        MainWindow.Us.NewProject(MainWindow.Us.RootDialogHost);
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CreateNewModelSystemButton_Click(object sender, RoutedEventArgs e)
-        {
-            MainWindow.Us.NewModelSystem(MainWindow.Us.RootDialogHost);
-        }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void OpenProjectButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        MainWindow.Us.OpenProject();
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenModelSystem_OnClick(object sender, RoutedEventArgs e)
-        {
-            MainWindow.Us.OpenModelSystem();
-        }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void CreateNewModelSystemButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainWindow.Us.NewModelSystem(MainWindow.Us.RootDialogHost);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void OpenModelSystem_OnClick(object sender, RoutedEventArgs e)
+    {
+        MainWindow.Us.OpenModelSystem();
     }
 }

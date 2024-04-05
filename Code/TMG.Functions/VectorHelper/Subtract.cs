@@ -22,364 +22,363 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 
-namespace TMG.Functions
+namespace TMG.Functions;
+
+public static partial class VectorHelper
 {
-    public static partial class VectorHelper
+    public static void Subtract(float[] dest, float[] lhs, float rhs)
     {
-        public static void Subtract(float[] dest, float[] lhs, float rhs)
+        if (Vector512.IsHardwareAccelerated)
         {
-            if (Vector512.IsHardwareAccelerated)
-            {
-                var rhsV = Vector512.Create(rhs);
+            var rhsV = Vector512.Create(rhs);
 
+            // copy everything we can do inside of a vector
+            int i = 0;
+            for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            {
+                var lhsV = Vector512.LoadUnsafe(ref lhs[i]);
+                var local = (lhsV - rhsV);
+                Vector512.StoreUnsafe(local, ref dest[i]);
+            }
+            // copy the remainder
+            for (; i < lhs.Length; i++)
+            {
+                dest[i] = lhs[i] - rhs;
+            }
+        }
+        else if (Vector.IsHardwareAccelerated)
+        {
+            Vector<float> rhsV = new(rhs);
+
+            // copy everything we can do inside of a vector
+            int i = 0;
+            for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            {
+                var lhsV = new Vector<float>(lhs, i);
+                (lhsV - rhsV).CopyTo(dest, i);
+            }
+            // copy the remainder
+            for (; i < lhs.Length; i++)
+            {
+                dest[i] = lhs[i] - rhs;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                dest[i] = lhs[i] - rhs;
+            }
+        }
+    }
+
+    public static void Subtract(float[] dest, float lhs, float[] rhs)
+    {
+        if (Vector512.IsHardwareAccelerated)
+        {
+            var lhsV = Vector512.Create(lhs);
+
+            // copy everything we can do inside of a vector
+            int i = 0;
+            for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            {
+                var rhsV = Vector512.LoadUnsafe(ref rhs[i]);
+                var local = (lhsV - rhsV);
+                Vector512.StoreUnsafe(local, ref dest[i]);
+            }
+            // copy the remainder
+            for (; i < rhs.Length; i++)
+            {
+                dest[i] = lhs - rhs[i];
+            }
+        }
+        else if (Vector.IsHardwareAccelerated)
+        {
+            Vector<float> lhsV = new(lhs);
+
+            // copy everything we can do inside of a vector
+            int i = 0;
+            for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            {
+                var rhsV = new Vector<float>(rhs, i);
+                (lhsV - rhsV).CopyTo(dest, i);
+            }
+            // copy the remainder
+            for (; i < rhs.Length; i++)
+            {
+                dest[i] = lhs - rhs[i];
+            }
+        }
+        else
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                dest[i] = lhs - rhs[i];
+            }
+        }
+    }
+
+    public static void Subtract(float[][] destination, float lhs, float[][] rhs)
+    {
+        if (Vector512.IsHardwareAccelerated)
+        {
+            Parallel.For(0, destination.Length, row =>
+            {
+                var n = Vector512.Create(lhs);
+                var dest = destination[row];
+                var length = dest.Length;
+                var denom = rhs[row];
                 // copy everything we can do inside of a vector
                 int i = 0;
-                for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    var lhsV = Vector512.LoadUnsafe(ref lhs[i]);
-                    var local = (lhsV - rhsV);
+                    var d = Vector512.LoadUnsafe(ref denom[i]);
+                    var local = (n - d);
                     Vector512.StoreUnsafe(local, ref dest[i]);
                 }
                 // copy the remainder
-                for (; i < lhs.Length; i++)
+                for (; i < length; i++)
                 {
-                    dest[i] = lhs[i] - rhs;
+                    dest[i] = lhs - denom[i];
                 }
-            }
-            else if (Vector.IsHardwareAccelerated)
+            });
+        }
+        else if (Vector.IsHardwareAccelerated)
+        {
+            Parallel.For(0, destination.Length, row =>
             {
-                Vector<float> rhsV = new(rhs);
-
+                Vector<float> n = new(lhs);
+                var dest = destination[row];
+                var length = dest.Length;
+                var denom = rhs[row];
                 // copy everything we can do inside of a vector
                 int i = 0;
-                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    var lhsV = new Vector<float>(lhs, i);
-                    (lhsV - rhsV).CopyTo(dest, i);
+                    var d = new Vector<float>(denom, i);
+                    (n - d).CopyTo(dest, i);
                 }
                 // copy the remainder
-                for (; i < lhs.Length; i++)
+                for (; i < length; i++)
                 {
-                    dest[i] = lhs[i] - rhs;
+                    dest[i] = lhs - denom[i];
                 }
-            }
-            else
-            {
-                for (int i = 0; i < dest.Length; i++)
-                {
-                    dest[i] = lhs[i] - rhs;
-                }
-            }
+            });
         }
-
-        public static void Subtract(float[] dest, float lhs, float[] rhs)
+        else
         {
-            if (Vector512.IsHardwareAccelerated)
+            Parallel.For(0, destination.Length, i =>
             {
-                var lhsV = Vector512.Create(lhs);
+                for (int j = 0; j < destination[i].Length; j++)
+                {
+                    destination[i][j] = lhs - rhs[i][j];
+                }
+            });
+        }
+    }
 
+    public static void Subtract(float[][] destination, float[][] lhs, float rhs)
+    {
+        if (Vector512.IsHardwareAccelerated)
+        {
+            Parallel.For(0, destination.Length, row =>
+            {
+                var d = Vector512.Create(rhs);
+                var dest = destination[row];
+                var length = dest.Length;
+                var num = lhs[row];
                 // copy everything we can do inside of a vector
                 int i = 0;
-                for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    var rhsV = Vector512.LoadUnsafe(ref rhs[i]);
-                    var local = (lhsV - rhsV);
+                    var n = Vector512.LoadUnsafe(ref num[i]);
+                    var local = (n - d);
                     Vector512.StoreUnsafe(local, ref dest[i]);
                 }
                 // copy the remainder
-                for (; i < rhs.Length; i++)
+                for (; i < length; i++)
                 {
-                    dest[i] = lhs - rhs[i];
+                    dest[i] = num[i] - rhs;
                 }
-            }
-            else if (Vector.IsHardwareAccelerated)
+            });
+        }
+        else if (Vector.IsHardwareAccelerated)
+        {
+            Parallel.For(0, destination.Length, row =>
             {
-                Vector<float> lhsV = new(lhs);
-
+                Vector<float> d = new(rhs);
+                var dest = destination[row];
+                var length = dest.Length;
+                var num = lhs[row];
                 // copy everything we can do inside of a vector
                 int i = 0;
-                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    var rhsV = new Vector<float>(rhs, i);
-                    (lhsV - rhsV).CopyTo(dest, i);
+                    var n = new Vector<float>(num, i);
+                    (n - d).CopyTo(dest, i);
                 }
                 // copy the remainder
-                for (; i < rhs.Length; i++)
+                for (; i < length; i++)
                 {
-                    dest[i] = lhs - rhs[i];
+                    dest[i] = num[i] - rhs;
                 }
-            }
-            else
-            {
-                for (int i = 0; i < dest.Length; i++)
-                {
-                    dest[i] = lhs - rhs[i];
-                }
-            }
+            });
         }
-
-        public static void Subtract(float[][] destination, float lhs, float[][] rhs)
+        else
         {
-            if (Vector512.IsHardwareAccelerated)
+            Parallel.For(0, destination.Length, i =>
             {
-                Parallel.For(0, destination.Length, row =>
+                for (int j = 0; j < destination[i].Length; j++)
                 {
-                    var n = Vector512.Create(lhs);
-                    var dest = destination[row];
-                    var length = dest.Length;
-                    var denom = rhs[row];
-                    // copy everything we can do inside of a vector
-                    int i = 0;
-                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var d = Vector512.LoadUnsafe(ref denom[i]);
-                        var local = (n - d);
-                        Vector512.StoreUnsafe(local, ref dest[i]);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        dest[i] = lhs - denom[i];
-                    }
-                });
-            }
-            else if (Vector.IsHardwareAccelerated)
-            {
-                Parallel.For(0, destination.Length, row =>
-                {
-                    Vector<float> n = new(lhs);
-                    var dest = destination[row];
-                    var length = dest.Length;
-                    var denom = rhs[row];
-                    // copy everything we can do inside of a vector
-                    int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        var d = new Vector<float>(denom, i);
-                        (n - d).CopyTo(dest, i);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        dest[i] = lhs - denom[i];
-                    }
-                });
-            }
-            else
-            {
-                Parallel.For(0, destination.Length, i =>
-                {
-                    for (int j = 0; j < destination[i].Length; j++)
-                    {
-                        destination[i][j] = lhs - rhs[i][j];
-                    }
-                });
-            }
+                    destination[i][j] = lhs[i][j] - rhs;
+                }
+            });
         }
+    }
 
-        public static void Subtract(float[][] destination, float[][] lhs, float rhs)
+    public static void Subtract(float[][] destination, float[][] lhs, float[][] rhs)
+    {
+        if (Vector512.IsHardwareAccelerated)
         {
-            if (Vector512.IsHardwareAccelerated)
+            Parallel.For(0, destination.Length, row =>
             {
-                Parallel.For(0, destination.Length, row =>
+                var dest = destination[row];
+                var length = dest.Length;
+                var num = lhs[row];
+                var denom = rhs[row];
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    var d = Vector512.Create(rhs);
-                    var dest = destination[row];
-                    var length = dest.Length;
-                    var num = lhs[row];
-                    // copy everything we can do inside of a vector
-                    int i = 0;
-                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var n = Vector512.LoadUnsafe(ref num[i]);
-                        var local = (n - d);
-                        Vector512.StoreUnsafe(local, ref dest[i]);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        dest[i] = num[i] - rhs;
-                    }
-                });
-            }
-            else if (Vector.IsHardwareAccelerated)
-            {
-                Parallel.For(0, destination.Length, row =>
+                    var n = Vector512.LoadUnsafe(ref num[i]);
+                    var d = Vector512.LoadUnsafe(ref denom[i]);
+                    var local = (n - d);
+                    Vector512.StoreUnsafe(local, ref dest[i]);
+                }
+                // copy the remainder
+                for (; i < length; i++)
                 {
-                    Vector<float> d = new(rhs);
-                    var dest = destination[row];
-                    var length = dest.Length;
-                    var num = lhs[row];
-                    // copy everything we can do inside of a vector
-                    int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        var n = new Vector<float>(num, i);
-                        (n - d).CopyTo(dest, i);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        dest[i] = num[i] - rhs;
-                    }
-                });
-            }
-            else
-            {
-                Parallel.For(0, destination.Length, i =>
-                {
-                    for (int j = 0; j < destination[i].Length; j++)
-                    {
-                        destination[i][j] = lhs[i][j] - rhs;
-                    }
-                });
-            }
+                    dest[i] = num[i] - denom[i];
+                }
+            });
         }
-
-        public static void Subtract(float[][] destination, float[][] lhs, float[][] rhs)
+        else if (Vector.IsHardwareAccelerated)
         {
-            if (Vector512.IsHardwareAccelerated)
+            Parallel.For(0, destination.Length, row =>
             {
-                Parallel.For(0, destination.Length, row =>
+                var dest = destination[row];
+                var length = dest.Length;
+                var num = lhs[row];
+                var denom = rhs[row];
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    var dest = destination[row];
-                    var length = dest.Length;
-                    var num = lhs[row];
-                    var denom = rhs[row];
-                    // copy everything we can do inside of a vector
-                    int i = 0;
-                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var n = Vector512.LoadUnsafe(ref num[i]);
-                        var d = Vector512.LoadUnsafe(ref denom[i]);
-                        var local = (n - d);
-                        Vector512.StoreUnsafe(local, ref dest[i]);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        dest[i] = num[i] - denom[i];
-                    }
-                });
-            }
-            else if (Vector.IsHardwareAccelerated)
-            {
-                Parallel.For(0, destination.Length, row =>
+                    var n = new Vector<float>(num, i);
+                    var d = new Vector<float>(denom, i);
+                    (n - d).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < length; i++)
                 {
-                    var dest = destination[row];
-                    var length = dest.Length;
-                    var num = lhs[row];
-                    var denom = rhs[row];
-                    // copy everything we can do inside of a vector
-                    int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        var n = new Vector<float>(num, i);
-                        var d = new Vector<float>(denom, i);
-                        (n - d).CopyTo(dest, i);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        dest[i] = num[i] - denom[i];
-                    }
-                });
-            }
-            else
-            {
-                Parallel.For(0, destination.Length, i =>
-                {
-                    for (int j = 0; j < destination[i].Length; j++)
-                    {
-                        destination[i][j] = lhs[i][j] - rhs[i][j];
-                    }
-                });
-            }
+                    dest[i] = num[i] - denom[i];
+                }
+            });
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="destination"></param>
-        /// <param name="destIndex"></param>
-        /// <param name="first"></param>
-        /// <param name="firstIndex"></param>
-        /// <param name="second"></param>
-        /// <param name="secondIndex"></param>
-        /// <param name="length"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Subtract(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        else
         {
-            if (Vector512.IsHardwareAccelerated)
+            Parallel.For(0, destination.Length, i =>
             {
-                if ((destIndex | firstIndex | secondIndex) == 0)
+                for (int j = 0; j < destination[i].Length; j++)
                 {
-                    int i = 0;
-                    for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                    {
-                        var f = Vector512.LoadUnsafe(ref first[i]);
-                        var s = Vector512.LoadUnsafe(ref second[i]);
-                        var local = (f - s);
-                        Vector512.StoreUnsafe(local, ref destination[i]);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        destination[i] = first[i] - second[i];
-                    }
+                    destination[i][j] = lhs[i][j] - rhs[i][j];
                 }
-                else
-                {
-                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
-                        var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
-                        var local = (f - s);
-                        Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                    {
-                        destination[i + destIndex] = first[i + firstIndex] - second[i + secondIndex];
-                    }
-                }
-            }
-            else if (Vector.IsHardwareAccelerated)
+            });
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="destination"></param>
+    /// <param name="destIndex"></param>
+    /// <param name="first"></param>
+    /// <param name="firstIndex"></param>
+    /// <param name="second"></param>
+    /// <param name="secondIndex"></param>
+    /// <param name="length"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Subtract(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+    {
+        if (Vector512.IsHardwareAccelerated)
+        {
+            if ((destIndex | firstIndex | secondIndex) == 0)
             {
-                if ((destIndex | firstIndex | secondIndex) == 0)
+                int i = 0;
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
                 {
-                    int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        var f = new Vector<float>(first, i);
-                        var s = new Vector<float>(second, i);
-                        (f - s).CopyTo(destination, i);
-                    }
-                    // copy the remainder
-                    for (; i < length; i++)
-                    {
-                        destination[i] = first[i] - second[i];
-                    }
+                    var f = Vector512.LoadUnsafe(ref first[i]);
+                    var s = Vector512.LoadUnsafe(ref second[i]);
+                    var local = (f - s);
+                    Vector512.StoreUnsafe(local, ref destination[i]);
                 }
-                else
+                // copy the remainder
+                for (; i < length; i++)
                 {
-                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        (new Vector<float>(first, i + firstIndex) - new Vector<float>(second, i + secondIndex)).CopyTo(destination, i + destIndex);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                    {
-                        destination[i + destIndex] = first[i + firstIndex] - second[i + secondIndex];
-                    }
+                    destination[i] = first[i] - second[i];
                 }
             }
             else
             {
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                    var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                    var local = (f - s);
+                    Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector<float>.Count); i < length; i++)
                 {
                     destination[i + destIndex] = first[i + firstIndex] - second[i + secondIndex];
                 }
+            }
+        }
+        else if (Vector.IsHardwareAccelerated)
+        {
+            if ((destIndex | firstIndex | secondIndex) == 0)
+            {
+                int i = 0;
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = new Vector<float>(first, i);
+                    var s = new Vector<float>(second, i);
+                    (f - s).CopyTo(destination, i);
+                }
+                // copy the remainder
+                for (; i < length; i++)
+                {
+                    destination[i] = first[i] - second[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    (new Vector<float>(first, i + firstIndex) - new Vector<float>(second, i + secondIndex)).CopyTo(destination, i + destIndex);
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    destination[i + destIndex] = first[i + firstIndex] - second[i + secondIndex];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < length; i++)
+            {
+                destination[i + destIndex] = first[i + firstIndex] - second[i + secondIndex];
             }
         }
     }

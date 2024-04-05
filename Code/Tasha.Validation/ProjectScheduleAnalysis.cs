@@ -24,218 +24,217 @@ using Tasha.Scheduler;
 using TMG.Input;
 using XTMF;
 
-namespace Tasha.Validation
+namespace Tasha.Validation;
+
+public class ProjectScheduleAnalysis : IPostScheduler
 {
-    public class ProjectScheduleAnalysis : IPostScheduler
+    [RunParameter("Height", 600, "The height of the charts")]
+    public int Height;
+
+    [RunParameter("Bucket size", 30, "Minutes per bucket")]
+    public int MinutesPerBucket;
+
+    [SubModelInformation(Required = false, Description = "The location to save the chart.")]
+    public FileLocation SchoolEndTimeChartFile;
+
+    [SubModelInformation(Required = false, Description = "The location to save the chart.")]
+    public FileLocation SchoolStartTimeChartFile;
+
+    [RunParameter("Width", 800, "The width of the charts")]
+    public int Width;
+
+    [SubModelInformation(Required = false, Description = "The location to save the chart.")]
+    public FileLocation WorkDurationChartFile;
+
+    [SubModelInformation(Required = false, Description = "The location to save the chart.")]
+    public FileLocation WorkEndTimeChartFile;
+
+    [SubModelInformation(Required = false, Description = "The location to save the chart.")]
+    public FileLocation WorkPersonsChartFile;
+
+    [SubModelInformation(Required = false, Description = "The location to save the chart.")]
+    public FileLocation WorkStartTimeChartFile;
+
+    [SubModelInformation(Required = false, Description = "The location to save the data.")]
+    public FileLocation WorkStartTimeDataFile;
+
+    private float[] SchoolEndTime;
+    private float[] SchoolStartTime;
+    private float[] WorkDuration;
+    private float[] WorkEndTime;
+    private float[] WorkingPersons;
+    private float[] WorkStartTime;
+
+    public string Name
     {
-        [RunParameter("Height", 600, "The height of the charts")]
-        public int Height;
+        get;
+        set;
+    }
 
-        [RunParameter("Bucket size", 30, "Minutes per bucket")]
-        public int MinutesPerBucket;
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        [SubModelInformation(Required = false, Description = "The location to save the chart.")]
-        public FileLocation SchoolEndTimeChartFile;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>(50, 100, 50); }
+    }
 
-        [SubModelInformation(Required = false, Description = "The location to save the chart.")]
-        public FileLocation SchoolStartTimeChartFile;
-
-        [RunParameter("Width", 800, "The width of the charts")]
-        public int Width;
-
-        [SubModelInformation(Required = false, Description = "The location to save the chart.")]
-        public FileLocation WorkDurationChartFile;
-
-        [SubModelInformation(Required = false, Description = "The location to save the chart.")]
-        public FileLocation WorkEndTimeChartFile;
-
-        [SubModelInformation(Required = false, Description = "The location to save the chart.")]
-        public FileLocation WorkPersonsChartFile;
-
-        [SubModelInformation(Required = false, Description = "The location to save the chart.")]
-        public FileLocation WorkStartTimeChartFile;
-
-        [SubModelInformation(Required = false, Description = "The location to save the data.")]
-        public FileLocation WorkStartTimeDataFile;
-
-        private float[] SchoolEndTime;
-        private float[] SchoolStartTime;
-        private float[] WorkDuration;
-        private float[] WorkEndTime;
-        private float[] WorkingPersons;
-        private float[] WorkStartTime;
-
-        public string Name
+    public void Execute(ITashaHousehold household)
+    {
+        lock (this)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(50, 100, 50); }
-        }
-
-        public void Execute(ITashaHousehold household)
-        {
-            lock (this)
+            foreach(var person in household.Persons)
             {
-                foreach(var person in household.Persons)
+                var expFactor = person.ExpansionFactor;
+                if (person["SData"] is SchedulerPersonData data)
                 {
-                    var expFactor = person.ExpansionFactor;
-                    if (person["SData"] is SchedulerPersonData data)
+                    var workSched = data.WorkSchedule.Schedule;
+                    var schoolSched = data.SchoolSchedule.Schedule;
+                    GatherData(workSched, WorkStartTime, true, expFactor);
+                    GatherData(workSched, WorkEndTime, false, expFactor);
+                    GatherData(schoolSched, SchoolStartTime, true, expFactor);
+                    GatherData(schoolSched, SchoolEndTime, false, expFactor);
+                    CalculateWorkingPersons(workSched, expFactor);
+                    //GatherDuration( workSched, this.WorkDuration, false );
+                    if (workSched.EpisodeCount > 0)
                     {
-                        var workSched = data.WorkSchedule.Schedule;
-                        var schoolSched = data.SchoolSchedule.Schedule;
-                        GatherData(workSched, WorkStartTime, true, expFactor);
-                        GatherData(workSched, WorkEndTime, false, expFactor);
-                        GatherData(schoolSched, SchoolStartTime, true, expFactor);
-                        GatherData(schoolSched, SchoolEndTime, false, expFactor);
-                        CalculateWorkingPersons(workSched, expFactor);
-                        //GatherDuration( workSched, this.WorkDuration, false );
-                        if (workSched.EpisodeCount > 0)
+                        Time duration = workSched.Episodes[workSched.EpisodeCount - 1].EndTime - workSched.Episodes[0].StartTime;
+                        int index = GetBucketIndex(duration);
+                        if (index >= 0 && index < WorkStartTime.Length)
                         {
-                            Time duration = workSched.Episodes[workSched.EpisodeCount - 1].EndTime - workSched.Episodes[0].StartTime;
-                            int index = GetBucketIndex(duration);
-                            if (index >= 0 && index < WorkStartTime.Length)
-                            {
-                                WorkDuration[index] += expFactor;
-                            }
+                            WorkDuration[index] += expFactor;
                         }
                     }
                 }
             }
         }
+    }
 
-        public void IterationFinished(int iterationNumber)
+    public void IterationFinished(int iterationNumber)
+    {
+        if(WorkStartTimeChartFile != null) GenerateChart(WorkStartTimeChartFile, WorkStartTime, "Work Start Time", "#Episodes");
+        if(WorkEndTimeChartFile != null) GenerateChart(WorkEndTimeChartFile, WorkEndTime, "Work End Time", "#Episodes");
+        if(SchoolStartTimeChartFile != null) GenerateChart(SchoolStartTimeChartFile, SchoolStartTime, "School Start Time", "#Episodes");
+        if(SchoolEndTimeChartFile != null) GenerateChart(SchoolEndTimeChartFile, SchoolEndTime, "School End Time", "#Episodes");
+        if(WorkDurationChartFile != null) GenerateChart(WorkDurationChartFile, WorkDuration, "Work Duration", "#Episodes");
+        if(WorkPersonsChartFile != null) GenerateChart(WorkPersonsChartFile, WorkingPersons, "Time of Day", "#Working People");
+
+        if(WorkStartTimeDataFile != null)
         {
-            if(WorkStartTimeChartFile != null) GenerateChart(WorkStartTimeChartFile, WorkStartTime, "Work Start Time", "#Episodes");
-            if(WorkEndTimeChartFile != null) GenerateChart(WorkEndTimeChartFile, WorkEndTime, "Work End Time", "#Episodes");
-            if(SchoolStartTimeChartFile != null) GenerateChart(SchoolStartTimeChartFile, SchoolStartTime, "School Start Time", "#Episodes");
-            if(SchoolEndTimeChartFile != null) GenerateChart(SchoolEndTimeChartFile, SchoolEndTime, "School End Time", "#Episodes");
-            if(WorkDurationChartFile != null) GenerateChart(WorkDurationChartFile, WorkDuration, "Work Duration", "#Episodes");
-            if(WorkPersonsChartFile != null) GenerateChart(WorkPersonsChartFile, WorkingPersons, "Time of Day", "#Working People");
-
-            if(WorkStartTimeDataFile != null)
-            {
-                SaveData(WorkStartTimeDataFile, WorkStartTime);
-            }
+            SaveData(WorkStartTimeDataFile, WorkStartTime);
         }
+    }
 
-        private void SaveData(FileLocation file, float[] data)
+    private void SaveData(FileLocation file, float[] data)
+    {
+        using StreamWriter writer = new(file);
+        writer.WriteLine("Bin,Data");
+        for (int i = 0; i < data.Length; i++)
         {
-            using StreamWriter writer = new(file);
-            writer.WriteLine("Bin,Data");
-            for (int i = 0; i < data.Length; i++)
-            {
-                writer.Write(i);
-                writer.Write(',');
-                writer.WriteLine(data[i]);
-            }
+            writer.Write(i);
+            writer.Write(',');
+            writer.WriteLine(data[i]);
         }
+    }
 
-        public void Load(int iteration)
+    public void Load(int iteration)
+    {
+        var numberOfBuckets = (60 * 24) / MinutesPerBucket;
+        WorkStartTime = new float[numberOfBuckets];
+        WorkEndTime = new float[numberOfBuckets];
+        WorkDuration = new float[numberOfBuckets];
+        WorkingPersons = new float[numberOfBuckets];
+        SchoolStartTime = new float[numberOfBuckets];
+        SchoolEndTime = new float[numberOfBuckets];
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(MinutesPerBucket <= 0)
         {
-            var numberOfBuckets = (60 * 24) / MinutesPerBucket;
-            WorkStartTime = new float[numberOfBuckets];
-            WorkEndTime = new float[numberOfBuckets];
-            WorkDuration = new float[numberOfBuckets];
-            WorkingPersons = new float[numberOfBuckets];
-            SchoolStartTime = new float[numberOfBuckets];
-            SchoolEndTime = new float[numberOfBuckets];
+            error = "The bucket size must be greater than zero";
+            return false;
         }
+        return true;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    public void IterationStarting(int iterationNumber)
+    {
+        for(int i = 0; i < WorkStartTime.Length; i++)
         {
-            if(MinutesPerBucket <= 0)
-            {
-                error = "The bucket size must be greater than zero";
-                return false;
-            }
-            return true;
+            WorkStartTime[i] = 0;
         }
+    }
 
-        public void IterationStarting(int iterationNumber)
+    private void CalculateWorkingPersons(Schedule sched, float expFactor)
+    {
+        var episodes = sched.Episodes;
+        for(int i = 0; i < sched.EpisodeCount; i++)
         {
-            for(int i = 0; i < WorkStartTime.Length; i++)
+            if(episodes[i] != null)
             {
-                WorkStartTime[i] = 0;
-            }
-        }
-
-        private void CalculateWorkingPersons(Schedule sched, float expFactor)
-        {
-            var episodes = sched.Episodes;
-            for(int i = 0; i < sched.EpisodeCount; i++)
-            {
-                if(episodes[i] != null)
+                int start = GetBucketIndex(episodes[i].StartTime);
+                int end = GetBucketIndex(episodes[i].EndTime);
+                for(int j = start; j < end; j++)
                 {
-                    int start = GetBucketIndex(episodes[i].StartTime);
-                    int end = GetBucketIndex(episodes[i].EndTime);
-                    for(int j = start; j < end; j++)
+                    if(j >= 0 && j < WorkStartTime.Length)
                     {
-                        if(j >= 0 && j < WorkStartTime.Length)
-                        {
-                            WorkingPersons[j] += expFactor;
-                        }
+                        WorkingPersons[j] += expFactor;
                     }
                 }
             }
         }
+    }
 
-        private void GatherData(Schedule sched, float[] data, bool startTime, float expFactor)
+    private void GatherData(Schedule sched, float[] data, bool startTime, float expFactor)
+    {
+        var episodes = sched.Episodes;
+        for(int i = 0; i < sched.EpisodeCount; i++)
         {
-            var episodes = sched.Episodes;
-            for(int i = 0; i < sched.EpisodeCount; i++)
+            if(episodes[i] != null)
             {
-                if(episodes[i] != null)
+                int index = GetBucketIndex(startTime ? episodes[i].StartTime : episodes[i].EndTime);
+                if(index >= 0 && index < WorkStartTime.Length)
                 {
-                    int index = GetBucketIndex(startTime ? episodes[i].StartTime : episodes[i].EndTime);
-                    if(index >= 0 && index < WorkStartTime.Length)
-                    {
-                        data[index] += expFactor;
-                    }
+                    data[index] += expFactor;
                 }
             }
         }
+    }
 
-        private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
+    private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
+    {
+        using Chart chart = new();
+        chart.Width = Width;
+        chart.Height = Height;
+        using ChartArea area = new("Start Times");
+        using Series series = new();
+        using (series.Points)
         {
-            using Chart chart = new();
-            chart.Width = Width;
-            chart.Height = Height;
-            using ChartArea area = new("Start Times");
-            using Series series = new();
-            using (series.Points)
+            series.ChartType = SeriesChartType.Column;
+            for (int i = 0; i < values.Length; i++)
             {
-                series.ChartType = SeriesChartType.Column;
-                for (int i = 0; i < values.Length; i++)
-                {
-                    series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
-                }
-                series.BorderWidth = 1;
-                series.BorderColor = System.Drawing.Color.Black;
-                area.AxisX.Title = xAxisName;// "Start Time";
-                area.AxisY.Title = yAxisName;// "#Episodes";
-                area.AxisX.Interval = 2;
-                chart.Series.Add(series);
-                chart.ChartAreas.Add(area);
-                area.Visible = true;
-                chart.SaveImage(fileName, ChartImageFormat.Png);
+                series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
             }
+            series.BorderWidth = 1;
+            series.BorderColor = System.Drawing.Color.Black;
+            area.AxisX.Title = xAxisName;// "Start Time";
+            area.AxisY.Title = yAxisName;// "#Episodes";
+            area.AxisX.Interval = 2;
+            chart.Series.Add(series);
+            chart.ChartAreas.Add(area);
+            area.Visible = true;
+            chart.SaveImage(fileName, ChartImageFormat.Png);
         }
+    }
 
-        private int GetBucketIndex(Time time)
-        {
-            // find the time in minutes starting from 4 AM
-            var minutes = (int)time.ToMinutes() - (60 * 4);
-            return minutes / MinutesPerBucket;
-        }
+    private int GetBucketIndex(Time time)
+    {
+        // find the time in minutes starting from 4 AM
+        var minutes = (int)time.ToMinutes() - (60 * 4);
+        return minutes / MinutesPerBucket;
     }
 }

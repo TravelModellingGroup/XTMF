@@ -7,94 +7,93 @@ using System.Threading;
 using System.Threading.Tasks;
 using XTMF;
 
-namespace TMG.Frameworks.Extensibility
+namespace TMG.Frameworks.Extensibility;
+
+[ModuleInformation(
+    Description = "This module is designed to allow given modules to be executed a specific amount of times."
+)]
+public class Iteration : ISelfContainedModule, IIterativeModel
 {
-    [ModuleInformation(
-        Description = "This module is designed to allow given modules to be executed a specific amount of times."
-    )]
-    public class Iteration : ISelfContainedModule, IIterativeModel
+    [RunParameter("Execution Iterations", 1, "The number of iterations that will be performed.")]
+    public int ExecutionIterations = 1;
+
+    [RunParameter("Execute in Parellel", false, "Whether a single iteration should be executed in parallel.")]
+    public bool ExecuteInParallel = false;
+
+    [SubModelInformation(Description = "The modules to execute.")]
+    public ISelfContainedModule[] IterationModules;
+
+    public string Name { get; set; }
+    public float Progress { get; }
+    public Tuple<byte, byte, byte> ProgressColour { get; }
+
+    public int CurrentIteration => _currentIteration;
+
+    public int TotalIterations => ExecutionIterations;
+
+    public bool RuntimeValidation(ref string error)
     {
-        [RunParameter("Execution Iterations", 1, "The number of iterations that will be performed.")]
-        public int ExecutionIterations = 1;
+        return true;
+    }
 
-        [RunParameter("Execute in Parellel", false, "Whether a single iteration should be executed in parallel.")]
-        public bool ExecuteInParallel = false;
+    private ISelfContainedModule _currentlyExecutingModule;
 
-        [SubModelInformation(Description = "The modules to execute.")]
-        public ISelfContainedModule[] IterationModules;
+    private int _currentIteration = 0;
 
-        public string Name { get; set; }
-        public float Progress { get; }
-        public Tuple<byte, byte, byte> ProgressColour { get; }
-
-        public int CurrentIteration => _currentIteration;
-
-        public int TotalIterations => ExecutionIterations;
-
-        public bool RuntimeValidation(ref string error)
+    public override string ToString()
+    {
+        if (!ExecuteInParallel)
         {
-            return true;
+            return $"Iteration {_currentIteration+1} of {ExecutionIterations}, Module: {_currentlyExecutingModule}";
         }
+        else
+        {
+            return $"Iteration {_currentIteration+1} of {ExecutionIterations}";
+        }
+    }
 
-        private ISelfContainedModule _currentlyExecutingModule;
-
-        private int _currentIteration = 0;
-
-        public override string ToString()
+    public void Start()
+    {
+        for (_currentIteration = 0; _currentIteration < ExecutionIterations; _currentIteration++)
         {
             if (!ExecuteInParallel)
             {
-                return $"Iteration {_currentIteration+1} of {ExecutionIterations}, Module: {_currentlyExecutingModule}";
+                foreach (var module in IterationModules)
+                {
+                    _currentlyExecutingModule = module;
+                    module.Start();
+                }
             }
+
             else
             {
-                return $"Iteration {_currentIteration+1} of {ExecutionIterations}";
-            }
-        }
-
-        public void Start()
-        {
-            for (_currentIteration = 0; _currentIteration < ExecutionIterations; _currentIteration++)
-            {
-                if (!ExecuteInParallel)
+                Thread[] threads = new Thread[IterationModules.Length];
+                ConcurrentQueue<Exception> errorList = new();
+                for (int i = 0; i < threads.Length; i++)
                 {
-                    foreach (var module in IterationModules)
+                    var avoidSharingI = i;
+                    threads[i] = new Thread(() =>
                     {
-                        _currentlyExecutingModule = module;
-                        module.Start();
-                    }
-                }
-
-                else
-                {
-                    Thread[] threads = new Thread[IterationModules.Length];
-                    ConcurrentQueue<Exception> errorList = new();
-                    for (int i = 0; i < threads.Length; i++)
-                    {
-                        var avoidSharingI = i;
-                        threads[i] = new Thread(() =>
+                        try
                         {
-                            try
-                            {
-                                IterationModules[avoidSharingI].Start();
-                            }
-                            catch (Exception e)
-                            {
-                                errorList.Enqueue(e);
-                            }
-                        });
-                        threads[i].IsBackground = true;
-                        threads[i].Start();
-                    }
-                    // after creating all of the threads wait until each one is complete before continuing
-                    for (int i = 0; i < threads.Length; i++)
-                    {
-                        threads[i].Join();
-                    }
-                    if (errorList.Count > 0)
-                    {
-                        throw new AggregateException(errorList.ToArray());
-                    }
+                            IterationModules[avoidSharingI].Start();
+                        }
+                        catch (Exception e)
+                        {
+                            errorList.Enqueue(e);
+                        }
+                    });
+                    threads[i].IsBackground = true;
+                    threads[i].Start();
+                }
+                // after creating all of the threads wait until each one is complete before continuing
+                for (int i = 0; i < threads.Length; i++)
+                {
+                    threads[i].Join();
+                }
+                if (errorList.Count > 0)
+                {
+                    throw new AggregateException(errorList.ToArray());
                 }
             }
         }

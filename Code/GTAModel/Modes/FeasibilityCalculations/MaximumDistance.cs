@@ -21,44 +21,43 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.FeasibilityCalculations
+namespace TMG.GTAModel.Modes.FeasibilityCalculations;
+
+public class MaximumDistance : ICalculation<Pair<IZone, IZone>, bool>
 {
-    public class MaximumDistance : ICalculation<Pair<IZone, IZone>, bool>
+    [RunParameter( "Maximum Distance", 3000f, "The maximum distance in meters." )]
+    public float MaxDist;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RunParameter( "Maximum Distance", 3000f, "The maximum distance in meters." )]
-        public float MaxDist;
+        get { return 0f; }
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public string Name { get; set; }
+    public void Load()
+    {
+    }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public bool ProduceResult(Pair<IZone, IZone> data)
+    {
+        return Root.ZoneSystem.Distances[data.First.ZoneNumber, data.Second.ZoneNumber] <= MaxDist;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
 
-        public void Load()
-        {
-        }
-
-        public bool ProduceResult(Pair<IZone, IZone> data)
-        {
-            return Root.ZoneSystem.Distances[data.First.ZoneNumber, data.Second.ZoneNumber] <= MaxDist;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Unload()
-        {
-        }
+    public void Unload()
+    {
     }
 }

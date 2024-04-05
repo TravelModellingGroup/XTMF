@@ -19,34 +19,32 @@
 using System;
 using XTMF;
 
-namespace TMG.Distributed.Utilities
+namespace TMG.Distributed.Utilities;
+
+[ModuleInformation(
+    Description = "This module is designed to be placed in a client so that it can send a static message to the host."
+    )]
+public class SendMessageToHost : ISelfContainedModule
 {
-    [ModuleInformation(
-        Description = "This module is designed to be placed in a client so that it can send a static message to the host."
-        )]
-    public class SendMessageToHost : ISelfContainedModule
+    [RunParameter("Message", "Hello", "The message to send to the host.")]
+    public string Message;
+
+    [RootModule]
+    public IClientDistributionManager Client;
+
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    public bool RuntimeValidation(ref string error)
     {
-        [RunParameter("Message", "Hello", "The message to send to the host.")]
-        public string Message;
-
-        [RootModule]
-        public IClientDistributionManager Client;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void Start()
-        {
-            Client.SendTextMessageToHost(Message);
-        }
+        return true;
     }
 
+    public void Start()
+    {
+        Client.SendTextMessageToHost(Message);
+    }
 }

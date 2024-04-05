@@ -18,10 +18,9 @@
 */
 using System.Collections.Generic;
 
-namespace TMG
+namespace TMG;
+
+public interface IDemographicCategoyPurpose : IPurpose
 {
-    public interface IDemographicCategoyPurpose : IPurpose
-    {
-        List<IDemographicCategoryGeneration> Categories { get; }
-    }
+    List<IDemographicCategoryGeneration> Categories { get; }
 }

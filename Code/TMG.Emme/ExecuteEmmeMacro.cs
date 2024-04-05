@@ -20,57 +20,56 @@ using System;
 using System.Text;
 using XTMF;
 
-namespace TMG.Emme
+namespace TMG.Emme;
+
+[ModuleInformation( Name = "Execute Emme Macro", Description = "Executes an Emme macro (usually a .mac file) with user-specified arguments. Included for backwards-compatibility" )]
+public class ExecuteEmmeMacro : IEmmeTool
 {
-    [ModuleInformation( Name = "Execute Emme Macro", Description = "Executes an Emme macro (usually a .mac file) with user-specified arguments. Included for backwards-compatibility" )]
-    public class ExecuteEmmeMacro : IEmmeTool
+    private const string ToolName = "tmg.XTMF_internal.run_macro";
+    private const string OldToolName = "TMG2.XTMF.RunMacro";
+
+    [RunParameter( "Arguments", "", "A space-separated list of arguments to send to the macro" )]
+    public string Arguments;
+
+    [Parameter( "Macro File", "", "The filepath of the macro to execute. It is recommended to surround your path with \"\" quotations" )]
+    public string MacroFile;
+
+    public string Name
     {
-        private const string ToolName = "tmg.XTMF_internal.run_macro";
-        private const string OldToolName = "TMG2.XTMF.RunMacro";
+        get;
+        set;
+    }
 
-        [RunParameter( "Arguments", "", "A space-separated list of arguments to send to the macro" )]
-        public string Arguments;
+    public float Progress
+    {
+        get { return 1.0f; }
+    }
 
-        [Parameter( "Macro File", "", "The filepath of the macro to execute. It is recommended to surround your path with \"\" quotations" )]
-        public string MacroFile;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return new Tuple<byte, byte, byte>( 50, 51, 50 ); }
+    }
 
-        public string Name
+    public bool Execute(Controller controller)
+    {
+        var mc = controller as ModellerController;
+        if ( mc == null )
+            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
+
+        var sb = new StringBuilder();
+        sb.AppendFormat( "{0} {1}", MacroFile, Arguments );
+        if(mc.CheckToolExists(this, ToolName))
         {
-            get;
-            set;
+            return mc.Run(this, ToolName, sb.ToString());
         }
-
-        public float Progress
+        else
         {
-            get { return 1.0f; }
+            return mc.Run(this, OldToolName, sb.ToString());
         }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>( 50, 51, 50 ); }
-        }
-
-        public bool Execute(Controller controller)
-        {
-            var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
-            var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1}", MacroFile, Arguments );
-            if(mc.CheckToolExists(this, ToolName))
-            {
-                return mc.Run(this, ToolName, sb.ToString());
-            }
-            else
-            {
-                return mc.Run(this, OldToolName, sb.ToString());
-            }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

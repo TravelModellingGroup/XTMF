@@ -20,82 +20,81 @@
 using System;
 using XTMF;
 
-namespace TMG.NetworkEstimation
+namespace TMG.NetworkEstimation;
+
+public class AdvancedGeneticNetworkEstimationHost : GeneticNetworkEstimationHost
 {
-    public class AdvancedGeneticNetworkEstimationHost : GeneticNetworkEstimationHost
+    [RunParameter( "Distance", 2f, "The distance between parameters to consider a niche" )]
+    public float Distance;
+
+    [RunParameter( "Niche Capacity", 10, "The max number of population continuing in a niche" )]
+    public int NicheCapacity;
+
+    [RunParameter( "Percent Distance", false, "Use the percent of difference between parameters instead of raw values." )]
+    public bool PercentDistance;
+
+    protected override void GenerateNextGeneration()
     {
-        [RunParameter( "Distance", 2f, "The distance between parameters to consider a niche" )]
-        public float Distance;
+        Clearing();
+        base.GenerateNextGeneration();
+    }
 
-        [RunParameter( "Niche Capacity", 10, "The max number of population continuing in a niche" )]
-        public int NicheCapacity;
-
-        [RunParameter( "Percent Distance", false, "Use the percent of difference between parameters instead of raw values." )]
-        public bool PercentDistance;
-
-        protected override void GenerateNextGeneration()
+    /// <summary>
+    /// Based on:
+    /// Petrowski
+    /// A. Pétrowski, A clearing procedure as a niching method for genetic
+    /// algorithms, in: Proceedings of Third IEEE International Conference on
+    /// Evolutionary Computation, ICEC’96, IEEE Press, Piscataway, NJ, 1996,
+    /// pp. 798–803
+    /// </summary>
+    private void Clearing()
+    {
+        int populationSize = PopulationSize;
+        // sort the population
+        Array.Sort( Population, new CompareParameterSet() );
+        for ( int i = 0; i < populationSize; i++ )
         {
-            Clearing();
-            base.GenerateNextGeneration();
-        }
-
-        /// <summary>
-        /// Based on:
-        /// Petrowski
-        /// A. Pétrowski, A clearing procedure as a niching method for genetic
-        /// algorithms, in: Proceedings of Third IEEE International Conference on
-        /// Evolutionary Computation, ICEC’96, IEEE Press, Piscataway, NJ, 1996,
-        /// pp. 798–803
-        /// </summary>
-        private void Clearing()
-        {
-            int populationSize = PopulationSize;
-            // sort the population
-            Array.Sort( Population, new CompareParameterSet() );
-            for ( int i = 0; i < populationSize; i++ )
+            int win = 0;
+            if ( Population[i].Value < float.MaxValue )
             {
-                int win = 0;
-                if ( Population[i].Value < float.MaxValue )
+                win = 1;
+            }
+            for ( int j = i + 1; j < populationSize; j++ )
+            {
+                if ( ( Population[j].Value < float.MaxValue ) && ComputeDistance( i, j ) <= Distance )
                 {
-                    win = 1;
-                }
-                for ( int j = i + 1; j < populationSize; j++ )
-                {
-                    if ( ( Population[j].Value < float.MaxValue ) && ComputeDistance( i, j ) <= Distance )
+                    if ( win < NicheCapacity )
                     {
-                        if ( win < NicheCapacity )
-                        {
-                            win++;
-                        }
-                        else
-                        {
-                            Population[j].Value = float.MaxValue;
-                        }
+                        win++;
+                    }
+                    else
+                    {
+                        Population[j].Value = float.MaxValue;
                     }
                 }
             }
         }
+    }
 
-        private float ComputeDistance(int first, int second)
+    private float ComputeDistance(int first, int second)
+    {
+        double distance = 0;
+        var firstParameters = Population[first].Parameters;
+        var secondParameters = Population[second].Parameters;
+        var numberOfParameters = firstParameters.Length;
+        for ( int i = 0; i < numberOfParameters; i++ )
         {
-            double distance = 0;
-            var firstParameters = Population[first].Parameters;
-            var secondParameters = Population[second].Parameters;
-            var numberOfParameters = firstParameters.Length;
-            for ( int i = 0; i < numberOfParameters; i++ )
+            float unit;
+            if ( PercentDistance )
             {
-                float unit;
-                if ( PercentDistance )
-                {
-                    unit = ( firstParameters[i].Current - secondParameters[i].Current ) / ( firstParameters[i].Stop - firstParameters[i].Start );
-                }
-                else
-                {
-                    unit = firstParameters[i].Current - secondParameters[i].Current;
-                }
-                distance = distance + ( unit * unit );
+                unit = ( firstParameters[i].Current - secondParameters[i].Current ) / ( firstParameters[i].Stop - firstParameters[i].Start );
             }
-            return (float)Math.Sqrt( distance );
+            else
+            {
+                unit = firstParameters[i].Current - secondParameters[i].Current;
+            }
+            distance = distance + ( unit * unit );
         }
+        return (float)Math.Sqrt( distance );
     }
 }

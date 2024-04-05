@@ -28,123 +28,122 @@ using TMG;
 using TMG.Functions;
 using System.IO;
 
-namespace Tasha.Validation.Scheduler
+namespace Tasha.Validation.Scheduler;
+
+public sealed class SaveTripLengthFrequencyDistribution : ISelfContainedModule
 {
-    public sealed class SaveTripLengthFrequencyDistribution : ISelfContainedModule
+    public string Name { get; set; }
+
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [SubModelInformation(Required = false, Description = "The distance matrix to use (in metres), leave blank to use the zone system.")]
+    public IDataSource<SparseTwinIndex<float>> DistanceMatrix;
+
+    [SubModelInformation(Required = true, Description = "The trips to be stored.")]
+    public IDataSource<SparseTwinIndex<float>> Demand;
+
+    [RunParameter("Stride", 2.0f, "The step size in KM for each bin.")]
+    public float Stride;
+
+    [RunParameter("Bins", 100, "The number of bins after intrazonal to save data for. Distances farther than this will be added to an additional bin.")]
+    public int Bins;
+
+    [SubModelInformation(Required = true, Description = "The location to save the results to. (min,max,value)")]
+    public FileLocation SaveTo;
+
+    public void Start()
     {
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        [SubModelInformation(Required = false, Description = "The distance matrix to use (in metres), leave blank to use the zone system.")]
-        public IDataSource<SparseTwinIndex<float>> DistanceMatrix;
-
-        [SubModelInformation(Required = true, Description = "The trips to be stored.")]
-        public IDataSource<SparseTwinIndex<float>> Demand;
-
-        [RunParameter("Stride", 2.0f, "The step size in KM for each bin.")]
-        public float Stride;
-
-        [RunParameter("Bins", 100, "The number of bins after intrazonal to save data for. Distances farther than this will be added to an additional bin.")]
-        public int Bins;
-
-        [SubModelInformation(Required = true, Description = "The location to save the results to. (min,max,value)")]
-        public FileLocation SaveTo;
-
-        public void Start()
+        var distances = GetDistances();
+        var demand = GetDemand();
+        if(!ZoneSystemHelper.IsSameZoneSystem(demand, distances))
         {
-            var distances = GetDistances();
-            var demand = GetDemand();
-            if(!ZoneSystemHelper.IsSameZoneSystem(demand, distances))
+            throw new XTMFRuntimeException(this, "The zone systems for the demand and distance matrices are not the same!");
+        }
+        float intrazonal = 0f;
+        float pastBins = 0f;
+        var flatDistances = distances.GetFlatData();
+        var flatDemand = demand.GetFlatData();
+        var bins = new float[Bins];
+        var strideInMeters = Stride * 1000;
+        // Store the demand into the correct bins
+        for (int i = 0; i < flatDemand.Length; i++)
+        {
+            for (int j = 0; j < flatDemand[i].Length; j++)
             {
-                throw new XTMFRuntimeException(this, "The zone systems for the demand and distance matrices are not the same!");
-            }
-            float intrazonal = 0f;
-            float pastBins = 0f;
-            var flatDistances = distances.GetFlatData();
-            var flatDemand = demand.GetFlatData();
-            var bins = new float[Bins];
-            var strideInMeters = Stride * 1000;
-            // Store the demand into the correct bins
-            for (int i = 0; i < flatDemand.Length; i++)
-            {
-                for (int j = 0; j < flatDemand[i].Length; j++)
+                if(i != j)
                 {
-                    if(i != j)
+                    var index = (int)(flatDistances[i][j] / strideInMeters);
+                    if(index >= bins.Length)
                     {
-                        var index = (int)(flatDistances[i][j] / strideInMeters);
-                        if(index >= bins.Length)
-                        {
-                            pastBins += flatDemand[i][j];
-                        }
-                        else
-                        {
-                            bins[index] += flatDemand[i][j];
-                        }
+                        pastBins += flatDemand[i][j];
                     }
                     else
                     {
-                        intrazonal += flatDemand[i][j];
+                        bins[index] += flatDemand[i][j];
                     }
                 }
-            }
-            // Save the results to file
-            try
-            {
-                using var writer = new StreamWriter(SaveTo);
-                writer.WriteLine("Min,Max,Value");
-                writer.Write("intrazonal,0,");
-                writer.WriteLine(intrazonal);
-                for (int i = 0; i < bins.Length; i++)
+                else
                 {
-                    writer.Write(i * Stride);
-                    writer.Write(',');
-                    writer.Write((i + 1) * Stride);
-                    writer.Write(',');
-                    writer.WriteLine(bins[i]);
+                    intrazonal += flatDemand[i][j];
                 }
-                writer.Write(Stride * bins.Length);
-                writer.Write(",inf,");
-                writer.WriteLine(pastBins);
-            }
-            catch(IOException e)
-            {
-                throw new XTMFRuntimeException(this, e, $"Unable to write to the file at location '{SaveTo.GetFilePath()}' {e.Message}");
             }
         }
-
-        private SparseTwinIndex<float> GetDemand() => LoadFrom(Demand);
-
-        private SparseTwinIndex<float> GetDistances() => DistanceMatrix != null ? LoadFrom(DistanceMatrix) : Root.ZoneSystem.Distances;
-
-        private static SparseTwinIndex<float> LoadFrom(IDataSource<SparseTwinIndex<float>> source)
+        // Save the results to file
+        try
         {
-            bool loaded = source.Loaded;
-            if (!loaded)
+            using var writer = new StreamWriter(SaveTo);
+            writer.WriteLine("Min,Max,Value");
+            writer.Write("intrazonal,0,");
+            writer.WriteLine(intrazonal);
+            for (int i = 0; i < bins.Length; i++)
             {
-                source.LoadData();
+                writer.Write(i * Stride);
+                writer.Write(',');
+                writer.Write((i + 1) * Stride);
+                writer.Write(',');
+                writer.WriteLine(bins[i]);
             }
-            var ret = source.GiveData();
-            if (!loaded)
-            {
-                source.UnloadData();
-            }
-            return ret;
+            writer.Write(Stride * bins.Length);
+            writer.Write(",inf,");
+            writer.WriteLine(pastBins);
         }
-
-        public bool RuntimeValidation(ref string error)
+        catch(IOException e)
         {
-            if(Bins <= 0)
-            {
-                error = "The number of bins must be greater than zero!";
-                return false;
-            }
-            return true;
+            throw new XTMFRuntimeException(this, e, $"Unable to write to the file at location '{SaveTo.GetFilePath()}' {e.Message}");
         }
+    }
+
+    private SparseTwinIndex<float> GetDemand() => LoadFrom(Demand);
+
+    private SparseTwinIndex<float> GetDistances() => DistanceMatrix != null ? LoadFrom(DistanceMatrix) : Root.ZoneSystem.Distances;
+
+    private static SparseTwinIndex<float> LoadFrom(IDataSource<SparseTwinIndex<float>> source)
+    {
+        bool loaded = source.Loaded;
+        if (!loaded)
+        {
+            source.LoadData();
+        }
+        var ret = source.GiveData();
+        if (!loaded)
+        {
+            source.UnloadData();
+        }
+        return ret;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        if(Bins <= 0)
+        {
+            error = "The number of bins must be greater than zero!";
+            return false;
+        }
+        return true;
     }
 }

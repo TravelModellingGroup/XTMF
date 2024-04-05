@@ -18,18 +18,17 @@
 */
 using System.Collections.Generic;
 
-namespace TMG.AgentBased.Tours
-{
-    public interface IJointTour
-    {
-        /// <summary>
-        /// The people on this joint tour
-        /// </summary>
-        List<IPerson> People { get; set; }
+namespace TMG.AgentBased.Tours;
 
-        /// <summary>
-        /// The person in charge of the tour
-        /// </summary>
-        IPerson Representative { get; }
-    }
+public interface IJointTour
+{
+    /// <summary>
+    /// The people on this joint tour
+    /// </summary>
+    List<IPerson> People { get; set; }
+
+    /// <summary>
+    /// The person in charge of the tour
+    /// </summary>
+    IPerson Representative { get; }
 }

@@ -20,74 +20,73 @@
 using System;
 using System.Windows;
 
-namespace XTMF.Gui.UserControls.Help
+namespace XTMF.Gui.UserControls.Help;
+
+/// <summary>
+/// This class is designed to build a layer of abstraction between
+/// the target of documentation, and the view model.
+/// </summary>
+public class ContentReference
 {
     /// <summary>
-    /// This class is designed to build a layer of abstraction between
-    /// the target of documentation, and the view model.
+    /// Get the content
     /// </summary>
-    public class ContentReference
+    /// <returns></returns>
+    public UIElement Content
     {
-        /// <summary>
-        /// Get the content
-        /// </summary>
-        /// <returns></returns>
-        public UIElement Content
+        get
         {
-            get
-            {
-                return GenerateContent();
-            }
+            return GenerateContent();
         }
+    }
 
-        /// <summary>
-        /// The text value that will be displayed
-        /// </summary>
-        private string Name;
+    /// <summary>
+    /// The text value that will be displayed
+    /// </summary>
+    private string Name;
 
-        /// <summary>
-        /// The type of module that this will represent
-        /// </summary>
-        internal Type Module;
+    /// <summary>
+    /// The type of module that this will represent
+    /// </summary>
+    internal Type Module;
 
-        /// <summary>
-        /// A URL to the documentation for this module
-        /// </summary>
-        internal string DocURL;
+    /// <summary>
+    /// A URL to the documentation for this module
+    /// </summary>
+    internal string DocURL;
 
-        /// <summary>
-        /// Create a reference to a module
-        /// </summary>E
-        /// <param name="module">The module to create a reference to.</param>
-        public ContentReference(string name, Type module)
+    /// <summary>
+    /// Create a reference to a module
+    /// </summary>E
+    /// <param name="module">The module to create a reference to.</param>
+    public ContentReference(string name, Type module)
+    {
+        Name = name;
+        Module = module;
+    }
+
+    public ContentReference(string name, Type module, string docURL)
+        : this(name, module)
+    {
+        DocURL = docURL;
+    }
+
+    private UIElement GenerateContent()
+    {
+        if(string.IsNullOrWhiteSpace(DocURL))
         {
-            Name = name;
-            Module = module;
+            return new DocumentationControl() { Type = Module, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
         }
-
-        public ContentReference(string name, Type module, string docURL)
-            : this(name, module)
+        else
         {
-            DocURL = docURL;
+            var ret = new System.Windows.Controls.WebBrowser() { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+            ret.Navigate(DocURL);
+            return ret;
         }
+    }
 
-        private UIElement GenerateContent()
-        {
-            if(string.IsNullOrWhiteSpace(DocURL))
-            {
-                return new DocumentationControl() { Type = Module, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
-            }
-            else
-            {
-                var ret = new System.Windows.Controls.WebBrowser() { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
-                ret.Navigate(DocURL);
-                return ret;
-            }
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
+    public override string ToString()
+    {
+        return Name;
     }
 }

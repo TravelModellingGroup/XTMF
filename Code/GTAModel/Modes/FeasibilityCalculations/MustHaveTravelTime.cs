@@ -21,68 +21,67 @@ using System;
 using Datastructure;
 using XTMF;
 
-namespace TMG.GTAModel.Modes.FeasibilityCalculations
+namespace TMG.GTAModel.Modes.FeasibilityCalculations;
+
+public class MustHaveTravelTime : ICalculation<Pair<IZone, IZone>, bool>
 {
-    public class MustHaveTravelTime : ICalculation<Pair<IZone, IZone>, bool>
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    [RunParameter( "Simulation Time", "7:00AM", typeof( Time ), "The time to test for" )]
+    public Time SimulationTime;
+
+    private INetworkData NetworkData;
+
+    public string Name { get; set; }
+
+    [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
+    public string NetworkType { get; set; }
+
+    public float Progress
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        get { return 0f; }
+    }
 
-        [RunParameter( "Simulation Time", "7:00AM", typeof( Time ), "The time to test for" )]
-        public Time SimulationTime;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        private INetworkData NetworkData;
+    public void Load()
+    {
+    }
 
-        public string Name { get; set; }
+    public bool ProduceResult(Pair<IZone, IZone> data)
+    {
+        return NetworkData.TravelTime( data.First, data.Second, SimulationTime ) > Time.Zero;
+    }
 
-        [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
-        public string NetworkType { get; set; }
+    public bool RuntimeValidation(ref string error)
+    {
+        // Load in the network data
+        return LoadNetworkData( ref error );
+    }
 
-        public float Progress
+    public void Unload()
+    {
+    }
+
+    /// <summary>
+    /// Find and Load in the network data
+    /// </summary>
+    private bool LoadNetworkData(ref string error)
+    {
+        foreach ( var dataSource in Root.NetworkData )
         {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public void Load()
-        {
-        }
-
-        public bool ProduceResult(Pair<IZone, IZone> data)
-        {
-            return NetworkData.TravelTime( data.First, data.Second, SimulationTime ) > Time.Zero;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            // Load in the network data
-            return LoadNetworkData( ref error );
-        }
-
-        public void Unload()
-        {
-        }
-
-        /// <summary>
-        /// Find and Load in the network data
-        /// </summary>
-        private bool LoadNetworkData(ref string error)
-        {
-            foreach ( var dataSource in Root.NetworkData )
+            if ( dataSource.NetworkType == NetworkType )
             {
-                if ( dataSource.NetworkType == NetworkType )
-                {
-                    INetworkData advancedData = dataSource;
-                    NetworkData = advancedData;
-                    return true;
-                }
+                INetworkData advancedData = dataSource;
+                NetworkData = advancedData;
+                return true;
             }
-            error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";
-            return false;
         }
+        error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";
+        return false;
     }
 }

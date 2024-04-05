@@ -26,166 +26,165 @@ using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Saving
+namespace TMG.Frameworks.Data.Saving;
+
+public sealed class SaveSparseTriIndex : ISelfContainedModule
 {
-    public sealed class SaveSparseTriIndex : ISelfContainedModule
+    public string Name { get; set; }
+    public float Progress => 0f;
+
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+    [SubModelInformation(Required = true, Description = "The datasource to save")]
+    public IDataSource<SparseTriIndex<float>> DataSource;
+
+    [SubModelInformation(Required = true, Description = "The directory to save each layer to.")]
+    public FileLocation SaveDirectory;
+
+    [RunParameter("FileName Prefix", "Layer-", "The file will be saved as [FileName Prefix][LayerNumber].[extension]")]
+    public string FileNamePrefix;
+
+    [RunParameter("Unload Data", true, "Should we unload the data after saving it if we loaded it?")]
+    public bool UnloadData;
+
+    public enum FileFormats
     {
-        public string Name { get; set; }
-        public float Progress => 0f;
+        MTX = 0,
+        CSVThirdNormalized = 1,
+        CSVSquare = 2
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+    [RunParameter("File Format", "MTX", typeof(FileFormats), "The file format to save as.")]
+    public FileFormats FileFormat;
 
-        [SubModelInformation(Required = true, Description = "The datasource to save")]
-        public IDataSource<SparseTriIndex<float>> DataSource;
-
-        [SubModelInformation(Required = true, Description = "The directory to save each layer to.")]
-        public FileLocation SaveDirectory;
-
-        [RunParameter("FileName Prefix", "Layer-", "The file will be saved as [FileName Prefix][LayerNumber].[extension]")]
-        public string FileNamePrefix;
-
-        [RunParameter("Unload Data", true, "Should we unload the data after saving it if we loaded it?")]
-        public bool UnloadData;
-
-        public enum FileFormats
+    public void Start()
+    {
+        var weLoaded = false;
+        if (!DataSource.Loaded)
         {
-            MTX = 0,
-            CSVThirdNormalized = 1,
-            CSVSquare = 2
+            weLoaded = true;
+            DataSource.LoadData();
         }
-
-        [RunParameter("File Format", "MTX", typeof(FileFormats), "The file format to save as.")]
-        public FileFormats FileFormat;
-
-        public void Start()
+        var data = DataSource.GiveData();
+        Save(data);
+        if (weLoaded && UnloadData)
         {
-            var weLoaded = false;
-            if (!DataSource.Loaded)
-            {
-                weLoaded = true;
-                DataSource.LoadData();
-            }
-            var data = DataSource.GiveData();
-            Save(data);
-            if (weLoaded && UnloadData)
-            {
-                DataSource.UnloadData();
-            }
+            DataSource.UnloadData();
         }
+    }
 
-        private void Save(SparseTriIndex<float> data)
+    private void Save(SparseTriIndex<float> data)
+    {
+        var layerIndex = data.ValidIndexes().ToArray();
+        System.Threading.Tasks.Parallel.For(0, layerIndex.Length, (int i) =>
         {
-            var layerIndex = data.ValidIndexes().ToArray();
-            System.Threading.Tasks.Parallel.For(0, layerIndex.Length, (int i) =>
-            {
-                Save(layerIndex[i], data.GetFlatData()[i], data);
-            });
+            Save(layerIndex[i], data.GetFlatData()[i], data);
+        });
+    }
+
+    private void Save(int layerIndex, float[][] flatData, SparseTriIndex<float> data)
+    {
+        var origins = data.ValidIndexes(layerIndex).ToArray();
+        // if there is no data there is nothing to save!
+        if (origins.Length <= 0)
+        {
+            return;
         }
-
-        private void Save(int layerIndex, float[][] flatData, SparseTriIndex<float> data)
+        var destinations = data.ValidIndexes(layerIndex, origins[0]).ToArray();
+        switch (FileFormat)
         {
-            var origins = data.ValidIndexes(layerIndex).ToArray();
-            // if there is no data there is nothing to save!
-            if (origins.Length <= 0)
-            {
+            case FileFormats.MTX:
+                SaveMTX(layerIndex, flatData, origins, destinations);
                 return;
-            }
-            var destinations = data.ValidIndexes(layerIndex, origins[0]).ToArray();
-            switch (FileFormat)
-            {
-                case FileFormats.MTX:
-                    SaveMTX(layerIndex, flatData, origins, destinations);
-                    return;
-                case FileFormats.CSVThirdNormalized:
-                    SaveThirdNormalizedCSV(layerIndex, flatData, origins, destinations);
-                    return;
-                case FileFormats.CSVSquare:
-                    SaveSquareMatrixToCSV(layerIndex, flatData, origins, destinations);
-                    return;
-                default:
-                    throw new XTMFRuntimeException(this, "Unknown file format!");
-            }
+            case FileFormats.CSVThirdNormalized:
+                SaveThirdNormalizedCSV(layerIndex, flatData, origins, destinations);
+                return;
+            case FileFormats.CSVSquare:
+                SaveSquareMatrixToCSV(layerIndex, flatData, origins, destinations);
+                return;
+            default:
+                throw new XTMFRuntimeException(this, "Unknown file format!");
         }
+    }
 
-        private void SaveSquareMatrixToCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
+    private void SaveSquareMatrixToCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
+    {
+        string buildRow(float[] data, int rowNumber)
         {
-            string buildRow(float[] data, int rowNumber)
+            StringBuilder b = new();
+            b.Append(rowNumber);
+            for (int i = 0; i < data.Length; i++)
             {
-                StringBuilder b = new();
-                b.Append(rowNumber);
-                for (int i = 0; i < data.Length; i++)
-                {
-                    b.Append(',');
-                    b.Append(data[i]);
-                }
-                return b.ToString();
+                b.Append(',');
+                b.Append(data[i]);
             }
-            using var writer = new StreamWriter(BuildFileName(layerIndex));
-            writer.Write("origin\\destination");
-            for (int j = 0; j < destinations.Length; j++)
+            return b.ToString();
+        }
+        using var writer = new StreamWriter(BuildFileName(layerIndex));
+        writer.Write("origin\\destination");
+        for (int j = 0; j < destinations.Length; j++)
+        {
+            writer.Write(',');
+            writer.Write(destinations[j]);
+        }
+        writer.WriteLine();
+        // write the main body
+        foreach (var row in flatData.AsParallel().AsOrdered().Select((r, i) => buildRow(r, origins[i])))
+        {
+            writer.WriteLine(row);
+        }
+    }
+
+    private void SaveThirdNormalizedCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
+    {
+        using var writer = new StreamWriter(BuildFileName(layerIndex));
+        writer.WriteLine("Origin,Destination,Value");
+        for (int i = 0; i < flatData.Length; i++)
+        {
+            for (int j = 0; j < flatData[i].Length; j++)
             {
+                writer.Write(origins[i]);
                 writer.Write(',');
                 writer.Write(destinations[j]);
-            }
-            writer.WriteLine();
-            // write the main body
-            foreach (var row in flatData.AsParallel().AsOrdered().Select((r, i) => buildRow(r, origins[i])))
-            {
-                writer.WriteLine(row);
+                writer.Write(',');
+                writer.WriteLine(flatData[i][j]);
             }
         }
+    }
 
-        private void SaveThirdNormalizedCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
-        {
-            using var writer = new StreamWriter(BuildFileName(layerIndex));
-            writer.WriteLine("Origin,Destination,Value");
-            for (int i = 0; i < flatData.Length; i++)
-            {
-                for (int j = 0; j < flatData[i].Length; j++)
-                {
-                    writer.Write(origins[i]);
-                    writer.Write(',');
-                    writer.Write(destinations[j]);
-                    writer.Write(',');
-                    writer.WriteLine(flatData[i][j]);
-                }
-            }
-        }
+    private void SaveMTX(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
+    {
+        new Emme.EmmeMatrix(origins, flatData).Save(BuildFileName(layerIndex), false);
+    }
 
-        private void SaveMTX(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
+    private string BuildFileName(int layerIndex)
+    {
+        string ret = null;
+        switch (FileFormat)
         {
-            new Emme.EmmeMatrix(origins, flatData).Save(BuildFileName(layerIndex), false);
+            case FileFormats.MTX:
+                ret = Path.Combine(SaveDirectory, FileNamePrefix + layerIndex + ".mtx");
+                break;
+            case FileFormats.CSVThirdNormalized:
+                ret = Path.Combine(SaveDirectory, FileNamePrefix + layerIndex + ".csv");
+                break;
+            case FileFormats.CSVSquare:
+                ret = Path.Combine(SaveDirectory, FileNamePrefix + layerIndex + ".csv");
+                break;
+            default:
+                throw new XTMFRuntimeException(this, "Unknown file format!");
         }
+        // make sure the path exists
+        DirectoryInfo dir = new(Path.GetDirectoryName(ret));
+        if(!dir.Exists)
+        {
+            dir.Create();
+        }
+        return ret;
+    }
 
-        private string BuildFileName(int layerIndex)
-        {
-            string ret = null;
-            switch (FileFormat)
-            {
-                case FileFormats.MTX:
-                    ret = Path.Combine(SaveDirectory, FileNamePrefix + layerIndex + ".mtx");
-                    break;
-                case FileFormats.CSVThirdNormalized:
-                    ret = Path.Combine(SaveDirectory, FileNamePrefix + layerIndex + ".csv");
-                    break;
-                case FileFormats.CSVSquare:
-                    ret = Path.Combine(SaveDirectory, FileNamePrefix + layerIndex + ".csv");
-                    break;
-                default:
-                    throw new XTMFRuntimeException(this, "Unknown file format!");
-            }
-            // make sure the path exists
-            DirectoryInfo dir = new(Path.GetDirectoryName(ret));
-            if(!dir.Exists)
-            {
-                dir.Create();
-            }
-            return ret;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

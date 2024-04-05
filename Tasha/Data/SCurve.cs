@@ -21,66 +21,64 @@ using Datastructure;
 using TMG;
 using TMG.Functions;
 using XTMF;
-namespace Tasha.Data
+namespace Tasha.Data;
+
+public class SCurve : IDataSource<SparseArray<float>>
 {
-    public class SCurve : IDataSource<SparseArray<float>>
+    public bool Loaded
     {
-        public bool Loaded
-        {
-            get; set;
-        }
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        private SparseArray<float> Data;
-
-        [RootModule]
-        public ITravelDemandModel Root;
-
-        public SparseArray<float> GiveData()
-        {
-            return Data;
-        }
-
-        [SubModelInformation(Required = false, Description = "The original data needs to be either here or in the RawOriginalData.")]
-        public IResource OriginalData;
-
-        [SubModelInformation(Required = false, Description = "The original data needs to be either here or in the OriginalData.")]
-        public IDataSource<SparseArray<float>> RawOriginalData;
-
-        [RunParameter("Offset X", 0.0f, "Applied to X to offset the SCurve")]
-        public float OffsetX;
-
-        [RunParameter("Stretch", 1.0f, "The stretch applied to the X for the SCurve.")]
-        public float Stretch;
-
-        public void LoadData()
-        {
-            var original = ModuleHelper.GetDataFromDatasourceOrResource(RawOriginalData, OriginalData);
-            var oData = original.GetFlatData();
-            var ours = original.CreateSimilarArray<float>();
-            var ourData = ours.GetFlatData();
-            for(int i = 0; i < oData.Length; i++)
-            {
-                ourData[i] = 1.0f / (1.0f + (float)Math.Exp(Stretch * -(oData[i] + OffsetX)));
-            }
-            Data = ours;
-            Loaded = true;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return this.EnsureExactlyOneAndOfSameType(RawOriginalData, OriginalData, ref error);
-        }
-
-        public void UnloadData()
-        {
-            Data = null;
-        }
+        get; set;
     }
 
+    public string Name { get; set; }
+
+    public float Progress { get; set; }
+
+    public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+    private SparseArray<float> Data;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public SparseArray<float> GiveData()
+    {
+        return Data;
+    }
+
+    [SubModelInformation(Required = false, Description = "The original data needs to be either here or in the RawOriginalData.")]
+    public IResource OriginalData;
+
+    [SubModelInformation(Required = false, Description = "The original data needs to be either here or in the OriginalData.")]
+    public IDataSource<SparseArray<float>> RawOriginalData;
+
+    [RunParameter("Offset X", 0.0f, "Applied to X to offset the SCurve")]
+    public float OffsetX;
+
+    [RunParameter("Stretch", 1.0f, "The stretch applied to the X for the SCurve.")]
+    public float Stretch;
+
+    public void LoadData()
+    {
+        var original = ModuleHelper.GetDataFromDatasourceOrResource(RawOriginalData, OriginalData);
+        var oData = original.GetFlatData();
+        var ours = original.CreateSimilarArray<float>();
+        var ourData = ours.GetFlatData();
+        for(int i = 0; i < oData.Length; i++)
+        {
+            ourData[i] = 1.0f / (1.0f + (float)Math.Exp(Stretch * -(oData[i] + OffsetX)));
+        }
+        Data = ours;
+        Loaded = true;
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return this.EnsureExactlyOneAndOfSameType(RawOriginalData, OriginalData, ref error);
+    }
+
+    public void UnloadData()
+    {
+        Data = null;
+    }
 }

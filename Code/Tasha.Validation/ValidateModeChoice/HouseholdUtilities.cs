@@ -23,121 +23,120 @@ using Tasha.Common;
 using Tasha.XTMFModeChoice;
 using XTMF;
 
-namespace Tasha.Validation.ValidateModeChoice
+namespace Tasha.Validation.ValidateModeChoice;
+
+public class HouseholdUtilities : IPostHouseholdIteration
 {
-    public class HouseholdUtilities : IPostHouseholdIteration
+    [RunParameter("Output File", "HouseholdUtilities.csv", "The file where we can store the household utilities.")]
+    public string OutputFile;
+
+    private Dictionary<int, float[]> Utilities = [];
+
+    public string Name
     {
-        [RunParameter("Output File", "HouseholdUtilities.csv", "The file where we can store the household utilities.")]
-        public string OutputFile;
+        get;
+        set;
+    }
 
-        private Dictionary<int, float[]> Utilities = [];
+    public float Progress
+    {
+        get;
+        set;
+    }
 
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get;
+        set;
+    }
+
+    public void HouseholdComplete(ITashaHousehold household, bool success)
+    {
+        if (success)
         {
-            get;
-            set;
-        }
-
-        public float Progress
-        {
-            get;
-            set;
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get;
-            set;
-        }
-
-        public void HouseholdComplete(ITashaHousehold household, bool success)
-        {
-            if (success)
+            lock (this)
             {
-                lock (this)
+                var writeHeader = !File.Exists(OutputFile);
+                using StreamWriter writer = new(OutputFile, true);
+                if (writeHeader)
                 {
-                    var writeHeader = !File.Exists(OutputFile);
-                    using StreamWriter writer = new(OutputFile, true);
-                    if (writeHeader)
-                    {
-                        writer.WriteLine("HouseholdID,HouseholdIteration,Household Utility");
-                    }
-                    var util = Utilities[household.HouseholdId];
-                    for (int i = 0; i < util.Length; i++)
-                    {
-                        writer.Write(household.HouseholdId);
-                        writer.Write(',');
-                        writer.Write(i);
-                        writer.Write(',');
-                        writer.WriteLine(util[i]);
-                    }
+                    writer.WriteLine("HouseholdID,HouseholdIteration,Household Utility");
                 }
+                var util = Utilities[household.HouseholdId];
+                for (int i = 0; i < util.Length; i++)
+                {
+                    writer.Write(household.HouseholdId);
+                    writer.Write(',');
+                    writer.Write(i);
+                    writer.Write(',');
+                    writer.WriteLine(util[i]);
+                }
+            }
+        }
+        else
+        {
+            throw new XTMFRuntimeException(this, "A household was not able to be resolved.");
+        }
+    }
+
+    public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+    {
+        var houseData = (ModeChoiceHouseholdData)household["ModeChoiceData"];
+        var resource = (HouseholdResourceAllocator)household["ResourceAllocator"];
+
+        float householdU = 0;
+
+        for (int i = 0; i < household.Persons.Length; i++)
+        {
+            var personData = houseData.PersonData[i];
+            for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
+            {
+                var tripChainData = personData.TripChainData[j];
+                if (tripChainData.TripChain.JointTrip && !tripChainData.TripChain.JointTripRep)
+                {
+                    continue;
+                }
+                var chosenVehicleType = resource.Resolution[i][j];
+                var bestChosen = tripChainData.BestPossibleAssignmentForVehicleType[chosenVehicleType];
+                for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
+                {
+                    var tripData = tripChainData.TripData[k];
+                    int modeIndex = bestChosen.PickedModes[k];
+                    householdU += tripData.V[modeIndex] + tripData.Error[modeIndex];
+                }
+            }
+        }
+
+        lock (this)
+        {
+            if (Utilities.ContainsKey(household.HouseholdId))
+            {
+                Utilities[household.HouseholdId][hhldIteration] = householdU;
             }
             else
             {
-                throw new XTMFRuntimeException(this, "A household was not able to be resolved.");
+                Utilities.Add(household.HouseholdId, new float[totalHouseholdIterations]);
+                Utilities[household.HouseholdId][hhldIteration] = householdU;
             }
         }
+    }
 
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
-        {
-            var houseData = (ModeChoiceHouseholdData)household["ModeChoiceData"];
-            var resource = (HouseholdResourceAllocator)household["ResourceAllocator"];
+    public void HouseholdStart(ITashaHousehold household, int householdIterations)
+    {
+    }
 
-            float householdU = 0;
+    public void IterationFinished(int iteration, int totalIterations)
+    {
 
-            for (int i = 0; i < household.Persons.Length; i++)
-            {
-                var personData = houseData.PersonData[i];
-                for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
-                {
-                    var tripChainData = personData.TripChainData[j];
-                    if (tripChainData.TripChain.JointTrip && !tripChainData.TripChain.JointTripRep)
-                    {
-                        continue;
-                    }
-                    var chosenVehicleType = resource.Resolution[i][j];
-                    var bestChosen = tripChainData.BestPossibleAssignmentForVehicleType[chosenVehicleType];
-                    for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
-                    {
-                        var tripData = tripChainData.TripData[k];
-                        int modeIndex = bestChosen.PickedModes[k];
-                        householdU += tripData.V[modeIndex] + tripData.Error[modeIndex];
-                    }
-                }
-            }
+    }
 
-            lock (this)
-            {
-                if (Utilities.ContainsKey(household.HouseholdId))
-                {
-                    Utilities[household.HouseholdId][hhldIteration] = householdU;
-                }
-                else
-                {
-                    Utilities.Add(household.HouseholdId, new float[totalHouseholdIterations]);
-                    Utilities[household.HouseholdId][hhldIteration] = householdU;
-                }
-            }
-        }
+    public void IterationStarting(int iteration, int totalIterations)
+    {
 
-        public void HouseholdStart(ITashaHousehold household, int householdIterations)
-        {
-        }
+    }
 
-        public void IterationFinished(int iteration, int totalIterations)
-        {
-
-        }
-
-        public void IterationStarting(int iteration, int totalIterations)
-        {
-
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

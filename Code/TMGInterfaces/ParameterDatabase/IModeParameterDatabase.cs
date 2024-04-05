@@ -18,26 +18,25 @@
 */
 using XTMF;
 
-namespace TMG
+namespace TMG;
+
+public interface IModeParameterDatabase : IModule
 {
-    public interface IModeParameterDatabase : IModule
-    {
-        /// <summary>
-        /// Gets the number of parameter sets
-        /// </summary>
-        int NumberOfParameterSets { get; }
+    /// <summary>
+    /// Gets the number of parameter sets
+    /// </summary>
+    int NumberOfParameterSets { get; }
 
-        /// <summary>
-        /// This will load the parameter data into the modes
-        /// </summary>
-        /// <param name="parameterSetIndex">The index to load</param>
-        /// <param name="demographicIndex"></param>
-        void ApplyParameterSet(int parameterSetIndex, int demographicIndex);
+    /// <summary>
+    /// This will load the parameter data into the modes
+    /// </summary>
+    /// <param name="parameterSetIndex">The index to load</param>
+    /// <param name="demographicIndex"></param>
+    void ApplyParameterSet(int parameterSetIndex, int demographicIndex);
 
-        void CompleteBlend();
+    void CompleteBlend();
 
-        void InitializeBlend();
+    void InitializeBlend();
 
-        void SetBlendWeight(float p);
-    }
+    void SetBlendWeight(float p);
 }

@@ -20,109 +20,108 @@
 using Datastructure;
 using XTMF;
 
-namespace TMG.Frameworks.Data.Synthesis.Gibbs
+namespace TMG.Frameworks.Data.Synthesis.Gibbs;
+
+// ReSharper disable once InconsistentNaming
+public sealed class ConditionalByPD : Conditional
 {
-    // ReSharper disable once InconsistentNaming
-    public sealed class ConditionalByPD : Conditional
+    public override bool RequiresReloadingPerZone
     {
-        public override bool RequiresReloadingPerZone
+        get
         {
-            get
-            {
-                return true;
-            }
+            return true;
         }
+    }
 
-        [SubModelInformation(Required = false, Description = "An optional source to load the zone system from.  If left blank the Travel Demand Model Zone system will be used.")]
-        public IDataSource<IZoneSystem> ZoneSystemSource;
+    [SubModelInformation(Required = false, Description = "An optional source to load the zone system from.  If left blank the Travel Demand Model Zone system will be used.")]
+    public IDataSource<IZoneSystem> ZoneSystemSource;
 
-        private IZoneSystem ZoneSystem;
+    private IZoneSystem ZoneSystem;
 
-        private IConfiguration Config;
+    private IConfiguration Config;
 
-        public ConditionalByPD(IConfiguration config)
+    public ConditionalByPD(IConfiguration config)
+    {
+        Config = config;
+    }
+
+    public override bool RuntimeValidation(ref string error)
+    {
+        // Get the zone system from the travel demand model
+        if (ZoneSystemSource != null)
         {
-            Config = config;
+            ZoneSystemSource.LoadData();
+            ZoneSystem = ZoneSystemSource.GiveData();
         }
-
-        public override bool RuntimeValidation(ref string error)
+        else
         {
-            // Get the zone system from the travel demand model
-            if (ZoneSystemSource != null)
+            if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out IModelSystemStructure tdm))
             {
-                ZoneSystemSource.LoadData();
-                ZoneSystem = ZoneSystemSource.GiveData();
-            }
-            else
-            {
-                if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out IModelSystemStructure tdm))
+                ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
+                if (ZoneSystem != null && !ZoneSystem.Loaded)
                 {
-                    ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
-                    if (ZoneSystem != null && !ZoneSystem.Loaded)
+                    ZoneSystem.LoadData();
+                }
+            }
+        }
+        if (ZoneSystem == null)
+        {
+            error = $"In {Name} we were unable to load a zone system for our calculations!";
+            return false;
+        }
+        return base.RuntimeValidation(ref error);
+    }
+
+
+    public override void LoadConditionalsData(int currentZone)
+    {
+        var zone = ZoneSystem.ZoneArray.GetFlatData()[currentZone];
+        if(zone == null)
+        {
+            throw new XTMFRuntimeException(this, $"In {Name} we were asked to process a zone that we do not have defined! Zone#{currentZone}!");
+        }
+        var pdToProcess = zone.PlanningDistrict;
+        var prob = GenerateBackendData();
+        // an extra column since the first one is for the planning district
+        int expectedColumns = ColumnIndex.Length + 2;
+        var currentIndex = new int[expectedColumns - 2];
+        bool any = false;
+        using (var reader = new CsvReader(ConditionalSource))
+        {
+            reader.LoadLine();
+            while (reader.LoadLine(out int columns))
+            {
+                if (columns >= expectedColumns)
+                {
+                    any = true;
+                    reader.Get(out int pd, 0);
+                    // ignore data rows not for our PD
+                    if (pdToProcess != pd)
                     {
-                        ZoneSystem.LoadData();
+                        continue;
+                    }
+                    for (int i = 0; i < currentIndex.Length; i++)
+                    {
+                        reader.Get(out currentIndex[i], i + 1);
+                    }
+                    var probIndex = GetIndex(currentIndex);
+                    if (probIndex < prob.Length)
+                    {
+                        reader.Get(out prob[probIndex], currentIndex.Length + 1);
+                    }
+                    else
+                    {
+                        throw new XTMFRuntimeException(this, $"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
                     }
                 }
             }
-            if (ZoneSystem == null)
-            {
-                error = $"In {Name} we were unable to load a zone system for our calculations!";
-                return false;
-            }
-            return base.RuntimeValidation(ref error);
         }
-
-
-        public override void LoadConditionalsData(int currentZone)
+        Cdf = ConvertToCdf(prob);
+        if (!any)
         {
-            var zone = ZoneSystem.ZoneArray.GetFlatData()[currentZone];
-            if(zone == null)
-            {
-                throw new XTMFRuntimeException(this, $"In {Name} we were asked to process a zone that we do not have defined! Zone#{currentZone}!");
-            }
-            var pdToProcess = zone.PlanningDistrict;
-            var prob = GenerateBackendData();
-            // an extra column since the first one is for the planning district
-            int expectedColumns = ColumnIndex.Length + 2;
-            var currentIndex = new int[expectedColumns - 2];
-            bool any = false;
-            using (var reader = new CsvReader(ConditionalSource))
-            {
-                reader.LoadLine();
-                while (reader.LoadLine(out int columns))
-                {
-                    if (columns >= expectedColumns)
-                    {
-                        any = true;
-                        reader.Get(out int pd, 0);
-                        // ignore data rows not for our PD
-                        if (pdToProcess != pd)
-                        {
-                            continue;
-                        }
-                        for (int i = 0; i < currentIndex.Length; i++)
-                        {
-                            reader.Get(out currentIndex[i], i + 1);
-                        }
-                        var probIndex = GetIndex(currentIndex);
-                        if (probIndex < prob.Length)
-                        {
-                            reader.Get(out prob[probIndex], currentIndex.Length + 1);
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException(this, $"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
-                        }
-                    }
-                }
-            }
-            Cdf = ConvertToCdf(prob);
-            if (!any)
-            {
-                throw new XTMFRuntimeException(this, $@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
+            throw new XTMFRuntimeException(this, $@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
 This could be because the data does not have the expected number of columns ({expectedColumns}) as interpreted by the given attributes.");
-            }
-            Loaded = true;
         }
+        Loaded = true;
     }
 }

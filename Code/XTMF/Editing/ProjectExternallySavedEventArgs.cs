@@ -22,17 +22,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF.Editing
-{
-    public class ProjectExternallySavedEventArgs : EventArgs
-    {
-        public readonly Project BaseProject;
-        public readonly Project CloneProject;
+namespace XTMF.Editing;
 
-        public ProjectExternallySavedEventArgs(Project baseProject, Project cloneProject)
-        {
-            BaseProject = baseProject;
-            CloneProject = cloneProject;
-        }
+public class ProjectExternallySavedEventArgs : EventArgs
+{
+    public readonly Project BaseProject;
+    public readonly Project CloneProject;
+
+    public ProjectExternallySavedEventArgs(Project baseProject, Project cloneProject)
+    {
+        BaseProject = baseProject;
+        CloneProject = cloneProject;
     }
 }

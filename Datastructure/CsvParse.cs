@@ -19,326 +19,325 @@
 using System;
 using System.Text;
 
-namespace Datastructure
+namespace Datastructure;
+
+internal static class CsvParse
 {
-    internal static class CsvParse
+    internal static float ParseFixedFloat(string line, int offset, int length)
     {
-        internal static float ParseFixedFloat(string line, int offset, int length)
+        var start = offset + length;
+        var scientificNotation = false;
+        var exponent = 0;
+        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
         {
-            var start = offset + length;
-            var scientificNotation = false;
-            var exponent = 0;
-            while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
+            if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
             {
-                if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
+                scientificNotation = true;
+                exponent = -ParseInt( line, start, offset + length );
+                // subtract
+                length -= ( offset + length ) - start + 2;
+                start -= 2;
+            }
+            else if ( start > 2 && ( line[start - 1] == '+' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
+            {
+                scientificNotation = true;
+                exponent = ParseInt( line, start, offset + length );
+                // subtract
+                length -= ( offset + length ) - start + 2;
+                start -= 2;
+            }
+            else
+            {
+                start--;
+            }
+        }
+        if ( scientificNotation )
+        {
+            return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
+        }
+        else
+        {
+            return ParseFloat( line, start, offset + length );
+        }
+    }
+
+    internal static float ParseFixedFloat(StringBuilder line, int offset, int length)
+    {
+        var start = offset + length;
+        var scientificNotation = false;
+        var exponent = 0;
+        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
+        {
+            if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
+            {
+                scientificNotation = true;
+                exponent = -ParseInt( line, start, offset + length );
+                // subtract
+                length -= ( offset + length ) - start + 2;
+                start -= 2;
+            }
+            else if ( start > 2 && ( line[start - 1] == '+' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
+            {
+                scientificNotation = true;
+                exponent = ParseInt( line, start, offset + length );
+                // subtract
+                length -= ( offset + length ) - start + 2;
+                start -= 2;
+            }
+            else
+            {
+                start--;
+            }
+        }
+        if ( scientificNotation )
+        {
+            return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
+        }
+        else
+        {
+            return ParseFloat( line, start, offset + length );
+        }
+    }
+
+    internal static float ParseFixedFloat(char[] line, int offset, int length)
+    {
+        var start = offset + length;
+        var scientificNotation = false;
+        var exponent = 0;
+        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
+        {
+            if ( start > 2 && ( line[start - 2] == 'e' | line[start - 2] == 'E' ) )
+            {
+                if ( line[start - 1] == '-' )
                 {
-                    scientificNotation = true;
                     exponent = -ParseInt( line, start, offset + length );
-                    // subtract
-                    length -= ( offset + length ) - start + 2;
-                    start -= 2;
                 }
-                else if ( start > 2 && ( line[start - 1] == '+' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
+                else if ( line[start - 1] == '+' )
                 {
-                    scientificNotation = true;
                     exponent = ParseInt( line, start, offset + length );
-                    // subtract
-                    length -= ( offset + length ) - start + 2;
-                    start -= 2;
                 }
                 else
                 {
-                    start--;
+                    break;
                 }
-            }
-            if ( scientificNotation )
-            {
-                return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
+                scientificNotation = true;
+                // subtract
+                length = ( offset + length ) - start + 2;
+                start -= 2;
             }
             else
             {
-                return ParseFloat( line, start, offset + length );
-            }
-        }
-
-        internal static float ParseFixedFloat(StringBuilder line, int offset, int length)
-        {
-            var start = offset + length;
-            var scientificNotation = false;
-            var exponent = 0;
-            while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
-            {
-                if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
-                {
-                    scientificNotation = true;
-                    exponent = -ParseInt( line, start, offset + length );
-                    // subtract
-                    length -= ( offset + length ) - start + 2;
-                    start -= 2;
-                }
-                else if ( start > 2 && ( line[start - 1] == '+' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
-                {
-                    scientificNotation = true;
-                    exponent = ParseInt( line, start, offset + length );
-                    // subtract
-                    length -= ( offset + length ) - start + 2;
-                    start -= 2;
-                }
-                else
-                {
-                    start--;
-                }
-            }
-            if ( scientificNotation )
-            {
-                return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
-            }
-            else
-            {
-                return ParseFloat( line, start, offset + length );
-            }
-        }
-
-        internal static float ParseFixedFloat(char[] line, int offset, int length)
-        {
-            var start = offset + length;
-            var scientificNotation = false;
-            var exponent = 0;
-            while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
-            {
-                if ( start > 2 && ( line[start - 2] == 'e' | line[start - 2] == 'E' ) )
-                {
-                    if ( line[start - 1] == '-' )
-                    {
-                        exponent = -ParseInt( line, start, offset + length );
-                    }
-                    else if ( line[start - 1] == '+' )
-                    {
-                        exponent = ParseInt( line, start, offset + length );
-                    }
-                    else
-                    {
-                        break;
-                    }
-                    scientificNotation = true;
-                    // subtract
-                    length = ( offset + length ) - start + 2;
-                    start -= 2;
-                }
-                else
-                {
-                    start--;
-                }
-            }
-            if ( scientificNotation )
-            {
-                return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
-            }
-            else
-            {
-                return ParseFloat( line, start, offset + length );
-            }
-        }
-
-        internal static int ParseFixedInt(string line, int offset, int length)
-        {
-            var start = offset + length;
-            while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
-            {
                 start--;
             }
-            return ParseInt( line, start, offset + length );
         }
-
-        internal static int ParseFixedInt(StringBuilder line, int offset, int length)
+        if ( scientificNotation )
         {
-            var start = offset + length;
-            while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
-            {
-                start--;
-            }
-            return ParseInt( line, start, offset + length );
+            return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
         }
-
-        internal static int ParseFixedInt(char[] line, int offset, int length)
+        else
         {
-            var start = offset + length;
-            while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
-            {
-                start--;
-            }
-            return ParseInt( line, start, offset + length );
+            return ParseFloat( line, start, offset + length );
         }
+    }
 
-        /// <summary>
-        /// Use this to parse an float out of a string
-        /// </summary>
-        /// <param name="str">The string to parse</param>
-        /// <param name="indexFrom">Where to start(including)</param>
-        /// <param name="indexTo">Where to stop (excluding)</param>
-        /// <returns></returns>
-        internal static float ParseFloat(string str, int indexFrom, int indexTo)
+    internal static int ParseFixedInt(string line, int offset, int length)
+    {
+        var start = offset + length;
+        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
         {
-            var ival = 0;
-            float fval = 0;
-            var multiplyer = 0.1f;
-            int i;
-            char c;
-            var neg = str[indexFrom] == '-';
-            if ( neg ) indexFrom++;
-            for ( i = indexFrom; i < indexTo; i++ )
-            {
-                if ( ( c = str[i] ) == '.' )
-                {
-                    break;
-                }
-                // Same as multiplying by 10
-                ival = ( ival << 1 ) + ( ival << 3 );
-                ival += c - '0';
-            }
-            for ( i++; i < indexTo; i++ )
-            {
-                var k = ( str[i] - '0' );
-                fval += k * multiplyer;
-                multiplyer *= 0.1f;
-            }
-            fval += ival;
-            return neg ? -fval : fval;
+            start--;
         }
+        return ParseInt( line, start, offset + length );
+    }
 
-        /// <summary>
-        /// Use this to parse an float out of a string
-        /// </summary>
-        /// <param name="str">The string to parse</param>
-        /// <param name="indexFrom">Where to start(including)</param>
-        /// <param name="indexTo">Where to stop (excluding)</param>
-        /// <returns></returns>
-        internal static float ParseFloat(StringBuilder str, int indexFrom, int indexTo)
+    internal static int ParseFixedInt(StringBuilder line, int offset, int length)
+    {
+        var start = offset + length;
+        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
         {
-            var ival = 0;
-            float fval = 0;
-            var multiplyer = 0.1f;
-            int i;
-            char c;
-            var neg = str[indexFrom] == '-';
-            if ( neg ) indexFrom++;
-            for ( i = indexFrom; i < indexTo; i++ )
-            {
-                if ( ( c = str[i] ) == '.' )
-                {
-                    break;
-                }
-                // Same as multiplying by 10
-                ival = ( ival << 1 ) + ( ival << 3 );
-                ival += c - '0';
-            }
-            for ( i++; i < indexTo; i++ )
-            {
-                var k = ( str[i] - '0' );
-                fval += k * multiplyer;
-                multiplyer *= 0.1f;
-            }
-            fval += ival;
-            return neg ? -fval : fval;
+            start--;
         }
+        return ParseInt( line, start, offset + length );
+    }
 
-        /// <summary>
-        /// Use this to parse an float out of a string
-        /// </summary>
-        /// <param name="str">The string to parse</param>
-        /// <param name="indexFrom">Where to start(including)</param>
-        /// <param name="indexTo">Where to stop (excluding)</param>
-        /// <returns></returns>
-        internal static float ParseFloat(char[] str, int indexFrom, int indexTo)
+    internal static int ParseFixedInt(char[] line, int offset, int length)
+    {
+        var start = offset + length;
+        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
         {
-            var ival = 0;
-            float fval = 0;
-            var multiplyer = 0.1f;
-            int i;
-            char c;
-            var neg = str[indexFrom] == '-';
-            if ( neg ) indexFrom++;
-            for ( i = indexFrom; i < indexTo; i++ )
-            {
-                if ( ( c = str[i] ) == '.' )
-                {
-                    break;
-                }
-                // Same as multiplying by 10
-                ival = ( ival << 1 ) + ( ival << 3 );
-                ival += c - '0';
-            }
-            for ( i++; i < indexTo; i++ )
-            {
-                var k = ( str[i] - '0' );
-                fval += k * multiplyer;
-                multiplyer *= 0.1f;
-            }
-            fval += ival;
-            return neg ? -fval : fval;
+            start--;
         }
+        return ParseInt( line, start, offset + length );
+    }
 
-        /// <summary>
-        /// Use this to parse an integer out of a string
-        /// </summary>
-        /// <param name="str">The string's beginning</param>
-        /// <param name="indexFrom">Where to start reading from</param>
-        /// <param name="indexTo">Where to stop reading</param>
-        /// <returns>The integer value</returns>
-        internal static int ParseInt(string str, int indexFrom, int indexTo)
+    /// <summary>
+    /// Use this to parse an float out of a string
+    /// </summary>
+    /// <param name="str">The string to parse</param>
+    /// <param name="indexFrom">Where to start(including)</param>
+    /// <param name="indexTo">Where to stop (excluding)</param>
+    /// <returns></returns>
+    internal static float ParseFloat(string str, int indexFrom, int indexTo)
+    {
+        var ival = 0;
+        float fval = 0;
+        var multiplyer = 0.1f;
+        int i;
+        char c;
+        var neg = str[indexFrom] == '-';
+        if ( neg ) indexFrom++;
+        for ( i = indexFrom; i < indexTo; i++ )
         {
-            var value = 0;
-            var neg = str[indexFrom] == '-';
-            if ( neg ) indexFrom++;
-            for ( var i = indexFrom; i < indexTo; i++ )
+            if ( ( c = str[i] ) == '.' )
             {
-                // Same as multiplying by 10
-                value = ( value << 1 ) + ( value << 3 );
-                value += str[i] - '0';
+                break;
             }
-            return neg ? -value : value;
+            // Same as multiplying by 10
+            ival = ( ival << 1 ) + ( ival << 3 );
+            ival += c - '0';
         }
+        for ( i++; i < indexTo; i++ )
+        {
+            var k = ( str[i] - '0' );
+            fval += k * multiplyer;
+            multiplyer *= 0.1f;
+        }
+        fval += ival;
+        return neg ? -fval : fval;
+    }
 
-        /// <summary>
-        /// Use this to parse an integer out of a string
-        /// </summary>
-        /// <param name="str">The string's beginning</param>
-        /// <param name="indexFrom">Where to start reading from</param>
-        /// <param name="indexTo">Where to stop reading</param>
-        /// <returns>The integer value</returns>
-        internal static int ParseInt(StringBuilder str, int indexFrom, int indexTo)
+    /// <summary>
+    /// Use this to parse an float out of a string
+    /// </summary>
+    /// <param name="str">The string to parse</param>
+    /// <param name="indexFrom">Where to start(including)</param>
+    /// <param name="indexTo">Where to stop (excluding)</param>
+    /// <returns></returns>
+    internal static float ParseFloat(StringBuilder str, int indexFrom, int indexTo)
+    {
+        var ival = 0;
+        float fval = 0;
+        var multiplyer = 0.1f;
+        int i;
+        char c;
+        var neg = str[indexFrom] == '-';
+        if ( neg ) indexFrom++;
+        for ( i = indexFrom; i < indexTo; i++ )
         {
-            var value = 0;
-            var neg = str[indexFrom] == '-';
-            if ( neg ) indexFrom++;
-            for ( var i = indexFrom; i < indexTo; i++ )
+            if ( ( c = str[i] ) == '.' )
             {
-                // Same as multiplying by 10
-                value = ( value << 1 ) + ( value << 3 );
-                value += str[i] - '0';
+                break;
             }
-            return neg ? -value : value;
+            // Same as multiplying by 10
+            ival = ( ival << 1 ) + ( ival << 3 );
+            ival += c - '0';
         }
+        for ( i++; i < indexTo; i++ )
+        {
+            var k = ( str[i] - '0' );
+            fval += k * multiplyer;
+            multiplyer *= 0.1f;
+        }
+        fval += ival;
+        return neg ? -fval : fval;
+    }
 
-        /// <summary>
-        /// Use this to parse an integer out of a string
-        /// </summary>
-        /// <param name="str">The string's beginning</param>
-        /// <param name="indexFrom">Where to start reading from</param>
-        /// <param name="indexTo">Where to stop reading</param>
-        /// <returns>The integer value</returns>
-        internal static int ParseInt(char[] str, int indexFrom, int indexTo)
+    /// <summary>
+    /// Use this to parse an float out of a string
+    /// </summary>
+    /// <param name="str">The string to parse</param>
+    /// <param name="indexFrom">Where to start(including)</param>
+    /// <param name="indexTo">Where to stop (excluding)</param>
+    /// <returns></returns>
+    internal static float ParseFloat(char[] str, int indexFrom, int indexTo)
+    {
+        var ival = 0;
+        float fval = 0;
+        var multiplyer = 0.1f;
+        int i;
+        char c;
+        var neg = str[indexFrom] == '-';
+        if ( neg ) indexFrom++;
+        for ( i = indexFrom; i < indexTo; i++ )
         {
-            var value = 0;
-            var neg = str[indexFrom] == '-';
-            if ( neg ) indexFrom++;
-            for ( var i = indexFrom; i < indexTo; i++ )
+            if ( ( c = str[i] ) == '.' )
             {
-                // Same as multiplying by 10
-                value = ( value << 1 ) + ( value << 3 );
-                value += str[i] - '0';
+                break;
             }
-            return neg ? -value : value;
+            // Same as multiplying by 10
+            ival = ( ival << 1 ) + ( ival << 3 );
+            ival += c - '0';
         }
+        for ( i++; i < indexTo; i++ )
+        {
+            var k = ( str[i] - '0' );
+            fval += k * multiplyer;
+            multiplyer *= 0.1f;
+        }
+        fval += ival;
+        return neg ? -fval : fval;
+    }
+
+    /// <summary>
+    /// Use this to parse an integer out of a string
+    /// </summary>
+    /// <param name="str">The string's beginning</param>
+    /// <param name="indexFrom">Where to start reading from</param>
+    /// <param name="indexTo">Where to stop reading</param>
+    /// <returns>The integer value</returns>
+    internal static int ParseInt(string str, int indexFrom, int indexTo)
+    {
+        var value = 0;
+        var neg = str[indexFrom] == '-';
+        if ( neg ) indexFrom++;
+        for ( var i = indexFrom; i < indexTo; i++ )
+        {
+            // Same as multiplying by 10
+            value = ( value << 1 ) + ( value << 3 );
+            value += str[i] - '0';
+        }
+        return neg ? -value : value;
+    }
+
+    /// <summary>
+    /// Use this to parse an integer out of a string
+    /// </summary>
+    /// <param name="str">The string's beginning</param>
+    /// <param name="indexFrom">Where to start reading from</param>
+    /// <param name="indexTo">Where to stop reading</param>
+    /// <returns>The integer value</returns>
+    internal static int ParseInt(StringBuilder str, int indexFrom, int indexTo)
+    {
+        var value = 0;
+        var neg = str[indexFrom] == '-';
+        if ( neg ) indexFrom++;
+        for ( var i = indexFrom; i < indexTo; i++ )
+        {
+            // Same as multiplying by 10
+            value = ( value << 1 ) + ( value << 3 );
+            value += str[i] - '0';
+        }
+        return neg ? -value : value;
+    }
+
+    /// <summary>
+    /// Use this to parse an integer out of a string
+    /// </summary>
+    /// <param name="str">The string's beginning</param>
+    /// <param name="indexFrom">Where to start reading from</param>
+    /// <param name="indexTo">Where to stop reading</param>
+    /// <returns>The integer value</returns>
+    internal static int ParseInt(char[] str, int indexFrom, int indexTo)
+    {
+        var value = 0;
+        var neg = str[indexFrom] == '-';
+        if ( neg ) indexFrom++;
+        for ( var i = indexFrom; i < indexTo; i++ )
+        {
+            // Same as multiplying by 10
+            value = ( value << 1 ) + ( value << 3 );
+            value += str[i] - '0';
+        }
+        return neg ? -value : value;
     }
 }

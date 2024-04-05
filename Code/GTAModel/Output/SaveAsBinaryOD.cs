@@ -23,108 +23,107 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Output
+namespace TMG.GTAModel.Output;
+
+[ModuleInformation(
+    Description = "Save data in a binary format.  For each zone it will save each OD as a floating point number without any formatting."
+    )]
+public class SaveAsBinaryOD : ISaveODData<float>
 {
-    [ModuleInformation(
-        Description = "Save data in a binary format.  For each zone it will save each OD as a floating point number without any formatting."
-        )]
-    public class SaveAsBinaryOD : ISaveODData<float>
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-        [RootModule]
-        public ITravelDemandModel Root;
+        get { return 0f; }
+    }
 
-        public string Name { get; set; }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public float Progress
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void SaveMatrix(SparseTwinIndex<float> matrix, string fileName)
+    {
+        var dir = Path.GetDirectoryName( fileName );
+        if ( !String.IsNullOrWhiteSpace( dir ) )
         {
-            get { return 0f; }
-        }
-
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-        public void SaveMatrix(SparseTwinIndex<float> matrix, string fileName)
-        {
-            var dir = Path.GetDirectoryName( fileName );
-            if ( !String.IsNullOrWhiteSpace( dir ) )
+            if ( !Directory.Exists( dir ) )
             {
-                if ( !Directory.Exists( dir ) )
-                {
-                    Directory.CreateDirectory( dir );
-                }
-            }
-            using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
-            var data = matrix.GetFlatData();
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (data[i] == null)
-                {
-                    for (int j = 0; j < data.Length; j++)
-                    {
-                        writer.Write((float)0);
-                    }
-                }
-                else
-                {
-                    SaveLine(data[i], writer);
-                }
-            }
-            writer.Flush();
-        }
-
-        public void SaveMatrix(float[][] data, string fileName)
-        {
-            var dir = Path.GetDirectoryName( fileName );
-            if ( !String.IsNullOrWhiteSpace( dir ) )
-            {
-                if ( !Directory.Exists( dir ) )
-                {
-                    Directory.CreateDirectory( dir );
-                }
-            }
-            using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (data[i] == null)
-                {
-                    for (int j = 0; j < data.Length; j++)
-                    {
-                        writer.Write((float)0);
-                    }
-                }
-                else
-                {
-                    SaveLine(data[i], writer);
-                }
+                Directory.CreateDirectory( dir );
             }
         }
-
-        public void SaveMatrix(float[] data, string fileName)
+        using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+        var data = matrix.GetFlatData();
+        for (int i = 0; i < data.Length; i++)
         {
-            var dir = Path.GetDirectoryName( fileName );
-            if ( !String.IsNullOrWhiteSpace( dir ) )
+            if (data[i] == null)
             {
-                if ( !Directory.Exists( dir ) )
+                for (int j = 0; j < data.Length; j++)
                 {
-                    Directory.CreateDirectory( dir );
+                    writer.Write((float)0);
                 }
             }
-            using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
-            SaveLine(data, writer);
+            else
+            {
+                SaveLine(data[i], writer);
+            }
         }
+        writer.Flush();
+    }
 
-        private static void SaveLine(float[] oneLine, BinaryWriter writer)
+    public void SaveMatrix(float[][] data, string fileName)
+    {
+        var dir = Path.GetDirectoryName( fileName );
+        if ( !String.IsNullOrWhiteSpace( dir ) )
         {
-            var temp = new byte[oneLine.Length * sizeof( float )];
-            Buffer.BlockCopy( oneLine, 0, temp, 0, temp.Length );
-            writer.Write( temp, 0, temp.Length );
+            if ( !Directory.Exists( dir ) )
+            {
+                Directory.CreateDirectory( dir );
+            }
         }
+        using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+        for (int i = 0; i < data.Length; i++)
+        {
+            if (data[i] == null)
+            {
+                for (int j = 0; j < data.Length; j++)
+                {
+                    writer.Write((float)0);
+                }
+            }
+            else
+            {
+                SaveLine(data[i], writer);
+            }
+        }
+    }
+
+    public void SaveMatrix(float[] data, string fileName)
+    {
+        var dir = Path.GetDirectoryName( fileName );
+        if ( !String.IsNullOrWhiteSpace( dir ) )
+        {
+            if ( !Directory.Exists( dir ) )
+            {
+                Directory.CreateDirectory( dir );
+            }
+        }
+        using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+        SaveLine(data, writer);
+    }
+
+    private static void SaveLine(float[] oneLine, BinaryWriter writer)
+    {
+        var temp = new byte[oneLine.Length * sizeof( float )];
+        Buffer.BlockCopy( oneLine, 0, temp, 0, temp.Length );
+        writer.Write( temp, 0, temp.Length );
     }
 }

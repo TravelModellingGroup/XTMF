@@ -23,81 +23,80 @@ using TMG.Input;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace TMG.Estimation.Utilities
+namespace TMG.Estimation.Utilities;
+
+[ModuleInformation( Description =
+    @"This module is designed to allow client model systems to send data back to the host and to save it to the output file." )]
+public sealed class HostFileAggregation : ISelfContainedModule
 {
-    [ModuleInformation( Description =
-        @"This module is designed to allow client model systems to send data back to the host and to save it to the output file." )]
-    public sealed class HostFileAggregation : ISelfContainedModule
+    [SubModelInformation( Required = true, Description = "The place to save the file." )]
+    public FileLocation OutputFile;
+
+    [RunParameter( "Header", "", "The header to apply to the file, leave blank to not have a header." )]
+    public string Header;
+
+    /// <summary>
+    /// The connection to the XTMF host
+    /// </summary>
+    public IHost Host;
+
+    [RunParameter( "DataChannel", 11, "The networking channel to use, must be unique and the same as the client!" )]
+    public int DataChannel;
+
+    private bool Loaded;
+
+    private object WriteLock = new();
+
+    public void Start()
     {
-        [SubModelInformation( Required = true, Description = "The place to save the file." )]
-        public FileLocation OutputFile;
-
-        [RunParameter( "Header", "", "The header to apply to the file, leave blank to not have a header." )]
-        public string Header;
-
-        /// <summary>
-        /// The connection to the XTMF host
-        /// </summary>
-        public IHost Host;
-
-        [RunParameter( "DataChannel", 11, "The networking channel to use, must be unique and the same as the client!" )]
-        public int DataChannel;
-
-        private bool Loaded;
-
-        private object WriteLock = new();
-
-        public void Start()
+        if ( !Loaded )
         {
-            if ( !Loaded )
+            if ( !string.IsNullOrWhiteSpace( Header ) )
             {
-                if ( !string.IsNullOrWhiteSpace( Header ) )
-                {
-                    using var writer = new StreamWriter(OutputFile);
-                    writer.WriteLine(Header);
-                }
-                Host.RegisterCustomReceiver( DataChannel, (stream, remote) =>
-                    {
-                        byte[] data = new byte[stream.Length];
-                        stream.Read( data, 0, data.Length );
-                        return data;
-                    } );
-                Host.RegisterCustomMessageHandler( DataChannel, (dataObj, remote) =>
-                    {
-                        var data = dataObj as byte[];
-                        if (data == null)
-                        {
-                            throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte[] while building a file.");
-                        }
-                        Task.Factory.StartNew( () =>
-                            {
-                                lock ( WriteLock )
-                                {
-                                    using var writer = File.Open(OutputFile, FileMode.Append);
-                                    writer.Write(data, 0, data.Length);
-                                    writer.Flush();
-                                }
-                            } );
-                    } );
-                Loaded = true;
+                using var writer = new StreamWriter(OutputFile);
+                writer.WriteLine(Header);
             }
+            Host.RegisterCustomReceiver( DataChannel, (stream, remote) =>
+                {
+                    byte[] data = new byte[stream.Length];
+                    stream.Read( data, 0, data.Length );
+                    return data;
+                } );
+            Host.RegisterCustomMessageHandler( DataChannel, (dataObj, remote) =>
+                {
+                    var data = dataObj as byte[];
+                    if (data == null)
+                    {
+                        throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte[] while building a file.");
+                    }
+                    Task.Factory.StartNew( () =>
+                        {
+                            lock ( WriteLock )
+                            {
+                                using var writer = File.Open(OutputFile, FileMode.Append);
+                                writer.Write(data, 0, data.Length);
+                                writer.Flush();
+                            }
+                        } );
+                } );
+            Loaded = true;
         }
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

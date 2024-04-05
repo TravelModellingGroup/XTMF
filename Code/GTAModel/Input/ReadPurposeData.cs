@@ -22,105 +22,104 @@ using System.Collections.Generic;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadPurposeData : IReadODData<float>
 {
-    public class ReadPurposeData : IReadODData<float>
+    [RootModule]
+    public I4StepModel Root;
+
+    [RunParameter("Purpose Name", "External", "The name of the purpose to read from..")]
+    public string Purpose;
+
+    public IEnumerable<ODData<float>> Read()
     {
-        [RootModule]
-        public I4StepModel Root;
-
-        [RunParameter("Purpose Name", "External", "The name of the purpose to read from..")]
-        public string Purpose;
-
-        public IEnumerable<ODData<float>> Read()
+        IPurpose purpose = GetPurpose();
+        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        float[] ret = new float[zones.Length * zones.Length];
+        LoadData(ret, purpose);
+        var odData = new ODData<float>();
+        for (int i = 0; i < zones.Length; i++)
         {
-            IPurpose purpose = GetPurpose();
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            float[] ret = new float[zones.Length * zones.Length];
-            LoadData(ret, purpose);
-            var odData = new ODData<float>();
-            for (int i = 0; i < zones.Length; i++)
+            odData.O = zones[i].ZoneNumber;
+            for (int j = 0; j < zones.Length; j++)
             {
-                odData.O = zones[i].ZoneNumber;
-                for (int j = 0; j < zones.Length; j++)
-                {
-                    odData.D = zones[j].ZoneNumber;
-                    odData.Data = ret[i * zones.Length + j];
-                    yield return odData;
-                }
+                odData.D = zones[j].ZoneNumber;
+                odData.Data = ret[i * zones.Length + j];
+                yield return odData;
             }
         }
+    }
 
-        private void LoadData(float[] ret, IPurpose purpose)
+    private void LoadData(float[] ret, IPurpose purpose)
+    {
+        var data = purpose.Flows;
+        if (data == null) return;
+        for (int i = 0; i < data.Count; i++)
         {
-            var data = purpose.Flows;
-            if (data == null) return;
-            for (int i = 0; i < data.Count; i++)
+            LoadData(ret, data[i]);
+        }
+    }
+
+    private void LoadData(float[] ret, TreeData<float[][]> data)
+    {
+        if (data.Children != null)
+        {
+            // if we have children just process them
+            for (int i = 0; i < data.Children.Length; i++)
             {
-                LoadData(ret, data[i]);
+                LoadData(ret, data.Children[i]);
             }
         }
-
-        private void LoadData(float[] ret, TreeData<float[][]> data)
+        else
         {
-            if (data.Children != null)
+            var grid = data.Result;
+            if (grid == null)
             {
-                // if we have children just process them
-                for (int i = 0; i < data.Children.Length; i++)
-                {
-                    LoadData(ret, data.Children[i]);
-                }
+                return;
             }
-            else
+            for (int i = 0; i < grid.Length; i++)
             {
-                var grid = data.Result;
-                if (grid == null)
+                var row = grid[i];
+                if (row != null)
                 {
-                    return;
-                }
-                for (int i = 0; i < grid.Length; i++)
-                {
-                    var row = grid[i];
-                    if (row != null)
+                    for (int j = 0; j < row.Length; j++)
                     {
-                        for (int j = 0; j < row.Length; j++)
-                        {
-                            ret[i * grid.Length + j] += row[j];
-                        }
+                        ret[i * grid.Length + j] += row[j];
                     }
                 }
-
             }
-        }
 
-        private IPurpose GetPurpose()
+        }
+    }
+
+    private IPurpose GetPurpose()
+    {
+        var purposes = Root.Purpose;
+        for (int i = 0; i < purposes.Count; i++)
         {
-            var purposes = Root.Purpose;
-            for (int i = 0; i < purposes.Count; i++)
+            if (purposes[i].PurposeName == Purpose)
             {
-                if (purposes[i].PurposeName == Purpose)
-                {
-                    return purposes[i];
-                }
+                return purposes[i];
             }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a purpose named '" + Purpose + "'!");
         }
+        throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a purpose named '" + Purpose + "'!");
+    }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+    public float Progress
+    {
+        get { return 0f; }
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

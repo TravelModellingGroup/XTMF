@@ -18,9 +18,8 @@
 */
 using XTMF;
 
-namespace TMG.AgentBased.Tours
+namespace TMG.AgentBased.Tours;
+
+public interface ITourPurpose : IModule
 {
-    public interface ITourPurpose : IModule
-    {
-    }
 }

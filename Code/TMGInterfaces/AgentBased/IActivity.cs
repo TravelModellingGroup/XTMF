@@ -20,39 +20,38 @@ using System.Collections.Generic;
 using TMG.AgentBased.Agents;
 using XTMF;
 
-namespace TMG.AgentBased.Tours
+namespace TMG.AgentBased.Tours;
+
+public interface IActivity : IModule
 {
-    public interface IActivity : IModule
-    {
-        /// <summary>
-        /// The name of the activity
-        /// </summary>
-        string ActivityName { get; }
+    /// <summary>
+    /// The name of the activity
+    /// </summary>
+    string ActivityName { get; }
 
-        /// <summary>
-        /// Is this activity a household activity?
-        /// </summary>
-        bool HouseholdActivity { get; }
+    /// <summary>
+    /// Is this activity a household activity?
+    /// </summary>
+    bool HouseholdActivity { get; }
 
-        /// <summary>
-        /// How important is this activity for this person?
-        /// </summary>
-        /// <param name="p">The person to check against</param>
-        /// <returns>The priority for this activity</returns>
-        ActivityPriorities ActivityPriority(IPerson p);
+    /// <summary>
+    /// How important is this activity for this person?
+    /// </summary>
+    /// <param name="p">The person to check against</param>
+    /// <returns>The priority for this activity</returns>
+    ActivityPriorities ActivityPriority(IPerson p);
 
-        /// <summary>
-        /// Create a list of activity episodes for this person
-        /// </summary>
-        /// <param name="p">The person to generate the activities for</param>
-        /// <returns></returns>
-        List<IActivityEpisode> GenerateActivities(IPersonAgent p);
+    /// <summary>
+    /// Create a list of activity episodes for this person
+    /// </summary>
+    /// <param name="p">The person to generate the activities for</param>
+    /// <returns></returns>
+    List<IActivityEpisode> GenerateActivities(IPersonAgent p);
 
-        /// <summary>
-        /// Create a list of activity episodes for the household
-        /// </summary>
-        /// <param name="h">The household to generate activities for</param>
-        /// <returns>A list of activities for this household</returns>
-        List<IActivityEpisode> GenerateActivities(IHouseholdAgent h);
-    }
+    /// <summary>
+    /// Create a list of activity episodes for the household
+    /// </summary>
+    /// <param name="h">The household to generate activities for</param>
+    /// <returns>A list of activities for this household</returns>
+    List<IActivityEpisode> GenerateActivities(IHouseholdAgent h);
 }

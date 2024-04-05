@@ -20,66 +20,65 @@ using System.Collections.Generic;
 using TMG;
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+public interface ITashaRuntime : ITravelDemandModel, IResourceSource
 {
-    public interface ITashaRuntime : ITravelDemandModel, IResourceSource
-    {
-        [DoNotAutomate]
-        List<ITashaMode> AllModes { get; }
+    [DoNotAutomate]
+    List<ITashaMode> AllModes { get; }
 
-        [SubModelInformation( Description = "The Auto mode to use for Tasha", Required = true )]
-        ITashaMode AutoMode { get; set; }
+    [SubModelInformation( Description = "The Auto mode to use for Tasha", Required = true )]
+    ITashaMode AutoMode { get; set; }
 
-        [SubModelInformation( Description = "The type of vehicle used for auto trips", Required = true )]
-        IVehicleType AutoType { get; set; }
+    [SubModelInformation( Description = "The type of vehicle used for auto trips", Required = true )]
+    IVehicleType AutoType { get; set; }
 
-        Time EndOfDay { get; set; }
+    Time EndOfDay { get; set; }
 
-        [SubModelInformation( Description = "The model that will load our household", Required = true )]
-        IDataLoader<ITashaHousehold> HouseholdLoader { get; set; }
+    [SubModelInformation( Description = "The model that will load our household", Required = true )]
+    IDataLoader<ITashaHousehold> HouseholdLoader { get; set; }
 
-        int TotalIterations { get; set; }
+    int TotalIterations { get; set; }
 
-        [SubModelInformation( Description = "The ModeChoice Module", Required = false )]
-        ITashaModeChoice ModeChoice { get; set; }
+    [SubModelInformation( Description = "The ModeChoice Module", Required = false )]
+    ITashaModeChoice ModeChoice { get; set; }
 
-        List<ITashaMode> NonSharedModes { get; set; }
+    List<ITashaMode> NonSharedModes { get; set; }
 
-        [SubModelInformation( Description = "A collection of modes other than shared modes and auto", Required = false )]
-        List<ITashaMode> OtherModes { get; set; }
+    [SubModelInformation( Description = "A collection of modes other than shared modes and auto", Required = false )]
+    List<ITashaMode> OtherModes { get; set; }
 
-        bool Parallel { get; set; }
+    bool Parallel { get; set; }
 
-        [SubModelInformation( Description = "A collection of modules to run after the household has finished", Required = false )]
-        List<IPostHousehold> PostHousehold { get; set; }
+    [SubModelInformation( Description = "A collection of modules to run after the household has finished", Required = false )]
+    List<IPostHousehold> PostHousehold { get; set; }
 
-        [SubModelInformation( Description = "A collection of modules to run after an iteration is complete", Required = false )]
-        List<IPostIteration> PostIteration { get; set; }
+    [SubModelInformation( Description = "A collection of modules to run after an iteration is complete", Required = false )]
+    List<IPostIteration> PostIteration { get; set; }
 
-        [SubModelInformation( Description = "A Collection of models that will run before the Tasha Method.", Required = false )]
-        List<ISelfContainedModule> PostRun { get; set; }
+    [SubModelInformation( Description = "A Collection of models that will run before the Tasha Method.", Required = false )]
+    List<ISelfContainedModule> PostRun { get; set; }
 
-        [SubModelInformation( Description = "A collection of modules to run after the scheduler has finished", Required = false )]
-        List<IPostScheduler> PostScheduler { get; set; }
+    [SubModelInformation( Description = "A collection of modules to run after the scheduler has finished", Required = false )]
+    List<IPostScheduler> PostScheduler { get; set; }
 
-        [SubModelInformation( Description = "A Collection of models that will run before the Tasha Method.", Required = false )]
-        List<IPreIteration> PreIteration { get; set; }
+    [SubModelInformation( Description = "A Collection of models that will run before the Tasha Method.", Required = false )]
+    List<IPreIteration> PreIteration { get; set; }
 
-        [SubModelInformation( Description = "A Collection of models that will run before the Tasha Method.", Required = false )]
-        List<ISelfContainedModule> PreRun { get; set; }
+    [SubModelInformation( Description = "A Collection of models that will run before the Tasha Method.", Required = false )]
+    List<ISelfContainedModule> PreRun { get; set; }
 
-        int RandomSeed { get; set; }
+    int RandomSeed { get; set; }
 
-        [SubModelInformation( Description = "A collection of modes that can be shared.", Required = false )]
-        List<ISharedMode> SharedModes { get; set; }
+    [SubModelInformation( Description = "A collection of modes that can be shared.", Required = false )]
+    List<ISharedMode> SharedModes { get; set; }
 
-        Time StartOfDay { get; set; }
+    Time StartOfDay { get; set; }
 
-        [SubModelInformation( Description = "A collection of modes other than shared modes and auto", Required = false )]
-        List<IVehicleType> VehicleTypes { get; set; }
+    [SubModelInformation( Description = "A collection of modes other than shared modes and auto", Required = false )]
+    List<IVehicleType> VehicleTypes { get; set; }
 
-        ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime);
+    ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime);
 
-        int GetIndexOfMode(ITashaMode mode);
-    }
+    int GetIndexOfMode(ITashaMode mode);
 }

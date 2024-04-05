@@ -18,58 +18,57 @@
 */
 using System.Collections.Generic;
 
-namespace XTMF
+namespace XTMF;
+
+public interface IProjectRepository : IEnumerable<IProject>
 {
-    public interface IProjectRepository : IEnumerable<IProject>
-    {
-        /// <summary>
-        /// The project that is currently
-        /// being used in XTMF
-        /// </summary>
-        IProject ActiveProject { get; }
+    /// <summary>
+    /// The project that is currently
+    /// being used in XTMF
+    /// </summary>
+    IProject ActiveProject { get; }
 
-        /// <summary>
-        /// Provides access to all of the projects
-        /// in this XTMF installation
-        /// </summary>
-        IList<IProject> Projects { get; }
+    /// <summary>
+    /// Provides access to all of the projects
+    /// in this XTMF installation
+    /// </summary>
+    IList<IProject> Projects { get; }
 
-        /// <summary>
-        /// Add a new project to the repository
-        /// </summary>
-        /// <param name="project">The project you wish to add</param>
-        /// <returns>Returns true if the project was added, false otherwise</returns>
-        /// <remarks>All project names need to be unique and contain no invalid path characters (will return false otherwise)</remarks>
-        bool AddProject(IProject project);
+    /// <summary>
+    /// Add a new project to the repository
+    /// </summary>
+    /// <param name="project">The project you wish to add</param>
+    /// <returns>Returns true if the project was added, false otherwise</returns>
+    /// <remarks>All project names need to be unique and contain no invalid path characters (will return false otherwise)</remarks>
+    bool AddProject(IProject project);
 
-        /// <summary>
-        /// Remove the selected project
-        /// </summary>
-        bool Remove(IProject project);
+    /// <summary>
+    /// Remove the selected project
+    /// </summary>
+    bool Remove(IProject project);
 
-        /// <summary>
-        /// Rename a project, moving all of the run data as well
-        /// </summary>
-        /// <param name="project">The project to work with</param>
-        /// <param name="newName">The new name of the project</param>
-        /// <returns>If the project was renamed properly</returns>
-        bool RenameProject(IProject project, string newName);
+    /// <summary>
+    /// Rename a project, moving all of the run data as well
+    /// </summary>
+    /// <param name="project">The project to work with</param>
+    /// <param name="newName">The new name of the project</param>
+    /// <returns>If the project was renamed properly</returns>
+    bool RenameProject(IProject project, string newName);
 
-        /// <summary>
-        /// Make sure that the project's name is both unique
-        /// and a valid name for a project
-        /// </summary>
-        /// <param name="name">The name that you wish to test</param>
-        /// <returns>If the name is valid, true, otherwise false.</returns>
-        bool ValidateProjectName(string name);
+    /// <summary>
+    /// Make sure that the project's name is both unique
+    /// and a valid name for a project
+    /// </summary>
+    /// <param name="name">The name that you wish to test</param>
+    /// <returns>If the name is valid, true, otherwise false.</returns>
+    bool ValidateProjectName(string name);
 
-        /// <summary>
-        /// Set the description of a project
-        /// </summary>
-        /// <param name="project">The project to change</param>
-        /// <param name="newDescription">The description to set it to.</param>
-        /// <param name="error"></param>
-        /// <returns>True if the operation completes successfully, false otherwise.</returns>
-        bool SetDescription(IProject project, string newDescription, ref string error);
-    }
+    /// <summary>
+    /// Set the description of a project
+    /// </summary>
+    /// <param name="project">The project to change</param>
+    /// <param name="newDescription">The description to set it to.</param>
+    /// <param name="error"></param>
+    /// <returns>True if the operation completes successfully, false otherwise.</returns>
+    bool SetDescription(IProject project, string newDescription, ref string error);
 }

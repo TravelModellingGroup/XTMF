@@ -22,18 +22,17 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using XTMF.Gui.UserControls;
-namespace XTMF.Gui.Controllers
+namespace XTMF.Gui.Controllers;
+
+public static class ModelSystemEditingController
 {
-    public static class ModelSystemEditingController
+    public static void HelpRequested(ModelSystemStructureModel modelSystemStructure)
     {
-        public static void HelpRequested(ModelSystemStructureModel modelSystemStructure)
+        if(modelSystemStructure != null)
         {
-            if(modelSystemStructure != null)
-            {
-                var documentationControl = new DocumentationControl() { Type = modelSystemStructure.Type };
-                MainWindow.Us.NewHelpWindow(documentationControl);
-                Keyboard.Focus(documentationControl);
-            }
+            var documentationControl = new DocumentationControl() { Type = modelSystemStructure.Type };
+            MainWindow.Us.NewHelpWindow(documentationControl);
+            Keyboard.Focus(documentationControl);
         }
     }
 }

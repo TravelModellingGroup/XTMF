@@ -18,26 +18,25 @@
 */
 using XTMF;
 
-namespace Tasha.Common
+namespace Tasha.Common;
+
+/// <summary>
+/// This is used to do one time
+/// initialization for Tasha.
+/// </summary>
+public interface IPreRun : IModule
 {
     /// <summary>
-    /// This is used to do one time
-    /// initialization for Tasha.
+    /// This gets called to do "Something" after
+    /// the Tasha configuration is done but before
+    /// the network or any other data is loaded.
     /// </summary>
-    public interface IPreRun : IModule
-    {
-        /// <summary>
-        /// This gets called to do "Something" after
-        /// the Tasha configuration is done but before
-        /// the network or any other data is loaded.
-        /// </summary>
-        void Execute();
+    void Execute();
 
-        /// <summary>
-        /// Load all of the data you need from
-        /// the global configuration.
-        /// </summary>
-        /// <param name="config">Access to the configuration</param>
-        void Load(IConfiguration config);
-    }
+    /// <summary>
+    /// Load all of the data you need from
+    /// the global configuration.
+    /// </summary>
+    /// <param name="config">Access to the configuration</param>
+    void Load(IConfiguration config);
 }

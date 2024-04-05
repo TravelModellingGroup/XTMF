@@ -23,76 +23,75 @@ using System.IO;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class ReadODBinaryData : IReadODData<float>
 {
-    public class ReadODBinaryData : IReadODData<float>
+    [RunParameter("Input File", "Data.bin", typeof(FileFromOutputDirectory), "The name of the file to load in, based in the current run directory.")]
+    public FileFromOutputDirectory FileToRead;
+
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    public string Name
     {
-        [RunParameter("Input File", "Data.bin", typeof(FileFromOutputDirectory), "The name of the file to load in, based in the current run directory.")]
-        public FileFromOutputDirectory FileToRead;
+        get;
+        set;
+    }
 
-        [RootModule]
-        public ITravelDemandModel Root;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        public string Name
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
+
+    public IEnumerable<ODData<float>> Read()
+    {
+        // if there isn't anything just exit
+        if (!FileToRead.ContainsFileName()) yield break;
+        // otherwise load in the data
+        ODData<float> currentData = new();
+        var zoneArray = Root.ZoneSystem.ZoneArray;
+        var zoneNumbers = zoneArray.ValidIndexArray();
+        var zones = zoneArray.GetFlatData();
+
+        BinaryReader reader;
+        try
         {
-            get;
-            set;
+            reader = new BinaryReader(File.OpenRead(FileToRead.GetFileName()));
         }
-
-        public float Progress
+        catch (IOException e)
         {
-            get { return 0; }
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'");
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        var fileSize = reader.BaseStream.Length;
+        // make sure the file is of the right size (a float is 4 bytes)
+        if (fileSize != 4 * zones.Length * zones.Length)
         {
-            get { return null; }
+            reader.Close();
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!");
         }
-
-        public IEnumerable<ODData<float>> Read()
+        using (reader)
         {
-            // if there isn't anything just exit
-            if (!FileToRead.ContainsFileName()) yield break;
-            // otherwise load in the data
-            ODData<float> currentData = new();
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zoneNumbers = zoneArray.ValidIndexArray();
-            var zones = zoneArray.GetFlatData();
-
-            BinaryReader reader;
-            try
+            for (int o = 0; o < zones.Length; o++)
             {
-                reader = new BinaryReader(File.OpenRead(FileToRead.GetFileName()));
-            }
-            catch (IOException e)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'");
-            }
-            var fileSize = reader.BaseStream.Length;
-            // make sure the file is of the right size (a float is 4 bytes)
-            if (fileSize != 4 * zones.Length * zones.Length)
-            {
-                reader.Close();
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!");
-            }
-            using (reader)
-            {
-                for (int o = 0; o < zones.Length; o++)
+                currentData.O = zoneNumbers[o];
+                for (int d = 0; d < zones.Length; d++)
                 {
-                    currentData.O = zoneNumbers[o];
-                    for (int d = 0; d < zones.Length; d++)
-                    {
-                        currentData.D = zoneNumbers[d];
-                        currentData.Data = reader.ReadSingle();
-                        yield return currentData;
-                    }
+                    currentData.D = zoneNumbers[d];
+                    currentData.Data = reader.ReadSingle();
+                    yield return currentData;
                 }
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

@@ -26,79 +26,78 @@ using TMG.GTAModel.DataUtility;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.GTAModel.Input
+namespace TMG.GTAModel.Input;
+
+public class CommentedCsvFloatDataLineSource : IDataLineSource<float[]>
 {
-    public class CommentedCsvFloatDataLineSource : IDataLineSource<float[]>
+    [RunParameter( "Column Numbers", "0,1,2,3", typeof( NumberList ), "A numbering of the columns in the order that they will be returned as." )]
+    public NumberList ColumnNumbers;
+
+    [Parameter( "Data Is Copied", false, "If data is copied set this be true to reduce memory usage, set to false if we need to allocate every time." )]
+    public bool DataIsCopied;
+
+    [RunParameter( "Input File", "Data.csv", typeof( FileFromInputDirectory ), "The .csv file, based on the model system's input directory to use." )]
+    public FileFromInputDirectory InputFile;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
+
+    public string Name
     {
-        [RunParameter( "Column Numbers", "0,1,2,3", typeof( NumberList ), "A numbering of the columns in the order that they will be returned as." )]
-        public NumberList ColumnNumbers;
+        get;
+        set;
+    }
 
-        [Parameter( "Data Is Copied", false, "If data is copied set this be true to reduce memory usage, set to false if we need to allocate every time." )]
-        public bool DataIsCopied;
+    public float Progress
+    {
+        get { return 0; }
+    }
 
-        [RunParameter( "Input File", "Data.csv", typeof( FileFromInputDirectory ), "The .csv file, based on the model system's input directory to use." )]
-        public FileFromInputDirectory InputFile;
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get { return null; }
+    }
 
-        [RootModule]
-        public IModelSystemTemplate Root;
-
-        public string Name
+    public IEnumerable<float[]> Read()
+    {
+        if ( !InputFile.ContainsFileName() ) yield break;
+        int maxColumn = ColumnNumbers.Max();
+        var numberOfColumnNumbers = ColumnNumbers.Count;
+        float[] data = new float[numberOfColumnNumbers];
+        CommentedCsvReader reader;
+        var fileName = InputFile.GetFileName( Root.InputBaseDirectory );
+        try
         {
-            get;
-            set;
+            reader = new CommentedCsvReader( fileName );
         }
-
-        public float Progress
+        catch ( IOException e )
         {
-            get { return 0; }
+            throw new XTMFRuntimeException(this, "In module '" + Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
         }
-
-        public Tuple<byte, byte, byte> ProgressColour
+        using ( reader )
         {
-            get { return null; }
-        }
-
-        public IEnumerable<float[]> Read()
-        {
-            if ( !InputFile.ContainsFileName() ) yield break;
-            int maxColumn = ColumnNumbers.Max();
-            var numberOfColumnNumbers = ColumnNumbers.Count;
-            float[] data = new float[numberOfColumnNumbers];
-            CommentedCsvReader reader;
-            var fileName = InputFile.GetFileName( Root.InputBaseDirectory );
-            try
+            // process the data
+            while ( reader.NextLine() )
             {
-                reader = new CommentedCsvReader( fileName );
-            }
-            catch ( IOException e )
-            {
-                throw new XTMFRuntimeException(this, "In module '" + Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
-            }
-            using ( reader )
-            {
-                // process the data
-                while ( reader.NextLine() )
+                // if the line is long enough
+                if ( reader.NumberOfCurrentCells >= maxColumn )
                 {
-                    // if the line is long enough
-                    if ( reader.NumberOfCurrentCells >= maxColumn )
+                    for ( int i = 0; i < numberOfColumnNumbers; i++ )
                     {
-                        for ( int i = 0; i < numberOfColumnNumbers; i++ )
-                        {
-                            reader.Get( out data[i], ColumnNumbers[i] );
-                        }
-                        yield return data;
-                        if ( !DataIsCopied )
-                        {
-                            data = new float[numberOfColumnNumbers];
-                        }
+                        reader.Get( out data[i], ColumnNumbers[i] );
+                    }
+                    yield return data;
+                    if ( !DataIsCopied )
+                    {
+                        data = new float[numberOfColumnNumbers];
                     }
                 }
             }
         }
+    }
 
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
     }
 }

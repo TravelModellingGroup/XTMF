@@ -5,20 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XTMF.Interfaces
+namespace XTMF.Interfaces;
+
+public interface IRegionDisplay
 {
-    public interface IRegionDisplay
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        string Name { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    string Name { get; set; }
 
-        string Description { get; set; }
+    string Description { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        ObservableCollection<IRegionGroup> RegionGroups { get; set; }
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    ObservableCollection<IRegionGroup> RegionGroups { get; set; }
 }

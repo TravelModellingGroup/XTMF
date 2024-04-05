@@ -21,118 +21,117 @@ using Datastructure;
 using TMG.Input;
 using XTMF;
 
-namespace TMG.Estimation.Utilities
+namespace TMG.Estimation.Utilities;
+
+public class EvaluateEvaluationResults : ISelfContainedModule
 {
-    public class EvaluateEvaluationResults : ISelfContainedModule
+
+    [RootModule]
+    public IEstimationClientModelSystem Root;
+
+    [SubModelInformation(Required = true, Description = "The file that contains the results.")]
+    public FileLocation ResultFile;
+
+    [RunParameter("Maximize", true, "Should we be trying to maximize (true) or minimize (false) the function?")]
+    public bool Maximize;
+
+    [RunParameter("Generation Error", 1.0f, "The additional error given by how many generations it takes to get close to the best value.")]
+    public float GenerationError;
+
+    public string Name { get; set; }
+
+    public float Progress
     {
-
-        [RootModule]
-        public IEstimationClientModelSystem Root;
-
-        [SubModelInformation(Required = true, Description = "The file that contains the results.")]
-        public FileLocation ResultFile;
-
-        [RunParameter("Maximize", true, "Should we be trying to maximize (true) or minimize (false) the function?")]
-        public bool Maximize;
-
-        [RunParameter("Generation Error", 1.0f, "The additional error given by how many generations it takes to get close to the best value.")]
-        public float GenerationError;
-
-        public string Name { get; set; }
-
-        public float Progress
+        get
         {
-            get
+            return 0f;
+        }
+    }
+
+    public Tuple<byte, byte, byte> ProgressColour
+    {
+        get
+        {
+            return new Tuple<byte, byte, byte>( 50, 150, 50 );
+        }
+    }
+
+    public bool RuntimeValidation(ref string error)
+    {
+        return true;
+    }
+
+    public void Start()
+    {
+        GetBestUtility(out int generation, out float value);
+        Root.RetrieveValue = () => value + generation * GenerationError;
+    }
+
+    private void GetBestUtility(out int generation, out float value)
+    {
+        using CsvReader reader = new(ResultFile);
+        GetBest(reader, out generation, out value);
+    }
+
+    private void GetBest(CsvReader reader, out int generation, out float value)
+    {
+        // burn the header
+        reader.LoadLine();
+        if (Maximize)
+        {
+            GetHighestBest(reader, out generation, out value);
+        }
+        else
+        {
+            GetLowestBest(reader, out generation, out value);
+        }
+    }
+
+    private bool ReadJob(CsvReader reader, out int generation, out float value)
+    {
+        while (reader.LoadLine(out int columns))
+        {
+            if (columns >= 2)
             {
-                return 0f;
+                reader.Get(out generation, 0);
+                reader.Get(out value, 1);
+                return true;
             }
         }
+        value = float.NaN;
+        generation = -1;
+        return false;
+    }
 
-        public Tuple<byte, byte, byte> ProgressColour
+    private void GetLowestBest(CsvReader reader, out int bestGeneration, out float value)
+    {
+        float best = float.MaxValue;
+        bestGeneration = 0;
+        while (ReadJob(reader, out int generation, out float current))
         {
-            get
+            //check the last one first since they are in order to see if we need to check each one
+            if (current < best)
             {
-                return new Tuple<byte, byte, byte>( 50, 150, 50 );
+                best = current;
+                bestGeneration = generation;
             }
         }
+        value = best;
+    }
 
-        public bool RuntimeValidation(ref string error)
+    private void GetHighestBest(CsvReader reader, out int bestGeneration, out float value)
+    {
+        float best = float.MinValue;
+        bestGeneration = 0;
+        while (ReadJob(reader, out int generation, out float current))
         {
-            return true;
-        }
-
-        public void Start()
-        {
-            GetBestUtility(out int generation, out float value);
-            Root.RetrieveValue = () => value + generation * GenerationError;
-        }
-
-        private void GetBestUtility(out int generation, out float value)
-        {
-            using CsvReader reader = new(ResultFile);
-            GetBest(reader, out generation, out value);
-        }
-
-        private void GetBest(CsvReader reader, out int generation, out float value)
-        {
-            // burn the header
-            reader.LoadLine();
-            if (Maximize)
+            //check the last one first since they are in order to see if we need to check each one
+            if (current > best)
             {
-                GetHighestBest(reader, out generation, out value);
-            }
-            else
-            {
-                GetLowestBest(reader, out generation, out value);
+                best = current;
+                bestGeneration = generation;
             }
         }
-
-        private bool ReadJob(CsvReader reader, out int generation, out float value)
-        {
-            while (reader.LoadLine(out int columns))
-            {
-                if (columns >= 2)
-                {
-                    reader.Get(out generation, 0);
-                    reader.Get(out value, 1);
-                    return true;
-                }
-            }
-            value = float.NaN;
-            generation = -1;
-            return false;
-        }
-
-        private void GetLowestBest(CsvReader reader, out int bestGeneration, out float value)
-        {
-            float best = float.MaxValue;
-            bestGeneration = 0;
-            while (ReadJob(reader, out int generation, out float current))
-            {
-                //check the last one first since they are in order to see if we need to check each one
-                if (current < best)
-                {
-                    best = current;
-                    bestGeneration = generation;
-                }
-            }
-            value = best;
-        }
-
-        private void GetHighestBest(CsvReader reader, out int bestGeneration, out float value)
-        {
-            float best = float.MinValue;
-            bestGeneration = 0;
-            while (ReadJob(reader, out int generation, out float current))
-            {
-                //check the last one first since they are in order to see if we need to check each one
-                if (current > best)
-                {
-                    best = current;
-                    bestGeneration = generation;
-                }
-            }
-            value = best;
-        }
+        value = best;
     }
 }
