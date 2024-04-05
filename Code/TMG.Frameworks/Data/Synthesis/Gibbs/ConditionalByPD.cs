@@ -75,11 +75,7 @@ public sealed class ConditionalByPD : Conditional
 
     public override void LoadConditionalsData(int currentZone)
     {
-        var zone = ZoneSystem.ZoneArray.GetFlatData()[currentZone];
-        if(zone == null)
-        {
-            throw new XTMFRuntimeException(this, $"In {Name} we were asked to process a zone that we do not have defined! Zone#{currentZone}!");
-        }
+        var zone = ZoneSystem.ZoneArray.GetFlatData()[currentZone] ?? throw new XTMFRuntimeException(this, $"In {Name} we were asked to process a zone that we do not have defined! Zone#{currentZone}!");
         var pdToProcess = zone.PlanningDistrict;
         var prob = GenerateBackendData();
         // an extra column since the first one is for the planning district

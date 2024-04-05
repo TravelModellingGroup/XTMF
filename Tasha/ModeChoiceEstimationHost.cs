@@ -466,12 +466,8 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
                         writer.Write(trip.ActivityStartTime.Hours);
                         writer.Write(trip.ActivityStartTime.Minutes);
                         writer.Write(trip.ActivityStartTime.Seconds);
-                        var mode = ((ITashaMode)trip[ObservedMode]);
-                        if (mode == null)
-                        {
-                            throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
+                        var mode = ((ITashaMode)trip[ObservedMode]) ?? throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
                                 + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!");
-                        }
                         writer.Write(mode.ModeName);
                         SendAttached(writer, trip);
                     }

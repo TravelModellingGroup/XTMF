@@ -48,11 +48,7 @@ public class ExportWorksheetTable : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if(mc == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not for modeller!");
         return mc.Run(this, ToolName,GetArguments());
     }
 

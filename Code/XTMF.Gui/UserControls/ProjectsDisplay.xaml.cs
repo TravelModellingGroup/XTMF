@@ -287,11 +287,7 @@ public partial class ProjectsDisplay : UserControl
 
     private void FilterBox_EnterPressed(object sender, EventArgs e)
     {
-        var selected = Display.SelectedItem as Project;
-        if (selected == null)
-        {
-            selected = GetFirstItem();
-        }
+        var selected = Display.SelectedItem as Project ?? GetFirstItem();
         LoadProject(selected);
     }
 

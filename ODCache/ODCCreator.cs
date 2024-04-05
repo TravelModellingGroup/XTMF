@@ -435,16 +435,8 @@ public class OdcCreator
 
     public void SaveXmlInfo(string fileName)
     {
-        var fname = Path.GetFileNameWithoutExtension(fileName);
-        if (fname == null)
-        {
-            throw new IOException($"Unable to get the file name without extension of {fileName}!");
-        }
-        var dirname = Path.GetDirectoryName(fileName);
-        if (dirname == null)
-        {
-            throw new IOException($"Unable to get the directory name from {fileName}!");
-        }
+        var fname = Path.GetFileNameWithoutExtension(fileName) ?? throw new IOException($"Unable to get the file name without extension of {fileName}!");
+        var dirname = Path.GetDirectoryName(fileName) ?? throw new IOException($"Unable to get the directory name from {fileName}!");
         var xmlName = Path.Combine(dirname, fname) + ".xml";
         var serializer = new XmlSerializer(typeof(CacheGenerationInfo));
         using TextWriter textWriter = new StreamWriter(xmlName);

@@ -104,11 +104,7 @@ public class PoRPoWPurpose : PurposeBase, IDemographicCategoyPurpose, ISelfConta
         try
         {
             var fileName = GetFrictionFileName( SaveResultFileName );
-            var dirName = Path.GetDirectoryName( fileName );
-            if (dirName == null)
-            {
-                throw new XTMFRuntimeException(this, $"We were unable to extract the directory name from the path '{fileName}'!");
-            }
+            var dirName = Path.GetDirectoryName( fileName ) ?? throw new XTMFRuntimeException(this, $"We were unable to extract the directory name from the path '{fileName}'!");
             if ( !Directory.Exists( dirName ) )
             {
                 Directory.CreateDirectory( dirName );

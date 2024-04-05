@@ -283,11 +283,7 @@ public class MultiRunModelSystem : IModelSystemTemplate
     /// <returns>The value of the attribute.</returns>
     public string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
     {
-        var at = node.Attributes?[attribute];
-        if (at == null)
-        {
-            throw new XTMFRuntimeException(this, errorMessage + "\r\n" + node.OuterXml);
-        }
+        var at = (node.Attributes?[attribute]) ?? throw new XTMFRuntimeException(this, errorMessage + "\r\n" + node.OuterXml);
         return at.InnerText;
     }
 

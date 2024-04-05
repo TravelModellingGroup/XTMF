@@ -154,7 +154,7 @@ public class MyHostModule : IModelSystemTemplate
             while ( !exit )
             {
                 var message = Jobs.GetMessageOrTimeout( 200 );
-                if ( message != default( int ) )
+                if (message != default)
                 {
                     // Process your message here
                 }

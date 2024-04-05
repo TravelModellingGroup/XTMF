@@ -109,10 +109,7 @@ public class ExtraAttributeContextManager : IEmmeTool
         _Progress = 0.0f;
         _RunningTool = null;
 
-        var mc = controller as ModellerController;
-        if (mc == null)
-            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         float numberOfTasks = AttributesToCreate.Count + 1;
         bool[] createdAttributes = new bool[AttributesToCreate.Count];
 

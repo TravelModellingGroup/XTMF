@@ -326,7 +326,7 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
         _Unload();
     }
 
-    private Exception _Unload()
+    private IOException _Unload()
     {
         try
         {

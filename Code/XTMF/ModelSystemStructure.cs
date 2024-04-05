@@ -1029,11 +1029,7 @@ public class ModelSystemStructure : IModelSystemStructure2
 
     private static void Load(IModelSystemStructure projectStructure, IModelSystemStructure parent, XmlNode currentNode, IConfiguration config, Dictionary<int, Type> lookup)
     {
-        var attributes = currentNode.Attributes;
-        if (attributes == null)
-        {
-            throw new Exception("When loading a module we were unable to get the XML attributes for a module!");
-        }
+        var attributes = currentNode.Attributes ?? throw new Exception("When loading a module we were unable to get the XML attributes for a module!");
         var nameAttribute = attributes["Name"];
         var descriptionAttribute = attributes["Description"];
         var typeAttribute = attributes["Type"];
@@ -1280,11 +1276,7 @@ public class ModelSystemStructure : IModelSystemStructure2
     private static void LoadCollection(IModelSystemStructure parent, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
     {
         IModelSystemStructure us = null;
-        var attributes = child.Attributes;
-        if (attributes == null)
-        {
-            throw new Exception("When loading a module we were unable to get the XML attributes for a collection!");
-        }
+        var attributes = child.Attributes ?? throw new Exception("When loading a module we were unable to get the XML attributes for a collection!");
         var paramNameAttribute = attributes["ParentFieldName"];
         var paramTIndexAttribute = attributes["ParentTIndex"];
         var paramTypeAttribute = attributes["ParentFieldType"];

@@ -83,12 +83,7 @@ public class StationAccessTally : DirectModeAggregationTally
                 var choices = GetStationChoiceSplit(m, zones[i], zones[j]);
                 if(choices == null) continue;
                 // check for egress stations first
-                var stationZones = choices.Item2;
-                if(stationZones == null)
-                {
-                    // if there are no egress stations, use the access stations
-                    stationZones = choices.Item1;
-                }
+                var stationZones = choices.Item2 ?? choices.Item1;
                 var splits = choices.Item3;
                 var totalTrips = data[i][j];
                 var totalSplits = 0f;
@@ -209,12 +204,8 @@ public class StationAccessTally : DirectModeAggregationTally
     {
         // this mode is our base
         var mode = GetMode(ModeIndexes[m]);
-        var cat = mode as IStationCollectionMode;
-        if(cat == null)
-        {
-            throw new XTMFRuntimeException(this, "The mode '" + mode.ModeName
+        var cat = mode as IStationCollectionMode ?? throw new XTMFRuntimeException(this, "The mode '" + mode.ModeName
                 + "' is not an TMG.Modes.IStationCollectionMode and can not be used with a StationAccessTally!");
-        }
         return cat.GetSubchoiceSplit(origin, destination, Time);
     }
 }

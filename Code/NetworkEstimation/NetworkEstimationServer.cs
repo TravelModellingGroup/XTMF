@@ -155,11 +155,7 @@ public class NetworkEstimationServer : IModelSystemTemplate
         } );
         RandomNumberGenerator = new Random();
         string error = null;
-        var baseModelSystem = Host.CreateModelSystem( NetworkEstimationModelSystemName, ref error );
-        if ( baseModelSystem == null )
-        {
-            throw new XTMFRuntimeException(this, error );
-        }
+        var baseModelSystem = Host.CreateModelSystem( NetworkEstimationModelSystemName, ref error ) ?? throw new XTMFRuntimeException(this, error );
         for ( int i = 0; i < NumberOfChildren; i++ )
         {
             var msscopy = baseModelSystem.Clone();

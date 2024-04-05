@@ -106,11 +106,7 @@ public class ODFloatDataSource : IODDataSource<float>
 
     private int GetPlanningDistrict(SparseArray<IZone> zoneArray, int zoneNumber)
     {
-        var zone = zoneArray[zoneNumber];
-        if (zone == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!");
-        }
+        var zone = zoneArray[zoneNumber] ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!");
         return zone.PlanningDistrict;
     }
 

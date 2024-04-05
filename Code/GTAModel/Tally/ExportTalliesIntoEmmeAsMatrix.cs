@@ -67,10 +67,7 @@ public class ExportTalliesIntoEmmeAsMatrix : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if ( mc == null )
-            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
         var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
         var numberOfZones = flatZones.Length;
         // Load the data from the flows and save it to our temporary file

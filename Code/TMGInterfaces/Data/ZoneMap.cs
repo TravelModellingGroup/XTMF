@@ -47,12 +47,7 @@ public sealed class ZoneMap
         get
         {
             // in order to save some memory and time we are only going to generate the different values in the map once
-            var value = _MapValues;
-            if (value == null)
-            {
-                // make sure to sort the keys to help readability
-                value = _MapValues = KeyToZoneIndex.Keys.OrderBy(x => x).ToList();
-            }
+            var value = _MapValues ?? (_MapValues = KeyToZoneIndex.Keys.OrderBy(x => x).ToList());
             return value;
         }
     }

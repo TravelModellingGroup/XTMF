@@ -111,12 +111,8 @@ public class ProbabilityDistribution : IDemographicDistribution
                 {
                     for (int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++)
                     {
-                        var realCat = cat as DemographicCategoryGeneration;
-                        if (realCat == null)
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name +
+                        var realCat = cat as DemographicCategoryGeneration ?? throw new XTMFRuntimeException(this, "In '" + Name +
                                                            "' it is required that all generates be of the type DemographicCategoryGeneration!");
-                        }
                         rangeSet[0] = new Range(mobility, mobility);
                         realCat.Mobility = rangeSet;
                         DistributePopulation(realCat, ageRate.GetFlatData(), linkages.GetFlatData(), catIndex,

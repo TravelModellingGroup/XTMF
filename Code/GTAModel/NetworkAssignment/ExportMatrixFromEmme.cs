@@ -60,10 +60,7 @@ public class ExportMatrixFromEmme : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if ( mc == null )
-            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
         string filepath = Path.GetFullPath( FileName.GetFileName( Root.InputBaseDirectory ) );
 
         return mc.Run(this, "tmg.XTMF_internal.export_matrix_batch_file", MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );

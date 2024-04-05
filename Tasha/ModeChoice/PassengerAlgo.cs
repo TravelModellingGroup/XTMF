@@ -56,11 +56,7 @@ public class PassengerAlgo
         ITrip facilitatedTrip = tripChain["FacilitateTrip"] as ITrip;
         ISharedMode facilitatedTripMode = (ISharedMode)tripChain["SharedMode"];
         //the mode data for the facilitated trip
-        ModeData facilitatedTripData = ModeData.Get(facilitatedTrip);
-        if (facilitatedTripData == null)
-        {
-            throw new XTMFRuntimeException(null, "There was no facilitated Trip Data!");
-        }
+        ModeData facilitatedTripData = ModeData.Get(facilitatedTrip) ?? throw new XTMFRuntimeException(null, "There was no facilitated Trip Data!");
         if (TashaRuntime == null)
         {
             throw new XTMFRuntimeException(null, "Tasha runtime was null!");

@@ -369,11 +369,7 @@ public class BlendedHBODistribution : IDemographicDistribution
         try
         {
             var fileName = GetFrictionFileName(SaveFrictionFileName);
-            var dirName = Path.GetDirectoryName(fileName);
-            if (dirName == null)
-            {
-                throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory name from the file {fileName}!");
-            }
+            var dirName = Path.GetDirectoryName(fileName) ?? throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory name from the file {fileName}!");
             if (!Directory.Exists(dirName))
             {
                 Directory.CreateDirectory(dirName);

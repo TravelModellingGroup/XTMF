@@ -283,12 +283,7 @@ public class SpaceTimeTrafficAssignmentTool : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if (mc == null)
-        {
-            throw new XTMFRuntimeException(this, "TMG.Emme.NetworkAssignment.SpaceTimeTrafficAssignmentTool requires the use of EMME Modeller and will not work through command prompt!");
-        }
-
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "TMG.Emme.NetworkAssignment.SpaceTimeTrafficAssignmentTool requires the use of EMME Modeller and will not work through command prompt!");
         string ret = null;
         if (!mc.CheckToolExists(this, ToolName))
         {

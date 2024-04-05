@@ -172,11 +172,7 @@ public class EstimationClient : IEstimationClientModelSystem
             } );
         ToHost.RegisterCustomSender( ResultChannel, (data, stream) =>
             {
-                var job = data as ClientTask;
-                if (job == null)
-                {
-                    throw new XTMFRuntimeException(this, $"In {Name} we were given a task that was not a job!");
-                }
+                var job = data as ClientTask ?? throw new XTMFRuntimeException(this, $"In {Name} we were given a task that was not a job!");
                 BinaryWriter writer = new( stream );
                 writer.Write( job.Generation );
                 writer.Write( job.Index );

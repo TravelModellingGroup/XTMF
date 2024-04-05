@@ -65,11 +65,7 @@ public class ExtractTransitODVectors : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var modeller = controller as ModellerController;
-        if(modeller == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to run since the controller is not connected through modeller.");
-        }
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to run since the controller is not connected through modeller.");
         return modeller.Run(this, ToolName, GetParameters());
     }
 

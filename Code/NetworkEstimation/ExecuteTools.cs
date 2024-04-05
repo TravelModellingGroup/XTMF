@@ -49,11 +49,7 @@ public class ExecuteToolsFromResource : IModelSystemTemplate
     public void Start()
     {
         _Progress = () => 0f;
-        var controller = ResourceToEmme.AcquireResource<ModellerController>();
-        if ( controller == null )
-        {
-            throw new XTMFRuntimeException(this, "In '' the EMME Modeller controller resource did not contain a modeller controller!");
-        }
+        var controller = ResourceToEmme.AcquireResource<ModellerController>() ?? throw new XTMFRuntimeException(this, "In '' the EMME Modeller controller resource did not contain a modeller controller!");
         int i = 0;
         // ReSharper disable once AccessToModifiedClosure
         _Progress = () => (float)i / Tools.Count;

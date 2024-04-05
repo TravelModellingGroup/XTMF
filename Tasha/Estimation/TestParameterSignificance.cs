@@ -371,21 +371,13 @@ public class TestParameterSignificance : IPostHousehold
         var modeParameterFile = EstimationResult.GetFilePath();
         using StreamReader reader = new(modeParameterFile);
         // First read the header, we will need that data to store in the mode parameters
-        var headerLine = reader.ReadLine();
-        if (headerLine == null)
-        {
-            throw new XTMFRuntimeException(this, "The file \"" + modeParameterFile + "\" does not contain any data to load parameters from!");
-        }
+        var headerLine = reader.ReadLine() ?? throw new XTMFRuntimeException(this, "The file \"" + modeParameterFile + "\" does not contain any data to load parameters from!");
         string[] header = headerLine.Split(',');
         for (int i = 1; (i < ModeParameterFileRow) && (reader.ReadLine() != null); i++)
         {
             // do nothing
         }
-        string line = reader.ReadLine();
-        if (line == null)
-        {
-            throw new XTMFRuntimeException(this, "We were unable to find a row#" + ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"");
-        }
+        string line = reader.ReadLine() ?? throw new XTMFRuntimeException(this, "We were unable to find a row#" + ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"");
         var parameters = line.Split(',');
         var localParameters = Parameters;
         var numberOfParameters = header.Length;

@@ -199,11 +199,7 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
             if ( ObservedMode >= 0 )
             {
                 Reader.Get( out tempChar1, ObservedMode );
-                var allModes = TashaRuntime.AllModes;
-                if (allModes == null)
-                {
-                    throw new XTMFRuntimeException(this, "The TashaRuntime does not have a a list of modes set for AllModes yet!");
-                }
+                var allModes = TashaRuntime.AllModes ?? throw new XTMFRuntimeException(this, "The TashaRuntime does not have a a list of modes set for AllModes yet!");
                 var numberOfModes = allModes.Count;
                 if (!CharacterToModeNameConversion.TryGetValue(tempChar1, out string name))
                 {

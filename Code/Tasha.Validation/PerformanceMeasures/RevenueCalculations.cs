@@ -81,12 +81,7 @@ public class RevenueCalculations : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var modeller = controller as ModellerController;
-        if (modeller == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
-        }
-
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
         return modeller.Run(this, ToolName, GenerageArgumentString(modeller));
     }
 

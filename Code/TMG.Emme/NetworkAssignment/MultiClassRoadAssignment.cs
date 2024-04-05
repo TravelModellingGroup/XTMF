@@ -183,11 +183,7 @@ public class MultiClassRoadAssignmentTool : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if (mc == null)
-        {
-            throw new XTMFRuntimeException(this, "TMG.Emme.NetworkAssignment.MultiClassRoadAssignment requires the use of EMME Modeller and will not work through command prompt!");
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "TMG.Emme.NetworkAssignment.MultiClassRoadAssignment requires the use of EMME Modeller and will not work through command prompt!");
         /*
          xtmf_ScenarioNumber, Mode_List, xtmf_Demand_String, TimesMatrixId,
              CostMatrixId, TollsMatrixId, PeakHourFactor, LinkCost,

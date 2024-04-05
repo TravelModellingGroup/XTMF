@@ -79,10 +79,7 @@ public class ExtractTransitLineResults : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if (mc == null)
-            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
-
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!");
         string aggregationPath = Path.GetFullPath(AggregationFile.GetFileName(Root.InputBaseDirectory));
         string outputPath = Path.GetFullPath(OutputFile.GetFileName());
 

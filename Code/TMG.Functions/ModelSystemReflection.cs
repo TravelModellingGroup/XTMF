@@ -98,11 +98,7 @@ public static class ModelSystemReflection
             }
             else
             {
-                var p = currentStructure.Parameters;
-                if (p == null)
-                {
-                    throw new XTMFRuntimeException(currentStructure.Module, "The structure '" + currentStructure.Name + "' has no parameters!");
-                }
+                var p = currentStructure.Parameters ?? throw new XTMFRuntimeException(currentStructure.Module, "The structure '" + currentStructure.Name + "' has no parameters!");
                 var parameters = p.Parameters;
                 if (parameters != null)
                 {
@@ -173,12 +169,7 @@ public static class ModelSystemReflection
 
     private static void AssignValueNoTypeCheck<T>(IConfiguration config, IModuleParameter parameter, T t)
     {
-        var currentStructure = parameter.BelongsTo;
-        
-        if (currentStructure == null)
-        {
-            throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter doesn't belong to any module!");
-        }
+        var currentStructure = parameter.BelongsTo ?? throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter doesn't belong to any module!");
         if (currentStructure.Module == null)
         {
             // If any ancestors of the model system structure were disabled ignore this
@@ -209,11 +200,7 @@ public static class ModelSystemReflection
         {
             throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
         }
-        var currentStructure = parameter.BelongsTo;
-        if (currentStructure == null)
-        {
-            throw new XTMFRuntimeException(null, "The parameter doesn't belong to any module!");
-        }
+        var currentStructure = parameter.BelongsTo ?? throw new XTMFRuntimeException(null, "The parameter doesn't belong to any module!");
         if (currentStructure.Module == null)
         {
             // If any ancestors of the model system structure were disabled ignore this

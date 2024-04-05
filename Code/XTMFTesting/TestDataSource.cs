@@ -66,6 +66,6 @@ public class TestDataSource<T> : IDataSource<T>
 
     public void UnloadData()
     {
-        Data = default(T);
+        Data = default;
     }
 }

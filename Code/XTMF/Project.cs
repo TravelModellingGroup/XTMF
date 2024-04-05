@@ -1113,9 +1113,7 @@ public sealed partial class Project : IProject
             {
                 try
                 {
-                    var logger = new Logger(LogManager.GetLogger(attribute.LoggerName == null
-                        ? type.ToString()
-                        : attribute.LoggerName));
+                    var logger = new Logger(LogManager.GetLogger(attribute.LoggerName ?? type.ToString()));
 
                     f.SetValue(module, logger);
                 }

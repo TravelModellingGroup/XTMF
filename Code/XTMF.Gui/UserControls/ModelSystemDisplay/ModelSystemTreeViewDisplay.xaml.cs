@@ -741,10 +741,7 @@ public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView,
                     {
                         var innerTreeViewItem = itemGenerator.ContainerFromIndex(i) as TreeViewItem;
                         var innerModule = itemGenerator.Items[i] as ModelSystemStructureDisplayModel;
-                        if (CurrentlySelected.Contains(innerModule))
-                        {
-                            CurrentlySelected.Remove(innerModule);
-                        }
+                        CurrentlySelected.Remove(innerModule);
 
                         CurrentlySelected.Add(innerModule);
                         selectedItems.Add(innerTreeViewItem);

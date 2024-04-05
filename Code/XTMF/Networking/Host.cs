@@ -378,11 +378,7 @@ internal class Host : IHost, IDisposable
             clientStream.WriteTimeout = 10000;
             while (!done && !_Exit)
             {
-                Message message = ourRemoteClient.Messages.GetMessageOrTimeout(200);
-                if (message == null)
-                {
-                    message = new Message(MessageType.RequestProgress);
-                }
+                Message message = ourRemoteClient.Messages.GetMessageOrTimeout(200) ?? new Message(MessageType.RequestProgress);
                 var nowDone = ProcessMessage(done, ourRemoteClient, writer, message);
                 Thread.MemoryBarrier();
                 done = done | nowDone;

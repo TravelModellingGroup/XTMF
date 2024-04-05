@@ -287,11 +287,7 @@ public partial class ModelSystemsDisplay : UserControl
     /// <param name="e"></param>
     private void FilterBox_EnterPressed(object sender, EventArgs e)
     {
-        var selected = Display.SelectedItem as ModelSystem;
-        if (selected == null)
-        {
-            selected = GetFirstItem();
-        }
+        var selected = Display.SelectedItem as ModelSystem ?? GetFirstItem();
         LoadModelSystem(selected);
     }
 

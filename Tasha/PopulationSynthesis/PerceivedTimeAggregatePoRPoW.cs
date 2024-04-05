@@ -409,11 +409,7 @@ public class PerceivedTimeAggregatePoRPoW : IDataSource<SparseTriIndex<float>>
 
     private SparseTriIndex<float> ConvertResults(float[] results, SparseArray<IZone> zoneSystem)
     {
-        SparseTriIndex<float> ret = Data;
-        // first create the datastructure
-        if (ret == null)
-        {
-            ret = SparseTriIndex<float>.CreateSimilarArray(new SparseArray<int>(new SparseIndexing()
+        SparseTriIndex<float> ret = Data ?? SparseTriIndex<float>.CreateSimilarArray(new SparseArray<int>(new SparseIndexing()
             {
                 Indexes =
                         [ new SparseSet()
@@ -422,7 +418,6 @@ public class PerceivedTimeAggregatePoRPoW : IDataSource<SparseTriIndex<float>>
                                 Stop = NumberOfWorkerCategories - 1 }
                         ]
             }), zoneSystem, zoneSystem);
-        }
         // now fill it
         var r = ret.GetFlatData();
         var numberOfZones = r[0].Length;

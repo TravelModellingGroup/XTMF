@@ -178,14 +178,9 @@ public class LaunchProgram : ISelfContainedModule
                             "We were unable to find a module with the path '" + path + "'!");
                     }
 
-                    var toShutdown = selectedModule.Module as LaunchProgram;
-                    if (toShutdown == null)
-                    {
-                        throw new XTMFRuntimeException(this,
+                    var toShutdown = selectedModule.Module as LaunchProgram ?? throw new XTMFRuntimeException(this,
                             "The module with the path '" + path +
                             "' was not of type 'TMG.Frameworks.Extensibility.LaunchProgram'!");
-                    }
-
                     toShutdown.ShutdownProgram();
                 }, true);
                 break;

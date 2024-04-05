@@ -137,16 +137,12 @@ public sealed class OdCache : IDisposable
     {
         string fileName = Path.GetFileNameWithoutExtension(FileName);
 
-        string path = Path.GetDirectoryName(FileName);
-        if (path == null)
-        {
-            throw new IOException($"Unable to find the Directory name of {FileName}!");
-        }
+        string path = Path.GetDirectoryName(FileName) ?? throw new IOException($"Unable to find the Directory name of {FileName}!");
         string xmlFile = Path.Combine(path, fileName + ".xml");
 
         XmlSerializer deserializer = new(typeof(CacheGenerationInfo));
 
-        TextReader textReader = new StreamReader(xmlFile);
+        StreamReader textReader = new (xmlFile);
 
         CacheGenerationInfo info = (CacheGenerationInfo)deserializer.Deserialize(textReader);
         textReader.Close();
@@ -173,11 +169,7 @@ public sealed class OdCache : IDisposable
                 }
             }
         }
-        var localFileName = Path.GetFileName(FileName);
-        if (localFileName == null)
-        {
-            throw new IOException($"Unable to get the file name of {FileName}!");
-        }
+        var localFileName = Path.GetFileName(FileName) ?? throw new IOException($"Unable to get the file name of {FileName}!");
         odcCreator.Save(Path.Combine(outputDirectory, localFileName), true);
     }
 

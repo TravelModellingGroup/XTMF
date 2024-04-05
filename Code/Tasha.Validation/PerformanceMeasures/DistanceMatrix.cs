@@ -96,16 +96,8 @@ public class DistanceMatrixCalculation : IEmmeTool
     public bool Execute(Controller controller)
     {
 
-        var mc = controller as ModellerController;
-        if (mc == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeler controller!");
-        }
-        var dirPath = Path.GetDirectoryName(ResultsFile);
-        if (dirPath == null)
-        {
-            throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory from the path '{ResultsFile}'!");
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeler controller!");
+        var dirPath = Path.GetDirectoryName(ResultsFile) ?? throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory from the path '{ResultsFile}'!");
         var fullPathToDirectory = Path.GetFullPath(dirPath);
 
         string timePeriods = "";

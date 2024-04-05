@@ -203,11 +203,7 @@ public class HostDistributionManager : IHostDistributionManager, IDisposable
         Host.RegisterCustomSender(DistributionDataChannel, (task, client, stream) =>
         {
             BinaryWriter writer = new(stream);
-            var t = task as ExecutingTask;
-            if (t == null)
-            {
-                throw new XTMFRuntimeException(this, $"In {Name} we were sent an object for task processing that was not a task!");
-            }
+            var t = task as ExecutingTask ?? throw new XTMFRuntimeException(this, $"In {Name} we were sent an object for task processing that was not a task!");
             writer.Write((Int32)CommunicationProtocol.RunTask);
             writer.Write(t.TaskNumber);
             writer.Write(t.TaskName);

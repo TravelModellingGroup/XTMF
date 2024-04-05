@@ -100,12 +100,7 @@ public class NoCacheSingleTimePeriodNetworkData : INetworkData
         Zones = ZoneArray.GetFlatData();
         if(Data == null || Regenerate)
         {
-            var data = Data;
-            // now that we have zones we can build our data
-            if(data == null)
-            {
-                data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
-            }
+            var data = Data ?? (new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes]);
             //now we need to load in each type
             LoadData(data, TravelTimeReader, (int)DataTypes.TravelTime, Data != null & ApplyTimeBlending);
             LoadData(data, CostReader, (int)DataTypes.Cost, false );

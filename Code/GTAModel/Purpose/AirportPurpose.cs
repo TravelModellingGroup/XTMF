@@ -142,11 +142,7 @@ public class AirportPurpose : IPurpose
 
     private void AttachDataToTree(float[][] data)
     {
-        TreeData<float[][]> spot = GetAutoModeData( Flows );
-        if ( spot == null )
-        {
-            throw new XTMFRuntimeException(this, "The mode '" + AutoModeName + "' was not found to attach the results to it from '" + Name + "'!;" );
-        }
+        TreeData<float[][]> spot = GetAutoModeData( Flows ) ?? throw new XTMFRuntimeException(this, "The mode '" + AutoModeName + "' was not found to attach the results to it from '" + Name + "'!;" );
         spot.Result = data;
     }
 

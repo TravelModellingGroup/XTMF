@@ -315,11 +315,7 @@ public class BlendedProportionalUpdateDistribution : IDemographicDistribution
         try
         {
             var fileName = GetFrictionFileName(SaveFrictionFileName, -1);
-            var dirName = Path.GetDirectoryName(fileName);
-            if (dirName == null)
-            {
-                throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory name from the file {fileName}!");
-            }
+            var dirName = Path.GetDirectoryName(fileName) ?? throw new XTMFRuntimeException(this, $"In {Name} we were unable to get the directory name from the file {fileName}!");
             if (!Directory.Exists(dirName))
             {
                 Directory.CreateDirectory(dirName);

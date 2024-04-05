@@ -163,11 +163,7 @@ public class GenerateParameterTStatistics : IEstimationAI
             reader.Get(out string name, i);
             var selectedParameter = ( from p in parameters
                                       where p.Names.Contains( name )
-                                      select p ).FirstOrDefault();
-            if ( selectedParameter == null )
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + " the parameter '" + name + "' could not be resolved." );
-            }
+                                      select p ).FirstOrDefault() ?? throw new XTMFRuntimeException(this, "In '" + Name + " the parameter '" + name + "' could not be resolved." );
             ret[i - 2] = IndexOf( parameters, selectedParameter );
         }
         return ret;

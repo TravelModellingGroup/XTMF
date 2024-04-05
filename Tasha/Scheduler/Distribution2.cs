@@ -575,11 +575,7 @@ internal static partial class Distribution
     {
         double randNum = random.NextDouble();
         float pdfFactor = 0.0f;
-        var data = AdultDistributions[distid];
-        if (data == null)
-        {
-            throw new XTMFRuntimeException(null, "Unable to load the adult frequency distribution!");
-        }
+        var data = AdultDistributions[distid] ?? throw new XTMFRuntimeException(null, "Unable to load the adult frequency distribution!");
         var maxAdults = data.Adults.Length;
         if (max > maxAdults)
         {

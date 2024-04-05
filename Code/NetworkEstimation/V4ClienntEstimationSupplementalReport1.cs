@@ -23,11 +23,7 @@ public class V4ClienntEstimationSupplementalReport1 : ClientFileAggregation, IEm
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if (mc == null)
-        {
-            throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController");
         string result = "";
         mc.Run(this, ToolName, ScenarioNumber.ToString(), (p => _Progress = p), ref result);
         var modelResults = _ParsePythonResults(result);

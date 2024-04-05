@@ -188,11 +188,7 @@ public class TourLoader : IDataLoader<ITripChain>
     private IZone GetZoneFromColumn(SparseArray<IZone> zones, CsvReader reader, int column)
     {
         reader.Get(out int zone, column);
-        var ret = zones[zone];
-        if(ret == null)
-        {
-            throw new XTMFRuntimeException(this, "An unknown zone was loaded '" + zone + "'.");
-        }
+        var ret = zones[zone] ?? throw new XTMFRuntimeException(this, "An unknown zone was loaded '" + zone + "'.");
         return ret;
     }
 

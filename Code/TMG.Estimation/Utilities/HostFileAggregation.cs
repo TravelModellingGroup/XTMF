@@ -64,11 +64,7 @@ public sealed class HostFileAggregation : ISelfContainedModule
                 } );
             Host.RegisterCustomMessageHandler( DataChannel, (dataObj, remote) =>
                 {
-                    var data = dataObj as byte[];
-                    if (data == null)
-                    {
-                        throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte[] while building a file.");
-                    }
+                    var data = dataObj as byte[] ?? throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte[] while building a file.");
                     Task.Factory.StartNew( () =>
                         {
                             lock ( WriteLock )

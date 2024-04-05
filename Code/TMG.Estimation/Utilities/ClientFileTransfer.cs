@@ -64,11 +64,7 @@ public class ClientFileTransfer : ISelfContainedModule
                 } );
                 Client.RegisterCustomMessageHandler( DataChannel, (obj) =>
                 {
-                    var data = obj as byte[];
-                    if (data == null)
-                    {
-                        throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte array when gathering a file to send across the network.");
-                    }
+                    var data = obj as byte[] ?? throw new XTMFRuntimeException(this, $"In {Name} we recieved something besides a byte array when gathering a file to send across the network.");
                     System.Threading.Tasks.Task.Factory.StartNew( () =>
                     {
                         try

@@ -450,11 +450,7 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         totalUtil = 0;
         var fastTransit = TransitNetwork as ITripComponentCompleteData;
         var fastAuto = AutoNetwork as INetworkCompleteData;
-        var stationIndexLookup = StationIndexLookup;
-        if (stationIndexLookup == null)
-        {
-            stationIndexLookup = CreateStationIndexLookup(zoneSystem, zones);
-        }
+        var stationIndexLookup = StationIndexLookup ?? CreateStationIndexLookup(zoneSystem, zones);
         if (fastTransit == null | fastAuto == null)
         {
 

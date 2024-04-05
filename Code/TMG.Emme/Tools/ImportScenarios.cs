@@ -53,11 +53,7 @@ public class ImportScenarios : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if(mc == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not of type ModellerController!");
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' the controller was not of type ModellerController!");
         return mc.Run(this, ToolName, GetArguments());
     }
 

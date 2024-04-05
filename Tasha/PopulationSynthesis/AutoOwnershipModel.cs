@@ -353,11 +353,7 @@ public sealed class AutoOwnershipModel : IEstimableCalculation<ITashaHousehold, 
 
     public int ProduceResult(ITashaHousehold data)
     {
-        var homeZone = data.HomeZone;
-        if (homeZone is null)
-        {
-            throw new XTMFRuntimeException(this, "A household didn't have a home zone!");
-        }
+        var homeZone = data.HomeZone ?? throw new XTMFRuntimeException(this, "A household didn't have a home zone!");
         int flatHomeZone = _zones.GetFlatIndex(homeZone.ZoneNumber);
         (float v, int licenses) = ComputeUtility(data, flatHomeZone);
         var kFactor = GetKFactors(data.DwellingType, flatHomeZone);

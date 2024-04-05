@@ -52,12 +52,7 @@ public class BasicParameterLoader : IDataSource<List<ParameterSetting>>
         XmlDocument doc = new();
         doc.Load( ParameterFileLocation.GetFilePath() );
         List<ParameterSetting> parameters = [];
-        var root = doc["Root"];
-        if (root == null)
-        {
-            throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' contained an invalid parameter file!");
-
-        }
+        var root = doc["Root"] ?? throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' contained an invalid parameter file!");
         foreach ( XmlNode child in root.ChildNodes )
         {
             if ( child.Name == "Parameter" )
@@ -76,11 +71,7 @@ public class BasicParameterLoader : IDataSource<List<ParameterSetting>>
                 }
                 else
                 {
-                    var parameterAttribute = child.Attributes?["ParameterPath"];
-                    if (parameterAttribute == null)
-                    {
-                        throw new XTMFRuntimeException(this, $"In {Name} ParameterPath was not defined in {child.OuterXml}!");
-                    }
+                    var parameterAttribute = (child.Attributes?["ParameterPath"]) ?? throw new XTMFRuntimeException(this, $"In {Name} ParameterPath was not defined in {child.OuterXml}!");
                     var parameterPath = parameterAttribute.InnerText;
                     current.Names = [parameterPath];
                 }

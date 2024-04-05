@@ -48,11 +48,7 @@ public static class Compression
         }
         using ( inputStream )
         {
-            var directoryName = Path.GetDirectoryName(fileName);
-            if (directoryName == null)
-            {
-                throw new XTMFRuntimeException(null, $"Unable to get the directory name for the file path '{fileName}'");
-            }
+            var directoryName = Path.GetDirectoryName(fileName) ?? throw new XTMFRuntimeException(null, $"Unable to get the directory name for the file path '{fileName}'");
             return CompressStream( inputStream, outputFileName ?? Path.Combine(directoryName,
                 fileName + ".gz"));
         }

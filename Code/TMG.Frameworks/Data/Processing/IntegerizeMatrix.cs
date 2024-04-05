@@ -146,11 +146,7 @@ public sealed class IntegerizeMatrix : IDataSource<SparseTwinIndex<float>>
         {
             for (int j = 0; j < flatZones.Length; j++)
             {
-                var list = pairs.GetFlatData()[pdIndexes[i]][pdIndexes[j]];
-                if (list == null)
-                {
-                    list = pairs.GetFlatData()[pdIndexes[i]][pdIndexes[j]] = new List<ODPair>(100);
-                }
+                var list = pairs.GetFlatData()[pdIndexes[i]][pdIndexes[j]] ?? (pairs.GetFlatData()[pdIndexes[i]][pdIndexes[j]] = new List<ODPair>(100));
                 list.Add(new ODPair() { Origin = i, Destination = j });
             }
         }

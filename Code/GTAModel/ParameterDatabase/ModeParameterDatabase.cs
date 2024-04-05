@@ -242,11 +242,7 @@ public class ModeParameterDatabase : IModeParameterDatabase
         {
             using StreamReader reader = new(dbf);
             // First read the header, we will need that data to store in the mode parameters
-            var headerLine = reader.ReadLine();
-            if (headerLine == null)
-            {
-                throw new XTMFRuntimeException(this, "The file \"" + DatabaseFile + "\" does not contain any data to load parameters from!");
-            }
+            var headerLine = reader.ReadLine() ?? throw new XTMFRuntimeException(this, "The file \"" + DatabaseFile + "\" does not contain any data to load parameters from!");
             string[] header = headerLine.Split(',');
             var numberOfParameters = header.Length;
             Parameter[] parameterMapping = CreateParameterMapping(header);

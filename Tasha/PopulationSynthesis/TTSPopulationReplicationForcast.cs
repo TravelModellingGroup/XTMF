@@ -217,11 +217,7 @@ public class TTSPopulationReplicationForcast : IPostHousehold
         if (zone != null)
         {
             var pd = zone.PlanningDistrict;
-            var record = _householdsByPD[pd];
-            if (record == null)
-            {
-                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a HouseholdByPD for PD#" + pd);
-            }
+            var record = _householdsByPD[pd] ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find a HouseholdByPD for PD#" + pd);
             record.Add(household);
         }
     }

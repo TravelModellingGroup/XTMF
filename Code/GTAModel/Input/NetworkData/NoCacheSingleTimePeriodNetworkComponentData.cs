@@ -160,11 +160,7 @@ public class NoCacheSingleTimePeriodNetworkComponentData : ITripComponentData
         if(Data == null || Regenerate)
         {
             // now that we have zones we can build our data
-            var data = Data;
-            if(data == null)
-            {
-                data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
-            }
+            var data = Data ?? (new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes]);
             //now we need to load in each type
             LoadData(data, IvttReader, (int)DataTypes.TravelTime, Data != null & ApplyTimeBlending);
             LoadData(data, FaresReader, (int)DataTypes.Cost, false);

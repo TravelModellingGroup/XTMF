@@ -79,11 +79,7 @@ public class NetworkCalculator : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var modeller = controller as ModellerController;
-        if (modeller == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
-        }
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we were not given a modeller controller!");
         string result = null;
         if (modeller.Run(this, ToolName, GetParameters(), ref result))
         {

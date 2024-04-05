@@ -64,12 +64,7 @@ public class EstimateTransitOperatingCosts : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var modeller = controller as ModellerController;
-        if (modeller == null)
-        {
-            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-        }
-
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         modeller.Run(this, ToolName,
             [
                 new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),

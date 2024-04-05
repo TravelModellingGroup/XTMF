@@ -118,10 +118,7 @@ public class TollAttributeRoadAssignment : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if (mc == null)
-            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         if (Tallies.Count > 0)
         {
             PassMatrixIntoEmme(mc);

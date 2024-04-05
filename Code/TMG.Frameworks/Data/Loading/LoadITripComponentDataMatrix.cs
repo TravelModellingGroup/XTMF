@@ -69,11 +69,7 @@ public class LoadITripComponentDataMatrix : IDataSource<SparseTwinIndex<float>>
 
     public void LoadData()
     {
-        var network = Root.NetworkData.FirstOrDefault(n => n.NetworkType == Network) as ITripComponentData;
-        if (network == null)
-        {
-            throw new XTMFRuntimeException(this, $"In {Name} we were unable to find a network with the name '{Network}'");
-        }
+        var network = Root.NetworkData.FirstOrDefault(n => n.NetworkType == Network) as ITripComponentData ?? throw new XTMFRuntimeException(this, $"In {Name} we were unable to find a network with the name '{Network}'");
         if (!network.Loaded)
         {
             network.LoadData();

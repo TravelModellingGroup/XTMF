@@ -282,16 +282,14 @@ public class AvlTree<T>
 
         if ( difference <= -2 )
         {
-            var temp = Root.Right;
-            if (temp == null) throw new InvalidOperationException("A child node was null!");
+            var temp = Root.Right ?? throw new InvalidOperationException("A child node was null!");
             Root.Right = temp.Left;
             temp.Left = Root;
             Root = temp;
         }
         else if ( difference >= 2 )
         {
-            var temp = Root.Left;
-            if (temp == null) throw new InvalidOperationException("A child node was null!");
+            var temp = Root.Left ?? throw new InvalidOperationException("A child node was null!");
             Root.Left = temp.Right;
             temp.Right = Root;
             Root = temp;

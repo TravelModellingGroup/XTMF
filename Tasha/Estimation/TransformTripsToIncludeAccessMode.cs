@@ -32,10 +32,6 @@ public class TransformTripsToIncludeAccessMode : ISelfContainedModule
 
     public void Start()
     {
-        var dbConnection = DatabaseConnection.AcquireResource<IDbConnection>();
-        if ( dbConnection == null )
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to get a database connection!" );
-        }
+        var dbConnection = DatabaseConnection.AcquireResource<IDbConnection>() ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to get a database connection!" );
     }
 }

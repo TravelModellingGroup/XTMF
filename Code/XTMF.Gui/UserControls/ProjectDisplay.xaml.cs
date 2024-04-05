@@ -140,7 +140,7 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
 
     private static bool CheckString(string str, string filter)
     {
-        return str == null ? false : str.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0;
+        return str == null ? false : str.Contains(filter, StringComparison.CurrentCultureIgnoreCase);
     }
 
     private static void OnProjectModelChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
@@ -555,7 +555,7 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
 
     private ProjectModel.ContainedModelSystemModel GetFirstItem()
     {
-        return ModelSystemsDataGrid.ItemContainerGenerator.Items.Any()
+        return ModelSystemsDataGrid.ItemContainerGenerator.Items.Count != 0
             ? ModelSystemsDataGrid.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel
             : null;
     }

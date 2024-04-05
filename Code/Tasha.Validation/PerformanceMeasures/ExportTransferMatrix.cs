@@ -60,11 +60,7 @@ public class ExportOperatorTransferMatrix : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var modeller = controller as ModellerController;
-        if (modeller == null)
-        {
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
-        }
+        var modeller = controller as ModellerController ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
         return modeller.Run(this, ToolName, GetParameters());
     }
 

@@ -126,11 +126,7 @@ public class FixedRateModeSplit : IMultiModeSplit
                 if (Data[dataIndex].Mode == node)
                 {
                     var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                    var data = Data[dataIndex].Data;
-                    if (data == null)
-                    {
-                        throw new XTMFRuntimeException(this, "In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!");
-                    }
+                    var data = Data[dataIndex].Data ?? throw new XTMFRuntimeException(this, "In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!");
                     if (treeData.Result == null)
                     {
                         lock (treeData)

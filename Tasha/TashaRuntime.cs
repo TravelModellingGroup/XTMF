@@ -372,11 +372,7 @@ public class TashaRuntime : ITashaRuntime, IIterativeModel
         {
             throw new XTMFRuntimeException(this, "Unable to assign '" + variableName + "', the module is null!");
         }
-        var p = currentStructure.Parameters;
-        if (p == null)
-        {
-            throw new XTMFRuntimeException(this, "The structure '" + currentStructure.Name + "' has no parameters!");
-        }
+        var p = currentStructure.Parameters ?? throw new XTMFRuntimeException(this, "The structure '" + currentStructure.Name + "' has no parameters!");
         var parameters = p.Parameters;
         bool any = false;
         if (parameters != null)

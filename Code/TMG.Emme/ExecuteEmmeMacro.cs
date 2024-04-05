@@ -52,10 +52,7 @@ public class ExecuteEmmeMacro : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        var mc = controller as ModellerController;
-        if ( mc == null )
-            throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
-
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a modeller controller!" );
         var sb = new StringBuilder();
         sb.AppendFormat( "{0} {1}", MacroFile, Arguments );
         if(mc.CheckToolExists(this, ToolName))

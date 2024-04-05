@@ -321,11 +321,7 @@ internal class Client : IClient, IDisposable
     {
         string error = null;
         var mss = modelSystemStructure as IModelSystemStructure;
-        var project = (Project)_Configuration.ProjectRepository.ActiveProject;
-        if (project == null)
-        {
-            project = new Project("Remote", _Configuration, true);
-        }
+        var project = (Project)_Configuration.ProjectRepository.ActiveProject ?? new Project("Remote", _Configuration, true);
         if (project.ModelSystemStructure.Count == 0)
         {
             project.AddModelSystem(mss, [], String.Empty);

@@ -153,11 +153,7 @@ public class LOSBetweenPoints : IEmmeTool
     public bool Execute(Controller controller)
     {
         Progress = 0.0f;
-        var mc = controller as ModellerController;
-        if (mc == null)
-        {
-            throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
-        }
+        var mc = controller as ModellerController ?? throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         List<int> nodesToExplore = GetNodesToExplore();
         List<int> newControids = GenerateCentroids();
         InitializeData(nodesToExplore);
