@@ -1354,11 +1354,11 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
             _facilitatePassengerRecordQueue.CompleteAdding();
             if (_writeHouseholdOutput != null)
             {
-                Task.WaitAll(new[] { _writeHouseholdOutput, _writePersonOutput, _writeTripOutput, _writeModeOutput, _writeStationOutput, _writeFacilitatePassengerOutput });
+                Task.WaitAll([_writeHouseholdOutput, _writePersonOutput, _writeTripOutput, _writeModeOutput, _writeStationOutput, _writeFacilitatePassengerOutput]);
             }
             else
             {
-                Task.WaitAll(new[] { _writePersonOutput, _writeTripOutput, _writeModeOutput, _writeStationOutput, _writeFacilitatePassengerOutput });
+                Task.WaitAll([_writePersonOutput, _writeTripOutput, _writeModeOutput, _writeStationOutput, _writeFacilitatePassengerOutput]);
             }
             _writePersonOutput = null;
             _writeTripOutput = null;

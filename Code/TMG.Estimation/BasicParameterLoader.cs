@@ -82,7 +82,7 @@ public class BasicParameterLoader : IDataSource<List<ParameterSetting>>
                         throw new XTMFRuntimeException(this, $"In {Name} ParameterPath was not defined in {child.OuterXml}!");
                     }
                     var parameterPath = parameterAttribute.InnerText;
-                    current.Names = new[] { parameterPath };
+                    current.Names = [parameterPath];
                 }
                 var minimumAttribute = child.Attributes?["Minimum"];
                 var maximumAttribute = child.Attributes?["Maximum"];

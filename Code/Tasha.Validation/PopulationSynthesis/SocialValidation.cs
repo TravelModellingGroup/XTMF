@@ -52,17 +52,17 @@ public class SocialValidation : IPostHousehold
     private float[] CarCounts = new float[5];
     private SparseArray<IZone> ZoneSystem;
 
-    private TTSEmploymentStatus[] EmploymentCategories = {
+    private TTSEmploymentStatus[] EmploymentCategories = [
         EmpStatus.FullTime,
         EmpStatus.WorkAtHome_FullTime,
         EmpStatus.WorkAtHome_PartTime,
         EmpStatus.NotEmployed,
         EmpStatus.PartTime,
         EmpStatus.Unknown            
-    };
+    ];
 
     private Occupation[] OccupationCategories =
-    {
+    [
         Occupation.Office,
         Occupation.Manufacturing,
         Occupation.Professional,
@@ -70,7 +70,7 @@ public class SocialValidation : IPostHousehold
         Occupation.Farmer,
         Occupation.NotEmployed,
         Occupation.Unknown
-    };        
+    ];        
 
     public void Execute(ITashaHousehold household, int iteration)
     {

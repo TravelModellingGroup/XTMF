@@ -46,13 +46,13 @@ public class ExportTransitBoardings : IEmmeTool
         if (mc == null)
             throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         var result = "";
-        return mc.Run(this, ToolName, new []
-        {
+        return mc.Run(this, ToolName,
+        [
             new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("ReportFile", ReportFile.GetFilePath()),
             new ModellerControllerParameter("LineAggregationFile", LineAggregationFile?.GetFilePath() ?? ""),
             new ModellerControllerParameter("WriteIndividualRoutesFlag", WriteIndividualRoutes.ToString())
-        }, (p => Progress = p), ref result);
+        ], (p => Progress = p), ref result);
     }
 
     public string Name

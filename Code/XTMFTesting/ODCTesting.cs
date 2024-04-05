@@ -34,13 +34,13 @@ public class ODCTesting
     {
         try
         {
-            int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
+            int[] zones = [0, 1, 2, 3, 4, 5, 6];
             SparseArray<int> referenceArray = new( new SparseIndexing()
             {
-                Indexes = new[]
-            {
+                Indexes =
+            [
                 new SparseSet() { Start = 0, Stop = 6 }
-            }
+            ]
             } );
             float[][][] allData = new float[1][][];
             var data = CreateData( zones.Length );
@@ -65,13 +65,13 @@ public class ODCTesting
     {
         try
         {
-            int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
+            int[] zones = [0, 1, 2, 3, 4, 5, 6];
             SparseArray<int> referenceArray = new( new SparseIndexing()
             {
-                Indexes = new[]
-            {
+                Indexes =
+            [
                 new SparseSet() { Start = 0, Stop = 6 }
-            }
+            ]
             } );
             float[][][] allData = new float[1][][];
             var data = CreateData( zones.Length );
@@ -96,13 +96,13 @@ public class ODCTesting
         float[][][] allData = new float[4][][];
         try
         {
-            int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
+            int[] zones = [0, 1, 2, 3, 4, 5, 6];
             SparseArray<int> referenceArray = new( new SparseIndexing()
             {
-                Indexes = new[]
-            {
+                Indexes =
+            [
                 new SparseSet() { Start = 0, Stop = 6 }
-            }
+            ]
             } );
 
             for ( int i = 0; i < allData.Length; i++ )
@@ -137,13 +137,13 @@ public class ODCTesting
         float[][][] allData = new float[times * types][][];
         try
         {
-            int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
+            int[] zones = [0, 1, 2, 3, 4, 5, 6];
             SparseArray<int> referenceArray = new( new SparseIndexing()
             {
-                Indexes = new[]
-            {
+                Indexes =
+            [
                 new SparseSet() { Start = 0, Stop = 6 }
-            }
+            ]
             } );
 
             for ( int i = 0; i < allData.Length; i++ )

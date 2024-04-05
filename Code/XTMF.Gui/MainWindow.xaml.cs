@@ -452,8 +452,7 @@ public partial class MainWindow : MetroWindow
     public void ImportModelSystem()
     {
         var fileName = OpenFile("Import Model System",
-            new[]
-                {new KeyValuePair<string, string>("Model System File", "xml")}, true);
+            [new KeyValuePair<string, string>("Model System File", "xml")], true);
         string error = null;
         if (fileName != null)
         {

@@ -793,7 +793,7 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
                     {
                         var modeName = childAttributes["Mode"].InnerText;
                         var parameterName = String.Concat(modeName, '.', childAttributes["Name"].InnerText);
-                        current.Names = new[] { parameterName };
+                        current.Names = [parameterName];
                     }
                     if (!ValidateParameterNames || ValidateParameterName(current))
                     {

@@ -50,12 +50,11 @@ public class CopyScenario : IEmmeTool
             throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         }
         return mc.Run(this, "tmg.XTMF_internal.copy_scenario",
-            new[]
-            {
+            [
                 new ModellerControllerParameter("FromScenario", BaseScenario.ToString()),
                 new ModellerControllerParameter("ToScenario", DestinationScenario.ToString()),
                 new ModellerControllerParameter("CopyStrategy", CopyAssignments.ToString()),
-            });
+            ]);
     }
 
     public bool RuntimeValidation(ref string error)

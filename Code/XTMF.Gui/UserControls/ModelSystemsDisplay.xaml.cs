@@ -263,7 +263,7 @@ public partial class ModelSystemsDisplay : UserControl
     {
         if (Display.SelectedItem is ModelSystem modelSystem)
         {
-            string fileName = MainWindow.OpenFile(modelSystem.Name, new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+            string fileName = MainWindow.OpenFile(modelSystem.Name, [new KeyValuePair<string, string>("Model System File", "xml")], false);
             if (!String.IsNullOrWhiteSpace(fileName))
             {
                 string error = null;

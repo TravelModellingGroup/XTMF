@@ -73,13 +73,13 @@ public class CopyBackgroundTraffic : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("ToScenarioNumber", ToScenarioNumber.ToString()),
             new ModellerControllerParameter("FromScenarioNumbers", FromScenarioNumbers),
             new ModellerControllerParameter("LinkComponentAttribute", LinkComponentAttribute),
             new ModellerControllerParameter("AttributeIndexRange", AttributeIndexRange),
-        };
+        ];
     }
 
     public bool RuntimeValidation(ref string error)

@@ -27,7 +27,7 @@ namespace TMG.Emme;
 
 public class Network : IDisposable
 {
-    private static char[] SplitCharacters = new char[] { ',', ' ', '\t' };
+    private static char[] SplitCharacters = [',', ' ', '\t'];
     private SparseTwinIndex<Link> Links;
     private SparseArray<Node> Nodes;
 

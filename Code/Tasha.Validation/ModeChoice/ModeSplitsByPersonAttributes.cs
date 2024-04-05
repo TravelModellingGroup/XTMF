@@ -47,13 +47,13 @@ public sealed class ModeSplitsByPersonAttributes : IPostHouseholdIteration
     /// <summary>
     /// The listing of occupations that are being considered
     /// </summary>
-    private Occupation[] Occupations = new Occupation[] { Occupation.Professional, Occupation.Office, Occupation.Retail, Occupation.Manufacturing, Occupation.NotEmployed };
+    private Occupation[] Occupations = [Occupation.Professional, Occupation.Office, Occupation.Retail, Occupation.Manufacturing, Occupation.NotEmployed];
 
     /// <summary>
     /// The listing of employment statuses that are being considered
     /// </summary>
-    private TTSEmploymentStatus[] EmploymentStatuses = new TTSEmploymentStatus[] { TTSEmploymentStatus.FullTime, TTSEmploymentStatus.PartTime,
-        TTSEmploymentStatus.WorkAtHome_FullTime, TTSEmploymentStatus.WorkAtHome_PartTime, TTSEmploymentStatus.NotEmployed };
+    private TTSEmploymentStatus[] EmploymentStatuses = [ TTSEmploymentStatus.FullTime, TTSEmploymentStatus.PartTime,
+        TTSEmploymentStatus.WorkAtHome_FullTime, TTSEmploymentStatus.WorkAtHome_PartTime, TTSEmploymentStatus.NotEmployed ];
 
 
     public sealed class CatchmentArea : IModule

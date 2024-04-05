@@ -312,7 +312,7 @@ public partial class OpenWindow : Window
         var item = (Display.SelectedItem as Model.ModelElement);
         if (item != null)
         {
-            string fileName = MainWindow.OpenFile(item.Name, new[]{ new KeyValuePair<string, string>("Model System File", "xml") }, false);
+            string fileName = MainWindow.OpenFile(item.Name, [new KeyValuePair<string, string>("Model System File", "xml")], false);
             if (!String.IsNullOrWhiteSpace(fileName))
             {
                 string error = null;

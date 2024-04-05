@@ -98,8 +98,8 @@ public class CopyAttribute : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("to_scenario_number", ToScenarioNumber.ToString()),
             new ModellerControllerParameter("from_scenario_numbers", FromScenarioNumber.ToString()),
             new ModellerControllerParameter("to_attribute", ToAttribute),
@@ -110,7 +110,7 @@ public class CopyAttribute : IEmmeTool
             new ModellerControllerParameter("transit_line_selector", TransitLineSelection),
             new ModellerControllerParameter("incoming_link_selector", IncomingLinkSelection),
             new ModellerControllerParameter("outgoing_link_selector", OutgoingLinkSelection),
-        };
+        ];
     }
 
     public bool RuntimeValidation(ref string error)

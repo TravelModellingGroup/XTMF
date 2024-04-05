@@ -27,7 +27,7 @@ namespace XTMF.Testing;
 [TestClass]
 public class CSVReaderTest
 {
-    private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv", "CSVTest6.csv.gz" };
+    private string[] TestCSVFileNames = ["CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv", "CSVTest6.csv.gz"];
 
     [TestInitialize]
     public void CreateTestEnvironment()

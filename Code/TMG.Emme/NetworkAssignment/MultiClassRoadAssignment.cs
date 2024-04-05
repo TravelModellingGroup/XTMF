@@ -205,8 +205,8 @@ public class MultiClassRoadAssignmentTool : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("Mode_List", GetClasses()),
             new ModellerControllerParameter("xtmf_Demand_String", GetDemand()),
@@ -235,7 +235,7 @@ public class MultiClassRoadAssignmentTool : IEmmeTool
             new ModellerControllerParameter("xtmf_MultiplyPathPropByValue", GetPathMultiplyValue()),
             new ModellerControllerParameter("xtmf_BackgroundTransit", BackgroundTransit.ToString()),
             new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString())
-        };
+        ];
     }
 
     private string GetAttributesFromClass()

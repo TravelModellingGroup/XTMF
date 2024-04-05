@@ -61,7 +61,7 @@ public class NetworkEstimationTemplate : I4StepModel
 
     private static Tuple<byte, byte, byte> Colour = new(100, 200, 100);
 
-    private static char[] Comma = { ',' };
+    private static char[] Comma = [','];
 
     private static int SummeryNumber;
 
@@ -207,7 +207,7 @@ public class NetworkEstimationTemplate : I4StepModel
                 var split = line.Split(Comma, StringSplitOptions.RemoveEmptyEntries);
                 TransitLine current = new();
                 string currentName;
-                current.Id = new[] { (currentName = split[1]) };
+                current.Id = [(currentName = split[1])];
                 current.Bordings = float.Parse(split[0]);
                 if (split.Length > 2)
                 {

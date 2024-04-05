@@ -264,7 +264,7 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
                         DataPoint point = new()
                         {
                             XValue = double.Parse(parts[first]),
-                            YValues = new[] { double.Parse(parts[second]) }
+                            YValues = [double.Parse(parts[second])]
                         };
                         if (height > maxHeight) maxHeight = height;
                         if (height < minHeight) minHeight = height;

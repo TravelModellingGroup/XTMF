@@ -116,7 +116,7 @@ public class GetBestParameters : ISelfContainedModule
             reader.Get(out string name, i);
             ret.Add( new ParameterSetting()
             {
-                Names = new[] { name }
+                Names = [name]
             } );
         }
         return ret.ToArray();

@@ -415,12 +415,12 @@ public class PerceivedTimeAggregatePoRPoW : IDataSource<SparseTriIndex<float>>
         {
             ret = SparseTriIndex<float>.CreateSimilarArray(new SparseArray<int>(new SparseIndexing()
             {
-                Indexes = new[]
-                        { new SparseSet()
+                Indexes =
+                        [ new SparseSet()
                             { BaseLocation = 0,
                                 Start = 0,
                                 Stop = NumberOfWorkerCategories - 1 }
-                        }
+                        ]
             }), zoneSystem, zoneSystem);
         }
         // now fill it

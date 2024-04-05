@@ -72,12 +72,12 @@ public class SetTrafficTransitResults : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("HasTraffic", HasTraffic.ToString()),
             new ModellerControllerParameter("HasTransit", HasTransit.ToString()),
-            };
+            ];
     }
     public bool RuntimeValidation(ref string error)
     {

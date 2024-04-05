@@ -68,14 +68,13 @@ public class ImportNetworkPackage : IEmmeTool
 
 
         return mc.Run(this, _ToolName,
-            new[]
-            {
+            [
                 new ModellerControllerParameter("NetworkPackageFile", Path.GetFullPath(NetworkPackage.GetFilePath())),
                 new ModellerControllerParameter("ScenarioId", ScenarioId.ToString()),
                 new ModellerControllerParameter("ConflictOption", ConflictOption.ToString()),
                 new ModellerControllerParameter("AddFunction", AddFunctions.ToString()),
                 new ModellerControllerParameter("ScenarioName", ScenarioName.ToString())
-            });
+            ]);
     }
 
     public string Name

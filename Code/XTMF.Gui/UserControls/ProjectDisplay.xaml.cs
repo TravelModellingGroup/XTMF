@@ -462,7 +462,7 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
             {
                 // save as a model system in an external file
                 var fileName = MainWindow.OpenFile(selected.Name,
-                    new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                    [new KeyValuePair<string, string>("Model System File", "xml")], false);
                 if (!string.IsNullOrWhiteSpace(fileName))
                 {
                     string error = null;

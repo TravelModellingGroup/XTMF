@@ -77,11 +77,11 @@ public class GTAPopulation : IPopulation
         Parallel.For( 0, flatZones.Length, delegate(int i)
         {
             IZone zone = flatZones[i];
-            flatHouseholds[i] = new[]
-                {   new Household { Cars = 0, Zone = zone },
+            flatHouseholds[i] =
+                [   new Household { Cars = 0, Zone = zone },
                     new Household { Cars = 1, Zone = zone },
                     new Household { Cars = 2, Zone = zone }
-                };
+                ];
         } );
         using ( CommentedCsvReader reader = new( fileName ) )
         {
@@ -190,7 +190,7 @@ public class GTAPopulation : IPopulation
             }
             else
             {
-                flatPop[i] = new IPerson[0];
+                flatPop[i] = [];
             }
         } );
         Population = pop;

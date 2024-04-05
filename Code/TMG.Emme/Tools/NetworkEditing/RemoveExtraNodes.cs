@@ -60,14 +60,14 @@ public sealed class RemoveExtraNodes : IEmmeTool
     private ModellerControllerParameter[] GetParameters()
     {
         //def __call__(self, baseScen, nodeFilter, stopFilter, connFilter, attAgg):
-        return new ModellerControllerParameter[]
-        {
+        return
+        [
             new("baseScen",ScenarioNumber.ToString()),
             new("NodeFilterAttributeId",NodeFilterAttribute),
             new("StopFilterAttributeId",StopFilterAttribute),
             new("ConnectorFilterAttributeId",ConnectorFilterAttribute),
             new("AttributeAggregatorString",AttributeAggregationFunctions)
-        };
+        ];
     }
 
     public string Name { get; set; }

@@ -70,8 +70,8 @@ public class ExportOperatorTransferMatrix : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("xtmf_ClassName", ClassName),
             new ModellerControllerParameter("ExportTransferMatrixFlag", ExportTransferMatrixFlag.ToString()),
@@ -80,7 +80,7 @@ public class ExportOperatorTransferMatrix : IEmmeTool
             new ModellerControllerParameter("xtmf_AggregationPartition",XTMFAggregationParition),
             new ModellerControllerParameter("WalkAllWayExportFile",ExportWalkAllWayMatrixFlag ? WalkAllWayMatrixFile.GetFilePath() : "none" ),
             new ModellerControllerParameter("LineGroupOptionOrAttributeId",LineGroupOptionOrAttributeId)
-        };
+        ];
     }
 
     public bool RuntimeValidation(ref string error)

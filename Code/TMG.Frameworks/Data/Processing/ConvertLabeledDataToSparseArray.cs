@@ -60,7 +60,7 @@ public class ConvertLabeledDataToSparseArray : IDataSource<SparseArray<float>>
             baseData = Labeled.GiveData();
         }
         var data = baseData.OrderBy(k => k.Key).Select(pair => pair.Value).ToArray();
-        _Data = new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = data.Length - 1 } } }, data);
+        _Data = new SparseArray<float>(new SparseIndexing() { Indexes = [new SparseSet() { Start = 0, Stop = data.Length - 1 }] }, data);
         Loaded = true;
     }
 

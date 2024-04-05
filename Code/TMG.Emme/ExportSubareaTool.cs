@@ -173,8 +173,8 @@ public class ExportSubareaTool : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("Mode_List", GetClasses()),
             new ModellerControllerParameter("xtmf_Demand_String", GetDemand()),
@@ -205,7 +205,7 @@ public class ExportSubareaTool : IEmmeTool
             new ModellerControllerParameter("xtmf_extractTransit", ExtractTransit.ToString(CultureInfo.InvariantCulture)),
             new ModellerControllerParameter("xtmf_outputFolder", OutputFolder.ToString(CultureInfo.InvariantCulture)),
             new ModellerControllerParameter("MaxCores", MaxCPUCores.ToString(CultureInfo.InvariantCulture)),
-        };
+        ];
     }
 
     private static string GetFileLocationOrNone(FileLocation location)

@@ -559,9 +559,9 @@ public class AggregatedDemographicsData2 : IDemographicsData
     {
         NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
         SparseArray<float> numberOfVehicles =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 2 }] });
         SparseArray<float> driversLicense =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 1 }] });
         if (!NonWorkerVehicleRateFile.ContainsFileName())
         {
             return;
@@ -871,9 +871,9 @@ public class AggregatedDemographicsData2 : IDemographicsData
     {
         WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
         SparseArray<float> numberOfVehicles =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 2 }] });
         SparseArray<float> driversLicense =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 1 }] });
         if (!WorkerVehicleRateFile.ContainsFileName())
         {
             return;

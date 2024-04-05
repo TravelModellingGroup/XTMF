@@ -450,7 +450,7 @@ public class TestParameterSignificance : IPostHousehold
                     else
                     {
                         var parameterPath = child.Attributes?["ParameterPath"].InnerText;
-                        current.Names = new[] {parameterPath};
+                        current.Names = [parameterPath];
                     }
                     parameters.Add(current);
                 }

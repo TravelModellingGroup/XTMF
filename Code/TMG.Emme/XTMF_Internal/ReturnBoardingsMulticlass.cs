@@ -52,12 +52,11 @@ public class ReturnBoardingsMulticlass : IEmmeTool
             throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         }
         return mc.Run(this, "tmg.XTMF_internal.return_boardings_multiclass",
-            new[] 
-            {
+            [
                 new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
                 new ModellerControllerParameter("xtmf_LineAggregationFile", Path.GetFullPath(LineAggregationFile.GetFilePath())),
                 new ModellerControllerParameter("xtmf_OutputDirectory", Path.GetFullPath(SaveToDirectory.GetFilePath()))
-            });
+            ]);
     }
 
     public bool RuntimeValidation(ref string error)

@@ -30,9 +30,9 @@ public class TestGravityModel
     {
         var data = CreateData();
         var gm = new GravityModel( data, null, 0.0f, 300 );
-        var o = SparseArray<float>.CreateSparseArray( new[] { 1, 2 }, new float[] { 2, 2 } );
-        var d = SparseArray<float>.CreateSparseArray( new[] { 1, 2 }, new[] { 1.5f, 2.5f } );
-        var ret = gm.ProcessFlow( o, d, new[] { 1, 2 } );
+        var o = SparseArray<float>.CreateSparseArray( [1, 2], new float[] { 2, 2 } );
+        var d = SparseArray<float>.CreateSparseArray( [1, 2], new[] { 1.5f, 2.5f } );
+        var ret = gm.ProcessFlow( o, d, [1, 2] );
         var result = ret.GetFlatData();
         Assert.AreEqual( 0.5f, result[0][0], 0.0001f );
         Assert.AreEqual( 1.5f, result[0][1], 0.0001f);

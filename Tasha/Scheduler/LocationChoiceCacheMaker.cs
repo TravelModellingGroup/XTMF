@@ -482,7 +482,7 @@ public class LocationChoiceCacheMaker : ITravelDemandModel
         //S = Retail
         //P = Professional
 
-        char[] separators = { ',' };
+        char[] separators = [','];
 
         string[] BGP = BGPString.Split(separators);
         string[] BMP = BMPString.Split(separators);
@@ -493,7 +493,7 @@ public class LocationChoiceCacheMaker : ITravelDemandModel
         string[] MOP = MOPString.Split(separators);
         string[] MMP = MMPString.Split(separators);
 
-        string[][] workParams = { BGP, BMP, BSP, BPP };
+        string[][] workParams = [BGP, BMP, BSP, BPP];
 
         float[,] parArray = new float[4, 7];
         float[,] parArray2 = new float[4, 19];

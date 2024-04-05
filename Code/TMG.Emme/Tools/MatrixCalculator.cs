@@ -55,12 +55,12 @@ public class MatrixCalculator : IEmmeTool
         {
             throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
         }
-        modeller.Run(this, ToolName, new[]
-        {
+        modeller.Run(this, ToolName,
+        [
           new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
           new ModellerControllerParameter("xtmf_expression", Expression),
           new ModellerControllerParameter("xtmf_result", Result)
-        });
+        ]);
         return true;
     }
 

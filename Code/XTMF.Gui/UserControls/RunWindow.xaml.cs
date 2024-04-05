@@ -579,7 +579,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     {
         Dispatcher.Invoke(() =>
         {
-            ShowErrorMessages(new[] { error });
+            ShowErrorMessages([error]);
             SetRunFinished(false);
             UpdateRunStatus?.Invoke("Runtime Error");                
             RuntimeError?.Invoke(error);

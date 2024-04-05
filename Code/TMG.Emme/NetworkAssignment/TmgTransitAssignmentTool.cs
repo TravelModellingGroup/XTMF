@@ -120,8 +120,8 @@ public class TransitAssignmentTool : IEmmeTool
 
         ModellerControllerParameter[] GetParameters()
         {
-            return new[]
-            {
+            return
+            [
             new ModellerControllerParameter("xtmf_ScenarioNumber",ScenarioNumber.ToString()),
             new ModellerControllerParameter("xtmf_DemandMatrixString",ProduceMatrixString(c => c.DemandMatrixNumber)),
             new ModellerControllerParameter("xtmf_NameString", (string.Join(",", from c in Classes
@@ -171,7 +171,7 @@ public class TransitAssignmentTool : IEmmeTool
             new ModellerControllerParameter("xtmf_XRowTTFRange", XRowTTF.ToString()),
             new ModellerControllerParameter("xtmf_NodeLogitScale",NodeLogitScale.ToString())
 
-            };
+            ];
         }
 
 

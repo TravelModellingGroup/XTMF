@@ -1871,7 +1871,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             if (inputDirectory is not null)
             {
                 var fileName = MainWindow.OpenFile("Select File",
-                    new[] { new KeyValuePair<string, string>("All Files", "*") }, true);
+                    [new KeyValuePair<string, string>("All Files", "*")], true);
                 if (fileName is null)
                 {
                     return;

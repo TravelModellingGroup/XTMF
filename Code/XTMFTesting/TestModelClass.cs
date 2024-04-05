@@ -32,13 +32,13 @@ public class TestModelClass : IModule
     [Parameter( StringName, "Success", "Used for testing that this is in fact working." )]
     public string OurInputString;
 
-    private Tuple<byte, byte, byte>[] Colours = new[]
-    {
+    private Tuple<byte, byte, byte>[] Colours =
+    [
         new Tuple<byte,byte,byte>(200, 150, 150),
         new Tuple<byte,byte,byte>(150, 200, 150),
         new Tuple<byte,byte,byte>(200, 150, 200),
         new Tuple<byte,byte,byte>(200, 0, 0)
-    };
+    ];
 
     private int ColourToSend;
 

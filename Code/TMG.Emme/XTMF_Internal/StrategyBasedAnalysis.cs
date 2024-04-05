@@ -72,8 +72,7 @@ public sealed class StrategyBasedAnalysis : IEmmeTool
             throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         }
         return mc.Run(this, ToolName,
-            new[] 
-            {
+            [
                 new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
                 new ModellerControllerParameter("xtmf_ClassName", ClassName.ToString()),
                 new ModellerControllerParameter("xtmf_DemandMatrixNumber", DemandMatrix.ToString()),
@@ -83,7 +82,7 @@ public sealed class StrategyBasedAnalysis : IEmmeTool
                 new ModellerControllerParameter("xtmf_transit_volumes_attribute", TransitVolumesAttribute),
                 new ModellerControllerParameter("xtmf_aux_transit_attribute", AuxTransitAttribute),
                 new ModellerControllerParameter("xtmf_aux_transit_volumes_attribute", AuxTransitVolumesAttribute)
-            });
+            ]);
     }
 
     public bool RuntimeValidation(ref string error)

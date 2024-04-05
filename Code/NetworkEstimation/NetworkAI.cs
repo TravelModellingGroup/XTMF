@@ -76,7 +76,7 @@ public class NetworkAi : INetworkEstimationAI
     [RunParameter( "Whisker Length", 0.1f, "The amount that we will search out to find orientation in each parameter dimension." )]
     public float WhiskerLength;
 
-    private static char[] Comma = { ',' };
+    private static char[] Comma = [','];
 
     private float BestRunError = float.MaxValue;
 

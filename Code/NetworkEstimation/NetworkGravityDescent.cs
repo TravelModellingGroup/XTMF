@@ -60,7 +60,7 @@ public class NetworkGravityDescent : INetworkEstimationAI
     [RunParameter("Whisker Length", 0.1f, "The ammount that we will search out to find orientation in each parameter dimension.")]
     public float WhiskerLength;
 
-    private static char[] Comma = { ',' };
+    private static char[] Comma = [','];
     private float BestRunError = float.MaxValue;
 
     private int CurrentIteration;

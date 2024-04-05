@@ -79,8 +79,8 @@ public class ExtractTransitODVectors : IEmmeTool
            def __call__(self, xtmf_ScenarioNumber, LineFilterExpression, xtmf_LineODMatrixNumber,
               xtmf_AggOriginMatrixNumber, xtmf_AggDestinationMatrixNumber, xtmf_AutoODMatrixId, xtmf_AccessStationRange, xtmf_ZoneCentroidRange):
         */
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("LineFilterExpression", LineFilterExpression),
             new ModellerControllerParameter("xtmf_LineODMatrixNumber", LineODMatrixNumber.ToString()),
@@ -89,7 +89,7 @@ public class ExtractTransitODVectors : IEmmeTool
             new ModellerControllerParameter("xtmf_AutoODMatrixId", AutoODMatrixId.ToString()),
             new ModellerControllerParameter("xtmf_AccessStationRange", StationCentroids.ToString()),
             new ModellerControllerParameter("xtmf_ZoneCentroidRange", ZoneCentroids.ToString())
-        };
+        ];
     }
 
     public bool RuntimeValidation(ref string error)

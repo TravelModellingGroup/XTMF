@@ -55,10 +55,10 @@ public sealed class AddTransferTimeAdjustmentsFromCSV : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new ModellerControllerParameter[]
-        {
+        return
+        [
             new("parameters", GetJsonParameters())
-        };
+        ];
     }
 
     private struct StationAdjustment

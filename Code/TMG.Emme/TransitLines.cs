@@ -59,7 +59,7 @@ public class TransitLines
         using ( StreamReader reader = new( file621Name ) )
         {
             var transitLines = new List<TransitLine>( 1000 );
-            char[] split = new char[] { ',', ' ', '\t' };
+            char[] split = [',', ' ', '\t'];
             string line;
             // Process each line
             while ( ( line = reader.ReadLine() ) != null )
@@ -70,7 +70,7 @@ public class TransitLines
                     var current = new TransitLine();
                     try
                     {
-                        current.Id = new[] { parts[0] };
+                        current.Id = [parts[0]];
                         current.Mode = parts[1][0];
                         current.VehicalType = int.Parse( parts[2] );
                         current.NumberOfVehicals = int.Parse( parts[3] );

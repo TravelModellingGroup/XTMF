@@ -205,14 +205,13 @@ public class RecompilingBlankMode : IUtilityComponentMode
                     new CodeArgumentReferenceExpression("destination"))
                     ),
                 // if true
-                new CodeStatement[0],
+                [],
                 // if false
-                new CodeStatement[]
-                {
+                [
                     new CodeMethodReturnStatement(
                             new CodePrimitiveExpression(false)
                         )
-                }));
+                ]));
         }
         feasibleMethod.Statements.Add(
             new CodeMethodReturnStatement(
@@ -282,11 +281,11 @@ public class RecompilingBlankMode : IUtilityComponentMode
         var initFunction = optimizedMode.GetType().GetMethod("InitialzeUtilities");
         if (FeasibilityCalculation != null)
         {
-            initFunction.Invoke(optimizedMode, new object[] { FeasibilityCalculation, UtilityComponents });
+            initFunction.Invoke(optimizedMode, [FeasibilityCalculation, UtilityComponents]);
         }
         else
         {
-            initFunction.Invoke(optimizedMode, new object[] { UtilityComponents });
+            initFunction.Invoke(optimizedMode, [UtilityComponents]);
         }
         return true;
     }
@@ -315,8 +314,8 @@ public class RecompilingBlankMode : IUtilityComponentMode
         }
         var assembly = results.CompiledAssembly;
         var theClass = assembly.GetType(String.Format("TMG.Modes.Generated.OptimizedMode{0}", ModeName));
-        var constructor = theClass.GetConstructor(new Type[0]);
-        optimizedMode = constructor?.Invoke(new object[0]) as IUtilityComponentMode;
+        var constructor = theClass.GetConstructor([]);
+        optimizedMode = constructor?.Invoke([]) as IUtilityComponentMode;
         return true;
     }
 

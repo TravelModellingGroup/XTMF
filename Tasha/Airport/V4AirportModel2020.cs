@@ -345,15 +345,15 @@ public class V4AirportModel2020 : ISelfContainedModule
     {
         bool[] availableZones = Root.ZoneSystem.ZoneArray.GetFlatData()
             .Select(z => ValidZones.Contains(z.ZoneNumber)).ToArray();
-        float[][] attractionTerms = new float[][]
-            {
+        float[][] attractionTerms =
+            [
                 SumResources(PFEmployment, PPEmployment),
                 SumResources(GFEmployment, GPEmployment),
                 SumResources(SFEmployment, SPEmployment),
                 SumResources(MFEmployment, MPEmployment),
                 GetCopyOfResource(Population),
                 Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => CBDRange.Contains(z.PlanningDistrict) ? 1.0f : 0.0f).ToArray()
-            };
+            ];
         ProcessAttractionTerms(attractionTerms);
         int pearsonZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(AirportZone);
         if (pearsonZoneIndex < 0)

@@ -66,15 +66,15 @@ public class ExtractFlaggedLineDemandMatrix : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new ModellerControllerParameter[]
-        {
+        return
+        [
             new("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
             new("xtmf_MatrixResultNumber", StoreResultsTo.ToString()),
             new("xtmf_DemandMatrixNumber", DemandMatrixNumber.ToString()),
             new("xtmf_ClassName", ClassName),
             new("xtmf_Attribute", FlagAttribute)
           
-        };
+        ];
     }
 
     public bool RuntimeValidation(ref string error)

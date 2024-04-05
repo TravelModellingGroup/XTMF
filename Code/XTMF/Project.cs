@@ -819,10 +819,10 @@ public sealed partial class Project : IProject
                 else
                 {
                     // if we know it is concrete, lets try to just make it with a default constructor
-                    var defaultConstructor = collectionType.GetConstructor(new Type[] { });
+                    var defaultConstructor = collectionType.GetConstructor([]);
                     if (defaultConstructor != null)
                     {
-                        var collectionObject = defaultConstructor.Invoke(new object[] { });
+                        var collectionObject = defaultConstructor.Invoke([]);
                         if (infoField != null)
                         {
                             infoField.SetValue(root, collectionObject);
@@ -843,12 +843,12 @@ public sealed partial class Project : IProject
                     if (infoField != null)
                     {
                         infoField.SetValue(root,
-                            listOfInner.GetConstructor(new Type[] { })?.Invoke(new object[] { }));
+                            listOfInner.GetConstructor([])?.Invoke([]));
                     }
                     else
                     {
                         infoProperty.SetValue(root,
-                            listOfInner.GetConstructor(new Type[] { })?.Invoke(new object[] { }), null);
+                            listOfInner.GetConstructor([])?.Invoke([]), null);
                     }
 
                     created = true;
@@ -906,7 +906,7 @@ public sealed partial class Project : IProject
             var grandChildren = child.Children;
             if (collectionType.IsArray)
             {
-                var setValue = collectionTrueType.GetMethod("SetValue", new[] { typeof(object), typeof(int) });
+                var setValue = collectionTrueType.GetMethod("SetValue", [typeof(object), typeof(int)]);
                 var pos = 0;
                 for (var i = 0; i < grandChildren.Count; i++)
                 {
@@ -919,7 +919,7 @@ public sealed partial class Project : IProject
                             return false;
                         }
 
-                        setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, pos++ });
+                        setValue.Invoke(collectionObject, [child.Children[i].Module, pos++]);
                     }
 
                     path.RemoveAt(path.Count - 1);
@@ -927,7 +927,7 @@ public sealed partial class Project : IProject
             }
             else
             {
-                var addMethod = collectionTrueType.GetMethod("Add", new[] { inner });
+                var addMethod = collectionTrueType.GetMethod("Add", [inner]);
                 if (addMethod == null)
                 {
                     error = new ErrorWithPath(path,
@@ -950,7 +950,7 @@ public sealed partial class Project : IProject
                             return false;
                         }
 
-                        addMethod.Invoke(collectionObject, new object[] { member.Module });
+                        addMethod.Invoke(collectionObject, [member.Module]);
                     }
 
                     path.RemoveAt(path.Count - 1);

@@ -28,8 +28,8 @@ public class TestMinHeap
     [TestMethod]
     public void TestConstructor()
     {
-        int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
-        int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
+        int[] testMe = [5, 3, 4, 7, 2, 1, 9];
+        int[] sorted = [1, 2, 3, 4, 5, 7, 9];
         var heap = new MinHeap<int>( testMe );
         for ( int i = 0; i < sorted.Length; i++ )
         {
@@ -44,8 +44,8 @@ public class TestMinHeap
     [TestMethod]
     public void TestAdd()
     {
-        int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
-        int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
+        int[] testMe = [5, 3, 4, 7, 2, 1, 9];
+        int[] sorted = [1, 2, 3, 4, 5, 7, 9];
         var heap = new MinHeap<int>();
         for ( int i = 0; i < testMe.Length; i++ )
         {

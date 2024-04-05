@@ -133,8 +133,8 @@ internal static class DataLinker
         }
         var assembly = results.CompiledAssembly;
         var theClass = assembly.GetType(String.Format("XTMF.DataUtilities.Generated.TransitionClass{0}", uniqueId));
-        var constructor = theClass.GetConstructor(new Type[0]);
-        var output = constructor?.Invoke(new object[0]);
+        var constructor = theClass.GetConstructor([]);
+        var output = constructor?.Invoke([]);
         return output as IDataLink<T>;
     }
 }

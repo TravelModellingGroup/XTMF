@@ -51,13 +51,13 @@ public class ExportCountpostResults : IEmmeTool
         {
             throw new XTMFRuntimeException(this, "In '" + Name + "' we require the use of EMME Modeller in order to execute.");
         }
-        modeller.Run(this, ToolName, new[]
-        {
+        modeller.Run(this, ToolName,
+        [
           new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
           new ModellerControllerParameter("CountpostAttributeId", CountpostAttributeFlag),
           new ModellerControllerParameter("AlternateCountpostAttributeId", AlternateCountpostAttributeFlag),
           new ModellerControllerParameter("ExportFile", SaveTo.GetFilePath()),
-        });
+        ]);
         return true;
     }
 

@@ -140,7 +140,7 @@ public class ExtractTransitMatrixResults : IEmmeTool
         var classNames = new ModellerControllerParameter("xtmf_ClassNames", string.Join(",", from ex in Extractions
                                                                                              select ex.ClassName));
 
-        return new ModellerControllerParameter[] { scenarioNumber, modeList, matrixNumber, analysisType, classNames };
+        return [scenarioNumber, modeList, matrixNumber, analysisType, classNames];
     }
 
     public bool RuntimeValidation(ref string error)

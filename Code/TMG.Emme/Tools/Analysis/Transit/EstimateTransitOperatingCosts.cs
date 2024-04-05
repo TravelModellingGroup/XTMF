@@ -70,13 +70,13 @@ public class EstimateTransitOperatingCosts : IEmmeTool
             throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
         }
 
-        modeller.Run(this, ToolName, new[]
-            {
+        modeller.Run(this, ToolName,
+            [
                 new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
                 new ModellerControllerParameter("ServiceTableFile", ServiceTableFile.GetFilePath()),
                 new ModellerControllerParameter("CostParamsFile", CostParamsFile.GetFilePath()),
                 new ModellerControllerParameter("ReportFile", ReportFile.GetFilePath())
-            }
+            ]
         );
 
         return true;

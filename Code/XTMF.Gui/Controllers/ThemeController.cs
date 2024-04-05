@@ -31,12 +31,12 @@ namespace XTMF.Gui.Controllers;
 public class ThemeController
 {
     private static readonly Uri[] RequiredResources =
-    {
+    [
         new("Resources/ControlStyles.xaml", UriKind.RelativeOrAbsolute),
         new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
         new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
      
-    };
+    ];
 
     public class Theme
     {

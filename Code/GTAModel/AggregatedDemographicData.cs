@@ -600,9 +600,9 @@ public class AggregatedDemographicData : IDemographicsData
     {
         NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
         SparseArray<float> numberOfVehicles =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 2 }] });
         SparseArray<float> driversLicense =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 1 }] });
         using CsvReader reader = new(GetFullPath(NonWorkerVehicleRateFile));
         if (NonWorkerVehicleRateFileHeader)
         {
@@ -919,9 +919,9 @@ public class AggregatedDemographicData : IDemographicsData
     {
         WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
         SparseArray<float> numberOfVehicles =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 2 }] } );
         SparseArray<float> driversLicense =
-            new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } } );
+            new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 1 }] } );
         using CsvReader reader = new(GetFullPath(WorkerVehicleRateFile));
         if (WorkerVehicleRateFileHeader)
         {

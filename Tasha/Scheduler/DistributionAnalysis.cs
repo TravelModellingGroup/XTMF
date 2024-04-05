@@ -203,7 +203,7 @@ public class DistributionAnalysis : IModelSystemTemplate, IDisposable
         SchedulerPerson.GenerateWorkSchoolSchedule( person, null );
         SchedulerTripChain.GetTripChain( person );
 
-        Occupation[] occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
+        Occupation[] occupations = [Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed];
 
         LoadDistributionNumbers( person, primaryWork, occupations );
 

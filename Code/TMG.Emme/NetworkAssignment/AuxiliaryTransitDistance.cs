@@ -50,13 +50,13 @@ public class AuxiliaryTransitDistance : IEmmeTool
     {
         if(controller is ModellerController mc)
         {
-            return mc.Run(this, ToolName, new ModellerControllerParameter[]
-                {
+            return mc.Run(this, ToolName,
+                [
                     new("xtmf_AssignmentModes", Modes),
                     new("DistanceSkimMatrixID", DistanceMatrix.ToString()),
                     new("xtmf_ScenarioId", ScenarioNumber.ToString()),
                     new("ClassName", "aux_transit_distance")
-                });
+                ]);
         }
         throw new XTMFRuntimeException(this, "The runtime controller for EMME was not a modeller controller!");
     }

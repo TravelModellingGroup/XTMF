@@ -125,8 +125,8 @@ internal static class UniversalRead<TDestination>
 
         var assembly = results.CompiledAssembly;
         var theClass = assembly.GetType(String.Format("XTMF.DataUtilities.Generated.RealtimeCompiledReader{0}", uniqueId));
-        var constructor = theClass.GetConstructor(new Type[0]);
-        var output = constructor?.Invoke(new object[0]);
+        var constructor = theClass.GetConstructor([]);
+        var output = constructor?.Invoke([]);
         return output as IRead<TDestination, TSource>;
     }
 

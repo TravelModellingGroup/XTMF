@@ -45,9 +45,9 @@ public class PersonScheduleAnalysis : IPostScheduler
     [RunParameter("WorkPersonsFile", "WorkPersons.png", "The file name for the chart.")]
     public string WorkPersonsFile;
 
-    private static Activity[] MarketActivities = new Activity[] { Activity.Market, Activity.JointMarket };
-    private static Activity[] OtherActivities = new Activity[] { Activity.IndividualOther, Activity.JointOther };
-    private static Activity[] WorkActivities = new Activity[] { Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.ReturnFromWork };
+    private static Activity[] MarketActivities = [Activity.Market, Activity.JointMarket];
+    private static Activity[] OtherActivities = [Activity.IndividualOther, Activity.JointOther];
+    private static Activity[] WorkActivities = [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.ReturnFromWork];
     private int[] MarketPersons;
     private int[] OtherPersons;
     private int[] WorkingPersons;

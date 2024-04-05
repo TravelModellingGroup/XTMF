@@ -71,21 +71,21 @@ public static class ArbitraryParameterParser
             {
                 // If we are not a string to try find a try parse with an error first
                 string typeParse = "TryParse";
-                var errorTryParse = t.GetMethod(typeParse, new[] { typeof(string).MakeByRefType(), typeof(string), t.MakeByRefType() });
+                var errorTryParse = t.GetMethod(typeParse, [typeof(string).MakeByRefType(), typeof(string), t.MakeByRefType()]);
                 if (errorTryParse != null && errorTryParse.IsStatic)
                 {
                     ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(3, errorTryParse));
                     return ErrorTryParse(input, ref error, errorTryParse);
                 }
                 // if there is no error try parse, just try the TryParse
-                var regularTryParse = t.GetMethod(typeParse, new[] { typeof(string), t.MakeByRefType() });
+                var regularTryParse = t.GetMethod(typeParse, [typeof(string), t.MakeByRefType()]);
                 if (regularTryParse != null && regularTryParse.IsStatic)
                 {
                     ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(2, regularTryParse));
                     return TryParse(input, ref error, regularTryParse);
                 }
                 // If there is no TryParse at all, fall back to the regular Parse method
-                var regularParse = t.GetMethod("Parse", new[] { typeof(string) });
+                var regularParse = t.GetMethod("Parse", [typeof(string)]);
                 if (regularParse != null && regularParse.IsStatic)
                 {
                     ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(1, regularParse));

@@ -39,7 +39,7 @@ public class ComputePeakHourFactor : IPostHouseholdIteration
 
     public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-    private float[] TripBins = new float[0];
+    private float[] TripBins = [];
 
     [SubModelInformation(Required = false, Description = "")]
     public ISetableDataSource<float> StoreResultTo;

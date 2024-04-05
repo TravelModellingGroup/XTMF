@@ -146,7 +146,7 @@ public class PoRPoWMST : ITravelDemandModel, IResourceSource
                 ZoneToPDIndexMap = (from zone in zones
                                     select PDError.GetFlatIndex(zone.PlanningDistrict)).ToArray();
                 // transform the Truth to be PD based
-                Truth = AggregateResults((new[] { Truth }), zones)
+                Truth = AggregateResults(([Truth]), zones)
                     .Select(row => row.Select(element => element).ToArray()).ToArray();
             }
             FirstTime = false;

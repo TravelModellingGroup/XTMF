@@ -334,8 +334,8 @@ public class SpaceTimeTrafficAssignmentTool : IEmmeTool
         stream.Position = 0;
         // convert the traffic class data into a string and send it through the bridge as parameters
         var sb = System.Text.UTF8Encoding.UTF8.GetString(stream.ToArray());
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("IntervalLengths", IntervalLengths.ToString(CultureInfo.InvariantCulture)),
             new ModellerControllerParameter("StartTime", StartTime.ToString(CultureInfo.InvariantCulture)),
@@ -354,7 +354,7 @@ public class SpaceTimeTrafficAssignmentTool : IEmmeTool
             new ModellerControllerParameter("PerformanceFlag", PerformanceFlag.ToString(CultureInfo.InvariantCulture)),
             new ModellerControllerParameter("RunTitle", RunTitle),
             new ModellerControllerParameter("TrafficClasses", sb.ToString()),
-        };
+        ];
     }
 
     public bool RuntimeValidation(ref string error)

@@ -61,12 +61,11 @@ public class ExportEMMENetworkToShapeFile : IEmmeTool
 
 
         return mc.Run(this, ToolName,
-            new[]
-            {
+            [
                 new ModellerControllerParameter("xtmf_exportPath", Filepath.GetFilePath()),
                 new ModellerControllerParameter("xtmf_transitShapes", TransitShape.ToString()),
                 new ModellerControllerParameter("xtmf_scenario", ScenarioNumber.ToString())
-            });
+            ]);
     }
 
 

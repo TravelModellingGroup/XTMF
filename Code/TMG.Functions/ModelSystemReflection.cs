@@ -244,7 +244,7 @@ public static class ModelSystemReflection
         // find modules given a path
         if (String.IsNullOrWhiteSpace(parameterName))
         {
-            return new string[0];
+            return [];
         }
         List<string> parts = [];
         var stringLength = parameterName.Length;

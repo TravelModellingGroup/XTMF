@@ -362,7 +362,7 @@ public class PopulationSynthesis : ITravelDemandModel
 
     private SparseArray<int> SplitCars(Person[] people, int zoneIndex, int validAgeIndex, int validOccupationIndex, bool license, int ageOffset, int agePop, Random rand, out int[] indexes)
     {
-        SparseArray<float> ret = new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+        SparseArray<float> ret = new(new SparseIndexing { Indexes = [new SparseSet { Start = 0, Stop = 2 }] });
         // Because everything is random at this point we actually need to scan to see how many people we have
         List<int> indexesList = new(agePop);
         if (validOccupationIndex == UnemployedOccupation)

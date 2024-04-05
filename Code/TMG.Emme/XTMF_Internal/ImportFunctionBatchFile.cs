@@ -46,11 +46,11 @@ public sealed class ImportFunctionBatchFile : IEmmeTool
     {
         if (controller is ModellerController mc)
         {
-            return mc.Run(this, "tmg.XTMF_internal.import_function_batch_file", new ModellerControllerParameter[]
-            {
+            return mc.Run(this, "tmg.XTMF_internal.import_function_batch_file",
+            [
                 new("batch_file", TransactionFile),
                 new("scenario_number", ScenarioNumber.ToString()),
-            });
+            ]);
         }
         else
         {

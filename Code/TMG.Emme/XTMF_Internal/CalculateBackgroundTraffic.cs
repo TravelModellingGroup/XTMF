@@ -77,14 +77,14 @@ public class CalculateBackgroundTraffic : IEmmeTool
 
     private ModellerControllerParameter[] GetParameters()
     {
-        return new[]
-        {
+        return
+        [
             new ModellerControllerParameter("ScenarioNumber", ScenarioNumber.ToString()),
             new ModellerControllerParameter("IntervalLengths", IntervalLengths.ToString(CultureInfo.InvariantCulture)),
             new ModellerControllerParameter("LinkComponentAttribute", LinkComponentAttribute),
             new ModellerControllerParameter("StartIndex", StartIndex.ToString(CultureInfo.InvariantCulture)),
             new ModellerControllerParameter("OnRoadTTFRanges", OnRoadTTFs.ToString()),
-        };
+        ];
     }
 
     public bool RuntimeValidation(ref string error)
