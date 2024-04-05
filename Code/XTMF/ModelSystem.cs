@@ -276,9 +276,9 @@ namespace XTMF
         /// <summary>
         /// Save the quick parameters to the run directory.
         /// </summary>
-        /// <param name="quickParamterPath">The path to the file to save the quick parameters to.</param>
+        /// <param name="quickParameterPath">The path to the file to save the quick parameters to.</param>
         /// <param name="root">The root of the model system to save the quick parameters to.</param>
-        internal static void SaveQuickParameters(string quickParamterPath, ModelSystemStructure root)
+        internal static void SaveQuickParameters(string quickParameterPath, ModelSystemStructure root)
         {
             var parameters = new List<(string name, string value)>();
             void AddParameters(IModuleParameters moduleParameters)
@@ -309,7 +309,7 @@ namespace XTMF
             Explore(root);
             // Sort the quick parameters by name
             parameters.Sort((first, second) => first.name.CompareTo(second.name));
-            using var stream = new FileStream(quickParamterPath, FileMode.Create, FileAccess.Write);
+            using var stream = new FileStream(quickParameterPath, FileMode.Create, FileAccess.Write);
             using var writer = XmlWriter.Create(stream, new XmlWriterSettings() { Indent = true, Encoding = Encoding.Unicode });
             writer.WriteStartDocument();
             writer.WriteStartElement("QuickParameters");

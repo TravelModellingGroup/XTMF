@@ -342,7 +342,7 @@ namespace XTMF
             }
         }
 
-        public IClient RetriveCurrentNetworkingClient()
+        public IClient RetrieveCurrentNetworkingClient()
         {
             return _CurrentClient;
         }
@@ -674,7 +674,7 @@ namespace XTMF
         /// <param name="error">A message describing the error.</param>
         /// <returns>True if there is an error.</returns>
         private bool CheckTypeForErrors(Type type, ref string error) =>
-            CheckForParameterDelcarationErrors(type, ref error) ||
+            CheckForParameterDeclarationErrors(type, ref error) ||
             CheckForNonPublicRootAndParentTags(type, ref error);
 
 
@@ -707,7 +707,7 @@ namespace XTMF
         /// <param name="type">The type to check for</param>
         /// <param name="error">A description of the issue in the code that needs to be resolved.</param>
         /// <returns>True if there is an error, false otherwise.</returns>
-        private static bool CheckForParameterDelcarationErrors(Type type, ref string error)
+        private static bool CheckForParameterDeclarationErrors(Type type, ref string error)
         {
             var parameters = Project.GetParameters(type).Parameters;
             for (int i = 0; i < parameters.Count - 1; i++)

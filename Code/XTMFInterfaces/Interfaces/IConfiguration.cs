@@ -102,7 +102,7 @@ namespace XTMF
         /// Retrive the Networking Client however, do not initialize a new one if it doesn't exist already.
         /// </summary>
         /// <returns>The networking client module</returns>
-        IClient RetriveCurrentNetworkingClient();
+        IClient RetrieveCurrentNetworkingClient();
 
         /// <summary>
         /// Save the Configuration

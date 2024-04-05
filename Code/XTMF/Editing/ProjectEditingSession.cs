@@ -104,7 +104,7 @@ namespace XTMF
         /// <param name="newName">The name to save the project as</param>
         /// <param name="error">The reason the call failed</param>
         /// <returns>True if the rename was successful, otherwise error will describe why it failed.</returns>
-        public bool ReameProject(string newName, ref string error)
+        public bool RenameProject(string newName, ref string error)
         {
             lock (_EditingSessionsLock)
             {
@@ -494,7 +494,7 @@ namespace XTMF
         }
 
         /// <summary>
-        /// Determins if a run name is valid path name
+        /// Determines if a run name is valid path name
         /// </summary>
         /// <param name="runName"></param>
         /// <returns></returns>

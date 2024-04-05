@@ -1458,7 +1458,7 @@ namespace XTMF
                 {
                     if (field.FieldType == clientType)
                     {
-                        var networkingClient = configuration.RetriveCurrentNetworkingClient();
+                        var networkingClient = configuration.RetrieveCurrentNetworkingClient();
                         if (networkingClient != null)
                         {
                             field.SetValue(module, networkingClient);

@@ -108,7 +108,7 @@ public class ConfigurationProxy : IConfiguration
         throw new NotSupportedException("Installing modules is not supported from a model run!");
     }
 
-    public IClient RetriveCurrentNetworkingClient() => _realConfiguration.RetriveCurrentNetworkingClient();
+    public IClient RetrieveCurrentNetworkingClient() => _realConfiguration.RetrieveCurrentNetworkingClient();
 
     public void Save() => _realConfiguration.Save();
 

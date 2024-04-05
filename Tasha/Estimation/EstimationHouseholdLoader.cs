@@ -102,7 +102,7 @@ namespace Tasha.Estimation
                 {
                     if (!Loaded)
                     {
-                        bool householdsRecieved = false;
+                        bool householdsReceived = false;
                         ToHost.RegisterCustomReceiver(HouseholdDataChannel, (stream) =>
                            {
                                byte[] key = GetKey()
@@ -143,7 +143,7 @@ namespace Tasha.Estimation
                                                households[i] = LoadHousehold(reader, zoneArray);
                                            }
                                            Households = households;
-                                           householdsRecieved = true;
+                                           householdsReceived = true;
                                        }
                                        catch(Exception e)
                                        {
@@ -166,7 +166,7 @@ namespace Tasha.Estimation
                             });
                         // Tell the host that we want our households
                         ToHost.SendCustomMessage(null, HouseholdDataChannel);
-                        while (!householdsRecieved)
+                        while (!householdsReceived)
                         {
                             System.Threading.Thread.Sleep(0);
                             System.Threading.Thread.MemoryBarrier();

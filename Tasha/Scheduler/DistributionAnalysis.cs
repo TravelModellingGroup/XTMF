@@ -127,7 +127,7 @@ namespace Tasha.Scheduler
             return "Analysing Distribution Data";
         }
 
-        private static void LoadDistributioNumbers(TashaPerson person, List<int> primaryWork, Occupation[] occupations)
+        private static void LoadDistributionNumbers(TashaPerson person, List<int> primaryWork, Occupation[] occupations)
         {
             foreach ( Occupation current in occupations )
             {
@@ -202,7 +202,7 @@ namespace Tasha.Scheduler
 
             Occupation[] occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
 
-            LoadDistributioNumbers( person, primaryWork, occupations );
+            LoadDistributionNumbers( person, primaryWork, occupations );
 
             float[] data = new float[StartTimeQuantums];
             foreach ( int id in primaryWork )
