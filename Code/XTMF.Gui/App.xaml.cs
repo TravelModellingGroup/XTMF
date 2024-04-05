@@ -3,9 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
-using MaterialDesignThemes.Wpf.Transitions;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Helpers;
 

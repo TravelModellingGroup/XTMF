@@ -23,7 +23,6 @@ using Tasha.Common;
 using Tasha.Scheduler;
 using TMG.Input;
 using XTMF;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.Validation;
 

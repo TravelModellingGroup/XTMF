@@ -27,16 +27,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using log4net;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Repository;
-using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
-using XTMF.Gui.Annotations;
 
 namespace XTMF.Gui.UserControls;
 

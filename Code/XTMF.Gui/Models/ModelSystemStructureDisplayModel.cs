@@ -25,7 +25,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using XTMF.Annotations;
 using XTMF.Gui.UserControls;
 
 namespace XTMF.Gui.Models;

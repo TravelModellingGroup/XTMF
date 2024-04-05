@@ -18,7 +18,6 @@
 */
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 // ReSharper disable ArrangeRedundantParentheses
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable PossibleLossOfFraction

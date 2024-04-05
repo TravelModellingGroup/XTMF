@@ -17,7 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using Microsoft.Win32;
 
 namespace XTMF.RemoteClient;
 

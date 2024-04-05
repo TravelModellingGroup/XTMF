@@ -27,15 +27,11 @@ using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using System.Collections.Generic;
 using System.Linq;
-using MahApps.Metro;
 using MaterialDesignColors;
 
 namespace XTMF.Gui.UserControls;
 
 using ControlzEx.Theming;
-using Dragablz.Themes;
-
-using MaterialDesignThemes.Wpf.Transitions;
 using XTMF.Gui.Helpers;
 
 /// <summary>

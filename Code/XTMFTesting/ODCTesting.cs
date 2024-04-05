@@ -16,12 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Datastructure;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace XTMF.Testing;

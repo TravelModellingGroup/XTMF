@@ -17,8 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
-using System.Threading;
 using XTMF.Testing.Modules;
 using XTMF.Testing.Modules.Editing;
 

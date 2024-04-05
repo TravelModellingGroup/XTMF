@@ -16,7 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -27,7 +26,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
-using XTMF.Annotations;
 using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls;

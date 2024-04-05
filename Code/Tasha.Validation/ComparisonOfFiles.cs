@@ -20,7 +20,6 @@ using System;
 using System.Windows.Forms.DataVisualization.Charting;
 using Datastructure;
 using XTMF;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.Validation;
 

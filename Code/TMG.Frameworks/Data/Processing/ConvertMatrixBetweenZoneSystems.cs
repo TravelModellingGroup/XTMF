@@ -23,8 +23,6 @@ using TMG.Functions;
 using TMG.Input;
 using System.Linq;
 using XTMF;
-using System.Runtime.CompilerServices;
-using System.IO;
 
 namespace TMG.Frameworks.Data.Processing;
 

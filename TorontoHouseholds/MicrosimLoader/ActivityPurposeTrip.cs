@@ -20,7 +20,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Tasha.Common;
-using TMG;
 using XTMF;
 
 namespace TMG.Tasha.MicrosimLoader;

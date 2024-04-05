@@ -21,7 +21,6 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using XTMF.Annotations;
 
 namespace XTMF.Gui.UserControls;
 

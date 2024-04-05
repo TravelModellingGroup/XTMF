@@ -19,11 +19,7 @@
 
 using Datastructure;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG;
 using TMG.Input;
 using XTMF;

@@ -28,7 +28,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
-using XTMF.Annotations;
 using XTMF.Attributes;
 using XTMF.Editing;
 using XTMF.Interfaces;
@@ -756,7 +755,7 @@ public sealed partial class Project : IProject
 
     private static bool AddCollection(IConfiguration config, IModule root, IModelSystemStructure rootMS,
         IModelSystemStructure child,
-        FieldInfo infoField, [NotNull] PropertyInfo infoProperty, Type listOfInner, Type inner, List<int> path,
+        FieldInfo infoField, PropertyInfo infoProperty, Type listOfInner, Type inner, List<int> path,
         ref ErrorWithPath error)
     {
         var mod = child as ModelSystemStructure;

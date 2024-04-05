@@ -17,13 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 using TMG.Frameworks.Data.DataTypes;
 using TMG.Frameworks.Data.Loading;
 using TMG.Frameworks.Data.Processing;
 using TMG.Input;
-using System.IO;
 
 namespace XTMF.Testing.TMG.Data;
 

@@ -17,11 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TMG.Functions;
 using System.Numerics;
-using System;
 
 namespace XTMF.Testing;
 

@@ -19,15 +19,11 @@
 
 using Datastructure;
 using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml.Schema;
 using Tasha.Common;
 using TMG;
 using XTMF;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.PopulationSynthesis;
 

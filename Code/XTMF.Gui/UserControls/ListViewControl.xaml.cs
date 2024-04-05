@@ -22,7 +22,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
-using XTMF.Gui.Annotations;
 
 namespace XTMF.Gui.UserControls;
 

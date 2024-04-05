@@ -24,7 +24,6 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Collections;
 
 namespace XTMF.Gui.UserControls;

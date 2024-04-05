@@ -20,17 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using XTMF.Gui.Annotations;
-using Brush = System.Drawing.Brush;
-using ColorConverter = System.Windows.Media.ColorConverter;
 
 namespace XTMF.Gui.UserControls;
 

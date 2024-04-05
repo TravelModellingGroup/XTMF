@@ -16,8 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-
 namespace XTMF.Testing;
 
 public class TestDataSource<T> : IDataSource<T>

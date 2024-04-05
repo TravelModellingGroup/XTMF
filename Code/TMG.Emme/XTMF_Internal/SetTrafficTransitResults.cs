@@ -19,7 +19,6 @@
 
 using System;
 using XTMF;
-using TMG.Emme;
 
 
 namespace TMG.Emme.XTMF_Internal;

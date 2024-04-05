@@ -26,7 +26,6 @@ using XTMF;
 using TMG.Functions;
 using System.Numerics;
 using System.Collections.Concurrent;
-using System.Threading;
 // ReSharper disable ParameterHidesMember
 // ReSharper disable AccessToModifiedClosure
 

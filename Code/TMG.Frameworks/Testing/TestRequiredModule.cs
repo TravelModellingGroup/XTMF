@@ -18,11 +18,8 @@
 */
 
 using System;
-using System.Threading;
-using System.Timers;
 using XTMF;
 using XTMF.Logging;
-using Timer = System.Timers.Timer;
 
 namespace TMG.Frameworks.Testing;
 

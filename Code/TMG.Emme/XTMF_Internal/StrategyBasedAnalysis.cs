@@ -17,8 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.IO;
-using TMG.Input;
 using XTMF;
 
 namespace TMG.Emme.XTMF_Internal;

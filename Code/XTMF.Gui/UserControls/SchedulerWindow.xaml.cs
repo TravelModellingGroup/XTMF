@@ -30,7 +30,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
-using XTMF.Annotations;
 using XTMF.Gui.Util;
 using Button = System.Windows.Controls.Button;
 using Clipboard = System.Windows.Clipboard;

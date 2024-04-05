@@ -18,15 +18,11 @@
 */
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Datastructure;
 using Tasha.Common;
 using TMG;
-using TMG.Functions;
-using TMG.Input;
 using XTMF;
 
 namespace Tasha.PopulationSynthesis;

@@ -19,10 +19,7 @@
 using Datastructure;
 using System;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using XTMF;
-using System.IO;
 
 namespace TMG.Emme.XTMF_Internal;
 

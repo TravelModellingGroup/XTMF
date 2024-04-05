@@ -16,9 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System.Collections.Generic;
 using Datastructure;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Range = Datastructure.Range;
 
 namespace XTMF.Testing;

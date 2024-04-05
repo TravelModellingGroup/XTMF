@@ -17,7 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using Datastructure;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Range = Datastructure.Range;
 
 namespace XTMF.Testing;

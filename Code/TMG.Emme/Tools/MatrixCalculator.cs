@@ -19,7 +19,6 @@
 
 using System;
 using XTMF;
-using TMG.Emme;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 

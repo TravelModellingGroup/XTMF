@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Forms;
-using XTMF.Gui.Properties;
 using Application = System.Windows.Forms.Application;
 
 namespace XTMF.Gui.Util;

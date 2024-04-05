@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using TMG;
-using TMG.Input;
 using Tasha.Common;
-using Tasha.PopulationSynthesis;
 using TMG.Estimation;
-using System.Diagnostics;
 using Activity = Tasha.Common.Activity;
 
 namespace Tasha.Estimation;

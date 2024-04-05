@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Tasha.Common;
-using TMG.Input;
 using XTMF;
 
 namespace Tasha.XTMFModeChoice;
