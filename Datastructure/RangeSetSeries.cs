@@ -28,7 +28,7 @@ public sealed class RangeSetSeries : IList<RangeSet>
 
     public RangeSetSeries(List<RangeSet> tempRange)
     {
-        RangeSets = tempRange.ToArray();
+        RangeSets = [.. tempRange];
     }
 
     public int Count => RangeSets.Length;

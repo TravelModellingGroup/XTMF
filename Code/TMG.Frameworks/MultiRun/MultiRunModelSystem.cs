@@ -717,7 +717,7 @@ public class MultiRunModelSystem : IModelSystemTemplate
                 ret.Add(new KeyValuePair<string, string>(at.Name, at.InnerText));
             }
         }
-        return ret.ToArray();
+        return [.. ret];
     }
 
     private void UnloadResource(XmlNode command)

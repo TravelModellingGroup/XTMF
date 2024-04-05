@@ -29,7 +29,7 @@ public class IndexedRangeSet : RangeSet
     public IndexedRangeSet(List<Range> ranges, List<int> indexes)
         : base(ranges)
     {
-        Indexes = indexes.ToArray();
+        Indexes = [.. indexes];
     }
 
     public IndexedRangeSet(List<Range> ranges)

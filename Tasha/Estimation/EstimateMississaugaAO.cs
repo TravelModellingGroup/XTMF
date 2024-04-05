@@ -96,7 +96,7 @@ public sealed class EstimateMississaugaAO : ITashaRuntime
                 network.LoadData();
             }
             HouseholdLoader.LoadData();
-            _households = HouseholdLoader.ToArray();
+            _households = [.. HouseholdLoader];
             _fitness = new double[_households.Length];
             Console.WriteLine("Finished loading one time data");
         }

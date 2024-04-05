@@ -121,7 +121,7 @@ public class LocalClient : IEstimationClientModelSystem
     public void Start()
     {
         Exit = false;
-        Parameters = Root.Parameters.ToArray();
+        Parameters = [.. Root.Parameters];
         Job job;
         while(Exit != true && (job = Root.GiveJob()) != null)
         {

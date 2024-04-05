@@ -225,7 +225,7 @@ public class ExtractObservedDemandToPD : IPostHousehold
 
     public void IterationStarting(int iteration)
     {
-        Modes = Modes ?? Root.AllModes.OrderBy(m => m.ModeName).ToArray();
+        Modes = Modes ?? [.. Root.AllModes.OrderBy(m => m.ModeName)];
         PDArray = PDArray ?? TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
         foreach(var period in TimePeriods)
         {

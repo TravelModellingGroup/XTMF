@@ -169,7 +169,7 @@ public class ExtractSelectedDemographicTripRecords : IPostHouseholdIteration, ID
         WriteThisIteration = iteration == totalIterations - 1;
         if (WriteThisIteration)
         {
-            AllModes = Root.AllModes.ToArray();
+            AllModes = [.. Root.AllModes];
             ZoneDistances = Root.ZoneSystem.Distances;
             Writer = new StreamWriter(SaveTo);
             WriteHeader();

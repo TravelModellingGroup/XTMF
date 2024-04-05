@@ -116,7 +116,7 @@ public sealed partial class Project : IProject
                 IsLoaded = toClone.ProjectModelSystems[i].IsLoaded
             };
         });
-        ProjectModelSystems = loadTo.ToList();
+        ProjectModelSystems = [.. loadTo];
     }
 
     /// <summary>
@@ -1649,7 +1649,7 @@ public sealed partial class Project : IProject
         }
 
         ret.Add(builder.ToString());
-        return ret.ToArray();
+        return [.. ret];
     }
 
     internal void EnsureModelSystemLoaded(int modelSystemIndex)

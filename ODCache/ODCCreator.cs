@@ -511,7 +511,7 @@ public class OdcCreator
         {
             sections.Add(new Index() { Start = start, End = numberOfZones - 1 });
         }
-        return sections.ToArray();
+        return [.. sections];
     }
 
     private bool DLoaded(Index i, bool[][] data, int d)
@@ -554,7 +554,7 @@ public class OdcCreator
                Interlocked.Increment(ref NumberOfSubs);
            }
 
-           index[segment].SubIndex = subIndex.ToArray();
+           index[segment].SubIndex = [.. subIndex];
        });
     }
 

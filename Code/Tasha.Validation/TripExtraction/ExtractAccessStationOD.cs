@@ -190,8 +190,8 @@ public class ExtractAccessStationOD : IPostHouseholdIteration
                 }
             }
         }
-        StationIndex = stationIndexes.ToArray();
-        Results = results.ToArray();
+        StationIndex = [.. stationIndexes];
+        Results = [.. results];
     }
 
     private float[][] CreateODMatrix()

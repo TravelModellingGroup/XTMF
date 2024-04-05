@@ -283,7 +283,7 @@ public sealed class SparseTriIndex<T>
                     {
                         Start = indexes[i - 1].SparseSpaceSecond,
                         Stop = indexes[i - 1].SparseSpaceSecond,
-                        SubIndex = new SparseIndexing() { Indexes = subSetsJ.ToArray() }
+                        SubIndex = new SparseIndexing() { Indexes = [.. subSetsJ] }
                     });
                     subSetsJ.Clear();
                     currentSet.Start = currentSet.Stop = indexes[i].SparseSpaceThird;
@@ -296,7 +296,7 @@ public sealed class SparseTriIndex<T>
                 {
                     Start = indexes[i - 1].SparseSpaceSecond,
                     Stop = indexes[i - 1].SparseSpaceSecond,
-                    SubIndex = new SparseIndexing() { Indexes = subSetsJ.ToArray() }
+                    SubIndex = new SparseIndexing() { Indexes = [.. subSetsJ] }
                 });
                 subSetsJ.Clear();
                 meta.Add(new Pair<int, List<SparseSet>>(indexes[i - 1].SparseSpaceFirst, subSetsI));
@@ -309,7 +309,7 @@ public sealed class SparseTriIndex<T>
         {
             Start = indexes[length - 1].SparseSpaceSecond,
             Stop = indexes[length - 1].SparseSpaceSecond,
-            SubIndex = new SparseIndexing() { Indexes = subSetsJ.ToArray() }
+            SubIndex = new SparseIndexing() { Indexes = [.. subSetsJ] }
         });
         subSetsJ.Clear();
         meta.Add(new Pair<int, List<SparseSet>>(indexes[length - 1].SparseSpaceFirst, subSetsI));

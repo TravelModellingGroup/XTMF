@@ -145,7 +145,7 @@ public class FloatList : IList<float>
             values.Add( p );
         }
         data = [];
-        data.Values = values.ToArray();
+        data.Values = [.. values];
         return true;
     }
 

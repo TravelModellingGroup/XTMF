@@ -382,7 +382,7 @@ public class AccessMode : IStationCollectionMode, IUtilityComponentMode, IIterat
         {
             splits[i] *= (float)v;
         }
-        return new Tuple<IZone[], IZone[], float[]>(possibleZones.ToArray(), null, splits.ToArray());
+        return new Tuple<IZone[], IZone[], float[]>([.. possibleZones], null, [.. splits]);
     }
 
     public bool RuntimeValidation(ref string error)

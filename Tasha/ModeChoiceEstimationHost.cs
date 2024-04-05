@@ -808,7 +808,7 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
                 }
             }
         }
-        Parameters = parameters.ToArray();
+        Parameters = [.. parameters];
     }
 
     private void NewClientConnected(IRemoteXTMF obj)

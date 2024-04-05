@@ -116,7 +116,7 @@ public class ModeSplit : IPostHousehold
 
     public void IterationStarting(int iteration)
     {
-        Modes = Root.AllModes.ToArray();
+        Modes = [.. Root.AllModes];
         Counts = new float[Modes.Length];
     }
 }

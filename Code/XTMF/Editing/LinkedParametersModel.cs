@@ -41,7 +41,7 @@ public class LinkedParametersModel : INotifyPropertyChanged
 
     public List<ILinkedParameter> GetRealLinkedParameters()
     {
-        return _RealLinkedParameters.ToList();
+        return [.. _RealLinkedParameters];
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

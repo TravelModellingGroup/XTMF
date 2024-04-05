@@ -197,7 +197,7 @@ public partial class DocumentationControl : UserControl
                 }));
             }
         }
-        return submodules.ToArray();
+        return [.. submodules];
     }
 
     private static string ConvertTypeName(Type type)

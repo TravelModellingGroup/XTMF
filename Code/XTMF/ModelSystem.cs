@@ -658,7 +658,7 @@ public class ModelSystem : IModelSystem
             builder.Append('\\');
         }
         ret.Add(builder.ToString());
-        return ret.ToArray();
+        return [.. ret];
     }
 
     private void ReadDescription()

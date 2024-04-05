@@ -403,7 +403,7 @@ public class PopulationSynthesis : ITravelDemandModel
                 ret[validCarsIndex] = data[license ? 1 : 0, validOccupationIndex, validCarsIndex];
             }
         }
-        indexes = indexesList.ToArray();
+        indexes = [.. indexesList];
 
         return SplitAndClear(indexes.Length, ret, rand);
     }

@@ -251,10 +251,10 @@ public class GeneticNetworkEstimationClient : I4StepModel
                     $"The TTS record {truthList[i].Id[0]} has no EMME Links associated with it.  Aborting.");
             }
             var temp = truthList[i];
-            temp.Id = nameList.ToArray();
+            temp.Id = [.. nameList];
             truthList[i] = temp;
         }
-        Truth = truthList.ToArray();
+        Truth = [.. truthList];
     }
 
     private void InitializeClient()
@@ -294,7 +294,7 @@ public class GeneticNetworkEstimationClient : I4StepModel
                 }
             }
         }
-        Parameters = parameters.ToArray();
+        Parameters = [.. parameters];
     }
 
     private void PrintSummery(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)

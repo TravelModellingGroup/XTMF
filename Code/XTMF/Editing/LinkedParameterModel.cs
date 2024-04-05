@@ -132,7 +132,7 @@ public class LinkedParameterModel : INotifyPropertyChanged
         lock (_ParameterModelsLock)
         {
             var models = _ParameterModels;
-            return models != null ? models.ToList() : [];
+            return models != null ? [.. models] : [];
         }
     }
 

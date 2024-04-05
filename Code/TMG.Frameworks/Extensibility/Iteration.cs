@@ -95,7 +95,7 @@ public class Iteration : ISelfContainedModule, IIterativeModel
                 }
                 if (errorList.Count > 0)
                 {
-                    throw new AggregateException(errorList.ToArray());
+                    throw new AggregateException([.. errorList]);
                 }
             }
         }

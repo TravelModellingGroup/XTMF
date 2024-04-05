@@ -445,7 +445,7 @@ public class TashaRuntime : ITashaRuntime, IIterativeModel
             }
         }
         parts.Add(builder.ToString());
-        return parts.ToArray();
+        return [.. parts];
     }
 
     private Func<string> _Status = () => Initializing;

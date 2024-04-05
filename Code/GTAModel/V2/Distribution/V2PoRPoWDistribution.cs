@@ -516,7 +516,7 @@ public class V2PoRPoWDistribution : IDemographicDistribution
             Data = new Segment[1][];
             for(int i = 0; i < Data.Length; i++)
             {
-                Data[i] = temp[i].ToArray();
+                Data[i] = [.. temp[i]];
             }
         }
 

@@ -220,7 +220,7 @@ public class EstimationClient : IEstimationClientModelSystem
                         Maximum = 0f
                     } );
                 }
-                Parameters = parameters.ToArray();
+                Parameters = [.. parameters];
                 return null;
             } );
     }

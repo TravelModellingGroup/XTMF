@@ -186,7 +186,7 @@ public class GTAPopulation : IPopulation
         {
             if (tempPop.TryGetValue(flatZones[i].ZoneNumber, out List<IPerson> temp))
             {
-                flatPop[i] = temp.ToArray();
+                flatPop[i] = [.. temp];
             }
             else
             {

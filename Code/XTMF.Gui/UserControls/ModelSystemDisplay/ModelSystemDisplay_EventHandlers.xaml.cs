@@ -256,7 +256,7 @@ public partial class ModelSystemDisplay
     /// <param name="e"></param>
     private void DisabledModulesStatusBar_MouseUp(object sender, MouseButtonEventArgs e)
     {
-        List<ModelSystemStructureDisplayModel> modules = DisabledModules.ToList();
+        List<ModelSystemStructureDisplayModel> modules = [.. DisabledModules];
 
         Dispatcher.BeginInvoke(new Action(() =>
         {

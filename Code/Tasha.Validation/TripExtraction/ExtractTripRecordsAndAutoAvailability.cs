@@ -194,7 +194,7 @@ public sealed class ExtractTripRecordsAndAutoAvailability : IPostHouseholdIterat
         WriteThisIteration = iteration == totalIterations - 1;
         if (WriteThisIteration)
         {
-            AllModes = Root.AllModes.ToArray();
+            AllModes = [.. Root.AllModes];
             Writer = new StreamWriter(SaveTo);
             WriteHeader();
         }

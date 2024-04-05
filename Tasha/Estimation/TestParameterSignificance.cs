@@ -278,7 +278,7 @@ public class TestParameterSignificance : IPostHousehold
             }
         }
         parts.Add( builder.ToString() );
-        return parts.ToArray();
+        return [.. parts];
     }
 
     private void DoubleCheckRightNumberOfParameters()
@@ -456,7 +456,7 @@ public class TestParameterSignificance : IPostHousehold
                 }
             }
         }
-        Parameters = parameters.ToArray();
+        Parameters = [.. parameters];
     }
 
     protected struct ParameterSetting

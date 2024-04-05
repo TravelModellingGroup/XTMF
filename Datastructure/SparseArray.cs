@@ -293,7 +293,7 @@ public sealed class SparseArray<T>
         }
         current.Stop = data[length - 1].SparseSpace;
         elements.Add(current);
-        indexes.Indexes = elements.ToArray();
+        indexes.Indexes = [.. elements];
         return indexes;
     }
 

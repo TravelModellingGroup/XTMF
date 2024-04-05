@@ -227,7 +227,7 @@ sealed class XTMFRunRemoteClient : XTMFRun
             builder.Append('\\');
         }
         ret.Add(builder.ToString());
-        return ret.ToArray();
+        return [.. ret];
     }
 
     public override bool RunsRemotely => true;

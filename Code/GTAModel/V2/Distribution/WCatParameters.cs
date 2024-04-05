@@ -64,7 +64,7 @@ public class WCatParameters : IModule
     {
         // Load our data
         List<float[]> p = [.. LoadWCatParamaterFile.Read()];
-        Parameters = p.ToArray();
+        Parameters = [.. p];
     }
 
     public bool RuntimeValidation(ref string error)

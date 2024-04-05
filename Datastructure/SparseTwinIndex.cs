@@ -479,7 +479,7 @@ public sealed class SparseTwinIndex<T>
                 {
                     Start = indexes[i - 1].SparseSpaceFirst,
                     Stop = indexes[i - 1].SparseSpaceFirst,
-                    SubIndex = new SparseIndexing() { Indexes = subSets.ToArray() }
+                    SubIndex = new SparseIndexing() { Indexes = [.. subSets] }
                 });
                 subSets.Clear();
                 currentSet.Start = currentSet.Stop = indexes[i].SparseSpaceSecond;
@@ -490,7 +490,7 @@ public sealed class SparseTwinIndex<T>
         {
             Start = indexes[length - 1].SparseSpaceFirst,
             Stop = indexes[length - 1].SparseSpaceFirst,
-            SubIndex = new SparseIndexing() { Indexes = subSets.ToArray() }
+            SubIndex = new SparseIndexing() { Indexes = [.. subSets] }
         });
         return meta;
     }

@@ -252,7 +252,7 @@ public class TimePeriodModeSplit : IPostHousehold
 
     public void IterationStarting(int iteration)
     {
-        Modes = Root.AllModes.ToArray();
+        Modes = [.. Root.AllModes];
         for(int i = 0; i < TimePeriods.Length; i++)
         {
             TimePeriods[i].StartIteration(iteration);

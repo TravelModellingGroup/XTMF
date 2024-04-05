@@ -50,7 +50,7 @@ public class ValidationErrorDisplayModel : INotifyPropertyChanged
         else
         {
             // make a copy of the path in case something else is also going to use it
-            DisplayModule = MapModuleWithPath(root, path.ToList());
+            DisplayModule = MapModuleWithPath(root, [.. path]);
         }
     }
 

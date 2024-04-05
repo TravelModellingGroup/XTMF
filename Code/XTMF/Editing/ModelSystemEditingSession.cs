@@ -219,12 +219,12 @@ public sealed class ModelSystemEditingSession : IDisposable
 
     public List<XTMFCommand> CopyOnUndo()
     {
-        return _UndoStack.ToList();
+        return [.. _UndoStack];
     }
 
     public List<XTMFCommand> CopyOnRedo()
     {
-        return _RedoStack.ToList();
+        return [.. _RedoStack];
     }
 
     /// <summary>

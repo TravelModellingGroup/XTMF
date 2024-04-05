@@ -219,7 +219,7 @@ public class StartTimeDistributions : IPostHousehold, IPostHouseholdIteration
         }
         if (Modes == null)
         {
-            Modes = Root.AllModes.ToArray();
+            Modes = [.. Root.AllModes];
         }
     }
 }

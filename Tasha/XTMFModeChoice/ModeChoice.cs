@@ -72,9 +72,9 @@ public class ModeChoice : ITashaModeChoice
 
     public void LoadOneTimeLocalData()
     {
-        AllModes = Root.AllModes.ToArray();
-        NonSharedModes = Root.NonSharedModes.ToArray();
-        VehicleTypes = Root.VehicleTypes.ToArray();
+        AllModes = [.. Root.AllModes];
+        NonSharedModes = [.. Root.NonSharedModes];
+        VehicleTypes = [.. Root.VehicleTypes];
     }
 
     private float[] VarianceScale;

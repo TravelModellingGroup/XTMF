@@ -656,7 +656,7 @@ public sealed partial class Project : IProject
                 }
                 writer.WriteEndElement();
             }
-            Task.WaitAll(writeTasks.ToArray());
+            Task.WaitAll([.. writeTasks]);
         }
         catch (Exception e)
         {

@@ -275,7 +275,7 @@ public class TransitEgressGoStationUtility : IDataSource<SparseTwinIndex<Tuple<I
                 }
             }
         }
-        return accessIndexes.ToArray();
+        return [.. accessIndexes];
     }
 
     /// <summary>

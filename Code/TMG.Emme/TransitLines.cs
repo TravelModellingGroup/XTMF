@@ -109,7 +109,7 @@ public class TransitLines
                     }
                 }
             }
-            Lines = transitLines.ToArray();
+            Lines = [.. transitLines];
         }
         GC.Collect();
     }

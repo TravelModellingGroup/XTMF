@@ -182,7 +182,7 @@ public class SumPurposeModeChoice : ISelfContainedModule
                     return false;
                 }
             }
-            PurposeIndexes = care.ToArray();
+            PurposeIndexes = [.. care];
         }
         return true;
     }

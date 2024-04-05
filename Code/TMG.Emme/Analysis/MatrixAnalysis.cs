@@ -124,7 +124,7 @@ public sealed class MatrixAnalysis : IEmmeTool, ISelfContainedModule
                 }
             }
         }
-        aggregationHeaders = headers.ToArray();
+        aggregationHeaders = [.. headers];
         zoneToAggregationMap = map;
     }
 

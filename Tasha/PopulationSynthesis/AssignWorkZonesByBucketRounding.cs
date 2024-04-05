@@ -269,7 +269,7 @@ public class AssignWorkZonesByBucketRounding : ICalculation<ITashaPerson, IZone>
                         }
                         --total;
                     }
-                    _choices[type][homeZoneIndex] = choices.ToArray();
+                    _choices[type][homeZoneIndex] = [.. choices];
                 }
             }
 

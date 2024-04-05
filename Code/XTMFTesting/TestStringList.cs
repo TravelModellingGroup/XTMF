@@ -28,7 +28,7 @@ public class TestStringList
             Assert.Fail("StringList should never return false!");
         }
         Assert.AreEqual( 3, list.Count );
-        var result = string.Join( ",", list.ToArray() );
+        var result = string.Join( ",", [.. list]);
         Assert.AreEqual( "Hello World,Second,With , Comma", result );
     }
     [TestMethod]

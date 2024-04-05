@@ -359,7 +359,7 @@ public class ModeAdjustments : IModule
         Data = new Segment[NumberOfOccupations][];
         for (int i = 0; i < Data.Length; i++)
         {
-            Data[i] = temp[i].ToArray();
+            Data[i] = [.. temp[i]];
         }
     }
 

@@ -291,7 +291,7 @@ public class DriveEgressGoStationUtility : IDataSource<SparseTwinIndex<Tuple<IZo
                 }
             }
         }
-        return accessIndexes.ToArray();
+        return [.. accessIndexes];
     }
 
     /// <summary>

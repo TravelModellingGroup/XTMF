@@ -88,7 +88,7 @@ public sealed class PerceivedTimePassengerStationAccessChoice : ICalculation<ITr
                 validStationIndexes.Add(i);
             }
         }
-        return validStationIndexes.ToArray();
+        return [.. validStationIndexes];
     }
 
     public void Load()

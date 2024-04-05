@@ -71,7 +71,7 @@ public sealed class StringList : IList<string>
         {
             temp.Add( current.ToString() );
         }
-        stringList = new StringList( temp.ToArray() );
+        stringList = new StringList([.. temp]);
         return true;
     }
 

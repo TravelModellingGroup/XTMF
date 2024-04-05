@@ -105,7 +105,7 @@ public sealed class RemoveActivities : IDataLoader<ITashaHousehold>
         return true;
     }
 
-    public ITashaHousehold[] ToArray() => MainLoader.ToArray();
+    public ITashaHousehold[] ToArray() => [.. MainLoader];
 
     public bool TryAdd(ITashaHousehold item) => MainLoader.TryAdd(item);
 

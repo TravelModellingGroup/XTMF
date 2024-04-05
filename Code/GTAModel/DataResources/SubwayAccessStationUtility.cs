@@ -223,7 +223,7 @@ public class SubwayAccessStationUtility : IDataSource<SparseTwinIndex<Tuple<IZon
                 }
             }
         }
-        return accessIndexes.ToArray();
+        return [.. accessIndexes];
     }
 
     /// <summary>

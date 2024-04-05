@@ -742,7 +742,7 @@ namespace XTMF
             }
 
             ret.Add(builder.ToString());
-            return ret.ToArray();
+            return [.. ret];
         }
 
         private void UpdateAll()

@@ -45,7 +45,7 @@ public class ExportNetworkPackage : IEmmeTool
         if(mc == null)
             throw new XTMFRuntimeException(this, "Controller is not a ModellerController!");
 
-        var s = string.Join(",", AttributeIdsToExport.ToArray());
+        var s = string.Join(",", [.. AttributeIdsToExport]);
 
         if(string.IsNullOrWhiteSpace(AttributeIdsToExport.ToString()))
             s += "\"\"";

@@ -176,6 +176,6 @@ public class ReadTriIndexFloatData : IDataSource<SparseTriIndex<float>>
         List<int> third = [];
         List<float> data = [];
         StoreData(first, second, third, data);
-        Data = SparseTriIndex<float>.CreateSparseTriIndex(first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray());
+        Data = SparseTriIndex<float>.CreateSparseTriIndex([.. first], [.. second], [.. third], [.. data]);
     }
 }

@@ -119,7 +119,7 @@ public class GetBestParameters : ISelfContainedModule
                 Names = [name]
             } );
         }
-        return ret.ToArray();
+        return [.. ret];
     }
 
     private GenerationJob ReadJob(CsvReader reader, ParameterSetting[] parameters)
@@ -204,7 +204,7 @@ public class GetBestParameters : ISelfContainedModule
                 best.Add( currentJob );
             }
         }
-        return best.ToArray();
+        return [.. best];
     }
 
     private GenerationJob[] GetHighestBest(CsvReader reader, ParameterSetting[] parameters)
@@ -245,7 +245,7 @@ public class GetBestParameters : ISelfContainedModule
                 best.Add( currentJob );
             }
         }
-        return best.ToArray();
+        return [.. best];
     }
 
     public string Name { get; set; }

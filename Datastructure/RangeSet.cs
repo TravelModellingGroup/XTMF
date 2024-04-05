@@ -31,7 +31,7 @@ public class RangeSet : IList<Range>
 
     public RangeSet(List<Range> tempRange)
     {
-        SetRanges = tempRange.ToArray();
+        SetRanges = [.. tempRange];
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class RangeSet : IList<Range>
         }
         // and in the end
         tempRange.Add(new Range(array[start], array[array.Length - 1]));
-        SetRanges = tempRange.ToArray();
+        SetRanges = [.. tempRange];
     }
 
     public int Count => SetRanges.Length;

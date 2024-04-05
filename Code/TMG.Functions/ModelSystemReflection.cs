@@ -277,7 +277,7 @@ public static class ModelSystemReflection
             }
         }
         parts.Add(builder.ToString());
-        return parts.ToArray();
+        return [.. parts];
     }
 
     /// <summary>

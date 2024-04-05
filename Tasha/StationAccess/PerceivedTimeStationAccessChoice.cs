@@ -559,7 +559,7 @@ public class PerceivedTimeStationAccessChoice : IAccessStationChoiceModel
                 validStationIndexes.Add(i);
             }
         }
-        return validStationIndexes.ToArray();
+        return [.. validStationIndexes];
     }
 
     public void Unload()

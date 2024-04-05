@@ -241,7 +241,7 @@ public class DirectModeAggregationTally : IModeAggregationTally
             }
             care.Add( index );
         }
-        ModeIndexes = care.ToArray();
+        ModeIndexes = [.. care];
         return true;
     }
 
@@ -281,7 +281,7 @@ public class DirectModeAggregationTally : IModeAggregationTally
                     return false;
                 }
             }
-            PurposeIndexes = care.ToArray();
+            PurposeIndexes = [.. care];
         }
         return true;
     }

@@ -491,9 +491,9 @@ public sealed class HouseholdResourceAllocator
         LoadUniqueTripChainConflicts(persons, numberOfConflicts, newPersonConflicts, newAssignResource);
         for(int i = 0; i < numberOfPeople; i++)
         {
-            personConflicts[i] = newPersonConflicts[i].ToArray();
-            assignResource[i] = newAssignResource[i].ToArray();
-            bestAssignment[i] = newAssignResource[i].ToArray();
+            personConflicts[i] = [.. newPersonConflicts[i]];
+            assignResource[i] = [.. newAssignResource[i]];
+            bestAssignment[i] = [.. newAssignResource[i]];
         }
     }
 

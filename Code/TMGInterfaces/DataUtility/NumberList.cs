@@ -78,7 +78,7 @@ public sealed class NumberList : IList<int>
             values.Add( number );
         }
         data = [];
-        data.Values = values.ToArray();
+        data.Values = [.. values];
         return true;
     }
 

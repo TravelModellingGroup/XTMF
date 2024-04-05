@@ -534,7 +534,7 @@ public class GravityOptimization : IEstimationAI
 
     private List<Job> GenerateInitialConditions()
     {
-        Parameters = Root.Parameters.ToArray();
+        Parameters = [.. Root.Parameters];
         // Setup the memory for the particles and the stars
         Particles = new Particle[NumberOfParticles];
         Stars = new Star[NumberOfStars];

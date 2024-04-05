@@ -661,7 +661,7 @@ public class ModelSystemStructure : IModelSystemStructure2
             {
                 if (Children == null || !Children.Any(c => !(c is ModelSystemStructure) || !((ModelSystemStructure)c).IsDisabled))
                 {
-                    error = new ErrorWithPath(path.ToList(), "The collection '" + Name + "' in module '" + parent?.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system."
+                    error = new ErrorWithPath([.. path], "The collection '" + Name + "' in module '" + parent?.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system."
                         , null, Name);
                     return false;
                 }
@@ -670,13 +670,13 @@ public class ModelSystemStructure : IModelSystemStructure2
             {
                 if (Type == null)
                 {
-                    error = new ErrorWithPath(path.ToList(), "In '" + Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.",
+                    error = new ErrorWithPath([.. path], "In '" + Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.",
                         null, Name);
                     return false;
                 }
                 if (IsDisabled)
                 {
-                    error = new ErrorWithPath(path.ToList(), "In '" + Name + "' a type for a required field is disabled!\r\nPlease remove this model system from your project and edit the model system.",
+                    error = new ErrorWithPath([.. path], "In '" + Name + "' a type for a required field is disabled!\r\nPlease remove this model system from your project and edit the model system.",
                         null, Name);
                     return false;
                 }
@@ -684,13 +684,13 @@ public class ModelSystemStructure : IModelSystemStructure2
         }
         if (ParentFieldType == null)
         {
-            error = new ErrorWithPath(path.ToList(), "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve "
+            error = new ErrorWithPath([.. path], "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve "
                 + "\r\nError for module '" + Name + "' of type '" + Type.FullName + "'", null, Name);
             return false;
         }
         if (Type != null && !ParentFieldType.IsAssignableFrom(Type))
         {
-            error = new ErrorWithPath(path.ToList(), String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name),
+            error = new ErrorWithPath([.. path], String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name),
                 null, Name);
             return false;
         }

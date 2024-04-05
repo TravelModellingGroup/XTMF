@@ -518,7 +518,7 @@ public class GeneticNetworkEstimationHost : I4StepModel, IDisposable
                 }
             }
         }
-        Parameters = parameters.ToArray();
+        Parameters = [.. parameters];
     }
 
     private ParameterSetting[] Mutate(ParameterSetting[] original)

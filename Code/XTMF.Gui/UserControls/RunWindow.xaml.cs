@@ -386,7 +386,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         {
             SetRunFinished(false);
             _consoleAppender.Close();
-            ShowErrorMessages(errorWithPaths.ToArray());
+            ShowErrorMessages([.. errorWithPaths]);
             OnValidationError?.Invoke(errorWithPaths);
         });
     }
@@ -564,7 +564,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         _runtimeValidationErrorOccured = true;
         Dispatcher.Invoke(() =>
         {
-            ShowErrorMessages(errors.ToArray());
+            ShowErrorMessages([.. errors]);
             SetRunFinished(false);
             UpdateRunStatus?.Invoke("Runtime validation error");
             RuntimeValidationError?.Invoke(errors);

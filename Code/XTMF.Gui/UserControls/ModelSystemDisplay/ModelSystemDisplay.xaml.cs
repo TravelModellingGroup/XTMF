@@ -1442,7 +1442,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return CurrentlySelected.Count switch
         {
             0 => null,
-            1 => CurrentlySelected[0].GetParameters().ToList(),
+            1 => [.. CurrentlySelected[0].GetParameters()],
             _ => GetParameterIntersection()
         };
     }

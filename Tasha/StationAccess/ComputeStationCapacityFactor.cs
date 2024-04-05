@@ -223,7 +223,7 @@ public class ComputeStationCapacityFactor : IPostIteration
                 validStationIndexes.Add(i);
             }
         }
-        return validStationIndexes.ToArray();
+        return [.. validStationIndexes];
     }
 
     [SubModelInformation(Required = false, Description = "Used to process each time period.")]

@@ -487,7 +487,7 @@ public abstract class Expression : AstNode
                                 }
                                 parameters.Add(p);
                             }
-                            if (!FunctionCall.GetCall(start, builder.ToString(), parameters.ToArray(), out FunctionCall toReturn, ref error))
+                            if (!FunctionCall.GetCall(start, builder.ToString(), [.. parameters], out FunctionCall toReturn, ref error))
                             {
                                 return false;
                             }

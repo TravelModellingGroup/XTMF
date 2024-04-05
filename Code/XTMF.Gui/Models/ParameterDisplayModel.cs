@@ -148,7 +148,7 @@ internal sealed class ParameterDisplayModel : INotifyPropertyChanged, IDisposabl
 
     public List<string> PossibleEnumerationValues => RealParameter.Type == typeof(bool)
         ? BoolValueList
-        : RealParameter.Type.GetEnumNames().ToList();
+        : [.. RealParameter.Type.GetEnumNames()];
 
     public IModelSystemStructure BelongsTo => RealParameter.BelongsTo;
 

@@ -299,7 +299,7 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
 
             List<ITashaHousehold> ourList = new(100000);
             LoadAll(ourList);
-            Households = ourList.ToArray();
+            Households = [.. ourList];
         }
     }
 

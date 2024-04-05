@@ -95,7 +95,7 @@ public sealed class ZoneMap
             throw new ArgumentException("The size of the mapping is not equal to the number of zones!");
         }
         // clone the current mapping to make sure that it is not going to be recycled 
-        var ret = new ZoneMap(map.ToArray());
+        var ret = new ZoneMap([.. map]);
 
         return ret;
     }

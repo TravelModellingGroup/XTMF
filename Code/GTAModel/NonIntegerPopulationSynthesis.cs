@@ -180,7 +180,7 @@ public class NonIntegerPopulationSynthesis : ITravelDemandModel
                 nonZeroPeople.Add(people[i]);
             }
         }
-        population.GetFlatData()[zoneIndex] = nonZeroPeople.ToArray<IPerson>();
+        population.GetFlatData()[zoneIndex] = [.. nonZeroPeople];
     }
 
     private void Generation(SparseArray<IZone> zoneArray, int numberOfZones, SparseArray<IPerson[]> population, int i)

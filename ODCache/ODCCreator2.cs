@@ -277,7 +277,7 @@ public class OdcCreator2<T>
         }
         current.End = validIndexes[validIndexes.Length - 1];
         ret.Add(current);
-        return ret.ToArray();
+        return [.. ret];
     }
 
     private void Save(Index[] blocks, BinaryWriter writer, int versionDataSize)

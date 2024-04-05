@@ -280,7 +280,7 @@ public class EstimationHouseholdLoader : IDataLoader<ITashaHousehold>
                 vehicleList.Add(TashaVehicle.MakeVehicle(Root.VehicleTypes[i]));
             }
         }
-        household.Vehicles = vehicleList.ToArray();
+        household.Vehicles = [.. vehicleList];
         household.HomeZone = zoneArray[reader.ReadInt32()];
         LoadKeys(reader, household);
         // now we can go and load the people
