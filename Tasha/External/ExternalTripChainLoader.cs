@@ -263,11 +263,11 @@ public class ExternalTripChainLoader : IDataSource<List<ITripChain>>
                             Household = households[homeZoneIndex],
                             ExpansionFactor = expFactor
                         };
-                        currentChain = new TripChain()
+                        currentChain = new TripChain
                         {
-                            Person = currentPerson
+                            Person = currentPerson,
+                            Trips = new List<ITrip>(4)
                         };
-                        currentChain.Trips = new List<ITrip>(4);
                         chains.Add(currentChain);
                     }
                     var oZone = zoneSystem[origin];

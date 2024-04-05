@@ -108,8 +108,10 @@ public class PurePassengerTrip : Attachable, ITrip
 
     public static PurePassengerTrip MakeDriverTrip(IZone homeZone, ITashaMode mode, Time startTime, Time endTime)
     {
-        PurePassengerTrip driverTrip = new();
-        driverTrip.Purpose = Activity.FacilitatePassenger;
+        PurePassengerTrip driverTrip = new()
+        {
+            Purpose = Activity.FacilitatePassenger
+        };
         driverTrip.OriginalZone = driverTrip.DestinationZone = homeZone;
         driverTrip.Mode = mode;
         driverTrip.ActivityStartTime = endTime;

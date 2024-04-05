@@ -181,8 +181,10 @@ internal static partial class Distribution
 
     private static AdultDistributionInformation LoadAdultDistributionData(int n, float[] data)
     {
-        AdultDistributionInformation adultDistributionInformation = new();
-        adultDistributionInformation.Adults = new float[NumAdultFrequencies];
+        AdultDistributionInformation adultDistributionInformation = new()
+        {
+            Adults = new float[NumAdultFrequencies]
+        };
         // now we only load the frequency since we calculate the pdf anyways
         for (int i = 0; i < data.Length; i++)
         {

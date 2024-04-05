@@ -92,10 +92,12 @@ public class TashaAccessStation : IPreIteration
         var flatData = zones.GetFlatData();
         foreach ( var record in StationInformationReader.Read() )
         {
-            Station currentStation = new();
-            currentStation.ZoneNumber = record.O;
-            currentStation.ParkingSpots = record.D;
-            currentStation.NumberOfTrains = record.Data;
+            Station currentStation = new()
+            {
+                ZoneNumber = record.O,
+                ParkingSpots = record.D,
+                NumberOfTrains = record.Data
+            };
             Stations.Add( currentStation );
         }
 

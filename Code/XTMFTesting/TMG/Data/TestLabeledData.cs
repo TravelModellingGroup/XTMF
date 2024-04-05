@@ -40,8 +40,10 @@ public class TestLabeledData
 
     private LabeledData<float> LoadLabeledData(string path)
     {
-        LabeledDataFromCSV<float> loader = new();
-        loader.LoadFrom = CreateFileLocationFromOutputDirectory(path);
+        LabeledDataFromCSV<float> loader = new()
+        {
+            LoadFrom = CreateFileLocationFromOutputDirectory(path)
+        };
         loader.LoadData();
         var data = loader.GiveData();
         loader.UnloadData();
@@ -122,10 +124,12 @@ public class TestLabeledData
                 }
             }
             // now that our data files have been created create the aggregation
-            AggregateLabeledDataToShape agg = new();
-            agg.DataMap = CreateFileLocationFromOutputDirectory(mapLocation);
-            agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
-            agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
+            AggregateLabeledDataToShape agg = new()
+            {
+                DataMap = CreateFileLocationFromOutputDirectory(mapLocation),
+                DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData)),
+                FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation))
+            };
             agg.LoadData();
             var combinedData = agg.GiveData();
             agg.UnloadData();
@@ -174,9 +178,11 @@ public class TestLabeledData
                 }
             }
             // now that our data files have been created create the aggregation
-            AggregateLabeledDataToShape agg = new();
-            agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
-            agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
+            AggregateLabeledDataToShape agg = new()
+            {
+                DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData)),
+                FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation))
+            };
             agg.LoadData();
             var combinedData = agg.GiveData();
             agg.UnloadData();
@@ -207,8 +213,10 @@ public class TestLabeledData
         }
         try
         {
-            ConvertLabeledDataToSparseArray cv = new();
-            cv.Labeled = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
+            ConvertLabeledDataToSparseArray cv = new()
+            {
+                Labeled = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData))
+            };
             cv.LoadData();
             var array = cv.GiveData();
             cv.UnloadData();

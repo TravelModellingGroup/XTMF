@@ -116,13 +116,15 @@ public class AuxiliaryTrip : Attachable, ITrip
         AuxiliaryTrip aux;
         //if ( !AuxiliaryTrip.Trips.TryTake( out aux ) )
         //{
-        aux = new AuxiliaryTrip();
-        aux.Passengers = [];
-        //}
-        aux.OriginalZone = origin;
-        aux.DestinationZone = destination;
-        aux.Mode = modeChoice;
-        aux.ActivityStartTime = startTime;
+        aux = new AuxiliaryTrip
+        {
+            Passengers = [],
+            //}
+            OriginalZone = origin,
+            DestinationZone = destination,
+            Mode = modeChoice,
+            ActivityStartTime = startTime
+        };
         return aux;
     }
 

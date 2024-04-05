@@ -164,11 +164,13 @@ public class PassengerAccessStationChoiceModelSystemTemplate : ITravelDemandMode
 
     private ITrip CreateTrip(IZone origin, IZone destination, Time time)
     {
-        var trip = new EstimationTrip();
-        trip.OriginalZone = origin ?? throw new XTMFRuntimeException(this, "Origin was null");
-        trip.DestinationZone = destination ?? throw new XTMFRuntimeException(this, "Destination was null");
-        trip.TripStartTime = time;
-        trip.Mode = null;
+        var trip = new EstimationTrip
+        {
+            OriginalZone = origin ?? throw new XTMFRuntimeException(this, "Origin was null"),
+            DestinationZone = destination ?? throw new XTMFRuntimeException(this, "Destination was null"),
+            TripStartTime = time,
+            Mode = null
+        };
         return trip;
     }
 

@@ -133,19 +133,23 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
 
     private Job Clone(Job job)
     {
-        Job ret = new();
-        ret.Processed = false;
-        ret.Processing = false;
-        ret.ProcessedBy = null;
-        ret.Value = float.NaN;
-        ret.Parameters = new ParameterSetting[job.Parameters.Length];
+        Job ret = new()
+        {
+            Processed = false,
+            Processing = false,
+            ProcessedBy = null,
+            Value = float.NaN,
+            Parameters = new ParameterSetting[job.Parameters.Length]
+        };
         for ( int i = 0; i < ret.Parameters.Length; i++ )
         {
-            ret.Parameters[i] = new ParameterSetting();
-            ret.Parameters[i].Maximum = job.Parameters[i].Maximum;
-            ret.Parameters[i].Minimum = job.Parameters[i].Minimum;
-            ret.Parameters[i].Current = job.Parameters[i].Current;
-            ret.Parameters[i].Names = job.Parameters[i].Names;
+            ret.Parameters[i] = new ParameterSetting
+            {
+                Maximum = job.Parameters[i].Maximum,
+                Minimum = job.Parameters[i].Minimum,
+                Current = job.Parameters[i].Current,
+                Names = job.Parameters[i].Names
+            };
         }
         return ret;
     }
@@ -199,12 +203,14 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
 
     private static Job CleanJob(List<ParameterSetting> parameters)
     {
-        var ret = new Job();
-        ret.Processed = false;
-        ret.ProcessedBy = null;
-        ret.Value = float.NaN;
-        ret.Processing = false;
-        ret.Parameters = new ParameterSetting[parameters.Count];
+        var ret = new Job
+        {
+            Processed = false,
+            ProcessedBy = null,
+            Value = float.NaN,
+            Processing = false,
+            Parameters = new ParameterSetting[parameters.Count]
+        };
         for ( int i = 0; i < ret.Parameters.Length; i++ )
         {
             ret.Parameters[i] = new ParameterSetting()

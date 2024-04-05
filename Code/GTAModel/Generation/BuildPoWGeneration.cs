@@ -66,19 +66,21 @@ public class BuildPoWGeneration : DemographicCategoryGeneration
 
     private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int occ, Range age, int employmentStatus, int mobility)
     {
-        PowGeneration gen = new();
-        gen.Root = Root;
-        gen.LoadData = false;
-        gen.UsesPlanningDistricts = UsePlanningDistricts;
-        gen.OccupationCategory = CreateRangeSet( occ );
-        gen.AgeCategoryRange = CreateRangeSet( age );
-        gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
-        gen.Mobility = CreateRangeSet( mobility );
-        gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
-        gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-        gen.TimeOfDayRates = TimeOfDayRates;
-        gen.DailyRates = DailyRates;
-        gen.WorkerData = WorkerData;
+        PowGeneration gen = new()
+        {
+            Root = Root,
+            LoadData = false,
+            UsesPlanningDistricts = UsePlanningDistricts,
+            OccupationCategory = CreateRangeSet(occ),
+            AgeCategoryRange = CreateRangeSet(age),
+            EmploymentStatusCategory = CreateRangeSet(employmentStatus),
+            Mobility = CreateRangeSet(mobility),
+            ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex,
+            DemographicParameterSetIndex = GetDemographicIndex(age.Start, employmentStatus, mobility),
+            TimeOfDayRates = TimeOfDayRates,
+            DailyRates = DailyRates,
+            WorkerData = WorkerData
+        };
         list.Add( gen );
     }
 

@@ -49,13 +49,15 @@ public partial class MainWindow
 
     private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        var open = new Microsoft.Win32.OpenFileDialog();
-        open.Filter = "OD Cache (.odc)|*.odc|Zone File Cache (.zfc)|.zfc";
-        open.FilterIndex = 0;
-        open.CheckPathExists = true;
-        open.CheckFileExists = true;
-        open.AddExtension = true;
-        open.DereferenceLinks = true;
+        var open = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "OD Cache (.odc)|*.odc|Zone File Cache (.zfc)|.zfc",
+            FilterIndex = 0,
+            CheckPathExists = true,
+            CheckFileExists = true,
+            AddExtension = true,
+            DereferenceLinks = true
+        };
         if ( open.ShowDialog() == true )
         {
             var fileName = open.FileName;

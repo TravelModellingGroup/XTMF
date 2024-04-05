@@ -99,9 +99,11 @@ public class ModuleParameter : IModuleParameter
 
     public IModuleParameter Clone()
     {
-        ModuleParameter copy = new();
-        copy.Name = Name;
-        copy.NameOnModule = NameOnModule;
+        ModuleParameter copy = new()
+        {
+            Name = Name,
+            NameOnModule = NameOnModule
+        };
         if (Value is ICloneable)
         {
             copy.Value = (Value as ICloneable).Clone();

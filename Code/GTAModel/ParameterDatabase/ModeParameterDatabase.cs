@@ -195,8 +195,10 @@ public class ModeParameterDatabase : IModeParameterDatabase
         {
             var mode = modes[i];
             var cat = mode as IModeCategory;
-            children[i] = new ParameterSetStructure();
-            children[i].Mode = mode;
+            children[i] = new ParameterSetStructure
+            {
+                Mode = mode
+            };
             if ( cat != null )
             {
                 children[i].Children = CreateStructure( cat.Children );

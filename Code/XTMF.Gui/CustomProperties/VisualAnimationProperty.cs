@@ -48,12 +48,14 @@ public static class VisualAnimationProperty
         {
             ScaleTransform scaleTransform = new(1.0, 1.0, element.Width / 2, element.Height / 2);
             element.RenderTransform = scaleTransform;
-            DoubleAnimation animation = new();
-            animation.From = 1.4;
-            animation.To = 1.0;
-            animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));
-            animation.AutoReverse = false;
-            animation.RepeatBehavior = new RepeatBehavior(1);
+            DoubleAnimation animation = new()
+            {
+                From = 1.4,
+                To = 1.0,
+                Duration = new Duration(TimeSpan.FromSeconds(0.3)),
+                AutoReverse = false,
+                RepeatBehavior = new RepeatBehavior(1)
+            };
             element.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
             element.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
         }

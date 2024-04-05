@@ -259,12 +259,14 @@ public class GeneticAI : IEstimationAI
 
     private Job CleanJob(List<ParameterSetting> parameters)
     {
-        var ret = new Job();
-        ret.Processed = false;
-        ret.ProcessedBy = null;
-        ret.Value = float.NaN;
-        ret.Processing = false;
-        ret.Parameters = new ParameterSetting[parameters.Count];
+        var ret = new Job
+        {
+            Processed = false,
+            ProcessedBy = null,
+            Value = float.NaN,
+            Processing = false,
+            Parameters = new ParameterSetting[parameters.Count]
+        };
         for ( int i = 0; i < ret.Parameters.Length; i++ )
         {
             ret.Parameters[i] = new ParameterSetting()

@@ -94,8 +94,10 @@ public class TestExecutingModule : ISelfContainedModule
     public void Start()
     {
         Progress = 0.0f;
-        _timer = new Timer();
-        _timer.Interval = 1000;
+        _timer = new Timer
+        {
+            Interval = 1000
+        };
         _timer.Elapsed += _timer_Elapsed;
         _timer.AutoReset = true;
         _timer.Start();

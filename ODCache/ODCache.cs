@@ -216,8 +216,10 @@ public sealed class OdCache : IDisposable
            {
                var sub = Indexes[i].SubIndexes;
                var subLength = sub.Length;
-               index.Indexes[i].SubIndex = new SparseIndexing();
-               index.Indexes[i].SubIndex.Indexes = new SparseSet[subLength];
+               index.Indexes[i].SubIndex = new SparseIndexing
+               {
+                   Indexes = new SparseSet[subLength]
+               };
                int jTotal = 0;
                var ithIndex = index.Indexes[i].SubIndex.Indexes;
                for (int j = 0; j < subLength; j++)
@@ -364,9 +366,11 @@ public sealed class OdCache : IDisposable
         for (int i = 0; i < Indexes.Length; i++)
         {
             Reader.BaseStream.Position = primaryLocation;
-            Indexes[i] = new Index();
-            Indexes[i].Start = Reader.ReadInt32();
-            Indexes[i].End = Reader.ReadInt32();
+            Indexes[i] = new Index
+            {
+                Start = Reader.ReadInt32(),
+                End = Reader.ReadInt32()
+            };
             long offset = Reader.ReadInt64();
             primaryLocation = Reader.BaseStream.Position;
             Reader.BaseStream.Position = offset;
@@ -374,10 +378,12 @@ public sealed class OdCache : IDisposable
             Indexes[i].SubIndexes = new SubIndex[length];
             for (int j = 0; j < Indexes[i].SubIndexes.Length; j++)
             {
-                Indexes[i].SubIndexes[j] = new SubIndex();
-                Indexes[i].SubIndexes[j].Start = Reader.ReadInt32();
-                Indexes[i].SubIndexes[j].End = Reader.ReadInt32();
-                Indexes[i].SubIndexes[j].Location = Reader.ReadInt64();
+                Indexes[i].SubIndexes[j] = new SubIndex
+                {
+                    Start = Reader.ReadInt32(),
+                    End = Reader.ReadInt32(),
+                    Location = Reader.ReadInt64()
+                };
             }
         }
     }

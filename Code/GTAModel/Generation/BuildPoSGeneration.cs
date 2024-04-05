@@ -61,19 +61,21 @@ public class BuildPoSGeneration : DemographicCategoryGeneration
 
     private void AddNewGeneration(List<IDemographicCategoryGeneration> list, Range age, int employmentStatus, int mobility)
     {
-        PoRPoSGeneration gen = new();
-        gen.Root = Root;
-        gen.LoadData = false;
-        gen.UsesPlanningDistricts = UsePlanningDistricts;
-        gen.OccupationCategory = OccupationCategory;
-        gen.AgeCategoryRange = CreateRangeSet( age );
-        gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
-        gen.Mobility = CreateRangeSet( mobility );
-        gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
-        gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-        gen.TimeOfDayRates = TimeOfDayRates;
-        gen.DailyRates = DailyRates;
-        gen.GenerationOutputFileName = GenerationOutputFileName;
+        PoRPoSGeneration gen = new()
+        {
+            Root = Root,
+            LoadData = false,
+            UsesPlanningDistricts = UsePlanningDistricts,
+            OccupationCategory = OccupationCategory,
+            AgeCategoryRange = CreateRangeSet(age),
+            EmploymentStatusCategory = CreateRangeSet(employmentStatus),
+            Mobility = CreateRangeSet(mobility),
+            ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex,
+            DemographicParameterSetIndex = GetDemographicIndex(age.Start, employmentStatus, mobility),
+            TimeOfDayRates = TimeOfDayRates,
+            DailyRates = DailyRates,
+            GenerationOutputFileName = GenerationOutputFileName
+        };
         list.Add( gen );
     }
 

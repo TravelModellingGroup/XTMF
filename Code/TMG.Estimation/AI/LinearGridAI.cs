@@ -58,12 +58,14 @@ public class LinearGridAI : IEstimationAI
 
     private Job CleanJob(ParameterSetting[] parameters)
     {
-        var ret = new Job();
-        ret.Processed = false;
-        ret.ProcessedBy = null;
-        ret.Value = float.NaN;
-        ret.Processing = false;
-        ret.Parameters = new ParameterSetting[parameters.Length];
+        var ret = new Job
+        {
+            Processed = false,
+            ProcessedBy = null,
+            Value = float.NaN,
+            Processing = false,
+            Parameters = new ParameterSetting[parameters.Length]
+        };
         for ( int i = 0; i < ret.Parameters.Length; i++ )
         {
             ret.Parameters[i] = new ParameterSetting()
@@ -82,10 +84,12 @@ public class LinearGridAI : IEstimationAI
         for ( int i = 0; i < param.Length; i++ )
         {
             var other = list[i];
-            param[i] = new ParameterSetting();
-            param[i].Minimum = other.Minimum;
-            param[i].Maximum = other.Maximum;
-            param[i].Current = ( other.Maximum + other.Minimum ) / 2;
+            param[i] = new ParameterSetting
+            {
+                Minimum = other.Minimum,
+                Maximum = other.Maximum,
+                Current = (other.Maximum + other.Minimum) / 2
+            };
         }
         LocalSpaces = param;
     }

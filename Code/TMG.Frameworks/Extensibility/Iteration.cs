@@ -82,8 +82,10 @@ public class Iteration : ISelfContainedModule, IIterativeModel
                         {
                             errorList.Enqueue(e);
                         }
-                    });
-                    threads[i].IsBackground = true;
+                    })
+                    {
+                        IsBackground = true
+                    };
                     threads[i].Start();
                 }
                 // after creating all of the threads wait until each one is complete before continuing

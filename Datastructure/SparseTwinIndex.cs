@@ -131,8 +131,10 @@ public sealed class SparseTwinIndex<T>
 
     public static SparseTwinIndex<T> CreateSimilarArray<TFirst, TSecond>(SparseArray<TFirst> first, SparseArray<TSecond> second)
     {
-        var indexes = new SparseIndexing();
-        indexes.Indexes = (SparseSet[])first.Indexing.Indexes.Clone();
+        var indexes = new SparseIndexing
+        {
+            Indexes = (SparseSet[])first.Indexing.Indexes.Clone()
+        };
         var length = indexes.Indexes.Length;
         for (var i = 0; i < length; i++)
         {

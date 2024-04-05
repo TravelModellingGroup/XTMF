@@ -170,8 +170,10 @@ public sealed class RemoveActivities : IDataLoader<ITashaHousehold>
     /// <param name="zoneSystem">The zone system for the model.</param>
     private void ProcessHousehold(ITashaHousehold household, Random random, SparseArray<IZone> zoneSystem)
     {
-        var schedule = new Schedule();
-        schedule.Episodes = new IEpisode[20];
+        var schedule = new Schedule
+        {
+            Episodes = new IEpisode[20]
+        };
         int homeZoneIndex = GetHomeZoneIndex(zoneSystem, household);
         RemoveJointTrips(random, household, homeZoneIndex);
         foreach (var person in household.Persons)

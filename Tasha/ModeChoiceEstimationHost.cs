@@ -535,8 +535,10 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
     private void CreateDistributionThread()
     {
         StartGeneration = new MessageQueue<StartGenerationMessage>();
-        Thread distributionThread = new(DistributionMain);
-        distributionThread.IsBackground = true;
+        Thread distributionThread = new(DistributionMain)
+        {
+            IsBackground = true
+        };
         distributionThread.Start();
     }
 

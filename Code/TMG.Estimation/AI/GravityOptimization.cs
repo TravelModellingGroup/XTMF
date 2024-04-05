@@ -631,14 +631,14 @@ public class GravityOptimization : IEstimationAI
             for(int i = 0; i < Particles.Length; i++)
             {
                 var parameters = Particles[i].Position;
-                var job = new Job()
+                var job = new Job
                 {
                     Parameters = Clone(),
+                    Processed = false,
+                    ProcessedBy = null,
+                    Processing = false,
+                    Value = float.NaN
                 };
-                job.Processed = false;
-                job.ProcessedBy = null;
-                job.Processing = false;
-                job.Value = float.NaN;
                 ret.Add(job);
                 var row = job.Parameters;
                 for(int j = 0; j < row.Length; j++)

@@ -552,9 +552,9 @@ public partial class MainWindow : MetroWindow
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Session = modelSystemSession,
-                ModelSystem = modelSystemSession.ModelSystemModel
+                ModelSystem = modelSystemSession.ModelSystemModel,
+                ContentGuid = Guid.NewGuid().ToString()
             };
-            display.ContentGuid = Guid.NewGuid().ToString();
             var titleBarName = titleBar ?? (modelSystemSession.EditingProject
                                    ? modelSystemSession.ProjectEditingSession.Name + " - " +
                                      modelSystemSession.ModelSystemModel.Name

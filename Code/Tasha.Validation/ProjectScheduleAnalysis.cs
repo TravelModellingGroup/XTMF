@@ -129,7 +129,7 @@ public class ProjectScheduleAnalysis : IPostScheduler
         }
     }
 
-    private void SaveData(FileLocation file, float[] data)
+    private static void SaveData(FileLocation file, float[] data)
     {
         using StreamWriter writer = new(file);
         writer.WriteLine("Bin,Data");

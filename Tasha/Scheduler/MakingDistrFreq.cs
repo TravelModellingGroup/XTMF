@@ -368,9 +368,11 @@ public class MakingDistFreq : ITashaRuntime
 
                 if(thisTrip.Purpose == Activity.PrimaryWork || thisTrip.Purpose == Activity.SecondaryWork || thisTrip.Purpose == Activity.WorkBasedBusiness)
                 {
-                    var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, tripChain.Person);
-                    newEpisode.Zone = thisTrip.DestinationZone;
-                    if(workStartTime == Time.Zero || newEpisode.StartTime < workStartTime)
+                    var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, tripChain.Person)
+                    {
+                        Zone = thisTrip.DestinationZone
+                    };
+                    if (workStartTime == Time.Zero || newEpisode.StartTime < workStartTime)
                     {
                         workStartTime = newEpisode.StartTime;
                     }
@@ -382,8 +384,10 @@ public class MakingDistFreq : ITashaRuntime
                 }
                 else if(thisTrip.Purpose == Activity.School)
                 {
-                    var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, tripChain.Person);
-                    newEpisode.Zone = thisTrip.DestinationZone;
+                    var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, tripChain.Person)
+                    {
+                        Zone = thisTrip.DestinationZone
+                    };
                     personData.SchoolSchedule.Schedule.Insert(newEpisode, random);
                 }
             }

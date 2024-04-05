@@ -77,8 +77,10 @@ public sealed class SparseTriIndex<T>
 
     public static SparseTriIndex<T> CreateSimilarArray<TFirst, TSecond, TThird>(SparseArray<TFirst> first, SparseArray<TSecond> second, SparseArray<TThird> third)
     {
-        var indexes = new SparseIndexing();
-        indexes.Indexes = (SparseSet[])first.Indexing.Indexes.Clone();
+        var indexes = new SparseIndexing
+        {
+            Indexes = (SparseSet[])first.Indexing.Indexes.Clone()
+        };
         var length = indexes.Indexes.Length;
         for(var i = 0; i < length; i++)
         {

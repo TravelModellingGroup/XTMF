@@ -162,8 +162,10 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
                         chart.Height = Height;
                         ChartArea ca;
                         chart.ChartAreas.Add(ca = new ChartArea());
-                        Series ourSeries = new();
-                        ourSeries.ChartType = SeriesChartType.Point;
+                        Series ourSeries = new()
+                        {
+                            ChartType = SeriesChartType.Point
+                        };
                         AddData(ca, ourSeries, i, j);
                         chart.Series.Add(ourSeries);
                         chart.SaveImage(String.Format("{0}-{1}.png", i, j), ChartImageFormat.Png);
@@ -186,9 +188,10 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
         chart.Height = Height;
         ChartArea ca;
         chart.ChartAreas.Add(ca = new ChartArea());
-        Series ourSeries = new();
-
-        ourSeries.ChartType = SeriesChartType.Point;
+        Series ourSeries = new()
+        {
+            ChartType = SeriesChartType.Point
+        };
         ProcessData(data, bestIndex, ourSeries, i, j);
         chart.Series.Add(ourSeries);
         if (headers != null)
@@ -258,9 +261,11 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
                     while ((line = reader.ReadLine()) != null && ((parts = line.Split(',')).Length >= minNumberOfColumns))
                     {
                         double height = double.Parse(parts[ColourAxisCol]);
-                        DataPoint point = new();
-                        point.XValue = double.Parse(parts[first]);
-                        point.YValues = new[] { double.Parse(parts[second]) };
+                        DataPoint point = new()
+                        {
+                            XValue = double.Parse(parts[first]),
+                            YValues = new[] { double.Parse(parts[second]) }
+                        };
                         if (height > maxHeight) maxHeight = height;
                         if (height < minHeight) minHeight = height;
                         points.Add(point);
@@ -315,7 +320,7 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
         }
     }
 
-    private float CalculateCloseness(double[] xValues, double[] bestValues, int first, int second)
+    private static float CalculateCloseness(double[] xValues, double[] bestValues, int first, int second)
     {
         int dim = xValues.Length;
         double distance = 0;
@@ -334,7 +339,7 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
         return Color.FromArgb(Lerp(lowColour.R, highColour.R, distance), Lerp(lowColour.G, highColour.G, distance), Lerp(lowColour.B, highColour.B, distance));
     }
 
-    private int Lerp(byte l, byte h, double distance)
+    private static int Lerp(byte l, byte h, double distance)
     {
         return (byte)((h - l) * distance + l);
     }

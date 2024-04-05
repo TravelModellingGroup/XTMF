@@ -412,33 +412,35 @@ public class SubwayAccessMode : IStationCollectionMode, IUtilityComponentMode, I
 
     private void CreateChild(int stationZone, int parkingSpots)
     {
-        SubwayAccessStation station = new();
-        //Setup the parameters
-        station.Root = Root;
-        station.Parent = this;
-        station.Closest = Closest;
-        station.ClosestDistance = ClosestDistance;
-        station.MaxAccessToDestinationTime = MaxAccessToDestinationTime;
-        station.CurrentlyFeasible = 1.0f;
-        // The constant for this option is not the same as for the station choice
-        //station.Constant = this.Constant;
-        station.AccessInVehicleTravelTime = AccessInVehicleTravelTime;
-        station.AccessCost = AccessCost;
-        station.InVehicleTravelTime = GeneralTime;
-        station.ParkingCost = ParkingCost;
-        station.LogParkingFactor = ParkingFactor;
-        station.WaitTime = WaitTime;
-        station.WalkTime = WalkTime;
-        station.FareTTC = FareTTC;
+        SubwayAccessStation station = new()
+        {
+            //Setup the parameters
+            Root = Root,
+            Parent = this,
+            Closest = Closest,
+            ClosestDistance = ClosestDistance,
+            MaxAccessToDestinationTime = MaxAccessToDestinationTime,
+            CurrentlyFeasible = 1.0f,
+            // The constant for this option is not the same as for the station choice
+            //station.Constant = this.Constant;
+            AccessInVehicleTravelTime = AccessInVehicleTravelTime,
+            AccessCost = AccessCost,
+            InVehicleTravelTime = GeneralTime,
+            ParkingCost = ParkingCost,
+            LogParkingFactor = ParkingFactor,
+            WaitTime = WaitTime,
+            WalkTime = WalkTime,
+            FareTTC = FareTTC,
 
-        // Setup the modes
-        station.First = First;
-        station.Second = Second;
+            // Setup the modes
+            First = First,
+            Second = Second,
 
-        // Create all of the individual parameters
-        station.ModeName = String.Format( "{0}:{1}", ModeName, stationZone );
-        station.StationZone = stationZone;
-        station.Parking = parkingSpots;
+            // Create all of the individual parameters
+            ModeName = String.Format("{0}:{1}", ModeName, stationZone),
+            StationZone = stationZone,
+            Parking = parkingSpots
+        };
         // Add it to the list of children
         Children.Add( station );
     }

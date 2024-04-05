@@ -83,20 +83,22 @@ public class BuildPoRPoWGeneration : DemographicCategoryGeneration
 
     private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int occ, Range age, int employmentStatus, int mobility)
     {
-        PoRPoWGeneration gen = new();
-        gen.Root = Root;
-        gen.LoadData = false;
-        gen.UsePlanningDistricts = UsePlanningDistricts;
-        gen.OccupationCategory = CreateRangeSet( occ );
-        gen.AgeCategoryRange = CreateRangeSet( age );
-        gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
-        gen.Mobility = CreateRangeSet( mobility );
-        gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
-        gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-        gen.ExternalJobs = ExternalJobs;
-        gen.ExternalRates = WorkExternal;
-        gen.WorkAtHomeRates = WorkAtHomeRates;
-        gen.GenerationOutputFileName = GenerationOutputFileName;
+        PoRPoWGeneration gen = new()
+        {
+            Root = Root,
+            LoadData = false,
+            UsePlanningDistricts = UsePlanningDistricts,
+            OccupationCategory = CreateRangeSet(occ),
+            AgeCategoryRange = CreateRangeSet(age),
+            EmploymentStatusCategory = CreateRangeSet(employmentStatus),
+            Mobility = CreateRangeSet(mobility),
+            ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex,
+            DemographicParameterSetIndex = GetDemographicIndex(age.Start, employmentStatus, mobility),
+            ExternalJobs = ExternalJobs,
+            ExternalRates = WorkExternal,
+            WorkAtHomeRates = WorkAtHomeRates,
+            GenerationOutputFileName = GenerationOutputFileName
+        };
         gen.Name = Name + " - " + gen;
         gen.AttractionFileName = AttractionFileName;
         gen.AllAges = AllAges;

@@ -56,18 +56,20 @@ public class BuildHBOGeneration : DemographicCategoryGeneration
 
     private void AddNewGeneration(List<IDemographicCategoryGeneration> list, Range age, int employmentStatus, int mobility)
     {
-        HBOGeneration gen = new();
-        gen.Root = Root;
-        gen.LoadData = false;
-        gen.UsesPlanningDistricts = UsePlanningDistricts;
-        gen.OccupationCategory = OccupationCategory;
-        gen.AgeCategoryRange = CreateRangeSet( age );
-        gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
-        gen.Mobility = CreateRangeSet( mobility );
-        gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
-        gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-        gen.Rates = Rates;
-        gen.GenerationOutputFileName = GenerationOutputFileName;
+        HBOGeneration gen = new()
+        {
+            Root = Root,
+            LoadData = false,
+            UsesPlanningDistricts = UsePlanningDistricts,
+            OccupationCategory = OccupationCategory,
+            AgeCategoryRange = CreateRangeSet(age),
+            EmploymentStatusCategory = CreateRangeSet(employmentStatus),
+            Mobility = CreateRangeSet(mobility),
+            ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex,
+            DemographicParameterSetIndex = GetDemographicIndex(age.Start, employmentStatus, mobility),
+            Rates = Rates,
+            GenerationOutputFileName = GenerationOutputFileName
+        };
         list.Add( gen );
     }
 

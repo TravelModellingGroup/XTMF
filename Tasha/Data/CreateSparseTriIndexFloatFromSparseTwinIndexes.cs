@@ -74,8 +74,10 @@ public class CreateSparseTriIndexFloatFromSparseTwinIndexes : IDataSource<Sparse
 
     private SparseIndexing RootCreateIndices()
     {
-        SparseIndexing rootLevel = new();
-        rootLevel.Indexes = TriIndexSet.Select(range => new SparseSet() { Start = range.Start, Stop = range.Stop }).ToArray();
+        SparseIndexing rootLevel = new()
+        {
+            Indexes = TriIndexSet.Select(range => new SparseSet() { Start = range.Start, Stop = range.Stop }).ToArray()
+        };
         return rootLevel;
     }
 

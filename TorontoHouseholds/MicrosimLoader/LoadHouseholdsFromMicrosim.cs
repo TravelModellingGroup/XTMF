@@ -294,9 +294,11 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
     {
         var ret = new Person(household, person.PersonID, person.Age,
                                 ConvertOccupation(person.Occupation), ConvertEmploymentStatus(person.EmploymentStatus),
-                                ConvertStudentStatus(person.StudentStatus), person.License, IsFemale(person.Sex));
-        ret.ExpansionFactor = person.Weight;
-        ret.TransitPass = person.TransitPass ? TransitPass.Combination : TransitPass.None;
+                                ConvertStudentStatus(person.StudentStatus), person.License, IsFemale(person.Sex))
+        {
+            ExpansionFactor = person.Weight,
+            TransitPass = person.TransitPass ? TransitPass.Combination : TransitPass.None
+        };
         if (person.WorkZone != 0)
         {
             if (person.WorkZone != _roamingZoneNumber)
