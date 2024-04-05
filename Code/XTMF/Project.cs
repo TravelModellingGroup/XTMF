@@ -255,7 +255,7 @@ public sealed partial class Project : IProject
     public bool Save(ref string error)
     {
         var dirName = Path.Combine(_Configuration.ProjectDirectory, Name);
-        bool ret = false;
+        bool ret;
         try
         {
             if (!Directory.Exists(dirName))

@@ -230,7 +230,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             itemIndex = gen.IndexFromContainer(selected);
             depth++;
         }
-        DependencyObject next = null;
+        DependencyObject next;
         if (Orientation == Orientation.Horizontal)
         {
             int nextIndex = GetNextSectionClosestIndex(itemIndex);
@@ -275,7 +275,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             itemIndex = gen.IndexFromContainer(selected);
             depth++;
         }
-        DependencyObject next = null;
+        DependencyObject next;
         if (Orientation == Orientation.Vertical)
         {
             int nextIndex = GetLastSectionClosestIndex(itemIndex);
@@ -319,7 +319,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             itemIndex = gen.IndexFromContainer(selected);
             depth++;
         }
-        DependencyObject next = null;
+        DependencyObject next;
         if (Orientation == Orientation.Vertical)
         {
             int nextIndex = GetNextSectionClosestIndex(itemIndex);
@@ -363,7 +363,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
             itemIndex = gen.IndexFromContainer(selected);
             depth++;
         }
-        DependencyObject next = null;
+        DependencyObject next;
         if (Orientation == Orientation.Horizontal)
         {
             int nextIndex = GetLastSectionClosestIndex(itemIndex);

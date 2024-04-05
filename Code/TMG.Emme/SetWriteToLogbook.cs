@@ -45,8 +45,7 @@ public class SetWriteToLogbook : IEmmeTool
 
     public bool Execute(Controller controller)
     {
-        ModellerController modeller;
-        if((modeller = controller as ModellerController) != null)
+        if ((controller as ModellerController) != null)
         {
             return false;
         }

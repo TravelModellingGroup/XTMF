@@ -109,7 +109,7 @@ internal sealed class ParameterDisplayModel : INotifyPropertyChanged, IDisposabl
             {
                 if (RealParameter.Type == typeof(bool))
                 {
-                    bool outParse = false;
+                    bool outParse;
                     if (bool.TryParse(RealParameter.GetLinkedParameter()?.GetValue(), out outParse))
                     {
                         return outParse.ToString();

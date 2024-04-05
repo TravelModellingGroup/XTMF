@@ -159,7 +159,7 @@ public sealed class SaveSparseTriIndex : ISelfContainedModule
 
     private string BuildFileName(int layerIndex)
     {
-        string ret = null;
+        string ret;
         switch (FileFormat)
         {
             case FileFormats.MTX:

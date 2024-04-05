@@ -219,7 +219,6 @@ public class AssignWorkZonesByBucketRounding : ICalculation<ITashaPerson, IZone>
                 }
                 var total = 0;
                 int lastWithEmp = 0;
-                int lastWithAnyEmp = 0;
                 for (j = 0; j < row.Length; j++)
                 {
                     var remander = row[j] - temp[j];
@@ -231,7 +230,6 @@ public class AssignWorkZonesByBucketRounding : ICalculation<ITashaPerson, IZone>
                     }
                     if(row[j] > 0.0f)
                     {
-                        lastWithAnyEmp = j;
                     }
                     if (temp[j] > 0)
                     {

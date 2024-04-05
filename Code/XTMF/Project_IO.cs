@@ -139,7 +139,6 @@ public sealed partial class Project : IProject
             msPath = Path.Combine(_DirectoryLocation, $"Project.ms-{guid}.xml");
             if (!File.Exists(msPath))
             {
-                pms = null;
                 return false;
             }
             else

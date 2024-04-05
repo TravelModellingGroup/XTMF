@@ -211,7 +211,6 @@ public class ModelSystem : IModelSystem
         }
         catch (Exception e)
         {
-            description = string.Empty;
             error = e.Message;
             return false;
         }

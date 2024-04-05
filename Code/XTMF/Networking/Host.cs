@@ -695,7 +695,6 @@ internal class Host : IHost, IDisposable
                         if (!failed)
                         {
                             writer.Write(buffer, 0, length);
-                            buffer = null;
                         }
                     }
                     break;
