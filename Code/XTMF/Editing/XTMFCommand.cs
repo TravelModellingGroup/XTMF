@@ -95,10 +95,7 @@ namespace XTMF.Editing
         /// <returns>A command with this behaviour.</returns>
         public static XTMFCommand CreateCommand(string name, XTMFCommandMethod OnDo, XTMFCommandMethod OnUndo = null, XTMFCommandMethod OnRedo = null)
         {
-            if (OnDo == null)
-            {
-                throw new ArgumentNullException(nameof(OnDo));
-            }
+            ArgumentNullException.ThrowIfNull(OnDo);
             if ((OnUndo == null) != (OnRedo == null))
             {
                 throw new ArgumentException("Both OnUndo and OnRedo must be null or both have delegates.");

@@ -161,10 +161,7 @@ namespace XTMF
         /// <returns>True if the model system was added successfully</returns>
         public bool AddModelSystem(ModelSystem modelSystem, ref string error)
         {
-            if (modelSystem == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystem));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystem);
             lock (_EditingSessionsLock)
             {
                 if (!Project.AddModelSystem(modelSystem, modelSystem.Name, ref error))
@@ -208,10 +205,7 @@ namespace XTMF
         /// <returns>True if the model system was added successfully</returns>
         public bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
         {
-            if (modelSystem == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystem));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystem);
             lock (_EditingSessionsLock)
             {
                 if (!Project.AddModelSystem(modelSystem, newName, ref error))
@@ -290,10 +284,7 @@ namespace XTMF
         /// <returns>True if the model system was added successfully</returns>
         public bool AddModelSystem(ModelSystemModel modelSystem, ref string error)
         {
-            if (modelSystem == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystem));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystem);
             return AddModelSystem(modelSystem.ModelSystem, ref error);
         }
 
@@ -306,10 +297,7 @@ namespace XTMF
         /// <returns>True if the model system was added successfully</returns>
         public bool AddModelSystem(ModelSystemModel modelSystem, string newName, ref string error)
         {
-            if (modelSystem == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystem));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystem);
             return AddModelSystem(modelSystem.ModelSystem, newName, ref error);
         }
 

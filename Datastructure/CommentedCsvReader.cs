@@ -37,10 +37,7 @@ namespace Datastructure
         /// <param name="fileName">The full path to the file.</param>
         public CommentedCsvReader(string fileName)
         {
-            if (fileName == null)
-            {
-                throw new ArgumentNullException(nameof(fileName));
-            }
+            ArgumentNullException.ThrowIfNull(fileName);
             Reader = new CsvReader(fileName);
             LinesRead = 0;
             SetupReader();

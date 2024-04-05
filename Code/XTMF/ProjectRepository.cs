@@ -176,10 +176,7 @@ namespace XTMF
 
         public bool RenameProject(IProject project, string newName, ref string error)
         {
-            if (project == null)
-            {
-                throw new ArgumentNullException(nameof(project));
-            }
+            ArgumentNullException.ThrowIfNull(project);
             // make sure that the new project name is valid
             lock (this)
             {

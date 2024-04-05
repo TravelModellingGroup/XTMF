@@ -40,7 +40,7 @@ namespace Datastructure
         /// <param name="numbers">The numbers to use to generate the ranges</param>
         public RangeSet(IList<int> numbers)
         {
-            if (numbers == null) throw new ArgumentNullException(nameof(numbers));
+            ArgumentNullException.ThrowIfNull(numbers);
             var array = new int[numbers.Count];
             numbers.CopyTo(array, 0);
             Array.Sort(array);

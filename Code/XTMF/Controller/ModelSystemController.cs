@@ -464,10 +464,7 @@ namespace XTMF
         /// </summary>
         public ModelSystemEditingSession EditModelSystem(ModelSystem modelSystem)
         {
-            if (modelSystem == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystem));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystem);
             lock (EditingLock)
             {
                 for (int i = 0; i < EditingSessions.Count; i++)
@@ -492,10 +489,7 @@ namespace XTMF
         /// <returns></returns>
         internal bool WillCloseTerminate(ModelSystemEditingSession modelSystemEditingSession)
         {
-            if (modelSystemEditingSession == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystemEditingSession));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystemEditingSession);
             bool terminate = false;
             lock (EditingLock)
             {
@@ -520,10 +514,7 @@ namespace XTMF
         /// <param name="modelSystemEditingSession">The session to release</param>
         internal void ReleaseEditingSession(ModelSystemEditingSession modelSystemEditingSession)
         {
-            if (modelSystemEditingSession == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystemEditingSession));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystemEditingSession);
             bool terminate = false;
             lock (EditingLock)
             {

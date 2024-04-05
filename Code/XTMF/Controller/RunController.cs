@@ -80,10 +80,7 @@ namespace XTMF.Controller
         /// <param name="executeNow">Should the run be added to the back of the queue or executed right now?</param>
         public void ExecuteRun(XTMFRun run, bool executeNow)
         {
-            if (run == null)
-            {
-                throw new ArgumentNullException(nameof(run));
-            }
+            ArgumentNullException.ThrowIfNull(run);
             run.RunCompleted += () => TerminateRun(run);
             run.ValidationError += (e) => TerminateRun(run);
             run.RuntimeValidationError += (e) => TerminateRun(run);
@@ -133,10 +130,7 @@ namespace XTMF.Controller
 
         public void CancelRun(XTMFRun run)
         {
-            if (run == null)
-            {
-                throw new ArgumentNullException(nameof(run));
-            }
+            ArgumentNullException.ThrowIfNull(run);
             lock (_Lock)
             {
                 // If we are currently executing the run find it's index and send an exit request

@@ -223,10 +223,7 @@ namespace XTMF
         /// <param name="name">The name to use, pass a null to automatically name the module</param>
         public bool AddCollectionMember(Type type, ref string error, string name = null)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
+            ArgumentNullException.ThrowIfNull(type);
 
             if (!IsCollection)
             {

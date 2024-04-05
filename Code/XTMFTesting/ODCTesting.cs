@@ -272,14 +272,8 @@ namespace XTMF.Testing
 
         private void ValidateData(int[] zones, float[][][] data, string odcFileName)
         {
-            if (zones == null)
-            {
-                throw new ArgumentNullException(nameof(zones));
-            }
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
+            ArgumentNullException.ThrowIfNull(zones);
+            ArgumentNullException.ThrowIfNull(data);
             OdCache odc = new OdCache( odcFileName );
             var storedData = odc.StoreAll().GetFlatData();
             odc.Release();

@@ -358,15 +358,9 @@ namespace TMG.Functions
         /// <returns>A list in order from root to the module to find of their model system structures.</returns>
         public static List<IModelSystemStructure> BuildModelStructureChain(IProject project, IModule toFind)
         {
-            if (project == null)
-            {
-                throw new ArgumentNullException(nameof(project));
-            }
+            ArgumentNullException.ThrowIfNull(project);
 
-            if (toFind == null)
-            {
-                throw new ArgumentNullException(nameof(toFind));
-            }
+            ArgumentNullException.ThrowIfNull(toFind);
 
             List<IModelSystemStructure> chain = new List<IModelSystemStructure>();
             foreach (var ms in project.ModelSystemStructure)

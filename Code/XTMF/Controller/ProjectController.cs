@@ -54,10 +54,7 @@ namespace XTMF
         /// <param name="project">The project to edit</param>
         public ProjectEditingSession EditProject(Project project)
         {
-            if (project == null)
-            {
-                throw new ArgumentNullException(nameof(project));
-            }
+            ArgumentNullException.ThrowIfNull(project);
             lock (EditingSessionLock)
             {
                 // First check to see if a session is already open
@@ -170,10 +167,7 @@ namespace XTMF
         /// <param name="session">The session to remove a reference to.</param>
         internal void RemoveEditingReference(ProjectEditingSession session)
         {
-            if (session == null)
-            {
-                throw new ArgumentNullException(nameof(session));
-            }
+            ArgumentNullException.ThrowIfNull(session);
             lock (EditingSessionLock)
             {
                 var index = EditingSessions.IndexOf(session);
@@ -262,10 +256,7 @@ namespace XTMF
         /// <returns>The session to edit the project.</returns>
         public ProjectEditingSession EditProject(Project project, ref string error)
         {
-            if (project == null)
-            {
-                throw new ArgumentNullException(nameof(project));
-            }
+            ArgumentNullException.ThrowIfNull(project);
             lock (EditingSessionLock)
             {
                 // check to see if it already exists

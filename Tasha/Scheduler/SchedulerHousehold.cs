@@ -807,10 +807,7 @@ namespace Tasha.Scheduler
         private static void ProcessSecondaryWork(ITashaPerson person, Schedule schedule, Random random, Episode primaryWorkEpisode, int householdPD,
             int workPD, GenerationAdjustment[] generationAdjustments, StartTimeAdjustment[] startTimeAdjustments)
         {
-            if (random == null)
-            {
-                throw new ArgumentNullException(nameof(random));
-            }
+            ArgumentNullException.ThrowIfNull(random);
             //can only work if finish primary work by 7:00PM
             if (primaryWorkEpisode.EndTime < Scheduler.SecondaryWorkThreshold)
             {

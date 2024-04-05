@@ -131,10 +131,7 @@ namespace XTMF.Editing
 
         public void CopyTo(XTMFCommand[] array, int arrayIndex)
         {
-            if(array == null)
-            {
-                throw new ArgumentNullException(nameof(array));
-            }
+            ArgumentNullException.ThrowIfNull(array);
             lock (_DataLock)
             {
                 if(array.Length - arrayIndex < Count)

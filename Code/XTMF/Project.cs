@@ -150,7 +150,7 @@ namespace XTMF
         /// <returns>The index for this model system, -1 if it is not found.</returns>
         public int IndexOf(ProjectModelSystem projectModelSystem)
         {
-            if(projectModelSystem is null) throw new ArgumentNullException(nameof(projectModelSystem));
+            ArgumentNullException.ThrowIfNull(projectModelSystem);
 
             for (var i = 0; i < ProjectModelSystems.Count; i++)
             {
@@ -171,7 +171,7 @@ namespace XTMF
         /// <returns>The index for this model system, -1 if it is not found.</returns>
         public int IndexOf(IModelSystemStructure modelSystemStructure)
         {
-            if (modelSystemStructure is null) throw new ArgumentNullException(nameof(modelSystemStructure));
+            ArgumentNullException.ThrowIfNull(modelSystemStructure);
 
             for (var i = 0; i < ProjectModelSystems.Count; i++)
             {
@@ -342,10 +342,7 @@ namespace XTMF
         /// <returns></returns>
         public bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
         {
-            if (modelSystem == null)
-            {
-                throw new ArgumentNullException(nameof(modelSystem));
-            }
+            ArgumentNullException.ThrowIfNull(modelSystem);
 
             var clone = CloneModelSystemStructure(modelSystem, out var linkedParameters,
                 out var regionDisplays);
