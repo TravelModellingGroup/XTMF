@@ -78,7 +78,7 @@ namespace XTMF
         {
             lock (EditingSessionLock)
             {
-                return EditingSessions.Count(p => p.Name == project.Name) > 0;
+                return EditingSessions.Any(p => p.Name == project.Name);
             }
         }
 

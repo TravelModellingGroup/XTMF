@@ -488,9 +488,9 @@ namespace XTMF
         /// <returns></returns>
         internal bool IsValidRunName(string runName)
         {
-            return !System.IO.Path.IsPathRooted(runName) && 
-                Path.GetInvalidPathChars().Where(c => runName.Contains(c)).Count() == 0 &&
-                Path.GetInvalidFileNameChars().Where(c => runName.Contains(c)).Count() == 0;
+            return !System.IO.Path.IsPathRooted(runName) &&
+                !Path.GetInvalidPathChars().Where(c => runName.Contains(c)).Any() &&
+                !Path.GetInvalidFileNameChars().Where(c => runName.Contains(c)).Any();
         }
 
         /// <summary>
