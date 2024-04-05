@@ -98,10 +98,7 @@ public sealed class AdvancedEmmeNetworkAssignment : INetworkAssignment, IDisposa
     {
         if (Execute)
         {
-            if (Controller == null)
-            {
-                Controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceAnalysis);
-            }
+            Controller ??= new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceAnalysis);
             CurrentProgress = 0.0f;
             ProgressIncrement = 1.0f / tools.Count;
             foreach (var tool in tools)

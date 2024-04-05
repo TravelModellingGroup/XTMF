@@ -189,10 +189,7 @@ public class FlatModeSplit : IInteractiveModeSplit
     {
         var numberOfZones = Zones.Length;
         var numberOfModes = Root.Modes.Count;
-        if (CurrentUtility == null)
-        {
-            CurrentUtility = new float[numberOfZones * numberOfZones * numberOfModes];
-        }
+        CurrentUtility ??= new float[numberOfZones * numberOfZones * numberOfModes];
         // in all cases reset this value
         for (int i = 0; i < CurrentUtility.Length; i++)
         {

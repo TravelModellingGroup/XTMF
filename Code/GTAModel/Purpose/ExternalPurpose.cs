@@ -199,10 +199,7 @@ public class ExternalPurpose : PurposeBase
         {
             lock (modeData)
             {
-                if (modeData.Result == null)
-                {
-                    modeData.Result = new float[numberOfZones][];
-                }
+                modeData.Result ??= new float[numberOfZones][];
             }
         }
         if (modeData.Result[originIndex] == null)

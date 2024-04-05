@@ -266,7 +266,7 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
                     blockingBuffer.CompleteAdding();
                     if (RefreshHouseholdData)
                     {
-                        var hasException = _Unload();
+                        var hasException = UnloadInner();
                         // set the exception to the one caused by unloading if there was no exception already.
                         terminalException = terminalException ?? hasException;
                     }
@@ -323,10 +323,10 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
 
     private void Unload()
     {
-        _Unload();
+        UnloadInner();
     }
 
-    private IOException _Unload()
+    private IOException UnloadInner()
     {
         try
         {
@@ -596,13 +596,10 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
     {
         lock (this)
         {
-            if (Reader == null)
-            {
-                Reader = new CsvReader(
+            Reader ??= new CsvReader(
                     HouseholdFile != null ?
                     HouseholdFile.GetFilePath()
                     : Path.Combine(Root.InputBaseDirectory, FileName));
-            }
             Reset();
             if (ContainsHeader)
             {

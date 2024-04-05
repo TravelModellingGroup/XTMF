@@ -254,10 +254,7 @@ namespace XTMF
                         data.Index = RealModelSystemStructure.Children.Count - 1;
                         data.StructureInQuestion =
                             RealModelSystemStructure.Children[data.Index] as ModelSystemStructure;
-                        if (Children == null)
-                        {
-                            Children = [];
-                        }
+                        Children ??= [];
 
                         Children.Add(data.ModelInQuestion =
                             new ModelSystemStructureModel(_Session, data.StructureInQuestion, this));

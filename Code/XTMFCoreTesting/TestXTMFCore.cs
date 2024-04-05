@@ -28,11 +28,8 @@ static class TestXTMFCore
 
     internal static XTMFRuntime CreateRuntime()
     {
-        if ( Runtime == null )
-        {
-            // create an xtmf runtime that is able to look at the modules contained within this testing environment
-            Runtime = new XTMFRuntime( new Configuration( "TestConfiguration.xml", System.Reflection.Assembly.GetExecutingAssembly() ) );
-        }
+        // create an xtmf runtime that is able to look at the modules contained within this testing environment
+        Runtime ??= new XTMFRuntime(new Configuration("TestConfiguration.xml", System.Reflection.Assembly.GetExecutingAssembly()));
         return Runtime;
     }
 

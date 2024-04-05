@@ -22,10 +22,7 @@ public static class ThemeHelper
         theme.PrimaryLight = new ColorPair(color.Lighten());
         theme.PrimaryMid = new ColorPair(color);
         theme.PrimaryDark = new ColorPair(color.Darken());
-        if (schemeName == null)
-        {
-            schemeName = "Blue";
-        }
+        schemeName ??= "Blue";
         paletteHelper.SetTheme(theme);
         SetDarkTheme(isDark, schemeName);
     }

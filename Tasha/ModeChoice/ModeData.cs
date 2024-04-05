@@ -134,10 +134,7 @@ internal sealed class ModeData
 
     private static float GetNormal()
     {
-        if (Random == null)
-        {
-            Random = new Random(TashaRuntime.RandomSeed);
-        }
+        Random ??= new Random(TashaRuntime.RandomSeed);
         double ret = -6;
         for (int i = 0; i < 12; i++)
         {

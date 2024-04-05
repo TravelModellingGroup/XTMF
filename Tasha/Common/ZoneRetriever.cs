@@ -100,10 +100,7 @@ public sealed class ZoneRetriever : IZoneSystem, IDisposable
                 lock (this)
                 {
                     System.Threading.Thread.MemoryBarrier();
-                    if (RoamingZone == null)
-                    {
-                        RoamingZone = new Zone(zoneNumber);
-                    }
+                    RoamingZone ??= new Zone(zoneNumber);
                     System.Threading.Thread.MemoryBarrier();
                 }
             }

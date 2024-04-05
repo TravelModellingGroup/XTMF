@@ -84,7 +84,7 @@ public class ZoneCache<T> : IDisposable
             T element;
             element = Cache[zone];
 
-            if (element == null) element = LoadAndStore(zone);
+            element ??= LoadAndStore(zone);
             return element;
         }
     }

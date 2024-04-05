@@ -76,10 +76,7 @@ public partial class TextboxAdorner
         TextBlock.Background = (Brush)Application.Current.TryFindResource("PrimaryHueDarkBrush");
         TextBlock.FontSize = 14.0;
         
-        if (initialValue == null)
-        {
-            initialValue = string.Empty;
-        }
+        initialValue ??= string.Empty;
         _textbox.Text = initialValue;
         _textbox.CaretIndex = initialValue.Length;
         _textbox.Foreground = (Brush)Application.Current.TryFindResource("PrimaryHueMidForegroundBrush");

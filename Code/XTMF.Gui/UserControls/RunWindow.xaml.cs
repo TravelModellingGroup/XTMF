@@ -195,10 +195,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
                 repo = r;
             }
         }
-        if (repo == null)
-        {
-            repo = LogManager.CreateRepository(Run.RunName);
-        }
+        repo ??= LogManager.CreateRepository(Run.RunName);
 
         _fileAppender = new log4net.Appender.RollingFileAppender
         {

@@ -217,9 +217,6 @@ public class StartTimeDistributions : IPostHousehold, IPostHouseholdIteration
                 file.Delete();
             }
         }
-        if (Modes == null)
-        {
-            Modes = [.. Root.AllModes];
-        }
+        Modes ??= [.. Root.AllModes];
     }
 }

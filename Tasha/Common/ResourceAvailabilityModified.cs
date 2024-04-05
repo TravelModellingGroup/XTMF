@@ -157,10 +157,7 @@ public class ResourceAvailabilityModified : IResourceAvailability
     public double GetNormal()
     {
         double sum = 0;
-        if ( Rand == null )
-        {
-            Rand = new Random( RandomSeed );
-        }
+        Rand ??= new Random( RandomSeed );
         for ( int i = 0; i < 12; i++ )
         {
             // There is 1 Rand per thread

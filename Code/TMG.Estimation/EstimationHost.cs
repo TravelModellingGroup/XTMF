@@ -435,10 +435,7 @@ public sealed class EstimationHost : IEstimationHost, IDisposable
             {
                 if ( HoldOnToResultFile )
                 {
-                    if ( ResultFileWriter == null )
-                    {
-                        ResultFileWriter = new StreamWriter( ResultFile.GetFilePath() );
-                    }
+                    ResultFileWriter ??= new StreamWriter( ResultFile.GetFilePath() );
                     Write( currentJob, toWrite, ResultFileWriter );
                 }
                 else

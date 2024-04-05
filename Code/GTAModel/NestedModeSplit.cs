@@ -179,10 +179,7 @@ public class NestedModeSplit : IInteractiveModeSplit
     {
         var numberOfZones = Root.ZoneSystem.ZoneArray.GetFlatData().Length;
         NumberOfInteractiveCategories = numberOfCategories;
-        if ( InteractiveUtilityTrees == null )
-        {
-            InteractiveUtilityTrees = MirrorModeTree.CreateMirroredTree<float[]>( Root.Modes );
-        }
+        InteractiveUtilityTrees ??= MirrorModeTree.CreateMirroredTree<float[]>( Root.Modes );
         InitializeTree( InteractiveUtilityTrees, numberOfZones * numberOfZones );
     }
 

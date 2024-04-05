@@ -109,10 +109,7 @@ public sealed class HouseholdResourceAllocator
         var numberOfPeople = Resolution.Length;
         if(numberOfVehicles == 0) return;
         VehicleAvailability = [];
-        if(Scan == null)
-        {
-            Scan = new CurrentPosition[numberOfPeople];
-        }
+        Scan ??= new CurrentPosition[numberOfPeople];
         for(int i = 0; i < numberOfPeople; i++)
         {
             Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains};
@@ -343,10 +340,7 @@ public sealed class HouseholdResourceAllocator
         {
             Conflicts.Clear();
         }
-        if(Scan == null)
-        {
-            Scan = new CurrentPosition[Resolution.Length];
-        }
+        Scan ??= new CurrentPosition[Resolution.Length];
         for(int i = 0; i < Scan.Length; i++)
         {
             Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains};

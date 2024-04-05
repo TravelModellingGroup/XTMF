@@ -132,10 +132,7 @@ public class FixedRateModeSplit : IMultiModeSplit
                         lock (treeData)
                         {
                             Thread.MemoryBarrier();
-                            if (treeData.Result == null)
-                            {
-                                treeData.Result = new float[zones.Length][];
-                            }
+                            treeData.Result ??= new float[zones.Length][];
                         }
                     }
                     SetData(treeData.Result, i, j, flow * data.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, matrixNumber));

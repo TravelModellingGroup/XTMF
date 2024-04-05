@@ -76,10 +76,7 @@ internal sealed class ActivityEpisode : Episode
     internal override void AddPerson(ITashaPerson person)
     {
         // only allow people who are not included added to the episode
-        if ( People == null )
-        {
-            People = [];
-        }
+        People ??= [];
 
         if ( !IsPersonIncluded( person ) )
         {

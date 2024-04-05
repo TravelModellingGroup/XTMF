@@ -454,8 +454,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
         if (_itemsControl == null || _itemsControl.Items.Count == 0)
             return availableSize;
-        if (_abstractPanel == null)
-            _abstractPanel = new WrapPanelAbstraction(_itemsControl.Items.Count);
+        _abstractPanel ??= new WrapPanelAbstraction(_itemsControl.Items.Count);
 
         _pixelMeasuredViewport = availableSize;
 

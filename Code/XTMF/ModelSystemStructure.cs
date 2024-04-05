@@ -390,10 +390,7 @@ public class ModelSystemStructure : IModelSystemStructure2
 
     public void Add(string name, Type type)
     {
-        if (Children == null)
-        {
-            Children = new List<IModelSystemStructure>();
-        }
+        Children ??= new List<IModelSystemStructure>();
         var newChild = new ModelSystemStructure(Configuration, name, ParentFieldType)
         {
             Type = type,
@@ -405,10 +402,7 @@ public class ModelSystemStructure : IModelSystemStructure2
 
     public void Add(IModelSystemStructure p)
     {
-        if (Children == null)
-        {
-            Children = new List<IModelSystemStructure>();
-        }
+        Children ??= new List<IModelSystemStructure>();
         Children.Add(p);
     }
 
@@ -472,10 +466,7 @@ public class ModelSystemStructure : IModelSystemStructure2
     {
         if (IsCollection)
         {
-            if (Children == null)
-            {
-                Children = new List<IModelSystemStructure>();
-            }
+            Children ??= new List<IModelSystemStructure>();
             ModelSystemStructure p = new(Configuration);
             Type innerType = ParentFieldType.IsArray ? ParentFieldType.GetElementType()
                 : ParentFieldType.GetGenericArguments()[0];

@@ -123,10 +123,7 @@ public class ModeChoice : ITashaModeChoice
     public double GetNormal()
     {
         double sum = 0;
-        if ( Rand == null )
-        {
-            Rand = new Random( RandomSeed );
-        }
+        Rand ??= new Random( RandomSeed );
         for ( int i = 0; i < 12; i++ )
         {
             // There is 1 Rand per thread
@@ -161,10 +158,7 @@ public class ModeChoice : ITashaModeChoice
     public void IterationStarting()
     {
         //loads the random numbers
-        if ( Rand == null )
-        {
-            Rand = new Random( TashaRuntime.RandomSeed );
-        }
+        Rand ??= new Random( TashaRuntime.RandomSeed );
     }
 
     /// <summary>

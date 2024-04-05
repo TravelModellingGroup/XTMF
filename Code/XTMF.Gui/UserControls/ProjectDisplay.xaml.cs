@@ -140,7 +140,7 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
 
     private static bool CheckString(string str, string filter)
     {
-        return str == null ? false : str.Contains(filter, StringComparison.CurrentCultureIgnoreCase);
+        return str != null && str.Contains(filter, StringComparison.CurrentCultureIgnoreCase);
     }
 
     private static void OnProjectModelChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)

@@ -697,10 +697,7 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
             AccessStationChoiceLoaded = true;
         }
         // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
-        if (AgeUtilLookup == null)
-        {
-            AgeUtilLookup = new float[16];
-        }
+        AgeUtilLookup ??= new float[16];
         for (int i = 0; i < AgeUtilLookup.Length; i++)
         {
             AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;

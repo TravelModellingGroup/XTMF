@@ -608,10 +608,7 @@ public sealed class V4LocationChoice : ILocationChoiceModel
             {
                 var pds = ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
                 BuildPDCube(pds);
-                if (FlatZoneToPDCubeLookup == null)
-                {
-                    FlatZoneToPDCubeLookup = Zones.Select(zone => pds.GetFlatIndex(zone.PlanningDistrict)).ToArray();
-                }
+                FlatZoneToPDCubeLookup ??= Zones.Select(zone => pds.GetFlatIndex(zone.PlanningDistrict)).ToArray();
             }
             // now that we are done we can calculate our utilities
             CalculateUtilities();

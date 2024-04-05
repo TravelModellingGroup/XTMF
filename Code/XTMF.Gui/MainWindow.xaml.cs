@@ -361,10 +361,7 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     public void OpenProject()
     {
-        if (_projectsDisplay == null)
-        {
-            _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
-        }
+        _projectsDisplay ??= new ProjectsDisplay(EditorController.Runtime);
 
         SetDisplayActive(_projectsDisplay, "Projects Display");
     }
@@ -737,10 +734,7 @@ public partial class MainWindow : MetroWindow
     /// <param name="e"></param>
     private void SettingsMenuItem_OnSelected(object sender, RoutedEventArgs e)
     {
-        if (_settingsPage == null)
-        {
-            _settingsPage = new SettingsPage();
-        }
+        _settingsPage ??= new SettingsPage();
         SetDisplayActive(_settingsPage, "Settings");
         MenuToggleButton.IsChecked = false;
     }
@@ -751,10 +745,7 @@ public partial class MainWindow : MetroWindow
     /// <param name="e"></param>
     private void OpenProjectGlobalMenuItem_OnSelected(object sender, RoutedEventArgs e)
     {
-        if (_projectsDisplay == null)
-        {
-            _projectsDisplay = new ProjectsDisplay(EditorController.Runtime);
-        }
+        _projectsDisplay ??= new ProjectsDisplay(EditorController.Runtime);
 
         SetDisplayActive(_projectsDisplay, "Projects");
         MenuToggleButton.IsChecked = false;

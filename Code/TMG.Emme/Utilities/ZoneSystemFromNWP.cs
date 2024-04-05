@@ -71,10 +71,7 @@ public sealed class ZoneSystemFromNWP : IZoneSystem, IDisposable
                 lock (this)
                 {
                     System.Threading.Thread.MemoryBarrier();
-                    if (RoamingZone == null)
-                    {
-                        RoamingZone = new Zone(zoneNumber, -1, -1);
-                    }
+                    RoamingZone ??= new Zone(zoneNumber, -1, -1);
                     System.Threading.Thread.MemoryBarrier();
                 }
             }
