@@ -121,28 +121,26 @@ to be the same as in the parameter.")]
         {
             try
             {
-                using (CsvReader reader = new CsvReader(GetFileLocation(FileName)))
+                using CsvReader reader = new CsvReader(GetFileLocation(FileName));
+                var numberOfDataColumns = DataColumnToSparseSpace.Count;
+                BurnHeader(reader);
+                var dataSpace = DataColumnToSparseSpace.ToArray();
+                while (!reader.EndOfFile)
                 {
-                    var numberOfDataColumns = DataColumnToSparseSpace.Count;
-                    BurnHeader(reader);
-                    var dataSpace = DataColumnToSparseSpace.ToArray();
-                    while (!reader.EndOfFile)
-                    {
-                        // skip blank lines
-                        if (reader.LoadLine() == 0) continue;
-                        int t;
+                    // skip blank lines
+                    if (reader.LoadLine() == 0) continue;
+                    int t;
 
-                        reader.Get(out int f, FirstDimensionColumn);
-                        reader.Get(out int s, SecondDimensionColumn);
-                        for (int dataCol = 0; dataCol < numberOfDataColumns; dataCol++)
-                        {
-                            t = dataSpace[dataCol];
-                            reader.Get(out float d, dataCol + FirstDataColumn);
-                            first.Add(f);
-                            second.Add(s);
-                            third.Add(t);
-                            data.Add(d);
-                        }
+                    reader.Get(out int f, FirstDimensionColumn);
+                    reader.Get(out int s, SecondDimensionColumn);
+                    for (int dataCol = 0; dataCol < numberOfDataColumns; dataCol++)
+                    {
+                        t = dataSpace[dataCol];
+                        reader.Get(out float d, dataCol + FirstDataColumn);
+                        first.Add(f);
+                        second.Add(s);
+                        third.Add(t);
+                        data.Add(d);
                     }
                 }
             }

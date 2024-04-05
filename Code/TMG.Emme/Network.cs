@@ -201,27 +201,25 @@ namespace TMG.Emme
 
         public void SaveModFile(string fileName)
         {
-            using (StreamWriter writer = new StreamWriter(fileName))
+            using StreamWriter writer = new StreamWriter(fileName);
+            writer.WriteLine("t nodes");
+            foreach (var nodeI in Nodes.ValidIndexies())
             {
-                writer.WriteLine("t nodes");
-                foreach (var nodeI in Nodes.ValidIndexies())
+                var node = Nodes[nodeI];
+                if (node.Modified)
                 {
-                    var node = Nodes[nodeI];
-                    if (node.Modified)
-                    {
-                        WriteNode(writer, node);
-                    }
+                    WriteNode(writer, node);
                 }
-                writer.WriteLine("t links");
-                foreach (var linkI in Links.ValidIndexes())
+            }
+            writer.WriteLine("t links");
+            foreach (var linkI in Links.ValidIndexes())
+            {
+                foreach (var linkJ in Links.ValidIndexes(linkI))
                 {
-                    foreach (var linkJ in Links.ValidIndexes(linkI))
+                    var link = Links[linkI, linkJ];
+                    if (link.Modified)
                     {
-                        var link = Links[linkI, linkJ];
-                        if (link.Modified)
-                        {
-                            WriteLink(writer, link);
-                        }
+                        WriteLink(writer, link);
                     }
                 }
             }

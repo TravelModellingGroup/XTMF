@@ -676,19 +676,17 @@ namespace XTMF.Networking
                             byte[] buffer = null;
                             if (_CustomSenders.TryGetValue(msgNumber, out Action<object, IRemoteXTMF, Stream> customConverter))
                             {
-                                using (MemoryStream mem = new MemoryStream(0x100))
+                                using MemoryStream mem = new MemoryStream(0x100);
+                                try
                                 {
-                                    try
-                                    {
-                                        customConverter(msg.Data, ourRemoteClient, mem);
-                                        mem.Position = 0;
-                                        buffer = mem.ToArray();
-                                        length = buffer.Length;
-                                    }
-                                    catch
-                                    {
-                                        failed = true;
-                                    }
+                                    customConverter(msg.Data, ourRemoteClient, mem);
+                                    mem.Position = 0;
+                                    buffer = mem.ToArray();
+                                    length = buffer.Length;
+                                }
+                                catch
+                                {
+                                    failed = true;
                                 }
                             }
                             writer.Write((int)MessageType.SendCustomMessage);
@@ -707,28 +705,26 @@ namespace XTMF.Networking
                             var customNumber = msg.CustomMessageNumber;
                             if (_CustomReceivers.TryGetValue(customNumber, out Func<Stream, IRemoteXTMF, object> customConverter))
                             {
-                                using (var stream = msg.Stream)
+                                using var stream = msg.Stream;
+                                try
                                 {
-                                    try
+                                    object output = customConverter(stream, ourRemoteClient);
+                                    if (_CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object, IRemoteXTMF>> handlers))
                                     {
-                                        object output = customConverter(stream, ourRemoteClient);
-                                        if (_CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object, IRemoteXTMF>> handlers))
+                                        foreach (var handler in handlers)
                                         {
-                                            foreach (var handler in handlers)
+                                            try
                                             {
-                                                try
-                                                {
-                                                    handler(output, ourRemoteClient);
-                                                }
-                                                catch
-                                                {
-                                                }
+                                                handler(output, ourRemoteClient);
+                                            }
+                                            catch
+                                            {
                                             }
                                         }
                                     }
-                                    catch
-                                    {
-                                    }
+                                }
+                                catch
+                                {
                                 }
                             }
                         }

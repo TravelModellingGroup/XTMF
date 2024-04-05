@@ -62,42 +62,40 @@ namespace TMG.GTAModel.V2.Distribution
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions,
             IEnumerable<IDemographicCategory> category)
         {
-            using (var prodEnum = productions.GetEnumerator())
+            using var prodEnum = productions.GetEnumerator();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var distribution = ret.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            for (int i = 0; prodEnum.MoveNext(); i++)
             {
-                var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-                var distribution = ret.GetFlatData();
-                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                for (int i = 0; prodEnum.MoveNext(); i++)
-                {
-                    var production = prodEnum.Current.GetFlatData();
-                    SchoolDestinationRates[i].LoadData();
-                    var rates = SchoolDestinationRates[i].GiveData();
-                    SchoolDestinationRates[i].UnloadData();
+                var production = prodEnum.Current.GetFlatData();
+                SchoolDestinationRates[i].LoadData();
+                var rates = SchoolDestinationRates[i].GiveData();
+                SchoolDestinationRates[i].UnloadData();
 
-                    Parallel.For(0, production.Length, origin =>
+                Parallel.For(0, production.Length, origin =>
+                {
+                    // ignore zones that are external
+                    var zoneProduction = production[origin];
+                    if (zoneProduction == 0)
                     {
-                        // ignore zones that are external
-                        var zoneProduction = production[origin];
-                        if (zoneProduction == 0)
-                        {
-                            for (int destination = 0; destination < production.Length; destination++)
-                            {
-                                distribution[origin][destination] = 0;
-                            }
-                        }
                         for (int destination = 0; destination < production.Length; destination++)
                         {
-                            // ignore zones that are external
-                            distribution[origin][destination] =
-                                rates[zones[origin].ZoneNumber, zones[destination].ZoneNumber] * zoneProduction;
+                            distribution[origin][destination] = 0;
                         }
-                    });
-                    if (!String.IsNullOrWhiteSpace(SaveDistribution))
-                    {
-                        SaveData.SaveMatrix(ret, Path.Combine(SaveDistribution, i + ".csv"));
                     }
-                    yield return ret;
+                    for (int destination = 0; destination < production.Length; destination++)
+                    {
+                        // ignore zones that are external
+                        distribution[origin][destination] =
+                            rates[zones[origin].ZoneNumber, zones[destination].ZoneNumber] * zoneProduction;
+                    }
+                });
+                if (!String.IsNullOrWhiteSpace(SaveDistribution))
+                {
+                    SaveData.SaveMatrix(ret, Path.Combine(SaveDistribution, i + ".csv"));
                 }
+                yield return ret;
             }
         }
 

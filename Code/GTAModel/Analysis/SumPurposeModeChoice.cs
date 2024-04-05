@@ -70,15 +70,13 @@ namespace TMG.GTAModel.Analysis
             var purposes = Root.Purpose;
             var numberOfModes = GetNumberOfModes();
             var totals = new double[numberOfModes];
-            using ( var writer = new StreamWriter( FileName ) )
+            using var writer = new StreamWriter(FileName);
+            WriteHeader(writer);
+            for (var i = 0; i < PurposeIndexes.Length; i++)
             {
-                WriteHeader( writer );
-                for ( var i = 0; i < PurposeIndexes.Length; i++ )
-                {
-                    AddPurpose( writer, totals, purposes[PurposeIndexes[i]] );
-                }
-                WriteFinalSummary( writer, totals, totals.Sum() );
+                AddPurpose(writer, totals, purposes[PurposeIndexes[i]]);
             }
+            WriteFinalSummary(writer, totals, totals.Sum());
         }
 
         private void AddMode(StreamWriter writer, double[] totals, ref int index, TreeData<float[][]> treeData)

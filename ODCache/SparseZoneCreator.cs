@@ -43,64 +43,60 @@ namespace Datastructure
         /// <param name="offset">How much other data comes before our new entries?</param>
         public void LoadCsv(string csv, bool header, int offset = 0)
         {
-            using (CsvReader reader = new CsvReader(csv))
+            using CsvReader reader = new CsvReader(csv);
+            var dataLength = Data.Length;
+            if (header) reader.LoadLine();
+            while (!reader.EndOfFile)
             {
-                var dataLength = Data.Length;
-                if (header) reader.LoadLine();
-                while (!reader.EndOfFile)
+                int length;
+                if ((length = reader.LoadLine()) < 2) continue;
+                reader.Get(out int origin, 0);
+                if ((origin < 0)) continue;
+                if (origin >= dataLength)
                 {
-                    int length;
-                    if ((length = reader.LoadLine()) < 2) continue;
-                    reader.Get(out int origin, 0);
-                    if ((origin < 0)) continue;
-                    if (origin >= dataLength)
-                    {
-                        var temp = new float[origin + 1][];
-                        Array.Copy(Data, temp, dataLength);
-                        Data = temp;
-                        dataLength = origin + 1;
-                    }
-                    if (Data[origin] == null)
-                    {
-                        Data[origin] = new float[Types];
-                    }
-                    // add in the offset off the bat
-                    int loaded = offset;
-                    for (int i = 1; i < length; i++)
-                    {
-                        reader.Get(out Data[origin][loaded++], i);
-                    }
+                    var temp = new float[origin + 1][];
+                    Array.Copy(Data, temp, dataLength);
+                    Data = temp;
+                    dataLength = origin + 1;
+                }
+                if (Data[origin] == null)
+                {
+                    Data[origin] = new float[Types];
+                }
+                // add in the offset off the bat
+                int loaded = offset;
+                for (int i = 1; i < length; i++)
+                {
+                    reader.Get(out Data[origin][loaded++], i);
                 }
             }
         }
 
         public void Save(string fileName)
         {
-            using (BinaryWriter writer = new BinaryWriter(new
+            using BinaryWriter writer = new BinaryWriter(new
                 FileStream(fileName, FileMode.Create, FileAccess.Write,
                 FileShare.None, 0x8000, FileOptions.SequentialScan),
-                Encoding.Default))
+                Encoding.Default);
+            var dataLength = Data.Length;
+            int highestZone = 0;
+
+            for (int i = 0; i < dataLength; i++)
             {
-                var dataLength = Data.Length;
-                int highestZone = 0;
+                if (Data[i] != null) highestZone = i;
+            }
+            writer.Write(highestZone);
+            writer.Write(Version);
+            writer.Write(Types);
+            WriteSparseIndexes(writer);
 
-                for (int i = 0; i < dataLength; i++)
+            for (int i = 0; i < dataLength; i++)
+            {
+                if (Data[i] != null)
                 {
-                    if (Data[i] != null) highestZone = i;
-                }
-                writer.Write(highestZone);
-                writer.Write(Version);
-                writer.Write(Types);
-                WriteSparseIndexes(writer);
-
-                for (int i = 0; i < dataLength; i++)
-                {
-                    if (Data[i] != null)
+                    for (int j = 0; j < Types; j++)
                     {
-                        for (int j = 0; j < Types; j++)
-                        {
-                            writer.Write(Data[i][j]);
-                        }
+                        writer.Write(Data[i][j]);
                     }
                 }
             }

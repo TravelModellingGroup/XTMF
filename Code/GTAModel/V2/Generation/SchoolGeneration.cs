@@ -103,22 +103,20 @@ namespace TMG.GTAModel.V2.Generation
             if ( SaveProduction.ContainsFileName() )
             {
                 var first = !File.Exists( SaveProduction.GetFileName() );
-                using ( StreamWriter writer = new StreamWriter( SaveProduction.GetFileName(), true ) )
+                using StreamWriter writer = new StreamWriter(SaveProduction.GetFileName(), true);
+                if (first)
                 {
-                    if ( first )
-                    {
-                        writer.WriteLine( "Age,Zone,Production" );
-                    }
+                    writer.WriteLine("Age,Zone,Production");
+                }
 
-                    for ( int i = 0; i < zones.Length; i++ )
-                    {
-                        writer.Write( Age );
-                        writer.Write( ',' );
-                        writer.Write( zones[i].ZoneNumber );
-                        writer.Write( ',' );
-                        writer.Write( prod[i] );
-                        writer.WriteLine();
-                    }
+                for (int i = 0; i < zones.Length; i++)
+                {
+                    writer.Write(Age);
+                    writer.Write(',');
+                    writer.Write(zones[i].ZoneNumber);
+                    writer.Write(',');
+                    writer.Write(prod[i]);
+                    writer.WriteLine();
                 }
             }
         }

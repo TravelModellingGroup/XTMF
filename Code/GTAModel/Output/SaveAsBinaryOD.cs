@@ -60,25 +60,23 @@ namespace TMG.GTAModel.Output
                     Directory.CreateDirectory( dir );
                 }
             }
-            using ( var writer = new BinaryWriter( File.Open( fileName, FileMode.Create ) ) )
+            using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+            var data = matrix.GetFlatData();
+            for (int i = 0; i < data.Length; i++)
             {
-                var data = matrix.GetFlatData();
-                for ( int i = 0; i < data.Length; i++ )
+                if (data[i] == null)
                 {
-                    if ( data[i] == null )
+                    for (int j = 0; j < data.Length; j++)
                     {
-                        for ( int j = 0; j < data.Length; j++ )
-                        {
-                            writer.Write( (float)0 );
-                        }
-                    }
-                    else
-                    {
-                        SaveLine( data[i], writer );
+                        writer.Write((float)0);
                     }
                 }
-                writer.Flush();
+                else
+                {
+                    SaveLine(data[i], writer);
+                }
             }
+            writer.Flush();
         }
 
         public void SaveMatrix(float[][] data, string fileName)
@@ -91,21 +89,19 @@ namespace TMG.GTAModel.Output
                     Directory.CreateDirectory( dir );
                 }
             }
-            using ( var writer = new BinaryWriter( File.Open( fileName, FileMode.Create ) ) )
+            using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+            for (int i = 0; i < data.Length; i++)
             {
-                for ( int i = 0; i < data.Length; i++ )
+                if (data[i] == null)
                 {
-                    if ( data[i] == null )
+                    for (int j = 0; j < data.Length; j++)
                     {
-                        for ( int j = 0; j < data.Length; j++ )
-                        {
-                            writer.Write( (float)0 );
-                        }
+                        writer.Write((float)0);
                     }
-                    else
-                    {
-                        SaveLine( data[i], writer );
-                    }
+                }
+                else
+                {
+                    SaveLine(data[i], writer);
                 }
             }
         }
@@ -120,10 +116,8 @@ namespace TMG.GTAModel.Output
                     Directory.CreateDirectory( dir );
                 }
             }
-            using ( var writer = new BinaryWriter( File.Open( fileName, FileMode.Create ) ) )
-            {
-                SaveLine( data, writer );
-            }
+            using var writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+            SaveLine(data, writer);
         }
 
         private static void SaveLine(float[] oneLine, BinaryWriter writer)

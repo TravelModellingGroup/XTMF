@@ -183,23 +183,21 @@ namespace TMG.Estimation.AI
             var zeroValue = jobs[0].Value;
             var baseValue = jobs[1].Value;
             var baseRho = GetRho(baseValue, zeroValue);
-            using(var writer = new StreamWriter(ReportFile))
+            using var writer = new StreamWriter(ReportFile);
+            writer.WriteLine("ParameterName,Coefficient,Fitness,Rho^2,DeltaRho^2");
+            for (int i = 2; i < jobs.Count; i++)
             {
-                writer.WriteLine("ParameterName,Coefficient,Fitness,Rho^2,DeltaRho^2");
-                for(int i = 2; i < jobs.Count; i++)
-                {
-                    var withoutParameterValue = jobs[i].Value;
-                    var rho = GetRho(withoutParameterValue, zeroValue);
-                    writer.Write(parameters[i - 2].Names[0]);
-                    writer.Write(',');
-                    writer.Write(jobs[1].Parameters[i - 2].Current);
-                    writer.Write(',');
-                    writer.Write(withoutParameterValue);
-                    writer.Write(',');
-                    writer.Write(rho);
-                    writer.Write(',');
-                    writer.WriteLine(rho - baseRho);
-                }
+                var withoutParameterValue = jobs[i].Value;
+                var rho = GetRho(withoutParameterValue, zeroValue);
+                writer.Write(parameters[i - 2].Names[0]);
+                writer.Write(',');
+                writer.Write(jobs[1].Parameters[i - 2].Current);
+                writer.Write(',');
+                writer.Write(withoutParameterValue);
+                writer.Write(',');
+                writer.Write(rho);
+                writer.Write(',');
+                writer.WriteLine(rho - baseRho);
             }
         }
 

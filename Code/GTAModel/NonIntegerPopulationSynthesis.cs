@@ -197,38 +197,36 @@ namespace TMG.GTAModel
 
         private void ProducePopulation()
         {
-            using (StreamWriter performance = new StreamWriter("Performance.txt"))
+            using StreamWriter performance = new StreamWriter("Performance.txt");
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            ZoneSystem.LoadData();
+            watch.Stop();
+            performance.WriteLine("Loading Zones :" + watch.ElapsedMilliseconds + "ms");
+            watch.Restart();
+            Demographics.LoadData();
+            ValidAges = Demographics.AgeCategories.ValidIndexies().ToArray();
+            watch.Stop();
+            performance.WriteLine("Loading Demographics :" + watch.ElapsedMilliseconds + "ms");
+            var zoneArray = ZoneSystem.ZoneArray;
+            var validZones = zoneArray.ValidIndexArray();
+            var numberOfZones = validZones.Length;
+            SparseArray<IPerson[]> population = zoneArray.CreateSimilarArray<IPerson[]>();
+            watch.Restart();
+            Parallel.For(0, (int)Math.Ceiling((float)numberOfZones / 100), delegate (int i)
+            //for ( int i = 0; i < (int)Math.Ceiling( (float)numberOfZones / 100 ); i++ )
             {
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-                ZoneSystem.LoadData();
-                watch.Stop();
-                performance.WriteLine("Loading Zones :" + watch.ElapsedMilliseconds + "ms");
-                watch.Restart();
-                Demographics.LoadData();
-                ValidAges = Demographics.AgeCategories.ValidIndexies().ToArray();
-                watch.Stop();
-                performance.WriteLine("Loading Demographics :" + watch.ElapsedMilliseconds + "ms");
-                var zoneArray = ZoneSystem.ZoneArray;
-                var validZones = zoneArray.ValidIndexArray();
-                var numberOfZones = validZones.Length;
-                SparseArray<IPerson[]> population = zoneArray.CreateSimilarArray<IPerson[]>();
-                watch.Restart();
-                Parallel.For(0, (int)Math.Ceiling((float)numberOfZones / 100), delegate (int i)
-                //for ( int i = 0; i < (int)Math.Ceiling( (float)numberOfZones / 100 ); i++ )
-                {
-                    Generation(zoneArray, numberOfZones, population, i);
-                });
-                watch.Stop();
-                performance.WriteLine("Generation Time: " + watch.ElapsedMilliseconds + "ms");
-                watch.Restart();
-                Population.Population = population;
-                Population.Save();
-                watch.Stop();
-                performance.WriteLine("Output Time: " + watch.ElapsedMilliseconds + "ms");
-                Demographics.UnloadData();
-                ZoneSystem.UnloadData();
-            }
+                Generation(zoneArray, numberOfZones, population, i);
+            });
+            watch.Stop();
+            performance.WriteLine("Generation Time: " + watch.ElapsedMilliseconds + "ms");
+            watch.Restart();
+            Population.Population = population;
+            Population.Save();
+            watch.Stop();
+            performance.WriteLine("Output Time: " + watch.ElapsedMilliseconds + "ms");
+            Demographics.UnloadData();
+            ZoneSystem.UnloadData();
         }
     }
 }

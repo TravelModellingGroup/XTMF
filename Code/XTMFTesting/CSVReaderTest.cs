@@ -89,159 +89,143 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestCSVReadLine()
         {
-            using ( CsvReader reader = new CsvReader( TestCSVFileNames[0] ) )
+            using CsvReader reader = new CsvReader(TestCSVFileNames[0]);
+            reader.LoadLine();
+            //"A,B,C,D,E"
+            for (int i = 0; i < 5; i++)
             {
-                reader.LoadLine();
-                //"A,B,C,D,E"
-                for (int i = 0; i < 5; i++)
-                {
-                    reader.Get(out string s, i);
-                    Assert.AreEqual(new String((char)('A' + i), 1), s);
-                }
+                reader.Get(out string s, i);
+                Assert.AreEqual(new String((char)('A' + i), 1), s);
             }
         }
 
         [TestMethod]
         public void TestQuotes()
         {
-            using ( CsvReader reader = new CsvReader( TestCSVFileNames[1] ) )
+            using CsvReader reader = new CsvReader(TestCSVFileNames[1]);
+            // first line
+            reader.LoadLine();
+            //"A,B,C,D,E"
+            for (int i = 0; i < 5; i++)
             {
-                // first line
-                reader.LoadLine();
-                //"A,B,C,D,E"
-                for (int i = 0; i < 5; i++)
-                {
-                    reader.Get(out string s, i);
-                    Assert.AreEqual(new String((char)('A' + i), 1), s);
-                }
-                //"\"1\",\"2\",3,\"4\",5"
-                reader.LoadLine();
-                for (int i = 0; i < 5; i++)
-                {
-                    reader.Get(out int n, i);
-                    Assert.AreEqual(i + 1, n);
-                }
+                reader.Get(out string s, i);
+                Assert.AreEqual(new String((char)('A' + i), 1), s);
+            }
+            //"\"1\",\"2\",3,\"4\",5"
+            reader.LoadLine();
+            for (int i = 0; i < 5; i++)
+            {
+                reader.Get(out int n, i);
+                Assert.AreEqual(i + 1, n);
             }
         }
 
         [TestMethod]
         public void TestDoubleQuotes()
         {
-            using (CsvReader reader = new CsvReader(TestCSVFileNames[4]))
+            using CsvReader reader = new CsvReader(TestCSVFileNames[4]);
+            // first line
+            reader.LoadLine();
+            //"A,B,C,D,E"
+            for (int i = 0; i < 5; i++)
             {
-                // first line
-                reader.LoadLine();
-                //"A,B,C,D,E"
-                for (int i = 0; i < 5; i++)
-                {
-                    reader.Get(out string s, i);
-                    Assert.AreEqual(new String((char)('A' + i), 1), s);
-                }
-                //writer.WriteLine("\"abc\"\"1\",2,3,4,5");
-                reader.LoadLine();
-                reader.Get(out string firstItem, 0);
-                Assert.AreEqual("abc\"1", firstItem);
+                reader.Get(out string s, i);
+                Assert.AreEqual(new String((char)('A' + i), 1), s);
             }
+            //writer.WriteLine("\"abc\"\"1\",2,3,4,5");
+            reader.LoadLine();
+            reader.Get(out string firstItem, 0);
+            Assert.AreEqual("abc\"1", firstItem);
         }
 
         [TestMethod]
         public void TestLoadLineBool()
         {
-            using ( CsvReader reader = new CsvReader( TestCSVFileNames[1] ) )
+            using CsvReader reader = new CsvReader(TestCSVFileNames[1]);
+            int numberOfLines = 0;
+            while (reader.LoadLine(out int columns))
             {
-                int numberOfLines = 0;
-                while ( reader.LoadLine( out int columns ) )
+                if ((columns == 0) & (numberOfLines != 4))
                 {
-                    if ( ( columns == 0 ) & ( numberOfLines != 4 ) )
-                    {
-                        Assert.Fail( "There was a blank line besides at the end of the file!" );
-                    }
-                    else if ( columns > 0 )
-                    {
-                        Assert.AreEqual( 5, columns );
-                    }
-                    numberOfLines++;
+                    Assert.Fail("There was a blank line besides at the end of the file!");
                 }
-                Assert.AreEqual( 5, numberOfLines );
+                else if (columns > 0)
+                {
+                    Assert.AreEqual(5, columns);
+                }
+                numberOfLines++;
             }
+            Assert.AreEqual(5, numberOfLines);
         }
 
         [TestMethod]
         public void TestNoEnterLastLine()
         {
-            using (CsvReader reader = new CsvReader(TestCSVFileNames[3]))
+            using CsvReader reader = new CsvReader(TestCSVFileNames[3]);
+            int numberOfLines = 0;
+            while (reader.LoadLine(out int columns))
             {
-                int numberOfLines = 0;
-                while (reader.LoadLine(out int columns))
+                if ((columns == 0) & (numberOfLines != 4))
                 {
-                    if ((columns == 0) & (numberOfLines != 4))
-                    {
-                        Assert.Fail("There was a blank line besides at the end of the file!");
-                    }
-                    else if (columns > 0)
-                    {
-                        Assert.AreEqual(5, columns);
-                    }
-                    numberOfLines++;
+                    Assert.Fail("There was a blank line besides at the end of the file!");
                 }
-                Assert.AreEqual(4, numberOfLines);
+                else if (columns > 0)
+                {
+                    Assert.AreEqual(5, columns);
+                }
+                numberOfLines++;
             }
+            Assert.AreEqual(4, numberOfLines);
         }
 
         [TestMethod]
         public void TestLineReadValue()
         {
-            using (CsvReader reader = new CsvReader(TestCSVFileNames[2]))
+            using CsvReader reader = new CsvReader(TestCSVFileNames[2]);
+            float lastColumnValue = float.NaN;
+            while (reader.LoadLine(out int columns))
             {
-                float lastColumnValue = float.NaN;
-                while (reader.LoadLine(out int columns))
+                if (columns > 0)
                 {
-                    if (columns > 0)
-                    {
-                        reader.Get(out lastColumnValue, 4);
-                    }
+                    reader.Get(out lastColumnValue, 4);
                 }
-                Assert.AreEqual(0.1314f, lastColumnValue);
             }
+            Assert.AreEqual(0.1314f, lastColumnValue);
         }
 
         [TestMethod]
         public void TestNoEnterLastLineReadValue()
         {
-            using (CsvReader reader = new CsvReader(TestCSVFileNames[3]))
+            using CsvReader reader = new CsvReader(TestCSVFileNames[3]);
+            int numberOfLines = 0;
+            float lastColumnValue = float.NaN;
+            while (reader.LoadLine(out int columns))
             {
-                int numberOfLines = 0;
-                float lastColumnValue = float.NaN;
-                while (reader.LoadLine(out int columns))
+                if ((columns == 0) & (numberOfLines != 4))
                 {
-                    if ((columns == 0) & (numberOfLines != 4))
-                    {
-                        Assert.Fail("There was a blank line besides at the end of the file!");
-                    }
-                    else if (columns > 0)
-                    {
-                        Assert.AreEqual(5, columns);
-                    }
-                    numberOfLines++;
-                    reader.Get(out lastColumnValue, 4);
+                    Assert.Fail("There was a blank line besides at the end of the file!");
                 }
-                Assert.AreEqual(4, numberOfLines);
-                Assert.AreEqual(0.1314f, lastColumnValue);
+                else if (columns > 0)
+                {
+                    Assert.AreEqual(5, columns);
+                }
+                numberOfLines++;
+                reader.Get(out lastColumnValue, 4);
             }
+            Assert.AreEqual(4, numberOfLines);
+            Assert.AreEqual(0.1314f, lastColumnValue);
         }
 
         [TestMethod]
         public void TestReadingCompressedStream()
         {
-            using (CsvReader reader = new CsvReader(TestCSVFileNames[5]))
+            using CsvReader reader = new CsvReader(TestCSVFileNames[5]);
+            reader.LoadLine();
+            //"A,B,C,D,E"
+            for (int i = 0; i < 5; i++)
             {
-                reader.LoadLine();
-                //"A,B,C,D,E"
-                for (int i = 0; i < 5; i++)
-                {
-                    reader.Get(out string s, i);
-                    Assert.AreEqual(new String((char)('A' + i), 1), s);
-                }
+                reader.Get(out string s, i);
+                Assert.AreEqual(new String((char)('A' + i), 1), s);
             }
         }
     }

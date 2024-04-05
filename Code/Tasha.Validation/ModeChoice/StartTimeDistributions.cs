@@ -157,41 +157,39 @@ namespace Tasha.Validation.ModeChoice
 
         public void IterationFinished(int iteration)
         {
-            using (var writer = new StreamWriter(OutputFile, true))
+            using var writer = new StreamWriter(OutputFile, true);
+            writer.Write("Iteration: ");
+            writer.WriteLine(iteration + 1);
+            writer.Write("Time");
+            var orderedTimeBinKeys = TimeBin.Keys.OrderBy(k => Enum.GetName(typeof(Activity), k)).ToList();
+            foreach (var key in orderedTimeBinKeys)
             {
-                writer.Write("Iteration: ");
-                writer.WriteLine(iteration + 1);
-                writer.Write("Time");
-                var orderedTimeBinKeys = TimeBin.Keys.OrderBy(k => Enum.GetName(typeof(Activity), k)).ToList();
+                var name = Enum.GetName(typeof(Activity), key);
+                for (int i = 0; i < Modes.Length; i++)
+                {
+                    writer.Write(',');
+                    writer.Write(name);
+                    writer.Write(':');
+                    writer.Write(Modes[i].ModeName);
+                }
+            }
+            writer.WriteLine();
+            Time thirtyMinutes = new Time() { Minutes = 30 };
+            Time currentTime = new Time();
+            for (int i = 0; i < NumberOfTimeBins; i++)
+            {
+                writer.Write(currentTime);
                 foreach (var key in orderedTimeBinKeys)
                 {
-                    var name = Enum.GetName(typeof(Activity), key);
-                    for (int i = 0; i < Modes.Length; i++)
+                    var purposeData = GetPurposeCount(key)[i];
+                    for (int j = 0; j < purposeData.Length; j++)
                     {
                         writer.Write(',');
-                        writer.Write(name);
-                        writer.Write(':');
-                        writer.Write(Modes[i].ModeName);
+                        writer.Write(purposeData[j]);
                     }
                 }
                 writer.WriteLine();
-                Time thirtyMinutes = new Time() { Minutes = 30 };
-                Time currentTime = new Time();
-                for (int i = 0; i < NumberOfTimeBins; i++)
-                {
-                    writer.Write(currentTime);
-                    foreach (var key in orderedTimeBinKeys)
-                    {
-                        var purposeData = GetPurposeCount(key)[i];
-                        for (int j = 0; j < purposeData.Length; j++)
-                        {
-                            writer.Write(',');
-                            writer.Write(purposeData[j]);
-                        }
-                    }
-                    writer.WriteLine();
-                    currentTime += thirtyMinutes;
-                }
+                currentTime += thirtyMinutes;
             }
         }
 

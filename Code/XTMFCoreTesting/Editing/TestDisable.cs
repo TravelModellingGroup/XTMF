@@ -35,24 +35,22 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                string? error = null;
-                // build a small model system
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
-                root.Type = typeof(TestModelSystemTemplate);
-                // disable a module
-                Assert.IsTrue(root.Children[0].AddCollectionMember(typeof(TestModule),ref error, "SimpleChild"), error);
-                var simpleChild = root.Children[0].Children[0];
-                Assert.AreEqual(false, simpleChild.IsDisabled, "By default simple child should not be disabled!");
-                Assert.IsTrue(simpleChild.SetDisabled(true, ref error), error);
-                Assert.AreEqual(true, simpleChild.IsDisabled, "By default simple child should have been disabled!");
-                Assert.IsTrue(session.Undo(ref error), error);
-                Assert.AreEqual(false, simpleChild.IsDisabled, "By default simple child should have been re-enabled!");
-            }
+            using var session = controller.EditModelSystem(ms);
+            string? error = null;
+            // build a small model system
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
+            root.Type = typeof(TestModelSystemTemplate);
+            // disable a module
+            Assert.IsTrue(root.Children[0].AddCollectionMember(typeof(TestModule), ref error, "SimpleChild"), error);
+            var simpleChild = root.Children[0].Children[0];
+            Assert.AreEqual(false, simpleChild.IsDisabled, "By default simple child should not be disabled!");
+            Assert.IsTrue(simpleChild.SetDisabled(true, ref error), error);
+            Assert.AreEqual(true, simpleChild.IsDisabled, "By default simple child should have been disabled!");
+            Assert.IsTrue(session.Undo(ref error), error);
+            Assert.AreEqual(false, simpleChild.IsDisabled, "By default simple child should have been re-enabled!");
         }
 
         [TestMethod]
@@ -64,23 +62,21 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                string? error = null;
-                // build a small model system
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
-                root.Type = typeof(TestModelSystemTemplate);
-                // disable a module
-                Assert.IsTrue(root.Children[0].AddCollectionMember(typeof(TestRequiredSubmodule), ref error, "SimpleChild"), error);
-                var requiredParent = root.Children[0].Children[0];
-                requiredParent.Children[0].Type = typeof(TestModule);
-                var simpleChild = requiredParent.Children[0];
-                Assert.AreEqual(false, simpleChild.IsDisabled, "By default simple child should not be disabled!");
-                Assert.IsFalse(simpleChild.SetDisabled(true, ref error), "You should not be able to disable a required submodule!");
-            }
+            using var session = controller.EditModelSystem(ms);
+            string? error = null;
+            // build a small model system
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
+            root.Type = typeof(TestModelSystemTemplate);
+            // disable a module
+            Assert.IsTrue(root.Children[0].AddCollectionMember(typeof(TestRequiredSubmodule), ref error, "SimpleChild"), error);
+            var requiredParent = root.Children[0].Children[0];
+            requiredParent.Children[0].Type = typeof(TestModule);
+            var simpleChild = requiredParent.Children[0];
+            Assert.AreEqual(false, simpleChild.IsDisabled, "By default simple child should not be disabled!");
+            Assert.IsFalse(simpleChild.SetDisabled(true, ref error), "You should not be able to disable a required submodule!");
         }
 
         [TestMethod]

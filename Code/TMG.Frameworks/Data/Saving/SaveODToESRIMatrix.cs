@@ -67,38 +67,36 @@ namespace TMG.Frameworks.Data.Saving
             var data = matrix.GetFlatData();
             try
             {
-                using (var writer = new StreamWriter(SaveTo))
+                using var writer = new StreamWriter(SaveTo);
+                writer.Write("{\"zone_ids\":[");
+                for (int i = 0; i < zones.Length; i++)
                 {
-                    writer.Write("{\"zone_ids\":[");
-                    for (int i = 0; i < zones.Length; i++)
+                    if (i > 0)
                     {
-                        if (i > 0)
-                        {
-                            writer.Write(',');
-                        }
-                        writer.Write(zones[i]);
+                        writer.Write(',');
                     }
-                    writer.Write("],\"data\":[");
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        if (i > 0)
-                        {
-                            writer.Write(',');
-                        }
-                        writer.Write('[');
-                        for (int j = 0; j < data[i].Length; j++)
-                        {
-                            if (j > 0)
-                            {
-                                writer.Write(',');
-                            }
-                            // The format requests that data is rounding to two decimal places
-                            writer.Write("{0:0.00}", data[i][j]);
-                        }
-                        writer.Write(']');
-                    }
-                    writer.Write("]}");
+                    writer.Write(zones[i]);
                 }
+                writer.Write("],\"data\":[");
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (i > 0)
+                    {
+                        writer.Write(',');
+                    }
+                    writer.Write('[');
+                    for (int j = 0; j < data[i].Length; j++)
+                    {
+                        if (j > 0)
+                        {
+                            writer.Write(',');
+                        }
+                        // The format requests that data is rounding to two decimal places
+                        writer.Write("{0:0.00}", data[i][j]);
+                    }
+                    writer.Write(']');
+                }
+                writer.Write("]}");
             }
             catch (IOException e)
             {

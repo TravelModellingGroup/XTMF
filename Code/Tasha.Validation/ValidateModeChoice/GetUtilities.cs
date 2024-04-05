@@ -76,27 +76,25 @@ namespace Tasha.Validation.ValidateModeChoice
                         tripChains += person.TripChains.Count;
                     }
                     var writeHeader = !File.Exists(OutputFile);
-                    using (StreamWriter writer = new StreamWriter(OutputFile, true))
+                    using StreamWriter writer = new StreamWriter(OutputFile, true);
+                    if (writeHeader)
                     {
-                        if (writeHeader)
-                        {
-                            writer.WriteLine("HouseholdID,ouseholdIteration,First Household Utility,Second Household Utility,After Passenger Household Utility, TripChains Count");
-                        }
+                        writer.WriteLine("HouseholdID,ouseholdIteration,First Household Utility,Second Household Utility,After Passenger Household Utility, TripChains Count");
+                    }
 
-                        for (int i = 0; i < util.Length; i++)
-                        {
-                            writer.Write(household.HouseholdId);
-                            writer.Write(',');
-                            writer.Write(i);
-                            writer.Write(',');
-                            writer.Write(util[i][0]);
-                            writer.Write(',');
-                            writer.Write(util[i][1]);
-                            writer.Write(',');
-                            writer.Write(util[i][2]);
-                            writer.Write(',');
-                            writer.WriteLine(tripChains);
-                        }
+                    for (int i = 0; i < util.Length; i++)
+                    {
+                        writer.Write(household.HouseholdId);
+                        writer.Write(',');
+                        writer.Write(i);
+                        writer.Write(',');
+                        writer.Write(util[i][0]);
+                        writer.Write(',');
+                        writer.Write(util[i][1]);
+                        writer.Write(',');
+                        writer.Write(util[i][2]);
+                        writer.Write(',');
+                        writer.WriteLine(tripChains);
                     }
                 }
             }

@@ -42,31 +42,29 @@ namespace TMG.GTAModel.Analysis
             var workerData = WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
             var flatZones = zones.GetFlatData();
             var flatWorkerData = workerData.GetFlatData();
-            using ( StreamWriter writer = new StreamWriter( OututFile.GetFilePath() ) )
+            using StreamWriter writer = new StreamWriter(OututFile.GetFilePath());
+            writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
+            for (int i = 0; i < flatWorkerData.Length; i++)
             {
-                writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
-                for ( int i = 0; i < flatWorkerData.Length; i++ )
+                foreach (var validI in flatWorkerData[i].ValidIndexes())
                 {
-                    foreach(var validI in flatWorkerData[i].ValidIndexes())
+                    foreach (var validJ in flatWorkerData[i].ValidIndexes(validI))
                     {
-                        foreach( var validJ in flatWorkerData[i].ValidIndexes(validI))
+                        foreach (var validK in flatWorkerData[i].ValidIndexes(validI, validJ))
                         {
-                            foreach ( var validK in flatWorkerData[i].ValidIndexes( validI, validJ ) )
-                            {
-                                writer.Write( flatZones[i].ZoneNumber );
-                                writer.Write( ',' );
-                                writer.Write( flatZones[i].PlanningDistrict );
-                                writer.Write( ',' );
-                                writer.Write( flatZones[i].RegionNumber );
-                                writer.Write( ',' );
-                                writer.Write( validI );
-                                writer.Write( ',' );
-                                writer.Write( validJ );
-                                writer.Write( ',' );
-                                writer.Write( validK );
-                                writer.Write( ',' );
-                                writer.WriteLine( flatWorkerData[i][validI, validJ, validK] );
-                            }
+                            writer.Write(flatZones[i].ZoneNumber);
+                            writer.Write(',');
+                            writer.Write(flatZones[i].PlanningDistrict);
+                            writer.Write(',');
+                            writer.Write(flatZones[i].RegionNumber);
+                            writer.Write(',');
+                            writer.Write(validI);
+                            writer.Write(',');
+                            writer.Write(validJ);
+                            writer.Write(',');
+                            writer.Write(validK);
+                            writer.Write(',');
+                            writer.WriteLine(flatWorkerData[i][validI, validJ, validK]);
                         }
                     }
                 }

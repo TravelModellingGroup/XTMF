@@ -133,27 +133,25 @@ blended average between iteration to help converge.")]
                 }
                 var previousFraction = iteration > 0 ? 1.0f / (iteration + 1.0f) : 0.0f;
                 var currentFraction = iteration > 0 ? iteration / (1.0f + iteration) : 1.0f;
-                using (var writer = new StreamWriter(CapacityFactorOutput))
+                using var writer = new StreamWriter(CapacityFactorOutput);
+                writer.WriteLine("Zone,Factor,Demand,Capacity");
+                for (int i = 0; i < accessStationCounts.Length; i++)
                 {
-                    writer.WriteLine("Zone,Factor,Demand,Capacity");
-                    for (int i = 0; i < accessStationCounts.Length; i++)
+                    float stationCapacity = capacity[zoneIndexForStation[i]];
+                    if (ComputeStationCapacityFactor(previousFraction, currentFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out float capacityFactor))
                     {
-                        float stationCapacity = capacity[zoneIndexForStation[i]];
-                        if (ComputeStationCapacityFactor(previousFraction, currentFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out float capacityFactor))
-                        {
-                            CapacityFactors[i] = capacityFactor;
-                            writer.Write(zones[zoneIndexForStation[i]].ZoneNumber);
-                            writer.Write(',');
-                            writer.Write(capacityFactor);
-                            writer.Write(',');
-                            writer.Write(accessStationCounts[i]);
-                            writer.Write(',');
-                            writer.WriteLine(CapacityMultiplier * stationCapacity);
-                        }
-                        else
-                        {
-                            CapacityFactors[i] = 0.0f;
-                        }
+                        CapacityFactors[i] = capacityFactor;
+                        writer.Write(zones[zoneIndexForStation[i]].ZoneNumber);
+                        writer.Write(',');
+                        writer.Write(capacityFactor);
+                        writer.Write(',');
+                        writer.Write(accessStationCounts[i]);
+                        writer.Write(',');
+                        writer.WriteLine(CapacityMultiplier * stationCapacity);
+                    }
+                    else
+                    {
+                        CapacityFactors[i] = 0.0f;
                     }
                 }
             }

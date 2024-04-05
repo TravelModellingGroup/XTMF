@@ -130,30 +130,29 @@ namespace Tasha.Validation.PerformanceMeasures
                 lock (this)
                 {
                     var writeHeader = !File.Exists(VKT_Output);
-                    using (StreamWriter writer = new StreamWriter(VKT_Output, true))
+                    using StreamWriter writer = new StreamWriter(VKT_Output, true);
+                    if (writeHeader)
                     {
-                        if (writeHeader)
-                        {
-                            writer.WriteLine("Home Zone,Origin,Destination,Trips");
-                        }
+                        writer.WriteLine("Home Zone,Origin,Destination,Trips");
+                    }
 
-                        foreach (var homeZone in from key in RecordedTrips.Keys
-                                                 orderby key
-                                                 select key)
-                        {
-                            var zonalData = from data in RecordedTrips[homeZone]
-                                            orderby data.O, data.D
-                                            group data by new {data.O, data.D } into gd
-                                            select new
-                                            {
-                                                gd.Key.O, gd.Key.D,
-                                                SumOfExpandedTrips = gd.Sum(element => element.Data)
-                                            };
+                    foreach (var homeZone in from key in RecordedTrips.Keys
+                                             orderby key
+                                             select key)
+                    {
+                        var zonalData = from data in RecordedTrips[homeZone]
+                                        orderby data.O, data.D
+                                        group data by new { data.O, data.D } into gd
+                                        select new
+                                        {
+                                            gd.Key.O,
+                                            gd.Key.D,
+                                            SumOfExpandedTrips = gd.Sum(element => element.Data)
+                                        };
 
-                            foreach (var zone in zonalData)
-                            {
-                                writer.WriteLine("{0},{1},{2},{3}", homeZone, zone.O, zone.D, zone.SumOfExpandedTrips);
-                            }
+                        foreach (var zone in zonalData)
+                        {
+                            writer.WriteLine("{0},{1},{2},{3}", homeZone, zone.O, zone.D, zone.SumOfExpandedTrips);
                         }
                     }
                 }

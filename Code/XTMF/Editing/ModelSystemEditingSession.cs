@@ -418,10 +418,8 @@ namespace XTMF
                 ms.ModelSystemStructure = ModelSystemModel.Root.RealModelSystemStructure;
                 ms.LinkedParameters = ModelSystemModel.LinkedParameters.LinkedParameters
                     .Select(lpm => (ILinkedParameter)lpm.RealLinkedParameter).ToList();
-                using (var otherSession = Runtime.ModelSystemController.EditModelSystem(ms))
-                {
-                    return otherSession.Save(ref error);
-                }
+                using var otherSession = Runtime.ModelSystemController.EditModelSystem(ms);
+                return otherSession.Save(ref error);
             }
         }
 

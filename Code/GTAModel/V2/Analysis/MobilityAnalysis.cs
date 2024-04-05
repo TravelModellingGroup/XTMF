@@ -76,13 +76,11 @@ namespace TMG.GTAModel.V2.Analysis
 
         public void Start()
         {
-            using ( StreamWriter writer = new StreamWriter( OutputFileName.GetFileName() ) )
+            using StreamWriter writer = new StreamWriter(OutputFileName.GetFileName());
+            writer.WriteLine("Occupation,Age,MobilityCategory,Total");
+            for (int i = 0; i < NumberOfOccupations; i++)
             {
-                writer.WriteLine( "Occupation,Age,MobilityCategory,Total" );
-                for ( int i = 0; i < NumberOfOccupations; i++ )
-                {
-                    ProcessMobilityData( writer, i );
-                }
+                ProcessMobilityData(writer, i);
             }
         }
 
@@ -106,36 +104,34 @@ namespace TMG.GTAModel.V2.Analysis
 
         private void LoadMobilityData(int occupationIndex, IZone[] zones, double[][] ageTotals)
         {
-            using ( BinaryReader reader = new BinaryReader( GetMobilityFileName( occupationIndex ) ) )
+            using BinaryReader reader = new BinaryReader(GetMobilityFileName(occupationIndex));
+            var expectedFileSize = sizeof(float) * AgeTags.Length * MobilityTags.Length * zones.Length * zones.Length;
+            if (reader.BaseStream.Length < expectedFileSize)
             {
-                var expectedFileSize = sizeof( float ) * AgeTags.Length * MobilityTags.Length * zones.Length * zones.Length;
-                if ( reader.BaseStream.Length < expectedFileSize )
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were expecting the mobility cache to be '"
+                    + expectedFileSize + "' bytes long however it is only '" + reader.BaseStream.Length + "' bytes long!");
+            }
+            float[] zoneTemp = new float[zones.Length];
+            byte[] tempBuffer = new byte[zones.Length * sizeof(float)];
+            // for each age
+            for (int age = 0; age < AgeTags.Length; age++)
+            {
+                var ageRow = ageTotals[age];
+                // for each origin
+                for (int zonei = 0; zonei < zones.Length; zonei++)
                 {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' we were expecting the mobility cache to be '"
-                        + expectedFileSize + "' bytes long however it is only '" + reader.BaseStream.Length + "' bytes long!" );
-                }
-                float[] zoneTemp = new float[zones.Length];
-                byte[] tempBuffer = new byte[zones.Length * sizeof( float )];
-                // for each age
-                for ( int age = 0; age < AgeTags.Length; age++ )
-                {
-                    var ageRow = ageTotals[age];
-                    // for each origin
-                    for ( int zonei = 0; zonei < zones.Length; zonei++ )
+                    // for each mobility
+                    for (int mobility = 0; mobility < MobilityTags.Length; mobility++)
                     {
-                        // for each mobility
-                        for ( int mobility = 0; mobility < MobilityTags.Length; mobility++ )
+                        // load in all of the destinations
+                        reader.Read(tempBuffer, 0, tempBuffer.Length);
+                        Buffer.BlockCopy(tempBuffer, 0, zoneTemp, 0, tempBuffer.Length);
+                        double temp = 0;
+                        for (int i = 0; i < zoneTemp.Length; i++)
                         {
-                            // load in all of the destinations
-                            reader.Read( tempBuffer, 0, tempBuffer.Length );
-                            Buffer.BlockCopy( tempBuffer, 0, zoneTemp, 0, tempBuffer.Length );
-                            double temp = 0;
-                            for ( int i = 0; i < zoneTemp.Length; i++ )
-                            {
-                                temp += zoneTemp[i];
-                            }
-                            ageRow[mobility] += temp;
+                            temp += zoneTemp[i];
                         }
+                        ageRow[mobility] += temp;
                     }
                 }
             }

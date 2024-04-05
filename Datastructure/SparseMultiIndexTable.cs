@@ -88,57 +88,55 @@ namespace Datastructure
             Data = [];
             try
             {
-                using (var reader = new CommentedStreamReader(fileName))
+                using var reader = new CommentedStreamReader(fileName);
+                var line = reader.ReadLine(); //get the header
+
+                if (line != null)
                 {
-                    var line = reader.ReadLine(); //get the header
-
-                    if (line != null)
+                    var cells = line.Split(',');
+                    if (cells.Length < 2)
                     {
-                        var cells = line.Split(',');
-                        if (cells.Length < 2)
+                        throw new IOException("A multi-index table requires at least two columns!");
+                    }
+
+                    //Load header data, initialize this class.
+                    mappedIndices = new HashSet<int>[cells.Length - 1];
+                    for (var i = 0; i < Dimensions; i++) mappedIndices[i] = [];
+
+                    indexedNames = new string[Dimensions];
+                    for (var i = 0; i < Dimensions; i++) indexedNames[i] = cells[i];
+                    DefaultValue = defaultValue;
+
+                    var indices = new int[Dimensions]; //This is getting constantly recycled, so there's no sense in using a malloc each time.
+
+                    //Read the actual data
+                    while (!reader.EndOfStream)
+                    {
+                        line = reader.ReadLine();
+                        if (line == null)
                         {
-                            throw new IOException("A multi-index table requires at least two columns!");
+                            return;
+                        }
+                        cells = line.Split(',');
+                        lineNumber++;
+
+                        if (cells.Length != (Dimensions + 1))
+                        {
+                            throw new IOException("Error reading line " + lineNumber + ": The number of cells on this line needs to be " + (Dimensions + 1) +
+                                                   ", instead was " + cells.Length + " to match the correct size of this table.");
                         }
 
-                        //Load header data, initialize this class.
-                        mappedIndices = new HashSet<int>[cells.Length - 1];
-                        for (var i = 0; i < Dimensions; i++) mappedIndices[i] = [];
+                        var value = Convert.ToSingle(cells[Dimensions]); //Get the last index
+                                                                         // ReSharper disable once CompareOfFloatsByEqualityOperator
+                        if (value == DefaultValue)
+                            continue; //Skip cells with this table's default value.
 
-                        indexedNames = new string[Dimensions];
-                        for (var i = 0; i < Dimensions; i++) indexedNames[i] = cells[i];
-                        DefaultValue = defaultValue;
+                        for (var i = 0; i < Dimensions; i++) indices[i] = Convert.ToInt32(cells[i]); //Parse each int
 
-                        var indices = new int[Dimensions]; //This is getting constantly recycled, so there's no sense in using a malloc each time.
+                        for (var i = 0; i < Dimensions; i++) mappedIndices[i].Add(indices[i]); // Store the mapped index to the HashSet.
 
-                        //Read the actual data
-                        while (!reader.EndOfStream)
-                        {
-                            line = reader.ReadLine();
-                            if (line == null)
-                            {
-                                return;
-                            }
-                            cells = line.Split(',');
-                            lineNumber++;
-
-                            if (cells.Length != (Dimensions + 1))
-                            {
-                                throw new IOException("Error reading line " + lineNumber + ": The number of cells on this line needs to be " + (Dimensions + 1) +
-                                                       ", instead was " + cells.Length + " to match the correct size of this table.");
-                            }
-
-                            var value = Convert.ToSingle(cells[Dimensions]); //Get the last index
-                                                                             // ReSharper disable once CompareOfFloatsByEqualityOperator
-                            if (value == DefaultValue)
-                                continue; //Skip cells with this table's default value.
-
-                            for (var i = 0; i < Dimensions; i++) indices[i] = Convert.ToInt32(cells[i]); //Parse each int
-
-                            for (var i = 0; i < Dimensions; i++) mappedIndices[i].Add(indices[i]); // Store the mapped index to the HashSet.
-
-                            var key = ConvertAddress(indices);
-                            Data[key] = value;
-                        }
+                        var key = ConvertAddress(indices);
+                        Data[key] = value;
                     }
                 }
             }

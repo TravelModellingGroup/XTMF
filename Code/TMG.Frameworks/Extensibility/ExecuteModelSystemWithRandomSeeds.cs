@@ -163,26 +163,24 @@ namespace TMG.Frameworks.Extensibility
             {
                 try
                 {
-                    using (var reader = new StreamReader(RandomSeedFile))
+                    using var reader = new StreamReader(RandomSeedFile);
+                    for (int i = 0; i < RowToStartFrom; i++)
                     {
-                        for (int i = 0; i < RowToStartFrom; i++)
+                        // burn the unneeded lines
+                        if (reader.ReadLine() == null)
                         {
-                            // burn the unneeded lines
-                            if(reader.ReadLine() == null)
-                            {
-                                throw new XTMFRuntimeException(this, $"There is no line {RowToStartFrom} in file '{RandomSeedFile}' to load.  The last line number is {i + 1}.");
-                            }
+                            throw new XTMFRuntimeException(this, $"There is no line {RowToStartFrom} in file '{RandomSeedFile}' to load.  The last line number is {i + 1}.");
                         }
-                        return new List<int>(Enumerable.Range(0, ParametersToTest).Select(i =>
-                        {
-                            var line = reader.ReadLine() ?? throw new XTMFRuntimeException(this, $"We ran out of lines to read from file '{RandomSeedFile}' at line {i + RowToStartFrom + 1}!");
-                            if(!int.TryParse(line, out int value))
-                            {
-                                throw new XTMFRuntimeException(this, $"Unable to read the random seed {line} on line {i + RowToStartFrom + 1} in file '{RandomSeedFile}'!");
-                            }
-                            return value;
-                        }));
                     }
+                    return new List<int>(Enumerable.Range(0, ParametersToTest).Select(i =>
+                    {
+                        var line = reader.ReadLine() ?? throw new XTMFRuntimeException(this, $"We ran out of lines to read from file '{RandomSeedFile}' at line {i + RowToStartFrom + 1}!");
+                        if (!int.TryParse(line, out int value))
+                        {
+                            throw new XTMFRuntimeException(this, $"Unable to read the random seed {line} on line {i + RowToStartFrom + 1} in file '{RandomSeedFile}'!");
+                        }
+                        return value;
+                    }));
                 }
                 catch(IOException e)
                 {

@@ -82,24 +82,22 @@ namespace TMG.NetworkEstimation
         private bool EvaluateModelData(ref float totalError, ref float meanSquareError, ref float absError)
         {
             // model data needs to be loaded every time
-            using ( var reader = new CsvReader( ModelOutputFile.GetFilePath() ) )
+            using var reader = new CsvReader(ModelOutputFile.GetFilePath());
+            reader.LoadLine();
+            while (!reader.EndOfFile)
             {
-                reader.LoadLine();
-                while ( !reader.EndOfFile )
+                var columns = reader.LoadLine();
+                if (columns < 2) continue;
+                reader.Get(out string modelStationName, 0);
+                reader.Get(out float modelStationValue, 1);
+                if (StationNameMap.TryGetValue(modelStationName, out string truthName))
                 {
-                    var columns = reader.LoadLine();
-                    if ( columns < 2 ) continue;
-                    reader.Get(out string modelStationName, 0);
-                    reader.Get( out float modelStationValue, 1 );
-                    if ( StationNameMap.TryGetValue( modelStationName, out string truthName ) )
+                    if (TruthValues.TryGetValue(truthName, out float truthValue))
                     {
-                        if (TruthValues.TryGetValue(truthName, out float truthValue))
-                        {
-                            var diff = modelStationValue - truthValue;
-                            totalError += diff;
-                            meanSquareError += diff * diff;
-                            absError += diff < 0 ? -diff : diff;
-                        }
+                        var diff = modelStationValue - truthValue;
+                        totalError += diff;
+                        meanSquareError += diff * diff;
+                        absError += diff < 0 ? -diff : diff;
                     }
                 }
             }
@@ -110,20 +108,18 @@ namespace TMG.NetworkEstimation
         {
             if ( TruthValues.Count == 0 )
             {
-                using ( var reader = new CsvReader( TruthFile.GetFilePath() ) )
+                using var reader = new CsvReader(TruthFile.GetFilePath());
+                reader.LoadLine();
+                while (!reader.EndOfFile)
                 {
-                    reader.LoadLine();
-                    while ( !reader.EndOfFile )
+                    var columns = reader.LoadLine();
+                    if (columns < 2)
                     {
-                        var columns = reader.LoadLine();
-                        if ( columns < 2 )
-                        {
-                            continue;
-                        }
-                        reader.Get(out string stationName, 0);
-                        reader.Get( out float stationValue, 1 );
-                        TruthValues.Add( stationName, stationValue );
+                        continue;
                     }
+                    reader.Get(out string stationName, 0);
+                    reader.Get(out float stationValue, 1);
+                    TruthValues.Add(stationName, stationValue);
                 }
             }
         }
@@ -132,23 +128,21 @@ namespace TMG.NetworkEstimation
         {
             if ( StationNameMap.Count == 0 )
             {
-                using ( CsvReader reader = new CsvReader( StationNameMapFile.GetFilePath() ) )
+                using CsvReader reader = new CsvReader(StationNameMapFile.GetFilePath());
+                // Burn header
+                reader.LoadLine();
+                // process data
+                while (!reader.EndOfFile)
                 {
-                    // Burn header
-                    reader.LoadLine();
-                    // process data
-                    while ( !reader.EndOfFile )
+                    var columns = reader.LoadLine();
+                    if (columns < 2)
                     {
-                        var columns = reader.LoadLine();
-                        if ( columns < 2 )
-                        {
-                            continue;
-                        }
-
-                        reader.Get( out string truthStationName, 0 );
-                        reader.Get( out string modelStationName, 1 );
-                        StationNameMap.Add( modelStationName, truthStationName );
+                        continue;
                     }
+
+                    reader.Get(out string truthStationName, 0);
+                    reader.Get(out string modelStationName, 1);
+                    StationNameMap.Add(modelStationName, truthStationName);
                 }
             }
         }

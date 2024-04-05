@@ -97,15 +97,13 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iterationNumber)
         {
-            using (StreamWriter writer = new StreamWriter(OutputFile))
+            using StreamWriter writer = new StreamWriter(OutputFile);
+            foreach (var activityDictionary in ActivityStartTimeDictionaries)
             {
-                foreach(var activityDictionary in ActivityStartTimeDictionaries)
+                var activityStr = activityDictionary.Key.ToString();
+                foreach (var e in activityDictionary.Value)
                 {
-                    var activityStr = activityDictionary.Key.ToString();
-                    foreach(var e in activityDictionary.Value)
-                    {
-                        writer.WriteLine("{2},{0},{1}", e.Key, e.Value, activityStr);
-                    }
+                    writer.WriteLine("{2},{0},{1}", e.Key, e.Value, activityStr);
                 }
             }
         }

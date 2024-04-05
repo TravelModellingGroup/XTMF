@@ -92,15 +92,13 @@ path to where the Emme project is located. It also has another parameter called 
 
         public void Start()
         {
-            using ( ModellerController controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath,  PerformanceTesting ) )
+            using ModellerController controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceTesting);
+            if (CleanLogbook)
             {
-                if ( CleanLogbook )
-                {
-                    controller.CleanLogbook(this);
-                }
-                string ret = null;
-                controller.Run(this, EmmeToolName, EmmeToolArguments, (p) => Progress = p, ref ret );
+                controller.CleanLogbook(this);
             }
+            string ret = null;
+            controller.Run(this, EmmeToolName, EmmeToolArguments, (p) => Progress = p, ref ret);
         }
     }
 }

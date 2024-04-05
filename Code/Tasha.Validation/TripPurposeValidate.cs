@@ -168,35 +168,33 @@ namespace Tasha.Validation
                         dirInfo.Create();
                     }
                 }
-                using (StreamWriter writer = new StreamWriter(FileName))
+                using StreamWriter writer = new StreamWriter(FileName);
+                if (SaveOD)
                 {
-                    if(SaveOD)
+                    writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");
+                    foreach (var origin in ODPurposeDictionary.ValidIndexes())
                     {
-                        writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");
-                        foreach(var origin in ODPurposeDictionary.ValidIndexes())
+                        var originStr = origin.ToString();
+                        foreach (var destintation in ODPurposeDictionary.ValidIndexes(origin))
                         {
-                            var originStr = origin.ToString();
-                            foreach(var destintation in ODPurposeDictionary.ValidIndexes(origin))
+                            var destStr = destintation.ToString();
+                            var dictionary = ODPurposeDictionary[origin, destintation];
+                            if (dictionary != null)
                             {
-                                var destStr = destintation.ToString();
-                                var dictionary = ODPurposeDictionary[origin, destintation];
-                                if(dictionary != null)
+                                foreach (var pair in dictionary)
                                 {
-                                    foreach(var pair in dictionary)
-                                    {
-                                        writer.WriteLine("{0},{1},{2},{3}", originStr, destStr, pair.Key, pair.Value);
-                                   } 
+                                    writer.WriteLine("{0},{1},{2},{3}", originStr, destStr, pair.Key, pair.Value);
                                 }
                             }
                         }
                     }
-                    else
+                }
+                else
+                {
+                    writer.WriteLine("Trip Purpose, Number of Occurrences");
+                    foreach (var pair in PurposeDictionary)
                     {
-                        writer.WriteLine("Trip Purpose, Number of Occurrences");
-                        foreach(var pair in PurposeDictionary)
-                        {
-                            writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
-                        }
+                        writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
                     }
                 }
             }            

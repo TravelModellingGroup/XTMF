@@ -90,15 +90,13 @@ namespace Tasha.Validation
         {
             lock (this)
             {
-                using (StreamWriter writer = new StreamWriter(OutputFile))
-                {
-                    writer.WriteLine("Trips/TripChain, Total, Percentage of all Trips");
+                using StreamWriter writer = new StreamWriter(OutputFile);
+                writer.WriteLine("Trips/TripChain, Total, Percentage of all Trips");
 
-                    var sum = NumberOfTrips.Sum(v => v.Value);
-                    foreach (var pair in NumberOfTrips)
-                    {
-                        writer.WriteLine("{0}, {1}, {2}", pair.Key, pair.Value, pair.Value / sum * 100);
-                    }
+                var sum = NumberOfTrips.Sum(v => v.Value);
+                foreach (var pair in NumberOfTrips)
+                {
+                    writer.WriteLine("{0}, {1}, {2}", pair.Key, pair.Value, pair.Value / sum * 100);
                 }
             }
         }

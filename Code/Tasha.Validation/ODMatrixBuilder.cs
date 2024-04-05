@@ -278,28 +278,26 @@ namespace Tasha.Validation
             var zoneNumbers = data.ValidIndexArray();
             var flatData = data.GetFlatData();
             var numberOfZones = zoneNumbers.Length;
-            using ( StreamWriter writer = new StreamWriter( fileName ) )
+            using StreamWriter writer = new StreamWriter(fileName);
+            // We need to know what the head should look like.
+            writer.WriteLine("t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", matrixNumber);
+            // Now that the header is in place we can start to generate all of the instructions
+            StringBuilder[] builders = new StringBuilder[numberOfZones];
+            System.Threading.Tasks.Parallel.For(0, numberOfZones, delegate (int o)
             {
-                // We need to know what the head should look like.
-                writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", matrixNumber );
-                // Now that the header is in place we can start to generate all of the instructions
-                StringBuilder[] builders = new StringBuilder[numberOfZones];
-                System.Threading.Tasks.Parallel.For( 0, numberOfZones, delegate(int o)
+                var build = builders[o] = new StringBuilder();
+                var strBuilder = new StringBuilder(10);
+                var convertedO = zoneNumbers[o];
+                for (int d = 0; d < numberOfZones; d++)
                 {
-                    var build = builders[o] = new StringBuilder();
-                    var strBuilder = new StringBuilder( 10 );
-                    var convertedO = zoneNumbers[o];
-                    for ( int d = 0; d < numberOfZones; d++ )
-                    {
-                        Controller.ToEmmeFloat( flatData[o][d], strBuilder );
-                        build.AppendFormat( "{0,7:G}{1,7:G} {2}\r\n",
-                            convertedO, zoneNumbers[d], strBuilder );
-                    }
-                } );
-                for ( int i = 0; i < numberOfZones; i++ )
-                {
-                    writer.Write( builders[i] );
+                    Controller.ToEmmeFloat(flatData[o][d], strBuilder);
+                    build.AppendFormat("{0,7:G}{1,7:G} {2}\r\n",
+                        convertedO, zoneNumbers[d], strBuilder);
                 }
+            });
+            for (int i = 0; i < numberOfZones; i++)
+            {
+                writer.Write(builders[i]);
             }
         }
     }

@@ -75,13 +75,11 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void Start()
         {
-            using (StreamWriter writer = new StreamWriter(MatrixOutputResults))
+            using StreamWriter writer = new StreamWriter(MatrixOutputResults);
+            writer.WriteLine("Global Average,Value");
+            foreach (var average in MatrixCalcOutputs)
             {
-                writer.WriteLine("Global Average,Value");
-                foreach(var average in MatrixCalcOutputs)
-                {
-                    writer.WriteLine("{0},{1}", average.Label, average.ReturnData());
-                }
+                writer.WriteLine("{0},{1}", average.Label, average.ReturnData());
             }
         }
 

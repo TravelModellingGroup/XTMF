@@ -83,15 +83,13 @@ namespace Tasha.DataExtraction
         private void WritePopulation(float[] population, SparseArray<IZone> zones)
         {
             var flatZones = zones.GetFlatData();
-            using ( var writer = new StreamWriter( OutputFile.GetFilePath() ) )
+            using var writer = new StreamWriter(OutputFile.GetFilePath());
+            writer.WriteLine("Zone,Population");
+            for (int i = 0; i < population.Length; i++)
             {
-                writer.WriteLine( "Zone,Population" );
-                for ( int i = 0; i < population.Length; i++ )
-                {
-                    writer.Write( flatZones[i].ZoneNumber );
-                    writer.Write( ',' );
-                    writer.WriteLine( population[i] );
-                }
+                writer.Write(flatZones[i].ZoneNumber);
+                writer.Write(',');
+                writer.WriteLine(population[i]);
             }
         }
 

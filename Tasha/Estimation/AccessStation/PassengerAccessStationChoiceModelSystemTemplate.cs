@@ -177,23 +177,21 @@ namespace Tasha.Estimation.AccessStation
             _records = [];
             try
             {
-                using (var reader = new CsvReader(TruthData, true))
+                using var reader = new CsvReader(TruthData, true);
+                // burn the header
+                reader.LoadLine();
+                while (reader.LoadLine(out var columns))
                 {
-                    // burn the header
-                    reader.LoadLine();
-                    while (reader.LoadLine(out var columns))
+                    // make sure there are enough columns
+                    if (columns >= 5)
                     {
-                        // make sure there are enough columns
-                        if (columns >= 5)
-                        {
-                            // Origin,Destination,StartTime,AccessStation,ExpansionFactor
-                            reader.Get(out int origin, 0);
-                            reader.Get(out int destination, 1);
-                            reader.Get(out int _timeAsInt, 2);
-                            reader.Get(out int choice, 3);
-                            reader.Get(out float expFactor, 4);
-                            _records.Add(new Record(CreateTrip(GetZone(origin), GetZone(destination), new Time(_timeAsInt / 100f)), GetFlatZoneIndex(choice), expFactor));
-                        }
+                        // Origin,Destination,StartTime,AccessStation,ExpansionFactor
+                        reader.Get(out int origin, 0);
+                        reader.Get(out int destination, 1);
+                        reader.Get(out int _timeAsInt, 2);
+                        reader.Get(out int choice, 3);
+                        reader.Get(out float expFactor, 4);
+                        _records.Add(new Record(CreateTrip(GetZone(origin), GetZone(destination), new Time(_timeAsInt / 100f)), GetFlatZoneIndex(choice), expFactor));
                     }
                 }
             }

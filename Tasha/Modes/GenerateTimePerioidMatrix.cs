@@ -162,31 +162,29 @@ namespace Tasha.Modes
         {
             var path = ResultsFile;
 
-            using (StreamWriter sw = new StreamWriter(path))
-            {
-                sw.WriteLine("Time Period Matrices");
-                sw.WriteLine();
-                sw.WriteLine("Morning Period [0]: " + MorningTimePeriod);
-                sw.WriteLine("Midday Period [1]: " + MiddayTimePeriod);
-                sw.WriteLine("Afternoon Period [2]: " + AfternoonTimePeriod);
-                sw.WriteLine("Offpeak [3]");
-                sw.WriteLine();
-                sw.WriteLine("Table Names = [Occupation], [Employment Status], [Student Status]");
+            using StreamWriter sw = new StreamWriter(path);
+            sw.WriteLine("Time Period Matrices");
+            sw.WriteLine();
+            sw.WriteLine("Morning Period [0]: " + MorningTimePeriod);
+            sw.WriteLine("Midday Period [1]: " + MiddayTimePeriod);
+            sw.WriteLine("Afternoon Period [2]: " + AfternoonTimePeriod);
+            sw.WriteLine("Offpeak [3]");
+            sw.WriteLine();
+            sw.WriteLine("Table Names = [Occupation], [Employment Status], [Student Status]");
 
-                foreach (var e in WorkMatrices)
+            foreach (var e in WorkMatrices)
+            {
+                sw.WriteLine();
+                var table = e.Value;
+                sw.WriteLine("Table: '" + e.Key + "':");
+                for (int i = 0; i < 4; i++)
                 {
-                    sw.WriteLine();
-                    var table = e.Value;
-                    sw.WriteLine("Table: '" + e.Key + "':");
-                    for (int i = 0; i < 4; i++)
+                    string s = "";
+                    for (int j = 0; j < 4; j++)
                     {
-                        string s = "";
-                        for (int j = 0; j < 4; j++)
-                        {
-                            s += "\t" + table[i, j];
-                        }
-                        sw.WriteLine(s);
+                        s += "\t" + table[i, j];
                     }
+                    sw.WriteLine(s);
                 }
             }
         }

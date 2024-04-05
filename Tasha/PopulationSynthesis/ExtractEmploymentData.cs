@@ -184,25 +184,23 @@ namespace Tasha.PopulationSynthesis
                 return;
             }
             var flatZones = _zones.GetFlatData();
-            using (var writer = new StreamWriter(TotalEmploymentByZone))
+            using var writer = new StreamWriter(TotalEmploymentByZone);
+            writer.WriteLine("Zone,Employment");
+            for (int i = 0; i < flatZones.Length; i++)
             {
-                writer.WriteLine("Zone,Employment");
-                for (int i = 0; i < flatZones.Length; i++)
+                if (!ExternalPDs.Contains(flatZones[i].PlanningDistrict))
                 {
-                    if (!ExternalPDs.Contains(flatZones[i].PlanningDistrict))
+                    writer.Write(flatZones[i].ZoneNumber);
+                    writer.Write(',');
+                    var acc = 0.0f;
+                    for (int emp = 0; emp < _zonalEmployment.Length; emp++)
                     {
-                        writer.Write(flatZones[i].ZoneNumber);
-                        writer.Write(',');
-                        var acc = 0.0f;
-                        for (int emp = 0; emp < _zonalEmployment.Length; emp++)
+                        for (int occ = 0; occ < _zonalEmployment[emp].Length; occ++)
                         {
-                            for (int occ = 0; occ < _zonalEmployment[emp].Length; occ++)
-                            {
-                                acc += _zonalEmployment[emp][occ][i];
-                            }
+                            acc += _zonalEmployment[emp][occ][i];
                         }
-                        writer.WriteLine(acc);
                     }
+                    writer.WriteLine(acc);
                 }
             }
         }
@@ -236,20 +234,18 @@ namespace Tasha.PopulationSynthesis
             {
                 for (int occ = 0; occ < 4; occ++)
                 {
-                    using (var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv")))
+                    using var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv"));
+                    writer.WriteLine("Zone,Rate");
+                    for (int i = 0; i < zones.Length; i++)
                     {
-                        writer.WriteLine("Zone,Rate");
-                        for (int i = 0; i < zones.Length; i++)
+                        var zoneNumber = zones[i].ZoneNumber;
+                        var value = (ComputeRatesAtAPDLevel
+                            ? results[_pds.GetFlatIndex(zones[i].PlanningDistrict)] : results[i])[emp * 4 + occ];
+                        if (value > 0.0)
                         {
-                            var zoneNumber = zones[i].ZoneNumber;
-                            var value = (ComputeRatesAtAPDLevel
-                                ? results[_pds.GetFlatIndex(zones[i].PlanningDistrict)] : results[i])[emp * 4 + occ];
-                            if (value > 0.0)
-                            {
-                                writer.Write(zoneNumber);
-                                writer.Write(',');
-                                writer.WriteLine(value);
-                            }
+                            writer.Write(zoneNumber);
+                            writer.Write(',');
+                            writer.WriteLine(value);
                         }
                     }
                 }
@@ -332,46 +328,44 @@ namespace Tasha.PopulationSynthesis
             {
                 for (int occ = 0; occ < 4; occ++)
                 {
-                    using (var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv")))
+                    using var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv"));
+                    writer.WriteLine("Zone,Rate");
+                    if (ComputeRatesAtAPDLevel)
                     {
-                        writer.WriteLine("Zone,Rate");
-                        if (ComputeRatesAtAPDLevel)
+                        var totals = new float[_pds.Count];
+                        var wah = new float[_pds.Count];
+                        // pass 1: fill out our totals and wah for the occ/emp aggregated to pd
+                        for (int i = 0; i < _zonalEmployment[emp][occ].Length; i++)
                         {
-                            var totals = new float[_pds.Count];
-                            var wah = new float[_pds.Count];
-                            // pass 1: fill out our totals and wah for the occ/emp aggregated to pd
-                            for (int i = 0; i < _zonalEmployment[emp][occ].Length; i++)
+                            // assign both totals and WaH
+                            var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
+                            wah[index] += _zonalEmployment[emp + 2][occ][i];
+                            totals[index] += _zonalEmployment[emp][occ][i] + _zonalEmployment[emp + 2][occ][i];
+                        }
+                        // pass 2:
+                        for (int i = 0; i < _zonalEmployment[emp][occ].Length; i++)
+                        {
+                            var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
+                            if (totals[index] > 0)
                             {
-                                // assign both totals and WaH
-                                var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
-                                wah[index] += _zonalEmployment[emp + 2][occ][i];
-                                totals[index] += _zonalEmployment[emp][occ][i] + _zonalEmployment[emp + 2][occ][i]; 
-                            }
-                            // pass 2:
-                            for (int i = 0; i < _zonalEmployment[emp][occ].Length; i++)
-                            {
-                                var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
-                                if (totals[index] > 0)
-                                {
-                                    writer.Write(zones[i].ZoneNumber);
-                                    writer.Write(',');
-                                    writer.WriteLine(wah[index] / totals[index]);
-                                }
+                                writer.Write(zones[i].ZoneNumber);
+                                writer.Write(',');
+                                writer.WriteLine(wah[index] / totals[index]);
                             }
                         }
-                        else
+                    }
+                    else
+                    {
+                        for (int i = 0; i < _zonalEmployment[emp][occ].Length; i++)
                         {
-                            for (int i = 0; i < _zonalEmployment[emp][occ].Length; i++)
+                            var wah = _zonalEmployment[emp + 2][occ][i];
+                            var total = _zonalEmployment[emp][occ][i] + wah;
+                            var value = total <= 0.0f ? 0 : _zonalEmployment[emp + 2][occ][i] / total;
+                            if (total > 0.0f)
                             {
-                                var wah = _zonalEmployment[emp + 2][occ][i];
-                                var total = _zonalEmployment[emp][occ][i] + wah;
-                                var value = total <= 0.0f ? 0 : _zonalEmployment[emp + 2][occ][i] / total;
-                                if (total > 0.0f)
-                                {
-                                    writer.Write(zones[i].ZoneNumber);
-                                    writer.Write(',');
-                                    writer.WriteLine();
-                                }
+                                writer.Write(zones[i].ZoneNumber);
+                                writer.Write(',');
+                                writer.WriteLine();
                             }
                         }
                     }
@@ -395,69 +389,67 @@ namespace Tasha.PopulationSynthesis
             {
                 for (int occ = 0; occ < 4; occ++)
                 {
-                    using (var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv")))
+                    using var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv"));
+                    writer.WriteLine("Zone,Rate");
+                    if (ComputeRatesAtAPDLevel)
                     {
-                        writer.WriteLine("Zone,Rate");
-                        if (ComputeRatesAtAPDLevel)
+                        var totals = new float[_pds.Count];
+                        var external = new float[_pds.Count];
+                        for (int workZone = 0; workZone < zones.Length; workZone++)
                         {
-                            var totals = new float[_pds.Count];
-                            var external = new float[_pds.Count];
-                            for (int workZone = 0; workZone < zones.Length; workZone++)
+                            var workIndex = _pds.GetFlatIndex(zones[workZone].PlanningDistrict);
+                            for (int homeZone = 0; homeZone < zones.Length; homeZone++)
                             {
-                                var workIndex = _pds.GetFlatIndex(zones[workZone].PlanningDistrict);
+                                var isExternal = ExternalPDs.Contains(zones[homeZone].PlanningDistrict);
+                                for (int workerCategory = 0; workerCategory < 3; workerCategory++)
+                                {
+                                    var links = _zonalWorkerCategories[emp][occ][homeZone][workZone][workerCategory];
+                                    if (isExternal)
+                                    {
+                                        external[workIndex] += links;
+                                    }
+                                    totals[workIndex] += links;
+                                }
+                            }
+                        }
+                        for (int i = 0; i < zones.Length; i++)
+                        {
+                            var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
+                            if (totals[index] > 0)
+                            {
+                                writer.Write(zones[i].ZoneNumber);
+                                writer.Write(',');
+                                writer.WriteLine(external[index] / totals[index]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int workZone = 0; workZone < zones.Length; workZone++)
+                        {
+                            var total = 0.0f;
+                            var external = 0.0f;
+                            if (!ExternalPDs.Contains(zones[workZone].PlanningDistrict))
+                            {
                                 for (int homeZone = 0; homeZone < zones.Length; homeZone++)
                                 {
                                     var isExternal = ExternalPDs.Contains(zones[homeZone].PlanningDistrict);
                                     for (int workerCategory = 0; workerCategory < 3; workerCategory++)
                                     {
-                                        var links = _zonalWorkerCategories[emp][occ][homeZone][workZone][workerCategory];
+                                        var links = _zonalWorkerCategories[emp][occ][workZone][homeZone][workerCategory];
                                         if (isExternal)
                                         {
-                                            external[workIndex] += links;
+                                            external += links;
                                         }
-                                        totals[workIndex] += links;
+                                        total += links;
                                     }
                                 }
                             }
-                            for (int i = 0; i < zones.Length; i++)
+                            if (total > 0)
                             {
-                                var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
-                                if (totals[index] > 0)
-                                {
-                                    writer.Write(zones[i].ZoneNumber);
-                                    writer.Write(',');
-                                    writer.WriteLine(external[index] / totals[index]);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            for (int workZone = 0; workZone < zones.Length; workZone++)
-                            {
-                                var total = 0.0f;
-                                var external = 0.0f;
-                                if (!ExternalPDs.Contains(zones[workZone].PlanningDistrict))
-                                {
-                                    for (int homeZone = 0; homeZone < zones.Length; homeZone++)
-                                    {
-                                        var isExternal = ExternalPDs.Contains(zones[homeZone].PlanningDistrict);
-                                        for (int workerCategory = 0; workerCategory < 3; workerCategory++)
-                                        {
-                                            var links = _zonalWorkerCategories[emp][occ][workZone][homeZone][workerCategory];
-                                            if (isExternal)
-                                            {
-                                                external += links;
-                                            }
-                                            total += links;
-                                        }
-                                    }
-                                }
-                                if (total > 0)
-                                {
-                                    writer.Write(zones[workZone].ZoneNumber);
-                                    writer.Write(',');
-                                    writer.WriteLine(external / total);
-                                }
+                                writer.Write(zones[workZone].ZoneNumber);
+                                writer.Write(',');
+                                writer.WriteLine(external / total);
                             }
                         }
                     }
@@ -484,26 +476,24 @@ namespace Tasha.PopulationSynthesis
                     {
                         var subdir = Path.Combine(dir, k.ToString());
                         EnsureDirectory(subdir);
-                        using (var writer = new StreamWriter(Path.Combine(subdir, GetPrefix(emp, occ) + ".csv")))
+                        using var writer = new StreamWriter(Path.Combine(subdir, GetPrefix(emp, occ) + ".csv"));
+                        writer.WriteLine("Home,Work,Links");
+                        for (int homeZone = 0; homeZone < zones.Length; homeZone++)
                         {
-                            writer.WriteLine("Home,Work,Links");
-                            for (int homeZone = 0; homeZone < zones.Length; homeZone++)
+                            if (!ExternalPDs.Contains(zones[homeZone].PlanningDistrict))
                             {
-                                if (!ExternalPDs.Contains(zones[homeZone].PlanningDistrict))
+                                for (int workZone = 0; workZone < zones.Length; workZone++)
                                 {
-                                    for (int workZone = 0; workZone < zones.Length; workZone++)
+                                    if (!ExternalPDs.Contains(zones[workZone].PlanningDistrict))
                                     {
-                                        if (!ExternalPDs.Contains(zones[workZone].PlanningDistrict))
+                                        var value = _zonalWorkerCategories[emp][occ][homeZone][workZone][k];
+                                        if (value > 0.0f)
                                         {
-                                            var value = _zonalWorkerCategories[emp][occ][homeZone][workZone][k];
-                                            if (value > 0.0f)
-                                            {
-                                                writer.Write(zones[homeZone].ZoneNumber);
-                                                writer.Write(',');
-                                                writer.Write(zones[workZone].ZoneNumber);
-                                                writer.Write(',');
-                                                writer.WriteLine(value);
-                                            }
+                                            writer.Write(zones[homeZone].ZoneNumber);
+                                            writer.Write(',');
+                                            writer.Write(zones[workZone].ZoneNumber);
+                                            writer.Write(',');
+                                            writer.WriteLine(value);
                                         }
                                     }
                                 }
@@ -530,41 +520,39 @@ namespace Tasha.PopulationSynthesis
             {
                 for (int occ = 0; occ < 4; occ++)
                 {
-                    using (var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv")))
+                    using var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv"));
+                    writer.WriteLine("HomeZone,WorkerCategory,Split");
+                    for (int homeZone = 0; homeZone < zones.Length; homeZone++)
                     {
-                        writer.WriteLine("HomeZone,WorkerCategory,Split");
-                        for (int homeZone = 0; homeZone < zones.Length; homeZone++)
+                        if (!ExternalPDs.Contains(zones[homeZone].PlanningDistrict))
                         {
-                            if (!ExternalPDs.Contains(zones[homeZone].PlanningDistrict))
-                            {
 
-                                float wc0 = 0.0f, wc1 = 0.0f, wc2 = 0.0f;
-                                for (int workZone = 0; workZone < zones.Length; workZone++)
+                            float wc0 = 0.0f, wc1 = 0.0f, wc2 = 0.0f;
+                            for (int workZone = 0; workZone < zones.Length; workZone++)
+                            {
+                                if (!ExternalPDs.Contains(zones[workZone].PlanningDistrict))
                                 {
-                                    if (!ExternalPDs.Contains(zones[workZone].PlanningDistrict))
-                                    {
-                                        var row = _zonalWorkerCategories[emp][occ][homeZone][workZone];
-                                        wc0 += row[0];
-                                        wc1 += row[1];
-                                        wc2 += row[2];
-                                    }
+                                    var row = _zonalWorkerCategories[emp][occ][homeZone][workZone];
+                                    wc0 += row[0];
+                                    wc1 += row[1];
+                                    wc2 += row[2];
                                 }
-                                var total = wc0 + wc1 + wc2;
-                                if (total > 0.0f)
+                            }
+                            var total = wc0 + wc1 + wc2;
+                            if (total > 0.0f)
+                            {
+                                var zi = zones[homeZone].ZoneNumber;
+                                if (wc0 > 0.0f)
                                 {
-                                    var zi = zones[homeZone].ZoneNumber;
-                                    if (wc0 > 0.0f)
-                                    {
-                                        writer.Write(zi); writer.Write(','); writer.Write(1); writer.Write(','); writer.WriteLine(wc0 / total);
-                                    }
-                                    if (wc1 > 0.0f)
-                                    {
-                                        writer.Write(zi); writer.Write(','); writer.Write(2); writer.Write(','); writer.WriteLine(wc1 / total);
-                                    }
-                                    if (wc2 > 0.0f)
-                                    {
-                                        writer.Write(zi); writer.Write(','); writer.Write(3); writer.Write(','); writer.WriteLine(wc2 / total);
-                                    }
+                                    writer.Write(zi); writer.Write(','); writer.Write(1); writer.Write(','); writer.WriteLine(wc0 / total);
+                                }
+                                if (wc1 > 0.0f)
+                                {
+                                    writer.Write(zi); writer.Write(','); writer.Write(2); writer.Write(','); writer.WriteLine(wc1 / total);
+                                }
+                                if (wc2 > 0.0f)
+                                {
+                                    writer.Write(zi); writer.Write(','); writer.Write(3); writer.Write(','); writer.WriteLine(wc2 / total);
                                 }
                             }
                         }
@@ -589,17 +577,15 @@ namespace Tasha.PopulationSynthesis
             {
                 for (int occ = 0; occ < 4; occ++)
                 {
-                    using (var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv")))
+                    using var writer = new StreamWriter(Path.Combine(dir, GetPrefix(emp, occ) + ".csv"));
+                    writer.WriteLine("HomeZone,Workers");
+                    for (int i = 0; i < zones.Length; i++)
                     {
-                        writer.WriteLine("HomeZone,Workers");
-                        for (int i = 0; i < zones.Length; i++)
+                        if (!ExternalPDs.Contains(zones[i].PlanningDistrict))
                         {
-                            if (!ExternalPDs.Contains(zones[i].PlanningDistrict))
-                            {
-                                writer.Write(zones[i].ZoneNumber);
-                                writer.Write(',');
-                                writer.WriteLine(_zonalResidence[emp][occ][i]);
-                            }
+                            writer.Write(zones[i].ZoneNumber);
+                            writer.Write(',');
+                            writer.WriteLine(_zonalResidence[emp][occ][i]);
                         }
                     }
                 }

@@ -116,12 +116,10 @@ namespace XTMF.Gui
                     else
                     {
                         var items = _itemsSource.GetEnumerator();
-                        using (var differ = _itemsSource.DeferRefresh())
+                        using var differ = _itemsSource.DeferRefresh();
+                        while (items.MoveNext())
                         {
-                            while (items.MoveNext())
-                            {
-                                Filter(items.Current, Box.Text);
-                            }
+                            Filter(items.Current, Box.Text);
                         }
                     }
                 };

@@ -128,27 +128,25 @@ namespace TMG.GTAModel.Input
         private void LoadInData(List<int> zoneNumbers, int sparseLength, List<float>[] dataColumns)
         {
             // now that we have the data to load into, open up the file
-            using ( CsvReader reader = new CsvReader( GetInputFileName( FileName ) ) )
+            using CsvReader reader = new CsvReader(GetInputFileName(FileName));
+            // burn all of the header lines
+            for (int headerLine = 0; headerLine < HeaderLines; headerLine++)
             {
-                // burn all of the header lines
-                for ( int headerLine = 0; headerLine < HeaderLines; headerLine++ )
+                reader.LoadLine();
+            }
+            // now that we are at the data it is time to start building our data
+            while (!reader.EndOfFile)
+            {
+                // read in the next line and make sure that it contains enough information
+                if (reader.LoadLine() < sparseLength + 1) continue;
+                // if we have enough data read it in, the first column is always the 'zone'
+                reader.Get(out int zone, 0);
+                zoneNumbers.Add(zone);
+                // now read in the data for this 'zone'
+                for (int i = 0; i < sparseLength; i++)
                 {
-                    reader.LoadLine();
-                }
-                // now that we are at the data it is time to start building our data
-                while ( !reader.EndOfFile )
-                {
-                    // read in the next line and make sure that it contains enough information
-                    if (reader.LoadLine() < sparseLength + 1) continue;
-                    // if we have enough data read it in, the first column is always the 'zone'
-                    reader.Get( out int zone, 0 );
-                    zoneNumbers.Add( zone );
-                    // now read in the data for this 'zone'
-                    for ( int i = 0; i < sparseLength; i++ )
-                    {
-                        reader.Get(out float dataPoint, 1 + i);
-                        dataColumns[i].Add( dataPoint );
-                    }
+                    reader.Get(out float dataPoint, 1 + i);
+                    dataColumns[i].Add(dataPoint);
                 }
             }
         }

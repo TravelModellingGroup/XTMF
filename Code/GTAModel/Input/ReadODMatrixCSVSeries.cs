@@ -101,30 +101,28 @@ namespace TMG.GTAModel.Input
 
         private void ReadFile(string fileName, IZone[] zones, float[][] matrix)
         {
-            using (CsvReader reader = new CsvReader(fileName))
+            using CsvReader reader = new CsvReader(fileName);
+            var rowCount = 0;
+            int length;
+            // burn header
+            reader.LoadLine();
+            // now read in data
+            while (!reader.EndOfFile)
             {
-                var rowCount = 0;
-                int length;
-                // burn header
-                reader.LoadLine();
-                // now read in data
-                while (!reader.EndOfFile)
+                length = reader.LoadLine();
+                if (length != zones.Length + 1)
                 {
-                    length = reader.LoadLine();
-                    if (length != zones.Length + 1)
-                    {
-                        continue;
-                    }
-                    if (rowCount >= matrix.Length)
-                    {
-                        throw new XTMFRuntimeException(this, "In '" + Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")");
-                    }
-                    var row = matrix[rowCount++];
-                    for (int i = 0; i < row.Length; i++)
-                    {
-                        reader.Get(out float temp, i + 1);
-                        row[i] += temp;
-                    }
+                    continue;
+                }
+                if (rowCount >= matrix.Length)
+                {
+                    throw new XTMFRuntimeException(this, "In '" + Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")");
+                }
+                var row = matrix[rowCount++];
+                for (int i = 0; i < row.Length; i++)
+                {
+                    reader.Get(out float temp, i + 1);
+                    row[i] += temp;
                 }
             }
         }

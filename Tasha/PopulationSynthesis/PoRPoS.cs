@@ -126,17 +126,15 @@ namespace Tasha.PopulationSynthesis
                 }
                 if ( SaveFactors != null )
                 {
-                    using (var writer = new StreamWriter( SaveFactors ))
+                    using var writer = new StreamWriter(SaveFactors);
+                    writer.WriteLine("Zone,Factor");
+                    foreach (var zoneFactor in from element in factors
+                                               orderby element.Key ascending
+                                               select new { Zone = zones[element.Key].ZoneNumber, Factor = element.Value })
                     {
-                        writer.WriteLine( "Zone,Factor" );
-                        foreach ( var zoneFactor in from element in factors
-                                                    orderby element.Key ascending
-                                                    select new { Zone = zones[element.Key].ZoneNumber, Factor = element.Value } )
-                        {
-                            writer.Write( zoneFactor.Zone );
-                            writer.Write( ',' );
-                            writer.WriteLine( zoneFactor.Factor );
-                        }
+                        writer.Write(zoneFactor.Zone);
+                        writer.Write(',');
+                        writer.WriteLine(zoneFactor.Factor);
                     }
                 }
             }

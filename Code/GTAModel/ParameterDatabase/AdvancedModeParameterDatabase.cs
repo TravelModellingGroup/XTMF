@@ -205,20 +205,18 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             try
             {
-                using (StreamReader reader = new StreamReader(GetInputFileName(DemographicDatabaseFile)))
+                using StreamReader reader = new StreamReader(GetInputFileName(DemographicDatabaseFile));
+                string line;
+                // burn header
+                reader.ReadLine();
+                while ((line = reader.ReadLine()) != null)
                 {
-                    string line;
-                    // burn header
-                    reader.ReadLine();
-                    while ((line = reader.ReadLine()) != null)
+                    var split = line.Split(',');
+                    if (split.Length < headers.Length + 1)
                     {
-                        var split = line.Split(',');
-                        if (split.Length < headers.Length + 1)
-                        {
-                            continue;
-                        }
-                        DemographicAlternativeParameters.Add(GetAllButFirst(split));
+                        continue;
                     }
+                    DemographicAlternativeParameters.Add(GetAllButFirst(split));
                 }
             }
             catch (IOException)
@@ -232,20 +230,18 @@ namespace TMG.GTAModel.ParameterDatabase
             string[] headers;
             try
             {
-                using (StreamReader reader = new StreamReader(GetInputFileName(DatabaseFile)))
+                using StreamReader reader = new StreamReader(GetInputFileName(DatabaseFile));
+                string line = reader.ReadLine();
+                headers = ParseHeader(line);
+                SetupParameterObjects(headers);
+                while ((line = reader.ReadLine()) != null)
                 {
-                    string line = reader.ReadLine();
-                    headers = ParseHeader(line);
-                    SetupParameterObjects(headers);
-                    while ((line = reader.ReadLine()) != null)
+                    var split = line.Split(',');
+                    if (split.Length < headers.Length + 1)
                     {
-                        var split = line.Split(',');
-                        if (split.Length < headers.Length + 1)
-                        {
-                            continue;
-                        }
-                        ParameterSets.Add(GetAllButFirst(split));
+                        continue;
                     }
+                    ParameterSets.Add(GetAllButFirst(split));
                 }
             }
             catch (IOException)
@@ -259,33 +255,31 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             try
             {
-                using (StreamReader reader = new StreamReader(GetInputFileName(DemographicSwitchFile)))
+                using StreamReader reader = new StreamReader(GetInputFileName(DemographicSwitchFile));
+                int lineNumber = 1;
+                string line;
+                // burn header
+                reader.ReadLine();
+                lineNumber++;
+                while ((line = reader.ReadLine()) != null)
                 {
-                    int lineNumber = 1;
-                    string line;
-                    // burn header
-                    reader.ReadLine();
-                    lineNumber++;
-                    while ((line = reader.ReadLine()) != null)
+                    var split = line.Split(',');
+                    if (split.Length < headers.Length + 1)
                     {
-                        var split = line.Split(',');
-                        if (split.Length < headers.Length + 1)
-                        {
-                            continue;
-                        }
-                        bool[] switchLine = new bool[headers.Length];
-                        for (int i = 0; i < switchLine.Length; i++)
-                        {
-                            if (!bool.TryParse(split[i + 1], out switchLine[i]))
-                            {
-                                throw new XTMFRuntimeException(this, "In the file '" + GetInputFileName(DemographicSwitchFile)
-                                    + "' on line " + lineNumber + " under column '" + headers[i] + "' we were unable to parse the value '"
-                                    + split[i + 1] + "' as a boolean.  Please fix this to be either 'true' or 'false'!");
-                            }
-                        }
-                        DemographicSwitches.Add(switchLine);
-                        lineNumber++;
+                        continue;
                     }
+                    bool[] switchLine = new bool[headers.Length];
+                    for (int i = 0; i < switchLine.Length; i++)
+                    {
+                        if (!bool.TryParse(split[i + 1], out switchLine[i]))
+                        {
+                            throw new XTMFRuntimeException(this, "In the file '" + GetInputFileName(DemographicSwitchFile)
+                                + "' on line " + lineNumber + " under column '" + headers[i] + "' we were unable to parse the value '"
+                                + split[i + 1] + "' as a boolean.  Please fix this to be either 'true' or 'false'!");
+                        }
+                    }
+                    DemographicSwitches.Add(switchLine);
+                    lineNumber++;
                 }
             }
             catch (IOException)

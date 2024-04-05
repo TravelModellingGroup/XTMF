@@ -72,39 +72,35 @@ namespace XTMF.Testing.Editing
             controller.DeleteProject("TestProject", ref error);
             Project project;
             Assert.IsTrue((project = controller.LoadOrCreate("TestProject", ref error)) != null);
-            using (var session = controller.EditProject(project))
+            using var session = controller.EditProject(project);
+            var testModelSystem = CreateTestModelSystem(runtime);
+            Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
+            using var modelSystemSession = session.EditModelSystem(0);
+            Assert.IsNotNull(modelSystemSession);
+            var root = modelSystemSession.ModelSystemModel.Root;
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection);
+            XTMFRun run;
+            Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
+            modelSystemSession.ExecuteRun(run, true);
+            bool finished = false;
+            run.RunCompleted += () =>
             {
-                var testModelSystem = CreateTestModelSystem(runtime);
-                Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
-                using (var modelSystemSession = session.EditModelSystem(0))
-                {
-                    Assert.IsNotNull(modelSystemSession);
-                    var root = modelSystemSession.ModelSystemModel.Root;
-                    var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                    Assert.IsNotNull(collection);
-                    XTMFRun run;
-                    Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
-                    modelSystemSession.ExecuteRun(run,true);
-                    bool finished = false;
-                    run.RunCompleted += () =>
-                    {
-                        finished = true;
-                    };
-                    // Runs now allow changes during the execution
-                    // Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
-                    for (int i = 0; i < 100 & !finished; i++)
-                    {
-                        Thread.Sleep(i);
-                        Thread.MemoryBarrier();
-                    }
-                    if (!finished)
-                    {
-                        Assert.Fail("The model system did not complete in time.");
-                    }
-                    // now that it is done we should be able to edit it again
-                    Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), error);
-                }
+                finished = true;
+            };
+            // Runs now allow changes during the execution
+            // Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
+            for (int i = 0; i < 100 & !finished; i++)
+            {
+                Thread.Sleep(i);
+                Thread.MemoryBarrier();
             }
+            if (!finished)
+            {
+                Assert.Fail("The model system did not complete in time.");
+            }
+            // now that it is done we should be able to edit it again
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), error);
         }
 
         [TestMethod]
@@ -116,22 +112,18 @@ namespace XTMF.Testing.Editing
             projectController.DeleteProject("TestProject", ref error);
             Project project;
             Assert.IsTrue((project = projectController.LoadOrCreate("TestProject", ref error)) != null);
-            using (var session = projectController.EditProject(project))
+            using var session = projectController.EditProject(project);
+            var testModelSystem = CreateTestModelSystem(runtime);
+            Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
+            using var modelSystemSession = session.EditModelSystem(0);
+            Assert.IsNotNull(modelSystemSession);
+            var root = modelSystemSession.ModelSystemModel.Root;
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection);
+            var availableModules = modelSystemSession.GetValidModules(collection);
+            if (!availableModules.Any(m => m.Name == "TestGenericModule`2" && m.ContainsGenericParameters))
             {
-                var testModelSystem = CreateTestModelSystem(runtime);
-                Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
-                using (var modelSystemSession = session.EditModelSystem(0))
-                {
-                    Assert.IsNotNull(modelSystemSession);
-                    var root = modelSystemSession.ModelSystemModel.Root;
-                    var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                    Assert.IsNotNull(collection);
-                    var availableModules = modelSystemSession.GetValidModules(collection);
-                    if(!availableModules.Any(m => m.Name == "TestGenericModule`2" && m.ContainsGenericParameters))
-                    {
-                        Assert.Fail();
-                    }
-                }
+                Assert.Fail();
             }
         }
 
@@ -144,22 +136,18 @@ namespace XTMF.Testing.Editing
             projectController.DeleteProject("TestProject", ref error);
             Project project;
             Assert.IsTrue((project = projectController.LoadOrCreate("TestProject", ref error)) != null);
-            using (var session = projectController.EditProject(project))
+            using var session = projectController.EditProject(project);
+            var testModelSystem = CreateSpecificTestModelSystem(runtime);
+            Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
+            using var modelSystemSession = session.EditModelSystem(0);
+            Assert.IsNotNull(modelSystemSession);
+            var root = modelSystemSession.ModelSystemModel.Root;
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "My Child");
+            Assert.IsNotNull(collection);
+            var availableModules = modelSystemSession.GetValidModules(collection);
+            if (!availableModules.Any(m => m.Name == "TestGenericModule`2"))
             {
-                var testModelSystem = CreateSpecificTestModelSystem(runtime);
-                Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
-                using (var modelSystemSession = session.EditModelSystem(0))
-                {
-                    Assert.IsNotNull(modelSystemSession);
-                    var root = modelSystemSession.ModelSystemModel.Root;
-                    var collection = root.Children.FirstOrDefault((child) => child.Name == "My Child");
-                    Assert.IsNotNull(collection);
-                    var availableModules = modelSystemSession.GetValidModules(collection);
-                    if (!availableModules.Any(m => m.Name == "TestGenericModule`2" ))
-                    {
-                        Assert.Fail();
-                    }
-                }
+                Assert.Fail();
             }
         }
     }

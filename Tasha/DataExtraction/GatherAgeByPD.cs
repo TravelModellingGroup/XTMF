@@ -94,20 +94,18 @@ namespace Tasha.DataExtraction
         private void SaveData(SparseArray<float>[] pdData)
         {
             var pdIndexes = pdData[0].ValidIndexArray();
-            using ( var writer = new StreamWriter( OutputFileName.GetFilePath() ) )
+            using var writer = new StreamWriter(OutputFileName.GetFilePath());
+            writer.WriteLine("PD,AgeCategory,ExpandedPopulation");
+            for (int i = 0; i < pdData.Length; i++)
             {
-                writer.WriteLine( "PD,AgeCategory,ExpandedPopulation" );
-                for ( int i = 0; i < pdData.Length; i++ )
+                var pdArray = pdData[i];
+                for (int j = 0; j < pdIndexes.Length; j++)
                 {
-                    var pdArray = pdData[i];
-                    for ( int j = 0; j < pdIndexes.Length; j++ )
-                    {
-                        writer.Write( pdIndexes[j] );
-                        writer.Write( ',' );
-                        writer.Write( i );
-                        writer.Write( ',' );
-                        writer.WriteLine( pdArray[pdIndexes[j]] );
-                    }
+                    writer.Write(pdIndexes[j]);
+                    writer.Write(',');
+                    writer.Write(i);
+                    writer.Write(',');
+                    writer.WriteLine(pdArray[pdIndexes[j]]);
                 }
             }
         }
@@ -189,16 +187,14 @@ GROUP BY [{3}].[{0}];",
                         AgeSets[i].Start,
                     //11
                     AgeSets[i].Stop );
-                using ( var reader = command.ExecuteReader() )
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while ( reader.Read() )
+                    var zone = reader.GetInt32(0);
+                    var index = zones.GetFlatIndex(zone);
+                    if (index >= 0)
                     {
-                        var zone = reader.GetInt32( 0 );
-                        var index = zones.GetFlatIndex( zone );
-                        if ( index >= 0 )
-                        {
-                            populationByAge[i][index] = (float)reader.GetDouble( 1 );
-                        }
+                        populationByAge[i][index] = (float)reader.GetDouble(1);
                     }
                 }
             }

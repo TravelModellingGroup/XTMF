@@ -154,27 +154,23 @@ public class PersonScheduleAnalysis : IPostScheduler
             Height = Height,
         };
 
-        using (ChartArea area = new ChartArea("Start Times"))
+        using ChartArea area = new ChartArea("Start Times");
+        using Series series = new Series();
+        series.ChartType = SeriesChartType.Column;
+        for (int i = 0; i < values.Length; i++)
         {
-            using (Series series = new Series())
-            {
-                series.ChartType = SeriesChartType.Column;
-                for (int i = 0; i < values.Length; i++)
-                {
-                    series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
-                }
-                series.BorderColor = System.Drawing.Color.Black;
-                area.AxisX.Title = xAxisName;// "Start Time";
-                area.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount;
-                area.AxisX.Interval = 2;
-                area.AxisX.IsStartedFromZero = false;
-                area.AxisY.Title = yAxisName;// "#Episodes";
-                chart.Series.Add(series);
-                chart.ChartAreas.Add(area);
-                area.Visible = true;
-                chart.SaveImage(fileName, ChartImageFormat.Png);
-            }
+            series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
         }
+        series.BorderColor = System.Drawing.Color.Black;
+        area.AxisX.Title = xAxisName;// "Start Time";
+        area.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount;
+        area.AxisX.Interval = 2;
+        area.AxisX.IsStartedFromZero = false;
+        area.AxisY.Title = yAxisName;// "#Episodes";
+        chart.Series.Add(series);
+        chart.ChartAreas.Add(area);
+        area.Visible = true;
+        chart.SaveImage(fileName, ChartImageFormat.Png);
     }
 
     private int GetBucketIndex(Time time)

@@ -110,31 +110,29 @@ namespace TMG.GTAModel.Input
         {
             try
             {
-                using (CommentedCsvReader reader = new CommentedCsvReader(GetFileLocation(FileName)))
+                using CommentedCsvReader reader = new CommentedCsvReader(GetFileLocation(FileName));
+                var numberOfDataColumns = DataColumnToSparseSpace.Count;
+                var dataSpace = DataColumnToSparseSpace.ToArray();
+                int max = dataSpace.Max();
+                while (reader.NextLine())
                 {
-                    var numberOfDataColumns = DataColumnToSparseSpace.Count;
-                    var dataSpace = DataColumnToSparseSpace.ToArray();
-                    int max = dataSpace.Max();
-                    while (reader.NextLine())
+                    // skip blank lines
+                    if (reader.NumberOfCurrentCells < max)
                     {
-                        // skip blank lines
-                        if (reader.NumberOfCurrentCells < max)
-                        {
-                            continue;
-                        }
-                        int t;
+                        continue;
+                    }
+                    int t;
 
-                        reader.Get(out int f, FirstDimensionColumn);
-                        reader.Get(out int s, SecondDimensionColumn);
-                        for (int dataCol = 0; dataCol < numberOfDataColumns; dataCol++)
-                        {
-                            t = dataSpace[dataCol];
-                            reader.Get(out float d, dataCol + DataStartIndex);
-                            first.Add(f);
-                            second.Add(s);
-                            third.Add(t);
-                            data.Add(d);
-                        }
+                    reader.Get(out int f, FirstDimensionColumn);
+                    reader.Get(out int s, SecondDimensionColumn);
+                    for (int dataCol = 0; dataCol < numberOfDataColumns; dataCol++)
+                    {
+                        t = dataSpace[dataCol];
+                        reader.Get(out float d, dataCol + DataStartIndex);
+                        first.Add(f);
+                        second.Add(s);
+                        third.Add(t);
+                        data.Add(d);
                     }
                 }
             }

@@ -119,13 +119,11 @@ namespace Tasha.Validation
                     {
                         Directory.CreateDirectory( dir );
                     }
-                    using ( StreamWriter writer = new StreamWriter( fileName ) )
+                    using StreamWriter writer = new StreamWriter(fileName);
+                    writer.WriteLine("Start Hour, Number of Occurrences");
+                    for (int i = 0; i < pair.Value.Length; i++)
                     {
-                        writer.WriteLine( "Start Hour, Number of Occurrences" );
-                        for ( int i = 0; i < pair.Value.Length; i++ )
-                        {
-                            writer.WriteLine( "{0}, {1}", i, pair.Value[i] );
-                        }
+                        writer.WriteLine("{0}, {1}", i, pair.Value[i]);
                     }
                 }
             }

@@ -537,15 +537,13 @@ namespace TMG.GTAModel
                 try
                 {
                     file = File.OpenRead(GetFrictionFileName(LoadFrictionFileName, setNumber));
-                    using (BinaryReader reader = new BinaryReader(file))
+                    using BinaryReader reader = new BinaryReader(file);
+                    file = null;
+                    for (int i = 0; i < ret.Length; i++)
                     {
-                        file = null;
-                        for (int i = 0; i < ret.Length; i++)
+                        for (int j = 0; j < ret[i].Length; j++)
                         {
-                            for (int j = 0; j < ret[i].Length; j++)
-                            {
-                                ret[i][j] = reader.ReadSingle();
-                            }
+                            ret[i][j] = reader.ReadSingle();
                         }
                     }
                 }
@@ -590,33 +588,29 @@ namespace TMG.GTAModel
         private void SaveAttractionFile(float[] attraction)
         {
             bool first = !File.Exists(AttractionFile.GetFileName());
-            using (StreamWriter writer = new StreamWriter(AttractionFile.GetFileName(), true))
+            using StreamWriter writer = new StreamWriter(AttractionFile.GetFileName(), true);
+            if (first)
             {
-                if (first)
-                {
-                    writer.WriteLine("Generation,Category,Zone,Attraction");
-                }
-                var startOfLine = Root.CurrentIteration + "," + CurrentMultiSetIndex + ",";
-                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                for (int i = 0; i < attraction.Length; i++)
-                {
-                    writer.Write(startOfLine);
-                    writer.Write(zones[i].ZoneNumber);
-                    writer.Write(',');
-                    writer.WriteLine(attraction[i]);
-                }
+                writer.WriteLine("Generation,Category,Zone,Attraction");
+            }
+            var startOfLine = Root.CurrentIteration + "," + CurrentMultiSetIndex + ",";
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            for (int i = 0; i < attraction.Length; i++)
+            {
+                writer.Write(startOfLine);
+                writer.Write(zones[i].ZoneNumber);
+                writer.Write(',');
+                writer.WriteLine(attraction[i]);
             }
         }
 
         private void SaveBalanceFactors(string balanceFileName, SparseArray<float> balanceFactors)
         {
             var flat = balanceFactors.GetFlatData();
-            using (BinaryWriter writer = new BinaryWriter(File.OpenWrite(balanceFileName)))
+            using BinaryWriter writer = new BinaryWriter(File.OpenWrite(balanceFileName));
+            for (int i = 0; i < flat.Length; i++)
             {
-                for (int i = 0; i < flat.Length; i++)
-                {
-                    writer.Write(flat[i]);
-                }
+                writer.Write(flat[i]);
             }
         }
 
@@ -638,15 +632,13 @@ namespace TMG.GTAModel
                 try
                 {
                     file = File.OpenWrite(fileName);
-                    using (BinaryWriter writer = new BinaryWriter(file))
+                    using BinaryWriter writer = new BinaryWriter(file);
+                    file = null;
+                    for (int i = 0; i < ret.Length; i++)
                     {
-                        file = null;
-                        for (int i = 0; i < ret.Length; i++)
+                        for (int j = 0; j < ret[i].Length; j++)
                         {
-                            for (int j = 0; j < ret[i].Length; j++)
-                            {
-                                writer.Write(ret[i][j]);
-                            }
+                            writer.Write(ret[i][j]);
                         }
                     }
                 }

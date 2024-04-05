@@ -117,13 +117,11 @@ namespace XTMF
 
                 if (File.Exists(versionFile))
                 {
-                    using (StreamReader reader = new StreamReader(versionFile))
+                    using StreamReader reader = new StreamReader(versionFile);
+                    version = new Version(reader.ReadLine());
+                    if (!reader.EndOfStream)
                     {
-                        version = new Version(reader.ReadLine());
-                        if (!reader.EndOfStream)
-                        {
-                            buildDate = reader.ReadLine();
-                        }
+                        buildDate = reader.ReadLine();
                     }
                 }
                 else

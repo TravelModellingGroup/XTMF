@@ -70,28 +70,26 @@ namespace TMG.GTAModel.Analysis
         public void Start()
         {
             if ( DataSources.Count == 0 ) return;
-            using ( StreamWriter writer = new StreamWriter( ReportFileName.GetFileName() ) )
+            using StreamWriter writer = new StreamWriter(ReportFileName.GetFileName());
+            double globalIntrazonals = 0.0;
+            double globalSum = 0.0;
+            double globalInternalExternal = 0.0;
+            double globalExternalInternal = 0.0;
+            writer.WriteLine("DataTag,Total,Intrazonals,Interzonals,InnerToExternal,ExternalToInner");
+            for (int i = 0; i < DataSources.Count; i++)
             {
-                double globalIntrazonals = 0.0;
-                double globalSum = 0.0;
-                double globalInternalExternal = 0.0;
-                double globalExternalInternal = 0.0;
-                writer.WriteLine( "DataTag,Total,Intrazonals,Interzonals,InnerToExternal,ExternalToInner" );
-                for ( int i = 0; i < DataSources.Count; i++ )
-                {
-                    ProcessDataSource( SplitNames[i], DataSources[i], writer, ref globalIntrazonals, ref globalSum, ref globalInternalExternal, ref globalExternalInternal );
-                }
-                writer.Write( "Totals:," );
-                writer.Write( globalSum );
-                writer.Write( ',' );
-                writer.Write( globalIntrazonals );
-                writer.Write( ',' );
-                writer.Write( globalSum - globalIntrazonals );
-                writer.Write( ',' );
-                writer.Write( globalInternalExternal );
-                writer.Write( ',' );
-                writer.WriteLine( globalExternalInternal );
+                ProcessDataSource(SplitNames[i], DataSources[i], writer, ref globalIntrazonals, ref globalSum, ref globalInternalExternal, ref globalExternalInternal);
             }
+            writer.Write("Totals:,");
+            writer.Write(globalSum);
+            writer.Write(',');
+            writer.Write(globalIntrazonals);
+            writer.Write(',');
+            writer.Write(globalSum - globalIntrazonals);
+            writer.Write(',');
+            writer.Write(globalInternalExternal);
+            writer.Write(',');
+            writer.WriteLine(globalExternalInternal);
         }
 
         private void ProcessDataSource(string dataTag, IDataSource<SparseTwinIndex<float>> dataSource, StreamWriter writer,

@@ -58,45 +58,43 @@ namespace Datastructure
         public void LoadCsvTimes(string csv, bool header, int offsetTimes, int offsetType)
         {
             // Gain access to the files
-            using (StreamReader reader = new StreamReader(new
+            using StreamReader reader = new StreamReader(new
                 FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read,
-                0x1000, FileOptions.SequentialScan)))
+                0x1000, FileOptions.SequentialScan));
+            string line;
+            var ammountOfData = Types * Times;
+            int injectIndex = Times * offsetType + offsetTimes;
+            if (header) reader.ReadLine();
+            // Read the line from the CSV
+            while ((line = reader.ReadLine()) != null)
             {
-                string line;
-                var ammountOfData = Types * Times;
-                int injectIndex = Times * offsetType + offsetTimes;
-                if (header) reader.ReadLine();
-                // Read the line from the CSV
-                while ((line = reader.ReadLine()) != null)
+                // Calculate where to store the data
+                int pos, next;
+                int o = FastParse.ParseInt(line, 0, (pos = line.IndexOf(',')));
+                int d = FastParse.ParseInt(line, pos + 1, (next = line.IndexOf(',', pos + 1)));
+                pos = next + 1;
+                int length = line.Length;
+                int entry = 0;
+                var position = Data[o, d];
+                if (position == null)
                 {
-                    // Calculate where to store the data
-                    int pos, next;
-                    int o = FastParse.ParseInt(line, 0, (pos = line.IndexOf(',')));
-                    int d = FastParse.ParseInt(line, pos + 1, (next = line.IndexOf(',', pos + 1)));
-                    pos = next + 1;
-                    int length = line.Length;
-                    int entry = 0;
-                    var position = Data[o, d];
-                    if (position == null)
+                    Data[o, d] = position = new float[ammountOfData];
+                }
+                for (int i = pos; i < length; i++)
+                {
+                    if (line[i] == ',')
                     {
-                        Data[o, d] = position = new float[ammountOfData];
-                    }
-                    for (int i = pos; i < length; i++)
-                    {
-                        if (line[i] == ',')
-                        {
-                            position[injectIndex + entry] = FastParse.ParseFixedFloat(line, pos, i - pos);
-                            entry++;
-                            pos = i + 1;
-                        }
-                    }
-                    if (pos < length)
-                    {
-                        position[injectIndex + entry] = FastParse.ParseFixedFloat(line, pos, length - pos);
+                        position[injectIndex + entry] = FastParse.ParseFixedFloat(line, pos, i - pos);
+                        entry++;
+                        pos = i + 1;
                     }
                 }
-                // Close our access to the file streams
+                if (pos < length)
+                {
+                    position[injectIndex + entry] = FastParse.ParseFixedFloat(line, pos, length - pos);
+                }
             }
+            // Close our access to the file streams
         }
 
         /// <summary>
@@ -128,36 +126,34 @@ namespace Datastructure
         public void LoadCsvTypes(string csv, bool header, int offsetTimes, int offsetType)
         {
             // Gain access to the files
-            using (StreamReader reader = new StreamReader(new
+            using StreamReader reader = new StreamReader(new
                 FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read,
-                0x1000, FileOptions.SequentialScan)))
-            {
-                string line;
-                var ammountOfData = Types * Times;
-                int injectIndex = Times * offsetType + offsetTimes;
-                if (header) reader.ReadLine();
-                // Read the line from the CSV
+                0x1000, FileOptions.SequentialScan));
+            string line;
+            var ammountOfData = Types * Times;
+            int injectIndex = Times * offsetType + offsetTimes;
+            if (header) reader.ReadLine();
+            // Read the line from the CSV
 
-                while ((line = reader.ReadLine()) != null)
+            while ((line = reader.ReadLine()) != null)
+            {
+                // Calculate where to store the data
+                string[] data = line.Split(',');
+                int o = int.Parse(data[0]);
+                int d = int.Parse(data[1]);
+                var position = Data[o, d];
+                if (position == null)
                 {
-                    // Calculate where to store the data
-                    string[] data = line.Split(',');
-                    int o = int.Parse(data[0]);
-                    int d = int.Parse(data[1]);
-                    var position = Data[o, d];
-                    if (position == null)
-                    {
-                        Data[o, d] = position = new float[ammountOfData];
-                    }
-                    int entry = 0;
-                    for (int i = 2; i < data.Length; i++)
-                    {
-                        position[injectIndex + entry] = float.Parse(data[i]);
-                        entry++;
-                    }
+                    Data[o, d] = position = new float[ammountOfData];
                 }
-                // Close our access to the file streams
+                int entry = 0;
+                for (int i = 2; i < data.Length; i++)
+                {
+                    position[injectIndex + entry] = float.Parse(data[i]);
+                    entry++;
+                }
             }
+            // Close our access to the file streams
         }
 
         /// <summary>
@@ -185,40 +181,38 @@ namespace Datastructure
             int pos;
             var ammountOfData = Types * Times;
             // do this because highest zone isn't high enough for array indexes
-            using (StreamReader reader = new StreamReader(new
+            using StreamReader reader = new StreamReader(new
                 FileStream(emme2File, FileMode.Open, FileAccess.Read, FileShare.Read,
-                0x1000, FileOptions.SequentialScan)))
+                0x1000, FileOptions.SequentialScan));
+            int injectIndex = Times * offsetType + offsetTimes;
+            while ((line = reader.ReadLine()) != null)
             {
-                int injectIndex = Times * offsetType + offsetTimes;
-                while ((line = reader.ReadLine()) != null)
+                if (line.Length > 0 && line[0] == 'a') break;
+            }
+            while ((line = reader.ReadLine()) != null)
+            {
+                int length = line.Length;
+                // don't read blank lines
+                if (length < 7) continue;
+                int o = FastParse.ParseFixedInt(line, 0, 7);
+                pos = 7;
+                while (pos + 8 <= length)
                 {
-                    if (line.Length > 0 && line[0] == 'a') break;
-                }
-                while ((line = reader.ReadLine()) != null)
-                {
-                    int length = line.Length;
-                    // don't read blank lines
-                    if (length < 7) continue;
-                    int o = FastParse.ParseFixedInt(line, 0, 7);
-                    pos = 7;
-                    while (pos + 8 <= length)
+                    int d = FastParse.ParseFixedInt(line, pos, 7);
+                    var data = Data[o, d];
+                    if (data == null)
                     {
-                        int d = FastParse.ParseFixedInt(line, pos, 7);
-                        var data = Data[o, d];
-                        if (data == null)
-                        {
-                            Data[o, d] = data = new float[ammountOfData];
-                        }
-                        if (line[pos + 7] == ':')
-                        {
-                            data[injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, 5);
-                        }
-                        else
-                        {
-                            data[injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, (length > ((pos + 8) + 9) ? 9 : (length - (pos + 8))));
-                        }
-                        pos += 13;
+                        Data[o, d] = data = new float[ammountOfData];
                     }
+                    if (line[pos + 7] == ':')
+                    {
+                        data[injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, 5);
+                    }
+                    else
+                    {
+                        data[injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, (length > ((pos + 8) + 9) ? 9 : (length - (pos + 8))));
+                    }
+                    pos += 13;
                 }
             }
         }
@@ -230,24 +224,22 @@ namespace Datastructure
         /// <param name="xmlInfo"></param>
         public void Save(string fileName, bool xmlInfo)
         {
-            using (BinaryWriter writer = new BinaryWriter(new
+            using BinaryWriter writer = new BinaryWriter(new
             FileStream(fileName, FileMode.Create, FileAccess.Write,
             FileShare.None, 0x10000, FileOptions.RandomAccess),
-            Encoding.Default))
-            {
-                //Write the primary header
-                writer.Write(0);
-                writer.Write(Times);
-                writer.Write(Types);
-                var version2DataSize = WriteVersion2Data(writer);
-                Index[] gaps = CreateIndexes(Data);
-                writer.Write(gaps.Length); // we will figure what this number is later
-                Save(gaps, writer, version2DataSize);
-                //complete
-                writer.Seek(0, SeekOrigin.Begin);
-                // write that this is a version 2 file
-                writer.Write(2);
-            }
+            Encoding.Default);
+            //Write the primary header
+            writer.Write(0);
+            writer.Write(Times);
+            writer.Write(Types);
+            var version2DataSize = WriteVersion2Data(writer);
+            Index[] gaps = CreateIndexes(Data);
+            writer.Write(gaps.Length); // we will figure what this number is later
+            Save(gaps, writer, version2DataSize);
+            //complete
+            writer.Seek(0, SeekOrigin.Begin);
+            // write that this is a version 2 file
+            writer.Write(2);
         }
 
         protected virtual Dictionary<string, string> GetMetaData()

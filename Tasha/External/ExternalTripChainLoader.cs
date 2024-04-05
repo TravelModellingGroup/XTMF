@@ -228,71 +228,69 @@ namespace Tasha.External
             {
                 try
                 {
-                    using (CsvReader reader = new CsvReader(TripChainFile))
+                    using CsvReader reader = new CsvReader(TripChainFile);
+                    var zoneSystem = Root.ZoneSystem.ZoneArray;
+                    var zones = zoneSystem.GetFlatData();
+                    var chains = new List<ITripChain>();
+                    Household[] households = CreateHouseholds(zones);
+                    reader.LoadLine(out int columns);
+                    int previousPerson = -1;
+                    Person currentPerson;
+                    TripChain currentChain = null;
+                    while (reader.LoadLine(out columns))
                     {
-                        var zoneSystem = Root.ZoneSystem.ZoneArray;
-                        var zones = zoneSystem.GetFlatData();
-                        var chains = new List<ITripChain>();
-                        Household[] households = CreateHouseholds(zones);
-                        reader.LoadLine(out int columns);
-                        int previousPerson = -1;
-                        Person currentPerson;
-                        TripChain currentChain = null;
-                        while (reader.LoadLine(out columns))
+                        if (columns < 7)
                         {
-                            if (columns < 7)
-                            {
-                                continue;
-                            }
-                            reader.Get(out int personNumber, 0);
-                            reader.Get(out float expFactor, 1);
-                            reader.Get(out int homeZone, 2);
-                            reader.Get(out int origin, 3);
-                            reader.Get(out int destination, 4);
-                            reader.Get(out int startTime, 5);
-                            reader.Get(out char modeCode, 6);
-                            // check for the start of a new person
-                            if (personNumber != previousPerson)
-                            {
-                                var homeZoneIndex = zoneSystem.GetFlatIndex(homeZone);
-                                if (homeZoneIndex < 0)
-                                {
-                                    throw new XTMFRuntimeException(this, $"An unknown household zone number was found {homeZone}!");
-                                }
-                                currentPerson = new Person()
-                                {
-                                    Household = households[homeZoneIndex],
-                                    ExpansionFactor = expFactor
-                                };
-                                currentChain = new TripChain()
-                                {
-                                    Person = currentPerson
-                                };
-                                currentChain.Trips = new List<ITrip>(4);
-                                chains.Add(currentChain);
-                            }
-                            var oZone = zoneSystem[origin];
-                            var dZone = zoneSystem[destination];
-                            if (oZone == null)
-                            {
-                                throw new XTMFRuntimeException(this, $"Unable to find a zone #{origin}");
-                            }
-                            if (dZone == null)
-                            {
-                                throw new XTMFRuntimeException(this, $"Unable to find a zone #{destination}");
-                            }
-                            currentChain?.Trips.Add(new Trip()
-                            {
-                                OriginalZone = oZone,
-                                DestinationZone = dZone,
-                                TripStartTime = ConvertStartTime(startTime),
-                                Mode = ConvertMode(modeCode)
-                            });
+                            continue;
                         }
-                        // done
-                        Data = chains;
-                        Loaded = true;
+                        reader.Get(out int personNumber, 0);
+                        reader.Get(out float expFactor, 1);
+                        reader.Get(out int homeZone, 2);
+                        reader.Get(out int origin, 3);
+                        reader.Get(out int destination, 4);
+                        reader.Get(out int startTime, 5);
+                        reader.Get(out char modeCode, 6);
+                        // check for the start of a new person
+                        if (personNumber != previousPerson)
+                        {
+                            var homeZoneIndex = zoneSystem.GetFlatIndex(homeZone);
+                            if (homeZoneIndex < 0)
+                            {
+                                throw new XTMFRuntimeException(this, $"An unknown household zone number was found {homeZone}!");
+                            }
+                            currentPerson = new Person()
+                            {
+                                Household = households[homeZoneIndex],
+                                ExpansionFactor = expFactor
+                            };
+                            currentChain = new TripChain()
+                            {
+                                Person = currentPerson
+                            };
+                            currentChain.Trips = new List<ITrip>(4);
+                            chains.Add(currentChain);
+                        }
+                        var oZone = zoneSystem[origin];
+                        var dZone = zoneSystem[destination];
+                        if (oZone == null)
+                        {
+                            throw new XTMFRuntimeException(this, $"Unable to find a zone #{origin}");
+                        }
+                        if (dZone == null)
+                        {
+                            throw new XTMFRuntimeException(this, $"Unable to find a zone #{destination}");
+                        }
+                        currentChain?.Trips.Add(new Trip()
+                        {
+                            OriginalZone = oZone,
+                            DestinationZone = dZone,
+                            TripStartTime = ConvertStartTime(startTime),
+                            Mode = ConvertMode(modeCode)
+                        });
                     }
+                    // done
+                    Data = chains;
+                    Loaded = true;
                 }
                 catch(IOException e)
                 {

@@ -151,13 +151,11 @@ For specification about the language, and extensibility please consult the TMG F
 
         private void SaveException(Exception e)
         {
-            using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
-            {
-                var realExeption = GetTopRootException(e);
-                writer.WriteLine(realExeption.Message);
-                writer.WriteLine();
-                writer.WriteLine(realExeption.StackTrace);
-            }
+            using var writer = new StreamWriter("XTMF.ErrorLog.txt", true);
+            var realExeption = GetTopRootException(e);
+            writer.WriteLine(realExeption.Message);
+            writer.WriteLine();
+            writer.WriteLine(realExeption.StackTrace);
         }
 
         private static Exception GetTopRootException(Exception value)
@@ -875,10 +873,8 @@ For specification about the language, and extensibility please consult the TMG F
         private void WriteToFile(XmlNode command)
         {
             var path = GetAttributeOrError(command, "Path", "The attribute 'Path' was not defined!");
-            using (StreamWriter writer = new StreamWriter(path, true))
-            {
-                writer.WriteLine(command.InnerText);
-            }
+            using StreamWriter writer = new StreamWriter(path, true);
+            writer.WriteLine(command.InnerText);
         }
 
         private string OriginalDirectory;

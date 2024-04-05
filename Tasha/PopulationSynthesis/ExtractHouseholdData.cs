@@ -147,23 +147,21 @@ namespace Tasha.PopulationSynthesis
 
             internal void Save(ExtractHouseholdData root)
             {
-                using ( StreamWriter writer = new StreamWriter( root.SaveFile.GetFileName() ) )
+                using StreamWriter writer = new StreamWriter(root.SaveFile.GetFileName());
+                WriteHeader(root, writer);
+                for (int i = 0; i < EntryList.Count; i++)
                 {
-                    WriteHeader( root, writer );
-                    for ( int i = 0; i < EntryList.Count; i++ )
+                    var entry = EntryList[i];
+                    writer.Write(entry.PlanningDistrict);
+                    writer.Write(',');
+                    for (int j = 0; j < entry.AgeCategoryCount.Length; j++)
                     {
-                        var entry = EntryList[i];
-                        writer.Write( entry.PlanningDistrict );
-                        writer.Write( ',' );
-                        for ( int j = 0; j < entry.AgeCategoryCount.Length; j++ )
-                        {
-                            writer.Write( entry.AgeCategoryCount[j] );
-                            writer.Write( ',' );
-                        }
-                        writer.Write( entry.NumberOfCars );
-                        writer.Write( ',' );
-                        writer.WriteLine( entry.ExpandedTotal );
+                        writer.Write(entry.AgeCategoryCount[j]);
+                        writer.Write(',');
                     }
+                    writer.Write(entry.NumberOfCars);
+                    writer.Write(',');
+                    writer.WriteLine(entry.ExpandedTotal);
                 }
             }
 

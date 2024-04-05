@@ -324,27 +324,25 @@ namespace TMG.GTAModel.Analysis
         private void WriteOut<T>(SparseArray<T> aggregation, float[][] data, string fileName, Func<T, int> getValue)
         {
             var flatAggregation = aggregation.GetFlatData();
-            using (StreamWriter writer = new StreamWriter(fileName))
+            using StreamWriter writer = new StreamWriter(fileName);
+            // write the top hat
+            writer.Write("Origin\\Destination");
+            for (int i = 0; i < flatAggregation.Length; i++)
             {
-                // write the top hat
-                writer.Write("Origin\\Destination");
-                for (int i = 0; i < flatAggregation.Length; i++)
+                var iNumber = getValue(flatAggregation[i]);
+                writer.Write(',');
+                writer.Write(iNumber);
+            }
+            writer.WriteLine();
+            for (int i = 0; i < flatAggregation.Length; i++)
+            {
+                writer.Write(getValue(flatAggregation[i]));
+                for (int j = 0; j < data[i].Length; j++)
                 {
-                    var iNumber = getValue(flatAggregation[i]);
                     writer.Write(',');
-                    writer.Write(iNumber);
+                    writer.Write(data[i][j]);
                 }
                 writer.WriteLine();
-                for (int i = 0; i < flatAggregation.Length; i++)
-                {
-                    writer.Write(getValue(flatAggregation[i]));
-                    for (int j = 0; j < data[i].Length; j++)
-                    {
-                        writer.Write(',');
-                        writer.Write(data[i][j]);
-                    }
-                    writer.WriteLine();
-                }
             }
         }
     }

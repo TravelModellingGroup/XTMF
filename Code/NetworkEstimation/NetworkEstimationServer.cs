@@ -143,16 +143,14 @@ namespace TMG.NetworkEstimation
                 var length = set.Length;
                 lock ( this )
                 {
-                    using ( StreamWriter writer = new StreamWriter( ParameterEvaluationFile, true ) )
+                    using StreamWriter writer = new StreamWriter(ParameterEvaluationFile, true);
+                    writer.Write(set[0]);
+                    for (int i = 0; i < length; i++)
                     {
-                        writer.Write( set[0] );
-                        for ( int i = 0; i < length; i++ )
-                        {
-                            writer.Write( ',' );
-                            writer.Write( set[i] );
-                        }
-                        writer.WriteLine();
+                        writer.Write(',');
+                        writer.Write(set[i]);
                     }
+                    writer.WriteLine();
                 }
             } );
             RandomNumberGenerator = new Random();

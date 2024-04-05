@@ -58,28 +58,26 @@ namespace TMG.Frameworks.Data.Saving
                 DataToSave.UnloadData();
             }
             // now that we have the data save to to disk
-            using (var writer = new StreamWriter(SaveTo))
+            using var writer = new StreamWriter(SaveTo);
+            writer.WriteLine("Label,Value");
+            // provide an optimized path for float
+            if (typeof(T) == typeof(float))
             {
-                writer.WriteLine("Label,Value");
-                // provide an optimized path for float
-                if(typeof(T) == typeof(float))
+                var fData = (LabeledData<float>)(object)data;
+                foreach (var element in fData.OrderBy(e => e.Key))
                 {
-                    var fData = (LabeledData<float>)(object)data;
-                    foreach(var element in fData.OrderBy(e => e.Key))
-                    {
-                        writer.Write(element.Key);
-                        writer.Write(',');
-                        writer.WriteLine(element.Value);
-                    }
+                    writer.Write(element.Key);
+                    writer.Write(',');
+                    writer.WriteLine(element.Value);
                 }
-                else
+            }
+            else
+            {
+                foreach (var element in data.OrderBy(e => e.Key))
                 {
-                    foreach (var element in data.OrderBy(e => e.Key))
-                    {
-                        writer.Write(element.Key);
-                        writer.Write(',');
-                        writer.WriteLine(element.Value.ToString());
-                    }
+                    writer.Write(element.Key);
+                    writer.Write(',');
+                    writer.WriteLine(element.Value.ToString());
                 }
             }
         }

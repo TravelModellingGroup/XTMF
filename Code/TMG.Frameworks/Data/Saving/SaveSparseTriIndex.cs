@@ -120,38 +120,34 @@ namespace TMG.Frameworks.Data.Saving
                 }
                 return b.ToString();
             }
-            using (var writer = new StreamWriter(BuildFileName(layerIndex)))
+            using var writer = new StreamWriter(BuildFileName(layerIndex));
+            writer.Write("origin\\destination");
+            for (int j = 0; j < destinations.Length; j++)
             {
-                writer.Write("origin\\destination");
-                for (int j = 0; j < destinations.Length; j++)
-                {
-                    writer.Write(',');
-                    writer.Write(destinations[j]);
-                }
-                writer.WriteLine();
-                // write the main body
-                foreach (var row in flatData.AsParallel().AsOrdered().Select((r, i) => buildRow(r, origins[i])))
-                {
-                    writer.WriteLine(row);
-                }
+                writer.Write(',');
+                writer.Write(destinations[j]);
+            }
+            writer.WriteLine();
+            // write the main body
+            foreach (var row in flatData.AsParallel().AsOrdered().Select((r, i) => buildRow(r, origins[i])))
+            {
+                writer.WriteLine(row);
             }
         }
 
         private void SaveThirdNormalizedCSV(int layerIndex, float[][] flatData, int[] origins, int[] destinations)
         {
-            using (var writer = new StreamWriter(BuildFileName(layerIndex)))
+            using var writer = new StreamWriter(BuildFileName(layerIndex));
+            writer.WriteLine("Origin,Destination,Value");
+            for (int i = 0; i < flatData.Length; i++)
             {
-                writer.WriteLine("Origin,Destination,Value");
-                for (int i = 0; i < flatData.Length; i++)
+                for (int j = 0; j < flatData[i].Length; j++)
                 {
-                    for (int j = 0; j < flatData[i].Length; j++)
-                    {
-                        writer.Write(origins[i]);
-                        writer.Write(',');
-                        writer.Write(destinations[j]);
-                        writer.Write(',');
-                        writer.WriteLine(flatData[i][j]);
-                    }
+                    writer.Write(origins[i]);
+                    writer.Write(',');
+                    writer.Write(destinations[j]);
+                    writer.Write(',');
+                    writer.WriteLine(flatData[i][j]);
                 }
             }
         }

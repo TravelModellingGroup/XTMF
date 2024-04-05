@@ -114,31 +114,29 @@ namespace TMG.NetworkEstimation
                 string[] headers = null;
                 var data = LoadData(ref headers, out int bestIndex).ToArray();
                 SanitizeHeaders(headers);
-                using (BinaryWriter writer = new BinaryWriter(File.OpenWrite(OutputFile)))
-                { 
-                    writer.Write(headers.Length);
-                    for (int i = 0; i < headers.Length; i++)
-                    {
-                        writer.Write(headers[i]);
-                    }
-                    var chartStream = from i in Enumerable.Range(0, headers.Length).AsParallel().AsOrdered()
-                                      from j in Enumerable.Range(0, i).AsParallel().AsOrdered()
-                                      select BuildChart(headers, i, j, data, bestIndex);
-                    List<byte[]> charts = [];
-                    foreach (var chart in chartStream)
-                    {
-                        charts.Add(chart);
-                        Progress += individualIncrease;
-                    }
+                using BinaryWriter writer = new BinaryWriter(File.OpenWrite(OutputFile));
+                writer.Write(headers.Length);
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    writer.Write(headers[i]);
+                }
+                var chartStream = from i in Enumerable.Range(0, headers.Length).AsParallel().AsOrdered()
+                                  from j in Enumerable.Range(0, i).AsParallel().AsOrdered()
+                                  select BuildChart(headers, i, j, data, bestIndex);
+                List<byte[]> charts = [];
+                foreach (var chart in chartStream)
+                {
+                    charts.Add(chart);
+                    Progress += individualIncrease;
+                }
 
-                    for (int i = 0; i < charts.Count; i++)
-                    {
-                        writer.Write(charts[i].Length);
-                    }
-                    foreach (var chart in charts)
-                    {
-                        writer.Write(chart, 0, chart.Length);
-                    }
+                for (int i = 0; i < charts.Count; i++)
+                {
+                    writer.Write(charts[i].Length);
+                }
+                foreach (var chart in charts)
+                {
+                    writer.Write(chart, 0, chart.Length);
                 }
             }
             else
@@ -170,35 +168,33 @@ namespace TMG.NetworkEstimation
 
         private byte[] BuildChart(string[] headers, int i, int j, Pair<double[], double>[] data, int bestIndex)
         {
-            using (Chart chart = new Chart())
-            {
-                chart.Width = Width;
-                chart.Height = Height;
-                ChartArea ca;
-                chart.ChartAreas.Add(ca = new ChartArea());
-                Series ourSeries = new Series();
+            using Chart chart = new Chart();
+            chart.Width = Width;
+            chart.Height = Height;
+            ChartArea ca;
+            chart.ChartAreas.Add(ca = new ChartArea());
+            Series ourSeries = new Series();
 
-                ourSeries.ChartType = SeriesChartType.Point;
-                ProcessData(data, bestIndex, ourSeries, i, j);
-                chart.Series.Add(ourSeries);
-                if (headers != null)
-                {
-                    ca.AxisX.Title = headers[i];
-                    ca.AxisY.Title = headers[j];
-                }
-                var fileName = Path.GetTempFileName();
-                if (headers != null)
-                {
-                    chart.SaveImage(String.Format(fileName, headers[i], headers[j]), ChartImageFormat.Png);
-                }
-                else
-                {
-                    chart.SaveImage(fileName, ChartImageFormat.Png);
-                }
-                var asWritten = File.ReadAllBytes(fileName);
-                File.Delete(fileName);
-                return asWritten;
+            ourSeries.ChartType = SeriesChartType.Point;
+            ProcessData(data, bestIndex, ourSeries, i, j);
+            chart.Series.Add(ourSeries);
+            if (headers != null)
+            {
+                ca.AxisX.Title = headers[i];
+                ca.AxisY.Title = headers[j];
             }
+            var fileName = Path.GetTempFileName();
+            if (headers != null)
+            {
+                chart.SaveImage(String.Format(fileName, headers[i], headers[j]), ChartImageFormat.Png);
+            }
+            else
+            {
+                chart.SaveImage(fileName, ChartImageFormat.Png);
+            }
+            var asWritten = File.ReadAllBytes(fileName);
+            File.Delete(fileName);
+            return asWritten;
         }
 
         /// <summary>

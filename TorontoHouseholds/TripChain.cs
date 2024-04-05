@@ -190,55 +190,53 @@ namespace Tasha.Common
 
         public static void Save(string fileName, IEnumerable<ITashaHousehold> households)
         {
-            using (StreamWriter writer = new StreamWriter(fileName))
+            using StreamWriter writer = new StreamWriter(fileName);
+            //write header
+            if (TripHeader)
+                writer.WriteLine("hhld_num,pers_num,trip_num,start_time,mode_prime,purp_orig,pd_orig,gta96_orig,gta01_orig,purp_dest,pd_dest,gta96_dest,gta01_dest,trip_km,jointTourID,jointTourRep");
+
+            foreach (var household in households)
             {
-                //write header
-                if (TripHeader)
-                    writer.WriteLine("hhld_num,pers_num,trip_num,start_time,mode_prime,purp_orig,pd_orig,gta96_orig,gta01_orig,purp_dest,pd_dest,gta96_dest,gta01_dest,trip_km,jointTourID,jointTourRep" );
-
-                foreach (var household in households)
+                foreach (var trip in GetTrips(household))
                 {
-                    foreach (var trip in GetTrips(household))
+                    int jointTourLeader = 0;
+                    int personNum = 1;
+                    foreach (var p in household.Persons)
                     {
-                        int jointTourLeader = 0;
-                        int personNum = 1;
-                        foreach (var p in household.Persons)
+                        if ((p.TripChains.FindLast((chain) => (chain.JointTripID == trip.TripChain.JointTripID && chain.JointTripRep))) != null)
                         {
-                            if ((p.TripChains.FindLast((chain) => (chain.JointTripID == trip.TripChain.JointTripID && chain.JointTripRep)) ) != null )
-                            {
-                                jointTourLeader = personNum;
-                                break;
-                            }
-                            personNum++;
+                            jointTourLeader = personNum;
+                            break;
                         }
-
-                        ActivityConverter.Converter.GetTripActivities(trip, trip.TripChain, out char purposeOrigin, out char purposeDestination);
-
-                        string[] attributes = new string[22];
-
-                        for ( int i = 0; i < attributes.Length; i++)
-                        {
-                            attributes[i] = "";
-                        }
-
-                        attributes[TripHouseholdID] = household.HouseholdId.ToString();
-                        attributes[TripPersonID] = trip.TripChain.Person.Id.ToString();
-                        attributes[TripNumber] = trip.TripNumber.ToString();
-                        attributes[TripStartTime] = trip.ActivityStartTime.ToString();
-                        attributes[TripObservedMode] = ((char)trip["ObservedMode"]).ToString();
-                        attributes[TripPurposeOrigin] = purposeOrigin.ToString();
-                        attributes[TripOriginZone] = trip.OriginalZone.ZoneNumber.ToString();
-                        attributes[TripPurposeDestination] = purposeDestination.ToString();
-                        attributes[TripDestinationZone] = trip.DestinationZone.ZoneNumber.ToString();
-                        attributes[TripJointTourID] = trip.TripChain.JointTripID.ToString();
-                        attributes[TripJointTourRep] = jointTourLeader.ToString();
-                        string line = string.Empty;
-                        for ( int i = 0; i < attributes.Length; i++)
-                        {
-                            line += attributes[i] + ",";
-                        }
-                        writer.WriteLine(line);
+                        personNum++;
                     }
+
+                    ActivityConverter.Converter.GetTripActivities(trip, trip.TripChain, out char purposeOrigin, out char purposeDestination);
+
+                    string[] attributes = new string[22];
+
+                    for (int i = 0; i < attributes.Length; i++)
+                    {
+                        attributes[i] = "";
+                    }
+
+                    attributes[TripHouseholdID] = household.HouseholdId.ToString();
+                    attributes[TripPersonID] = trip.TripChain.Person.Id.ToString();
+                    attributes[TripNumber] = trip.TripNumber.ToString();
+                    attributes[TripStartTime] = trip.ActivityStartTime.ToString();
+                    attributes[TripObservedMode] = ((char)trip["ObservedMode"]).ToString();
+                    attributes[TripPurposeOrigin] = purposeOrigin.ToString();
+                    attributes[TripOriginZone] = trip.OriginalZone.ZoneNumber.ToString();
+                    attributes[TripPurposeDestination] = purposeDestination.ToString();
+                    attributes[TripDestinationZone] = trip.DestinationZone.ZoneNumber.ToString();
+                    attributes[TripJointTourID] = trip.TripChain.JointTripID.ToString();
+                    attributes[TripJointTourRep] = jointTourLeader.ToString();
+                    string line = string.Empty;
+                    for (int i = 0; i < attributes.Length; i++)
+                    {
+                        line += attributes[i] + ",";
+                    }
+                    writer.WriteLine(line);
                 }
             }
         }

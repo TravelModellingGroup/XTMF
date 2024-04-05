@@ -48,17 +48,15 @@ namespace Tasha.DataExtraction
         {
             var connection = DatabaseConnection.AcquireResource<IDbConnection>();
             var zones = ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
-            using ( var command = connection.CreateCommand() )
-            {
-                // Gather the data
-                var fullTime = Execute( 'F', command, zones );
-                var partTime = Execute( 'P', command, zones );
-                // normalize the data
-                Normalize( fullTime );
-                Normalize( partTime );
-                // save the data
-                SaveData( fullTime, partTime );
-            }
+            using var command = connection.CreateCommand();
+            // Gather the data
+            var fullTime = Execute('F', command, zones);
+            var partTime = Execute('P', command, zones);
+            // normalize the data
+            Normalize(fullTime);
+            Normalize(partTime);
+            // save the data
+            SaveData(fullTime, partTime);
         }
 
         /// <summary>
@@ -105,12 +103,10 @@ namespace Tasha.DataExtraction
         /// <param name="partTime">The part time data</param>
         private void SaveData(SparseArray<float[]> fullTime, SparseArray<float[]> partTime)
         {
-            using ( var writer = new StreamWriter( OutputFile ) )
-            {
-                writer.WriteLine( "EmpStat,PD,Occ,Probability" );
-                WriteData( writer, fullTime, '1' );
-                WriteData( writer, partTime, '2' );
-            }
+            using var writer = new StreamWriter(OutputFile);
+            writer.WriteLine("EmpStat,PD,Occ,Probability");
+            WriteData(writer, fullTime, '1');
+            WriteData(writer, partTime, '2');
         }
 
         /// <summary>

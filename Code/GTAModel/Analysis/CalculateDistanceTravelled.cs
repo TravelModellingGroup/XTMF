@@ -167,34 +167,32 @@ namespace TMG.GTAModel.Analysis
             ComputeData( zones, demandMatrix, distanceMatrix, regionNumbers, regionProductionDistances,
                 regionAttractionDistances, regionAttractionSum, regionProductionSum, productionZoneDistances,
                 attractionZoneDistances, zoneProductionSum, zoneAttractionSum );
-            using ( StreamWriter writer = new StreamWriter( DistanceTravelledFileName ) )
+            using StreamWriter writer = new StreamWriter(DistanceTravelledFileName);
+            writer.WriteLine("Region Data");
+            writer.WriteLine("Region Number,Production Distance Average,Attraction Distance Average");
+            for (int i = 0; i < regionProductionDistances.Length; i++)
             {
-                writer.WriteLine( "Region Data" );
-                writer.WriteLine( "Region Number,Production Distance Average,Attraction Distance Average" );
-                for ( int i = 0; i < regionProductionDistances.Length; i++ )
-                {
-                    writer.Write( regionNumbers[i] );
-                    writer.Write( ',' );
-                    writer.Write( regionProductionDistances[i] );
-                    writer.Write( ',' );
-                    writer.Write( regionAttractionDistances[i] );
-                    writer.WriteLine();
-                }
+                writer.Write(regionNumbers[i]);
+                writer.Write(',');
+                writer.Write(regionProductionDistances[i]);
+                writer.Write(',');
+                writer.Write(regionAttractionDistances[i]);
                 writer.WriteLine();
+            }
+            writer.WriteLine();
+            writer.WriteLine();
+            writer.WriteLine();
+            writer.WriteLine("Zone Data");
+            writer.WriteLine("Zone Number,Production Distance Average,Attraction Distance Average");
+            // for each row
+            for (int i = 0; i < zones.Length; i++)
+            {
+                writer.Write(zones[i].ZoneNumber);
+                writer.Write(',');
+                writer.Write(productionZoneDistances[i]);
+                writer.Write(',');
+                writer.Write(attractionZoneDistances[i]);
                 writer.WriteLine();
-                writer.WriteLine();
-                writer.WriteLine( "Zone Data" );
-                writer.WriteLine( "Zone Number,Production Distance Average,Attraction Distance Average" );
-                // for each row
-                for ( int i = 0; i < zones.Length; i++ )
-                {
-                    writer.Write( zones[i].ZoneNumber );
-                    writer.Write( ',' );
-                    writer.Write( productionZoneDistances[i] );
-                    writer.Write( ',' );
-                    writer.Write( attractionZoneDistances[i] );
-                    writer.WriteLine();
-                }
             }
         }
     }

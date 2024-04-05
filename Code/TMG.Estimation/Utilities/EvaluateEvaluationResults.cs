@@ -69,10 +69,8 @@ namespace TMG.Estimation.Utilities
 
         private void GetBestUtility(out int generation, out float value)
         {
-            using (CsvReader reader = new CsvReader( ResultFile ))
-            {
-                GetBest( reader, out generation, out value );
-            }
+            using CsvReader reader = new CsvReader(ResultFile);
+            GetBest(reader, out generation, out value);
         }
 
         private void GetBest(CsvReader reader, out int generation, out float value)

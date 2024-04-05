@@ -89,24 +89,22 @@ namespace TMG.GTAModel.Input
         /// <param name="data">The data to be stored at the address</param>
         protected virtual void StoreData(List<int> first, List<int> second, List<int> third, List<float> data)
         {
-            using ( CommentedCsvReader reader = new CommentedCsvReader( FileName.GetFileName( Root.InputBaseDirectory ) ) )
+            using CommentedCsvReader reader = new CommentedCsvReader(FileName.GetFileName(Root.InputBaseDirectory));
+            while (reader.NextLine())
             {
-                while ( reader.NextLine() )
+                // skip blank lines
+                if (reader.NumberOfCurrentCells < 4)
                 {
-                    // skip blank lines
-                    if ( reader.NumberOfCurrentCells < 4 )
-                    {
-                        continue;
-                    }
-                    reader.Get(out int f, 0);
-                    reader.Get( out int s, 1 );
-                    reader.Get( out int t, 2 );
-                    reader.Get( out float d, 3 );
-                    first.Add( f );
-                    second.Add( s );
-                    third.Add( t );
-                    data.Add( d );
+                    continue;
                 }
+                reader.Get(out int f, 0);
+                reader.Get(out int s, 1);
+                reader.Get(out int t, 2);
+                reader.Get(out float d, 3);
+                first.Add(f);
+                second.Add(s);
+                third.Add(t);
+                data.Add(d);
             }
         }
 

@@ -102,17 +102,15 @@ namespace Tasha.Modes
 
         public void IterationFinished(int iteration)
         {
-            using (var sw = new StreamWriter(ResultsFile))
+            using var sw = new StreamWriter(ResultsFile);
+            sw.WriteLine("TOUR ENUMERATION");
+            sw.WriteLine();
+            sw.WriteLine("Frequency,[List of activities]");
+            foreach (var e in Data)
             {
-                sw.WriteLine("TOUR ENUMERATION");
-                sw.WriteLine();
-                sw.WriteLine("Frequency,[List of activities]");
-                foreach (var e in Data)
-                {
-                    sw.WriteLine(e.Value + "," + e.Key);
-                }
-                Data.Clear();
+                sw.WriteLine(e.Value + "," + e.Key);
             }
+            Data.Clear();
         }
 
         public void Load(int maxIterations)

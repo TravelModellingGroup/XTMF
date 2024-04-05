@@ -123,45 +123,43 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
         private void Save(FileLocation dump, int zoneIndex)
         {
             var poolRow = PoolChoices[zoneIndex < 0 ? 0 : zoneIndex];
-            using (var writer = new StreamWriter(dump, zoneIndex > 0))
+            using var writer = new StreamWriter(dump, zoneIndex > 0);
+            if (zoneIndex < 0)
             {
-                if (zoneIndex < 0)
+                writer.WriteLine(string.Join(",", Attributes.Select(a => AddQuotes(a.Name))));
+                for (int i = 0; i < poolRow.Length; i++)
                 {
-                    writer.WriteLine(string.Join(",", Attributes.Select(a => AddQuotes(a.Name))));
-                    for (int i = 0; i < poolRow.Length; i++)
+                    var row = poolRow[i];
+                    writer.Write(row[0]);
+                    for (int j = 1; j < row.Length; j++)
                     {
-                        var row = poolRow[i];
-                        writer.Write(row[0]);
-                        for (int j = 1; j < row.Length; j++)
-                        {
-                            writer.Write(',');
-                            writer.Write(row[j]);
-                        }
-                        writer.WriteLine();
-                    }
-                }
-                else
-                {
-                    //write header
-                    if (zoneIndex == 0)
-                    {
-                        writer.Write("Zone,");
-                        writer.WriteLine(string.Join(",", Attributes.Select(a => AddQuotes(a.Name))));
-                    }
-                    var zoneNumber = ZoneSystem.ZoneArray.GetFlatData()[zoneIndex].ZoneNumber.ToString();
-                    for (int i = 0; i < poolRow.Length; i++)
-                    {
-                        var row = poolRow[i];
-                        writer.Write(zoneNumber);
                         writer.Write(',');
-                        writer.Write(row[0]);
-                        for (int j = 1; j < row.Length; j++)
-                        {
-                            writer.Write(',');
-                            writer.Write(row[j]);
-                        }
-                        writer.WriteLine();
+                        writer.Write(row[j]);
                     }
+                    writer.WriteLine();
+                }
+            }
+            else
+            {
+                //write header
+                if (zoneIndex == 0)
+                {
+                    writer.Write("Zone,");
+                    writer.WriteLine(string.Join(",", Attributes.Select(a => AddQuotes(a.Name))));
+                }
+                var zoneNumber = ZoneSystem.ZoneArray.GetFlatData()[zoneIndex].ZoneNumber.ToString();
+                for (int i = 0; i < poolRow.Length; i++)
+                {
+                    var row = poolRow[i];
+                    writer.Write(zoneNumber);
+                    writer.Write(',');
+                    writer.Write(row[0]);
+                    for (int j = 1; j < row.Length; j++)
+                    {
+                        writer.Write(',');
+                        writer.Write(row[j]);
+                    }
+                    writer.WriteLine();
                 }
             }
         }

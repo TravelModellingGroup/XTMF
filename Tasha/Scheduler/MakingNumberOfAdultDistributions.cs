@@ -471,37 +471,35 @@ namespace Tasha.Scheduler
                     // save results
                     //NO HEADER
                     //DistributionID,NumberOfAdults,ExpandedSum,Probability,CDF
-                    using (StreamWriter writer = new StreamWriter( ResultFile.GetFilePath() ))
+                    using StreamWriter writer = new StreamWriter(ResultFile.GetFilePath());
+                    for (int dist = 0; dist < combinedResults.Length; dist++)
                     {
-                        for ( int dist = 0; dist < combinedResults.Length; dist++ )
+                        var cdf = 0.0;
+                        var factor = 0.0;
+                        // get sum of expansions
+                        for (int i = 0; i < combinedResults[dist].Length; i++)
                         {
-                            var cdf = 0.0;
-                            var factor = 0.0;
-                            // get sum of expansions
-                            for ( int i = 0; i < combinedResults[dist].Length; i++ )
-                            {
-                                factor += combinedResults[dist][i];
-                            }
-                            // compute factor
-                            factor = 1 / factor;
-                            if ( double.IsInfinity( factor ) | double.IsNaN( factor ) )
-                            {
-                                factor = 0;
-                            }
-                            for ( int i = 0; i < combinedResults[dist].Length; i++ )
-                            {
-                                var probability = combinedResults[dist][i] * factor;
-                                cdf += probability;
-                                writer.Write( dist );
-                                writer.Write( ',' );
-                                writer.Write( i );
-                                writer.Write( ',' );
-                                writer.Write( combinedResults[dist][i] );
-                                writer.Write( ',' );
-                                writer.Write( combinedResults[dist][i] * factor );
-                                writer.Write( ',' );
-                                writer.WriteLine( cdf );
-                            }
+                            factor += combinedResults[dist][i];
+                        }
+                        // compute factor
+                        factor = 1 / factor;
+                        if (double.IsInfinity(factor) | double.IsNaN(factor))
+                        {
+                            factor = 0;
+                        }
+                        for (int i = 0; i < combinedResults[dist].Length; i++)
+                        {
+                            var probability = combinedResults[dist][i] * factor;
+                            cdf += probability;
+                            writer.Write(dist);
+                            writer.Write(',');
+                            writer.Write(i);
+                            writer.Write(',');
+                            writer.Write(combinedResults[dist][i]);
+                            writer.Write(',');
+                            writer.Write(combinedResults[dist][i] * factor);
+                            writer.Write(',');
+                            writer.WriteLine(cdf);
                         }
                     }
                 } );

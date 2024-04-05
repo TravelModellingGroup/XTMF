@@ -255,19 +255,17 @@ namespace TMG.GTAModel.V2.Distribution
             {
                 var loadIn = catIndex / NumberOfCategoriesPerOccupation;
                 var file = WorkCacheFile + loadIn + ".bin";
-                using ( BinaryReader reader = new BinaryReader( File.OpenRead( file ) ) )
+                using BinaryReader reader = new BinaryReader(File.OpenRead(file));
+                var length = (int)reader.BaseStream.Length;
+                byte[] temp = new byte[length];
+                FillBuffer(reader, temp);
+                int count = 0;
+                for (int i = 0; i < linkageStoreage.Length; i++)
                 {
-                    var length = (int)reader.BaseStream.Length;
-                    byte[] temp = new byte[length];
-                    FillBuffer( reader, temp );
-                    int count = 0;
-                    for ( int i = 0; i < linkageStoreage.Length; i++ )
-                    {
-                        var row = linkageStoreage[i];
-                        var rowLength = row.Length * sizeof( float );
-                        Buffer.BlockCopy( temp, count, row, 0, rowLength );
-                        count += rowLength;
-                    }
+                    var row = linkageStoreage[i];
+                    var rowLength = row.Length * sizeof(float);
+                    Buffer.BlockCopy(temp, count, row, 0, rowLength);
+                    count += rowLength;
                 }
             }
         }

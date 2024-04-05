@@ -58,10 +58,8 @@ namespace XTMF.Testing.Modules.Editing
 
         public void Start()
         {
-            using (var writer = new StreamWriter( "ShowTrace" ))
-            {
-                writer.WriteLine( "Hello World" );
-            }
+            using var writer = new StreamWriter("ShowTrace");
+            writer.WriteLine("Hello World");
         }
     }
 }

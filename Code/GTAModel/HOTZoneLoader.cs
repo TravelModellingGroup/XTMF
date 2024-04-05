@@ -246,35 +246,33 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( ZoneAttributesFile ) ) return;
             try
             {
-                using (CommentedCsvReader reader = new CommentedCsvReader( GetFullPath( ZoneAttributesFile ) ) )
+                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(ZoneAttributesFile));
+                while (reader.NextLine())
                 {
-                    while ( reader.NextLine() )
+                    var colRead = reader.NumberOfCurrentCells;
+                    if (colRead < 5)
                     {
-                        var colRead = reader.NumberOfCurrentCells;
-                        if ( colRead < 5 )
-                        {
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        reader.Get( out int zoneNumber, 0 );
-                        reader.Get( out float parkingCost, 1 );
-                        reader.Get( out float parkingCap, 2 );
-                        reader.Get( out float intraZoneDistance, 3 );
-                        reader.Get( out float area, 4 );
-                        var zone = zones[zoneNumber];
-                        if ( zone == null )
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out float parkingCost, 1);
+                    reader.Get(out float parkingCap, 2);
+                    reader.Get(out float intraZoneDistance, 3);
+                    reader.Get(out float area, 4);
+                    var zone = zones[zoneNumber];
+                    if (zone == null)
+                    {
+                        if (GeneratePDErrors)
                         {
-                            if ( GeneratePDErrors )
-                            {
-                                throw new XTMFRuntimeException(this, "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone." );
-                            }
+                            throw new XTMFRuntimeException(this, "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone.");
                         }
-                        else
-                        {
-                            zone.ParkingCost = parkingCost;
-                            zone.InternalDistance = intraZoneDistance;
-                            zone.InternalArea = area;
-                        }
+                    }
+                    else
+                    {
+                        zone.ParkingCost = parkingCost;
+                        zone.InternalDistance = intraZoneDistance;
+                        zone.InternalArea = area;
                     }
                 }
             }
@@ -289,31 +287,29 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( EmploymentFile ) ) return;
             try
             {
-                using (CommentedCsvReader reader = new CommentedCsvReader( GetFullPath( EmploymentFile ) ) )
+                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(EmploymentFile));
+                while (reader.NextLine())
                 {
-                    while ( reader.NextLine() )
+                    var colRead = reader.NumberOfCurrentCells;
+                    if (colRead < 2)
                     {
-                        var colRead = reader.NumberOfCurrentCells;
-                        if ( colRead < 2 )
+                        continue;
+                    }
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out int employment, 1);
+                    var zone = zones[zoneNumber];
+                    if (zone == null)
+                    {
+                        if (GeneratePDErrors)
                         {
-                            continue;
+                            throw new XTMFRuntimeException(this, "When loading the Employment we found a distribution for a zone "
+                            + zoneNumber + " however that zone does not exist!");
                         }
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get( out int employment, 1 );
-                        var zone = zones[zoneNumber];
-                        if ( zone == null )
-                        {
-                            if ( GeneratePDErrors )
-                            {
-                                throw new XTMFRuntimeException(this, "When loading the Employment we found a distribution for a zone "
-                                + zoneNumber + " however that zone does not exist!" );
-                            }
-                        }
-                        else
-                        {
-                            zone.Employment = employment;
-                            zone.TotalEmployment = employment;
-                        }
+                    }
+                    else
+                    {
+                        zone.Employment = employment;
+                        zone.TotalEmployment = employment;
                     }
                 }
             }
@@ -342,29 +338,27 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( PlanningDistrictFile ) ) return;
             try
             {
-                using (CommentedCsvReader reader = new CommentedCsvReader( GetFullPath( PlanningDistrictFile ) ) )
+                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(PlanningDistrictFile));
+                while (reader.NextLine())
                 {
-                    while ( reader.NextLine() )
+                    var colRead = reader.NumberOfCurrentCells;
+                    if (colRead < 2)
                     {
-                        var colRead = reader.NumberOfCurrentCells;
-                        if ( colRead < 2 )
+                        continue;
+                    }
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out int pd, 1);
+                    var zone = zones[zoneNumber];
+                    if (zone == null)
+                    {
+                        if (GeneratePDErrors)
                         {
-                            continue;
+                            throw new XTMFRuntimeException(this, "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone.");
                         }
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get( out int pd, 1 );
-                        var zone = zones[zoneNumber];
-                        if ( zone == null )
-                        {
-                            if ( GeneratePDErrors )
-                            {
-                                throw new XTMFRuntimeException(this, "The planning district file contained a zone " + zoneNumber + " however the zone file did not contain this zone." );
-                            }
-                        }
-                        else
-                        {
-                            zone.PlanningDistrict = pd;
-                        }
+                    }
+                    else
+                    {
+                        zone.PlanningDistrict = pd;
                     }
                 }
             }
@@ -379,31 +373,29 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( PopulationFile ) ) return;
             try
             {
-                using (CommentedCsvReader reader = new CommentedCsvReader( GetFullPath( PopulationFile ) ) )
+                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(PopulationFile));
+                while (reader.NextLine())
                 {
-                    while ( reader.NextLine() )
+                    var colRead = reader.NumberOfCurrentCells;
+                    if (colRead < 2)
                     {
-                        var colRead = reader.NumberOfCurrentCells;
-                        if ( colRead < 2 )
-                        {
-                            continue;
-                        }
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get( out int population, 1 );
-                        var zone = zones[zoneNumber];
+                        continue;
+                    }
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out int population, 1);
+                    var zone = zones[zoneNumber];
 
-                        if ( zone == null )
+                    if (zone == null)
+                    {
+                        if (GeneratePDErrors)
                         {
-                            if ( GeneratePDErrors )
-                            {
-                                throw new XTMFRuntimeException(this, "When loading the population we found a distribution for a zone "
-                                + zoneNumber + " however that zone does not exist!" );
-                            }
+                            throw new XTMFRuntimeException(this, "When loading the population we found a distribution for a zone "
+                            + zoneNumber + " however that zone does not exist!");
                         }
-                        else
-                        {
-                            zone.Population = population;
-                        }
+                    }
+                    else
+                    {
+                        zone.Population = population;
                     }
                 }
             }

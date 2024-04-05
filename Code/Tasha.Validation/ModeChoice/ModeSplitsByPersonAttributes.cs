@@ -202,33 +202,31 @@ namespace Tasha.Validation.ModeChoice
                 // normalize the data by the number of household iterations
                 VectorHelper.Multiply(DataStorage, 0, DataStorage, 0, (1.0f / Root.HouseholdIterations), DataStorage.Length);
                 // now we can store the results
-                using (var writer = new StreamWriter(SaveTo))
+                using var writer = new StreamWriter(SaveTo);
+                writer.WriteLine("AgeCategory,Occupation,EmploymentStatus,Mode,ExpandedTrips");
+                var allModes = Root.Root.AllModes;
+                var ageString = Root.AgeRanges.Select(r => r.ToString()).ToArray();
+                var occString = Root.Occupations.Select(o => Enum.GetName(typeof(Occupation), o)).ToArray();
+                var empString = Root.EmploymentStatuses.Select(e => Enum.GetName(typeof(TTSEmploymentStatus), e)).ToArray();
+                var modeString = allModes.Select(m => m.ModeName).ToArray();
+                for (int ageCat = 0; ageCat < Root.AgeRanges.Count; ageCat++)
                 {
-                    writer.WriteLine("AgeCategory,Occupation,EmploymentStatus,Mode,ExpandedTrips");
-                    var allModes = Root.Root.AllModes;
-                    var ageString = Root.AgeRanges.Select(r => r.ToString()).ToArray();
-                    var occString = Root.Occupations.Select(o => Enum.GetName(typeof(Occupation), o)).ToArray();
-                    var empString = Root.EmploymentStatuses.Select(e => Enum.GetName(typeof(TTSEmploymentStatus), e)).ToArray();
-                    var modeString = allModes.Select(m => m.ModeName).ToArray();
-                    for (int ageCat = 0; ageCat < Root.AgeRanges.Count; ageCat++)
+                    for (int occCat = 0; occCat < Root.Occupations.Length; occCat++)
                     {
-                        for (int occCat = 0; occCat < Root.Occupations.Length; occCat++)
+                        for (int empCat = 0; empCat < Root.EmploymentStatuses.Length; empCat++)
                         {
-                            for (int empCat = 0; empCat < Root.EmploymentStatuses.Length; empCat++)
+                            int offset = GetDataOffset(ageCat, Root.Occupations[occCat], Root.EmploymentStatuses[empCat]);
+                            for (int mode = 0; mode < allModes.Count; mode++)
                             {
-                                int offset = GetDataOffset(ageCat, Root.Occupations[occCat], Root.EmploymentStatuses[empCat]);
-                                for (int mode = 0; mode < allModes.Count; mode++)
-                                {
-                                    writer.Write(ageString[ageCat]);
-                                    writer.Write(',');
-                                    writer.Write(occString[occCat]);
-                                    writer.Write(',');
-                                    writer.Write(empString[empCat]);
-                                    writer.Write(',');
-                                    writer.Write(modeString[mode]);
-                                    writer.Write(',');
-                                    writer.WriteLine(DataStorage[offset + mode]);
-                                }
+                                writer.Write(ageString[ageCat]);
+                                writer.Write(',');
+                                writer.Write(occString[occCat]);
+                                writer.Write(',');
+                                writer.Write(empString[empCat]);
+                                writer.Write(',');
+                                writer.Write(modeString[mode]);
+                                writer.Write(',');
+                                writer.WriteLine(DataStorage[offset + mode]);
                             }
                         }
                     }

@@ -121,34 +121,32 @@ namespace Tasha.Common
             _parkingInformation = new ParkingInformation[_zoneSystem.Count];
             try
             {
-                using (CsvReader reader = new CsvReader(ParkingData))
+                using CsvReader reader = new CsvReader(ParkingData);
+                reader.LoadLine();
+                while (reader.LoadLine(out var columns))
                 {
-                    reader.LoadLine();
-                    while (reader.LoadLine(out var columns))
+                    if (columns >= 8)
                     {
-                        if (columns >= 8)
+                        ParkingInformation data;
+                        reader.Get(out int zoneNumber, 0);
+                        var index = _zoneSystem.GetFlatIndex(zoneNumber);
+                        if (index < 0)
                         {
-                            ParkingInformation data;
-                            reader.Get(out int zoneNumber, 0);
-                            var index = _zoneSystem.GetFlatIndex(zoneNumber);
-                            if (index < 0)
-                            {
-                                throw new XTMFRuntimeException(this, $"Unknown zone number {zoneNumber} when reading parking data!");
-                            }
-                            reader.Get(out data.Daily.StartOfPeriod, 1);
-                            reader.Get(out data.Daily.Hourly, 2);
-                            reader.Get(out data.Daily.Max, 3);
-                            reader.Get(out data.Nightly.StartOfPeriod, 4);
-                            reader.Get(out data.Nightly.Hourly, 5);
-                            reader.Get(out data.Nightly.Max, 6);
-                            reader.Get(out data.FullDayMax, 7);
-
-                            // Convert from hourly costs to per minute costs
-                            data.Daily.Hourly /= 60;
-                            data.Nightly.Hourly /= 60;
-
-                            _parkingInformation[index] = data;
+                            throw new XTMFRuntimeException(this, $"Unknown zone number {zoneNumber} when reading parking data!");
                         }
+                        reader.Get(out data.Daily.StartOfPeriod, 1);
+                        reader.Get(out data.Daily.Hourly, 2);
+                        reader.Get(out data.Daily.Max, 3);
+                        reader.Get(out data.Nightly.StartOfPeriod, 4);
+                        reader.Get(out data.Nightly.Hourly, 5);
+                        reader.Get(out data.Nightly.Max, 6);
+                        reader.Get(out data.FullDayMax, 7);
+
+                        // Convert from hourly costs to per minute costs
+                        data.Daily.Hourly /= 60;
+                        data.Nightly.Hourly /= 60;
+
+                        _parkingInformation[index] = data;
                     }
                 }
             }

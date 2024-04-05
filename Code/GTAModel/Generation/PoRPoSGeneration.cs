@@ -228,22 +228,20 @@ namespace TMG.GTAModel
             {
                 bool first = !File.Exists( GenerationOutputFileName );
                 // if the file name exists try to write to it, appending
-                using (StreamWriter writer = new StreamWriter( GenerationOutputFileName, true ))
+                using StreamWriter writer = new StreamWriter(GenerationOutputFileName, true);
+                if (first)
                 {
-                    if ( first )
-                    {
-                        writer.WriteLine( "Age,Employment,Occupation,Mobility,Total" );
-                    }
-                    writer.Write( AgeCategoryRange.ToString() );
-                    writer.Write( ',' );
-                    writer.Write( EmploymentStatusCategory.ToString() );
-                    writer.Write( ',' );
-                    writer.Write( OccupationCategory.ToString() );
-                    writer.Write( ',' );
-                    writer.Write( Mobility.ToString() );
-                    writer.Write( ',' );
-                    writer.WriteLine( totalProduction );
+                    writer.WriteLine("Age,Employment,Occupation,Mobility,Total");
                 }
+                writer.Write(AgeCategoryRange.ToString());
+                writer.Write(',');
+                writer.Write(EmploymentStatusCategory.ToString());
+                writer.Write(',');
+                writer.Write(OccupationCategory.ToString());
+                writer.Write(',');
+                writer.Write(Mobility.ToString());
+                writer.Write(',');
+                writer.WriteLine(totalProduction);
             }
         }
     }

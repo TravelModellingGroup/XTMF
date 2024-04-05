@@ -319,18 +319,16 @@ namespace XTMF
                 var fileName = Path.Combine(_Configuration.ProjectDirectory, Name, "Project.xml");
                 if (File.Exists(fileName))
                 {
-                    using (XmlReader reader = XmlReader.Create(fileName))
+                    using XmlReader reader = XmlReader.Create(fileName);
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        if (reader.NodeType != XmlNodeType.Element) continue;
+                        switch (reader.LocalName)
                         {
-                            if (reader.NodeType != XmlNodeType.Element) continue;
-                            switch (reader.LocalName)
-                            {
-                                case "Root":
-                                    Description = reader.GetAttribute("Description");
-                                    // we can just exit at this point since using will clean up for us
-                                    break;
-                            }
+                            case "Root":
+                                Description = reader.GetAttribute("Description");
+                                // we can just exit at this point since using will clean up for us
+                                break;
                         }
                     }
                 }

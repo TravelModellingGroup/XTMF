@@ -402,86 +402,84 @@ namespace Tasha
             HouseholdLoader.LoadData();
             var households = HouseholdLoader.ToArray();
             VehicleTypes.Add(AutoType);
-            using (MemoryStream mem = new MemoryStream())
+            using MemoryStream mem = new MemoryStream();
+            BinaryWriter writer = new BinaryWriter(mem);
+            writer.Write(households.Length);
+            var numberOfVehicleTypes = VehicleTypes.Count;
+            writer.Write(numberOfVehicleTypes);
+            for (int i = 0; i < numberOfVehicleTypes; i++)
             {
-                BinaryWriter writer = new BinaryWriter(mem);
-                writer.Write(households.Length);
-                var numberOfVehicleTypes = VehicleTypes.Count;
-                writer.Write(numberOfVehicleTypes);
+                writer.Write(VehicleTypes[i].VehicleName);
+            }
+            foreach (var household in households)
+            {
+                // write out all of the household attributes
+                writer.Write(household.HouseholdId);
+                writer.Write(household.Persons.Length);
                 for (int i = 0; i < numberOfVehicleTypes; i++)
                 {
-                    writer.Write(VehicleTypes[i].VehicleName);
+                    writer.Write(household.Vehicles.Count((v) => v.VehicleType.VehicleName == VehicleTypes[i].VehicleName));
                 }
-                foreach (var household in households)
+                writer.Write(household.HomeZone.ZoneNumber);
+                SendAttached(writer, household);
+                foreach (var person in household.Persons)
                 {
-                    // write out all of the household attributes
-                    writer.Write(household.HouseholdId);
-                    writer.Write(household.Persons.Length);
-                    for (int i = 0; i < numberOfVehicleTypes; i++)
+                    // Send the person's information
+                    writer.Write(person.Age);
+                    writer.Write(person.Female);
+                    writer.Write((Int32)person.EmploymentStatus);
+                    writer.Write((Int32)person.Occupation);
+                    if (person.EmploymentZone == null)
                     {
-                        writer.Write(household.Vehicles.Count((v) => v.VehicleType.VehicleName == VehicleTypes[i].VehicleName));
+                        writer.Write(-1);
                     }
-                    writer.Write(household.HomeZone.ZoneNumber);
-                    SendAttached(writer, household);
-                    foreach (var person in household.Persons)
+                    else
                     {
-                        // Send the person's information
-                        writer.Write(person.Age);
-                        writer.Write(person.Female);
-                        writer.Write((Int32)person.EmploymentStatus);
-                        writer.Write((Int32)person.Occupation);
-                        if (person.EmploymentZone == null)
-                        {
-                            writer.Write(-1);
-                        }
-                        else
-                        {
-                            writer.Write(person.EmploymentZone.ZoneNumber);
-                        }
-                        writer.Write((Int32)person.StudentStatus);
-                        if (person.SchoolZone == null)
-                        {
-                            writer.Write(-1);
-                        }
-                        else
-                        {
-                            writer.Write(person.SchoolZone.ZoneNumber);
-                        }
-                        writer.Write(person.Licence);
+                        writer.Write(person.EmploymentZone.ZoneNumber);
+                    }
+                    writer.Write((Int32)person.StudentStatus);
+                    if (person.SchoolZone == null)
+                    {
+                        writer.Write(-1);
+                    }
+                    else
+                    {
+                        writer.Write(person.SchoolZone.ZoneNumber);
+                    }
+                    writer.Write(person.Licence);
 
-                        writer.Write(person.FreeParking);
-                        SendAttached(writer, person);
-                        // Start sending the trip chains
-                        writer.Write(person.TripChains.Count);
-                        foreach (var tripChain in person.TripChains)
+                    writer.Write(person.FreeParking);
+                    SendAttached(writer, person);
+                    // Start sending the trip chains
+                    writer.Write(person.TripChains.Count);
+                    foreach (var tripChain in person.TripChains)
+                    {
+                        writer.Write(tripChain.JointTripID);
+                        writer.Write(tripChain.JointTripRep);
+                        SendAttached(writer, tripChain);
+                        writer.Write(tripChain.Trips.Count);
+                        foreach (var trip in tripChain.Trips)
                         {
-                            writer.Write(tripChain.JointTripID);
-                            writer.Write(tripChain.JointTripRep);
-                            SendAttached(writer, tripChain);
-                            writer.Write(tripChain.Trips.Count);
-                            foreach (var trip in tripChain.Trips)
+                            writer.Write(trip.OriginalZone.ZoneNumber);
+                            writer.Write(trip.DestinationZone.ZoneNumber);
+                            writer.Write((Int32)trip.Purpose);
+                            writer.Write(trip.ActivityStartTime.Hours);
+                            writer.Write(trip.ActivityStartTime.Minutes);
+                            writer.Write(trip.ActivityStartTime.Seconds);
+                            var mode = ((ITashaMode)trip[ObservedMode]);
+                            if (mode == null)
                             {
-                                writer.Write(trip.OriginalZone.ZoneNumber);
-                                writer.Write(trip.DestinationZone.ZoneNumber);
-                                writer.Write((Int32)trip.Purpose);
-                                writer.Write(trip.ActivityStartTime.Hours);
-                                writer.Write(trip.ActivityStartTime.Minutes);
-                                writer.Write(trip.ActivityStartTime.Seconds);
-                                var mode = ((ITashaMode)trip[ObservedMode]);
-                                if (mode == null)
-                                {
-                                    throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
-                                        + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!");
-                                }
-                                writer.Write(mode.ModeName);
-                                SendAttached(writer, trip);
+                                throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
+                                    + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!");
                             }
+                            writer.Write(mode.ModeName);
+                            SendAttached(writer, trip);
                         }
                     }
                 }
-                writer.Flush();
-                HouseholdData = mem.ToArray();
             }
+            writer.Flush();
+            HouseholdData = mem.ToArray();
         }
 
         private void ClientDisconnected(IRemoteXTMF obj)
@@ -867,36 +865,34 @@ namespace Tasha
                 {
                     try
                     {
-                        using (StreamWriter writer = new StreamWriter(EvaluationFile, true))
+                        using StreamWriter writer = new StreamWriter(EvaluationFile, true);
+                        if (writeHeader)
                         {
-                            if (writeHeader)
-                            {
-                                writer.Write("Generation");
-                                writer.Write(',');
-                                writer.Write("Value");
-                                for (int i = 0; i < run.Parameters.Length; i++)
-                                {
-                                    for (int j = 0; j < run.Parameters[i].Names.Length; j++)
-                                    {
-                                        writer.Write(',');
-                                        writer.Write(run.Parameters[i].Names[j]);
-                                    }
-                                }
-                                writer.WriteLine();
-                            }
-                            writer.Write(CurrentIteration);
+                            writer.Write("Generation");
                             writer.Write(',');
-                            writer.Write(run.Value);
+                            writer.Write("Value");
                             for (int i = 0; i < run.Parameters.Length; i++)
                             {
                                 for (int j = 0; j < run.Parameters[i].Names.Length; j++)
                                 {
                                     writer.Write(',');
-                                    writer.Write(run.Parameters[i].Current);
+                                    writer.Write(run.Parameters[i].Names[j]);
                                 }
                             }
                             writer.WriteLine();
                         }
+                        writer.Write(CurrentIteration);
+                        writer.Write(',');
+                        writer.Write(run.Value);
+                        for (int i = 0; i < run.Parameters.Length; i++)
+                        {
+                            for (int j = 0; j < run.Parameters[i].Names.Length; j++)
+                            {
+                                writer.Write(',');
+                                writer.Write(run.Parameters[i].Current);
+                            }
+                        }
+                        writer.WriteLine();
                         break;
                     }
                     catch

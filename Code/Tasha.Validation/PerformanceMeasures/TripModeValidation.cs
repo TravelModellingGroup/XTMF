@@ -111,25 +111,23 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             if (iteration == totalIterations - 1)
             {
-                using (StreamWriter writer = new StreamWriter(ResultsFile))
+                using StreamWriter writer = new StreamWriter(ResultsFile);
+                writer.WriteLine("Mode, Trips");
+                foreach (var pair in AMModeDictionary)
                 {
-                    writer.WriteLine("Mode, Trips");
-                    foreach (var pair in AMModeDictionary)
-                    {
-                        writer.WriteLine("AM" + "{0}, {1}", pair.Key, pair.Value);
-                    }
-                    foreach (var pair in MDModeDictionary)
-                    {
-                        writer.WriteLine("MD" + "{0}, {1}", pair.Key, pair.Value);
-                    }
-                    foreach (var pair in PMModeDictionary)
-                    {
-                        writer.WriteLine("PM" + "{0}, {1}", pair.Key, pair.Value);
-                    }
-                    foreach (var pair in EVModeDictionary)
-                    {
-                        writer.WriteLine("EV" + "{0}, {1}", pair.Key, pair.Value);
-                    }
+                    writer.WriteLine("AM" + "{0}, {1}", pair.Key, pair.Value);
+                }
+                foreach (var pair in MDModeDictionary)
+                {
+                    writer.WriteLine("MD" + "{0}, {1}", pair.Key, pair.Value);
+                }
+                foreach (var pair in PMModeDictionary)
+                {
+                    writer.WriteLine("PM" + "{0}, {1}", pair.Key, pair.Value);
+                }
+                foreach (var pair in EVModeDictionary)
+                {
+                    writer.WriteLine("EV" + "{0}, {1}", pair.Key, pair.Value);
                 }
             }
 

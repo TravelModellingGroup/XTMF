@@ -144,11 +144,9 @@ namespace TMG.Emme
                 Stream throughStream = (Path.GetExtension(fileLocation)
                     ?.Equals(".gz", StringComparison.OrdinalIgnoreCase) == true) ?
                     (Stream)new GZipStream(file, CompressionMode.Compress, false) : file;
-                using (var writer = new BinaryWriter(throughStream))
-                {
-                    file = null;
-                    SaveToStream(fileLocation, writer);
-                }
+                using var writer = new BinaryWriter(throughStream);
+                file = null;
+                SaveToStream(fileLocation, writer);
             }
             finally
             {

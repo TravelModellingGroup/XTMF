@@ -120,46 +120,44 @@ namespace TMG.Emme.Utilities
                 {
                     if (entry.Name.Equals("base.211", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        using (var reader = new StreamReader(entry.Open()))
+                        using var reader = new StreamReader(entry.Open());
+                        string line = null;
+                        const string nodesMarker = "t nodes";
+                        while ((line = reader.ReadLine()) != null && line != nodesMarker) ;
+                        if (line != nodesMarker)
                         {
-                            string line = null;
-                            const string nodesMarker = "t nodes";
-                            while ((line = reader.ReadLine()) != null && line != nodesMarker) ;
-                            if (line != nodesMarker)
+                            throw new XTMFRuntimeException(this, $"While reading in a zone system from {NWPLocation.GetFilePath()} we did not encounter the start of nodes!");
+                        }
+                        // burn the header
+                        reader.ReadLine();
+                        var seperators = new char[] { ' ', '\t' };
+                        List<Zone> zones = new List<Zone>(2500);
+                        while ((line = reader.ReadLine()) != null && line[0] != 't')
+                        {
+                            // ignore blank lines
+                            if (line.Length > 2)
                             {
-                                throw new XTMFRuntimeException(this, $"While reading in a zone system from {NWPLocation.GetFilePath()} we did not encounter the start of nodes!");
-                            }
-                            // burn the header
-                            reader.ReadLine();
-                            var seperators = new char[] { ' ', '\t' };
-                            List<Zone> zones = new List<Zone>(2500);
-                            while ((line = reader.ReadLine()) != null && line[0] != 't')
-                            {
-                                // ignore blank lines
-                                if (line.Length > 2)
+                                // if it is a centroid
+                                if (line[0] == 'a' && line[1] == '*')
                                 {
-                                    // if it is a centroid
-                                    if (line[0] == 'a' && line[1] == '*')
+                                    var split = line.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                                    if (split.Length < 3)
                                     {
-                                        var split = line.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
-                                        if(split.Length < 3)
-                                        {
-                                            throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.");
-                                        }
-                                        if (!(int.TryParse(split[1], out int zoneNumber)
-                                            && float.TryParse(split[2], out float x)
-                                            && float.TryParse(split[3], out float y)))
-                                        {
-                                            throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.");
-                                        }
-                                        zones.Add(new Zone(zoneNumber, x, y));
+                                        throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.");
                                     }
+                                    if (!(int.TryParse(split[1], out int zoneNumber)
+                                        && float.TryParse(split[2], out float x)
+                                        && float.TryParse(split[3], out float y)))
+                                    {
+                                        throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.");
+                                    }
+                                    zones.Add(new Zone(zoneNumber, x, y));
                                 }
                             }
-                            zones.Sort((z1, z2) => z1.ZoneNumber.CompareTo(z2.ZoneNumber));
-                            AllZones = SparseArray<IZone>.CreateSparseArray(zones.Select(z => z.ZoneNumber).ToArray(), zones.ToArray());
-                            return;
                         }
+                        zones.Sort((z1, z2) => z1.ZoneNumber.CompareTo(z2.ZoneNumber));
+                        AllZones = SparseArray<IZone>.CreateSparseArray(zones.Select(z => z.ZoneNumber).ToArray(), zones.ToArray());
+                        return;
                     }
                 }
             }
@@ -248,25 +246,23 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing region information was not found '{RegionFile.GetFilePath()}'!");
                 }
-                using (CsvReader reader = new CsvReader(RegionFile))
+                using CsvReader reader = new CsvReader(RegionFile);
+                // burn header
+                reader.LoadLine(out int columns);
+                // read the rest
+                while (reader.LoadLine(out columns))
                 {
-                    // burn header
-                    reader.LoadLine(out int columns);
-                    // read the rest
-                    while (reader.LoadLine(out columns))
+                    if (columns < 2) continue;
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out int regionNumber, 1);
+                    int index = zoneArray.GetFlatIndex(zoneNumber);
+                    if (index >= 0)
                     {
-                        if (columns < 2) continue;
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out int regionNumber, 1);
-                        int index = zoneArray.GetFlatIndex(zoneNumber);
-                        if (index >= 0)
-                        {
-                            zones[index].RegionNumber = regionNumber;
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!");
-                        }
+                        zones[index].RegionNumber = regionNumber;
+                    }
+                    else
+                    {
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!");
                     }
                 }
             }
@@ -286,25 +282,23 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing planning district information was not found '{PDFile.GetFilePath()}'!");
                 }
-                using (CsvReader reader = new CsvReader(PDFile))
+                using CsvReader reader = new CsvReader(PDFile);
+                // burn header
+                reader.LoadLine(out int columns);
+                // read the rest
+                while (reader.LoadLine(out columns))
                 {
-                    // burn header
-                    reader.LoadLine(out int columns);
-                    // read the rest
-                    while (reader.LoadLine(out columns))
+                    if (columns < 2) continue;
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out int pdNumber, 1);
+                    int index = zoneArray.GetFlatIndex(zoneNumber);
+                    if (index >= 0)
                     {
-                        if (columns < 2) continue;
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out int pdNumber, 1);
-                        int index = zoneArray.GetFlatIndex(zoneNumber);
-                        if (index >= 0)
-                        {
-                            zones[index].PlanningDistrict = pdNumber;
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the planning districts that does not exist in the zone system!");
-                        }
+                        zones[index].PlanningDistrict = pdNumber;
+                    }
+                    else
+                    {
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the planning districts that does not exist in the zone system!");
                     }
                 }
             }
@@ -323,25 +317,23 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing population information was not found '{PopulationFile.GetFilePath()}'!");
                 }
-                using (CsvReader reader = new CsvReader(PopulationFile))
+                using CsvReader reader = new CsvReader(PopulationFile);
+                // burn header
+                reader.LoadLine(out int columns);
+                // read the rest
+                while (reader.LoadLine(out columns))
                 {
-                    // burn header
-                    reader.LoadLine(out int columns);
-                    // read the rest
-                    while (reader.LoadLine(out columns))
+                    if (columns < 2) continue;
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out float population, 1);
+                    int index = zoneArray.GetFlatIndex(zoneNumber);
+                    if (index >= 0)
                     {
-                        if (columns < 2) continue;
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out float population, 1);
-                        int index = zoneArray.GetFlatIndex(zoneNumber);
-                        if (index >= 0)
-                        {
-                            zones[index].Population = (int)population;
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the population that does not exist in the zone system!");
-                        }
+                        zones[index].Population = (int)population;
+                    }
+                    else
+                    {
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the population that does not exist in the zone system!");
                     }
                 }
             }
@@ -360,25 +352,23 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing intrazonal distance information was not found '{IntrazonalDistanceFile.GetFilePath()}'!");
                 }
-                using (CsvReader reader = new CsvReader(IntrazonalDistanceFile))
+                using CsvReader reader = new CsvReader(IntrazonalDistanceFile);
+                // burn header
+                reader.LoadLine(out int columns);
+                // read the rest
+                while (reader.LoadLine(out columns))
                 {
-                    // burn header
-                    reader.LoadLine(out int columns);
-                    // read the rest
-                    while (reader.LoadLine(out columns))
+                    if (columns < 2) continue;
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out float intraDistance, 1);
+                    int index = zoneArray.GetFlatIndex(zoneNumber);
+                    if (index >= 0)
                     {
-                        if (columns < 2) continue;
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out float intraDistance, 1);
-                        int index = zoneArray.GetFlatIndex(zoneNumber);
-                        if (index >= 0)
-                        {
-                            zones[index].InternalDistance = (int)intraDistance;
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the intrazonal distances that does not exist in the zone system!");
-                        }
+                        zones[index].InternalDistance = (int)intraDistance;
+                    }
+                    else
+                    {
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the intrazonal distances that does not exist in the zone system!");
                     }
                 }
             }
@@ -398,25 +388,23 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing parking cost information was not found '{ParkingCostFile.GetFilePath()}'!");
                 }
-                using (CsvReader reader = new CsvReader(ParkingCostFile))
+                using CsvReader reader = new CsvReader(ParkingCostFile);
+                // burn header
+                reader.LoadLine(out int columns);
+                // read the rest
+                while (reader.LoadLine(out columns))
                 {
-                    // burn header
-                    reader.LoadLine(out int columns);
-                    // read the rest
-                    while (reader.LoadLine(out columns))
+                    if (columns < 2) continue;
+                    reader.Get(out int zoneNumber, 0);
+                    reader.Get(out float parkingCost, 1);
+                    int index = zoneArray.GetFlatIndex(zoneNumber);
+                    if (index >= 0)
                     {
-                        if (columns < 2) continue;
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out float parkingCost, 1);
-                        int index = zoneArray.GetFlatIndex(zoneNumber);
-                        if (index >= 0)
-                        {
-                            zones[index].ParkingCost = (int)parkingCost;
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the parking costs that does not exist in the zone system!");
-                        }
+                        zones[index].ParkingCost = (int)parkingCost;
+                    }
+                    else
+                    {
+                        throw new XTMFRuntimeException(this, "In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the parking costs that does not exist in the zone system!");
                     }
                 }
             }

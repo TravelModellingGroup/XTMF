@@ -270,17 +270,15 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[] workers)
         {
-            using (StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat)))
+            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat));
+            writer.WriteLine("Zone,Persons");
+            for (int i = 0; i < workers.Length; i++)
             {
-                writer.WriteLine("Zone,Persons");
-                for (int i = 0; i < workers.Length; i++)
+                if (workers[i] > 0)
                 {
-                    if (workers[i] > 0)
-                    {
-                        writer.Write(zones[i].ZoneNumber);
-                        writer.Write(',');
-                        writer.WriteLine(workers[i]);
-                    }
+                    writer.Write(zones[i].ZoneNumber);
+                    writer.Write(',');
+                    writer.WriteLine(workers[i]);
                 }
             }
         }
@@ -314,30 +312,28 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerCategoryData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[][] workers)
         {
-            using (StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory)))
+            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
+            writer.WriteLine("Zone,WorkerCategory,Persons");
+            for (int i = 0; i < workers.Length; i++)
             {
-                writer.WriteLine("Zone,WorkerCategory,Persons");
-                for (int i = 0; i < workers.Length; i++)
+                var factor = 1.0f / workers[i].Sum();
+                if (float.IsNaN(factor))
                 {
-                    var factor = 1.0f / workers[i].Sum();
-                    if (float.IsNaN(factor))
+                    continue;
+                }
+                for (int cat = 0; cat < workers[i].Length; cat++)
+                {
+                    workers[i][cat] *= factor;
+                }
+                for (int cat = 0; cat < workers[i].Length; cat++)
+                {
+                    if (workers[i][cat] > 0)
                     {
-                        continue;
-                    }
-                    for (int cat = 0; cat < workers[i].Length; cat++)
-                    {
-                        workers[i][cat] *= factor;
-                    }
-                    for (int cat = 0; cat < workers[i].Length; cat++)
-                    {
-                        if (workers[i][cat] > 0)
-                        {
-                            writer.Write(zones[i].ZoneNumber);
-                            writer.Write(',');
-                            writer.Write(cat + 1);
-                            writer.Write(',');
-                            writer.WriteLine(workers[i][cat]);
-                        }
+                        writer.Write(zones[i].ZoneNumber);
+                        writer.Write(',');
+                        writer.Write(cat + 1);
+                        writer.Write(',');
+                        writer.WriteLine(workers[i][cat]);
                     }
                 }
             }
@@ -442,25 +438,23 @@ namespace Tasha.PopulationSynthesis
             //HouseholdID	Zone	ExpansionFactor	DwellingType	NumberOfPersons	NumberOfVehicles
             Writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone,ExpansionFactor");
             // update the population forecasts by zone
-            using (CsvReader reader = new CsvReader(FutureYearPopulationByZone))
+            using CsvReader reader = new CsvReader(FutureYearPopulationByZone);
+            reader.LoadLine();
+            while (reader.LoadLine(out int columns))
             {
-                reader.LoadLine();
-                while (reader.LoadLine(out int columns))
+                if (columns >= 2)
                 {
-                    if (columns >= 2)
+                    reader.Get(out int sparseZone, 0);
+                    int zone = zoneSystem.GetFlatIndex(sparseZone);
+                    if (zone >= 0)
                     {
-                        reader.Get(out int sparseZone, 0);
-                        int zone = zoneSystem.GetFlatIndex(sparseZone);
-                        if (zone >= 0)
+                        reader.Get(out float futurePopulation, 1);
+                        ExpansionModiferByZone[zone] = futurePopulation / zones[zone].Population;
+                        if (zones[zone].Population > 0)
                         {
-                            reader.Get(out float futurePopulation, 1);
-                            ExpansionModiferByZone[zone] = futurePopulation / zones[zone].Population;
-                            if (zones[zone].Population > 0)
+                            if (float.IsNaN(ExpansionModiferByZone[zone]) | float.IsInfinity(ExpansionModiferByZone[zone]))
                             {
-                                if (float.IsNaN(ExpansionModiferByZone[zone]) | float.IsInfinity(ExpansionModiferByZone[zone]))
-                                {
-                                    throw new XTMFRuntimeException(this, "Zone " + sparseZone + " ended up with an invalid (infinite) population in the future year forecast!");
-                                }
+                                throw new XTMFRuntimeException(this, "Zone " + sparseZone + " ended up with an invalid (infinite) population in the future year forecast!");
                             }
                         }
                     }

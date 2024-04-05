@@ -48,20 +48,18 @@ namespace TMG.GTAModel.Analysis
         public void Start()
         {
             if ( !OutputFile.ContainsFileName() ) return;
-            using ( var writer = new StreamWriter( OutputFile.GetFileName() ) )
+            using var writer = new StreamWriter(OutputFile.GetFileName());
+            writer.WriteLine("SourceName,Total");
+            foreach (var dataSource in ODDataInput)
             {
-                writer.WriteLine( "SourceName,Total" );
-                foreach ( var dataSource in ODDataInput )
+                double total = 0f;
+                foreach (var dataPoint in dataSource.Read())
                 {
-                    double total = 0f;
-                    foreach ( var dataPoint in dataSource.Read() )
-                    {
-                        total += dataPoint.Data;
-                    }
-                    writer.Write( dataSource.Name );
-                    writer.Write( ',' );
-                    writer.WriteLine( total );
+                    total += dataPoint.Data;
                 }
+                writer.Write(dataSource.Name);
+                writer.Write(',');
+                writer.WriteLine(total);
             }
         }
     }

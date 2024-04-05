@@ -190,38 +190,36 @@ namespace TMG.Estimation.AI
             // job 1 is all parameters included
             var zeroValue = jobs[0].Value;
             var baseValue = jobs[1].Value;
-            using(var writer = new StreamWriter(ReportFile))
+            using var writer = new StreamWriter(ReportFile);
+            writer.WriteLine("Fitness,ZeroFitness,Rho^2");
+            writer.Write(baseValue);
+            writer.Write(',');
+            writer.Write(zeroValue);
+            writer.Write(',');
+            writer.WriteLine(GetRho(baseValue, zeroValue));
+            writer.WriteLine("ParameterName,Coefficient,LeftCoefficient,RightCoefficient,LeftFitness,RightFitness,SecondDerivative,t-statistic");
+            for (int i = 0; i < parameters.Count; i++)
             {
-                writer.WriteLine("Fitness,ZeroFitness,Rho^2");
-                writer.Write(baseValue);
+                var secondDerivative = SecondDerivative(i);
+                var current = jobs[1].Parameters[i].Current;
+                int offset = i * 2 + 2;
+                writer.Write('"');
+                writer.Write(parameters[i].Names[0]);
+                writer.Write('"');
                 writer.Write(',');
-                writer.Write(zeroValue);
+                writer.Write(current);
                 writer.Write(',');
-                writer.WriteLine(GetRho(baseValue, zeroValue));
-                writer.WriteLine("ParameterName,Coefficient,LeftCoefficient,RightCoefficient,LeftFitness,RightFitness,SecondDerivative,t-statistic");
-                for(int i = 0; i < parameters.Count; i++)
-                {
-                    var secondDerivative = SecondDerivative(i);
-                    var current = jobs[1].Parameters[i].Current;
-                    int offset = i * 2 + 2;
-                    writer.Write('"');
-                    writer.Write(parameters[i].Names[0]);
-                    writer.Write('"');
-                    writer.Write(',');
-                    writer.Write(current);
-                    writer.Write(',');
-                    writer.Write(jobs[offset].Parameters[i].Current);
-                    writer.Write(',');
-                    writer.Write(jobs[offset + 1].Parameters[i].Current);
-                    writer.Write(',');
-                    writer.Write(jobs[offset].Value);
-                    writer.Write(',');
-                    writer.Write(jobs[offset + 1].Value);
-                    writer.Write(',');
-                    writer.Write(secondDerivative);
-                    writer.Write(',');
-                    writer.WriteLine(ComputeTStatistic(current, secondDerivative));
-                }
+                writer.Write(jobs[offset].Parameters[i].Current);
+                writer.Write(',');
+                writer.Write(jobs[offset + 1].Parameters[i].Current);
+                writer.Write(',');
+                writer.Write(jobs[offset].Value);
+                writer.Write(',');
+                writer.Write(jobs[offset + 1].Value);
+                writer.Write(',');
+                writer.Write(secondDerivative);
+                writer.Write(',');
+                writer.WriteLine(ComputeTStatistic(current, secondDerivative));
             }
         }
 

@@ -54,31 +54,29 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            using (var eProd = productions.GetEnumerator())
-            using (var eBaseData = BaseData.GetEnumerator())
-            using (var eCat = category.GetEnumerator())
+            using var eProd = productions.GetEnumerator();
+            using var eBaseData = BaseData.GetEnumerator();
+            using var eCat = category.GetEnumerator();
+            var zones = Root.ZoneSystem.ZoneArray;
+            var explored = 0;
+            while (eProd.MoveNext() && eBaseData.MoveNext() && eCat.MoveNext())
             {
-                var zones = Root.ZoneSystem.ZoneArray;
-                var explored = 0;
-                while (eProd.MoveNext() && eBaseData.MoveNext() && eCat.MoveNext())
-                {
-                    var prod = eProd.Current;
-                    var data = eBaseData.Current;
-                    var cat = eCat.Current;
+                var prod = eProd.Current;
+                var data = eBaseData.Current;
+                var cat = eCat.Current;
 
-                    // Setup everything for this category
-                    cat.InitializeDemographicCategory();
-                    var ret = zones.CreateSquareTwinArray<float>();
-                    LoadInBaseData(ret, data);
-                    UpdateData(ret, prod);
-                    yield return ret;
-                    explored++;
-                }
-                if (BaseData.Count != explored)
-                {
-                    throw new XTMFRuntimeException(this, "In " + Name +
-                                                   " the number of BaseData entries is not the same as the number of demographic categories!");
-                }
+                // Setup everything for this category
+                cat.InitializeDemographicCategory();
+                var ret = zones.CreateSquareTwinArray<float>();
+                LoadInBaseData(ret, data);
+                UpdateData(ret, prod);
+                yield return ret;
+                explored++;
+            }
+            if (BaseData.Count != explored)
+            {
+                throw new XTMFRuntimeException(this, "In " + Name +
+                                               " the number of BaseData entries is not the same as the number of demographic categories!");
             }
         }
 

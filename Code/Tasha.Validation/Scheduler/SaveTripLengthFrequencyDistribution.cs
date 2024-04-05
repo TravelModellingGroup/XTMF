@@ -96,23 +96,21 @@ namespace Tasha.Validation.Scheduler
             // Save the results to file
             try
             {
-                using (var writer = new StreamWriter(SaveTo))
+                using var writer = new StreamWriter(SaveTo);
+                writer.WriteLine("Min,Max,Value");
+                writer.Write("intrazonal,0,");
+                writer.WriteLine(intrazonal);
+                for (int i = 0; i < bins.Length; i++)
                 {
-                    writer.WriteLine("Min,Max,Value");
-                    writer.Write("intrazonal,0,");
-                    writer.WriteLine(intrazonal);
-                    for (int i = 0; i < bins.Length; i++)
-                    {
-                        writer.Write(i * Stride);
-                        writer.Write(',');
-                        writer.Write((i + 1) * Stride);
-                        writer.Write(',');
-                        writer.WriteLine(bins[i]);
-                    }
-                    writer.Write(Stride * bins.Length);
-                    writer.Write(",inf,");
-                    writer.WriteLine(pastBins);
+                    writer.Write(i * Stride);
+                    writer.Write(',');
+                    writer.Write((i + 1) * Stride);
+                    writer.Write(',');
+                    writer.WriteLine(bins[i]);
                 }
+                writer.Write(Stride * bins.Length);
+                writer.Write(",inf,");
+                writer.WriteLine(pastBins);
             }
             catch(IOException e)
             {

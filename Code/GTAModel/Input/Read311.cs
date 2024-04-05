@@ -61,24 +61,22 @@ namespace TMG.GTAModel.Input
             }
             ODData<float> data = new ODData<float>();
             // do this because highest zone isn't high enough for array indexes
-            using (StreamReader reader = new StreamReader(new
+            using StreamReader reader = new StreamReader(new
                 FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read,
-                0x1000, FileOptions.SequentialScan)))
+                0x1000, FileOptions.SequentialScan));
+            BurnHeader(reader);
+            while ((line = reader.ReadLine()) != null)
             {
-                BurnHeader(reader);
-                while ((line = reader.ReadLine()) != null)
+                pos = 0;
+                int length = line.Length;
+                // don't read blank lines
+                if (ReadNextInt(line, length, ref pos, out data.O))
                 {
-                    pos = 0;
-                    int length = line.Length;
-                    // don't read blank lines
-                    if (ReadNextInt(line, length, ref pos, out data.O))
+                    while (ReadNextInt(line, length, ref pos, out data.D))
                     {
-                        while (ReadNextInt(line, length, ref pos, out data.D))
+                        if (ReadNextFloat(line, length, ref pos, out data.Data))
                         {
-                            if (ReadNextFloat(line, length, ref pos, out data.Data))
-                            {
-                                yield return data;
-                            }
+                            yield return data;
                         }
                     }
                 }

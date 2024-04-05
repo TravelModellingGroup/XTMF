@@ -303,11 +303,9 @@ namespace TMG.GTAModel.Modes
             var results = compiler.CompileAssemblyFromDom(options, unit);
             if (IncludeCode)
             {
-                using (StreamWriter writer = new StreamWriter(String.Format("TMG.Modes.Generated.OptimizedMode{0}.cs", ModeName)))
-                {
-                    //var results = compiler.CompileAssemblyFromDom( options, writer, unit );
-                    compiler.GenerateCodeFromCompileUnit(unit, writer, new CodeGeneratorOptions());
-                }
+                using StreamWriter writer = new StreamWriter(String.Format("TMG.Modes.Generated.OptimizedMode{0}.cs", ModeName));
+                //var results = compiler.CompileAssemblyFromDom( options, writer, unit );
+                compiler.GenerateCodeFromCompileUnit(unit, writer, new CodeGeneratorOptions());
             }
             if (results.Errors.Count != 0)
             {

@@ -130,28 +130,26 @@ namespace DistroCacheMaker
             string temp = Path.GetTempFileName();
             using (StreamReader reader = new StreamReader(AdultIn))
             {
-                using (StreamWriter writer = new StreamWriter(temp))
+                using StreamWriter writer = new StreamWriter(temp);
+                //0...num of distributions
+                for (int i = 0; i < AdultDistributions; i++)
                 {
-                    //0...num of distributions
-                    for (int i = 0; i < AdultDistributions; i++)
-                    {
-                        StringBuilder sb = new StringBuilder(1000000);
-                        //convert the data to one line
+                    StringBuilder sb = new StringBuilder(1000000);
+                    //convert the data to one line
 
-                        sb.Append(i);
-                        for (int j = 0; j < NumberOfAdultFrequencies; j++)
+                    sb.Append(i);
+                    for (int j = 0; j < NumberOfAdultFrequencies; j++)
+                    {
+                        string line = reader.ReadLine();
+                        if (line != null)
                         {
-                            string line = reader.ReadLine();
-                            if (line != null)
-                            {
-                                //skip the first 3 values (they are implied) based on index
-                                string[] values = line.Split(',');
-                                sb.Append(",");
-                                sb.Append(values[3]);
-                            }
+                            //skip the first 3 values (they are implied) based on index
+                            string[] values = line.Split(',');
+                            sb.Append(",");
+                            sb.Append(values[3]);
                         }
-                        writer.WriteLine(sb);
                     }
+                    writer.WriteLine(sb);
                 }
             }
             //  ZoneCreator.CsvToZFC(temp, Zone.GetNumberOfZones, 4 * numInternalZones, TashaConfiguration.GetInputFile(directory, "LocationChoiceModelWorkCache"), false);

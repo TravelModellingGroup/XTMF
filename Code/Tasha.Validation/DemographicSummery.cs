@@ -78,17 +78,15 @@ namespace Tasha.Validation
             {
                 return;
             }
-            using ( StreamWriter writer = new StreamWriter( OutputFileName.GetFilePath() ) )
+            using StreamWriter writer = new StreamWriter(OutputFileName.GetFilePath());
+            writer.WriteLine("AgeRange,ExpandedPersons");
+            for (int i = 0; i < AgeSets.Count; i++)
             {
-                writer.WriteLine( "AgeRange,ExpandedPersons" );
-                for ( int i = 0; i < AgeSets.Count; i++ )
-                {
-                    writer.Write( AgeSets[i].Start );
-                    writer.Write( '-' );
-                    writer.Write( AgeSets[i].Stop );
-                    writer.Write( ',' );
-                    writer.WriteLine( AgeSetCount[i] );
-                }
+                writer.Write(AgeSets[i].Start);
+                writer.Write('-');
+                writer.Write(AgeSets[i].Stop);
+                writer.Write(',');
+                writer.WriteLine(AgeSetCount[i]);
             }
         }
 

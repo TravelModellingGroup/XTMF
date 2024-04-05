@@ -220,39 +220,37 @@ namespace TMG.Estimation.AI
         {
             var generation = Root.CurrentIteration;
             var exists = File.Exists(StarLog);
-            using (StreamWriter writer = new StreamWriter(StarLog, true))
+            using StreamWriter writer = new StreamWriter(StarLog, true);
+            if (!exists)
             {
-                if(!exists)
+                writer.Write("Generation,Star,Mass");
+                foreach (var parameter in Parameters)
                 {
-                    writer.Write("Generation,Star,Mass");
-                    foreach(var parameter in Parameters)
+                    foreach (var name in parameter.Names)
                     {
-                        foreach(var name in parameter.Names)
-                        {
-                            writer.Write(',');
-                            writer.Write(name);
-                        }
+                        writer.Write(',');
+                        writer.Write(name);
                     }
-                    writer.WriteLine();
                 }
-                for(int i = 0; i < Stars.Length; i++)
+                writer.WriteLine();
+            }
+            for (int i = 0; i < Stars.Length; i++)
+            {
+                writer.Write(generation);
+                writer.Write(',');
+                writer.Write(Stars[i].StarNumber);
+                writer.Write(',');
+                writer.Write(Stars[i].CurrentMass);
+                var position = Stars[i].Position;
+                for (int j = 0; j < position.Length; j++)
                 {
-                    writer.Write(generation);
-                    writer.Write(',');
-                    writer.Write(Stars[i].StarNumber);
-                    writer.Write(',');
-                    writer.Write(Stars[i].CurrentMass);
-                    var position = Stars[i].Position;
-                    for(int j = 0; j < position.Length; j++)
+                    for (int k = 0; k < Parameters[j].Names.Length; k++)
                     {
-                        for(int k = 0; k < Parameters[j].Names.Length; k++)
-                        {
-                            writer.Write(',');
-                            writer.Write(Stars[i].Position[j]);
-                        }
+                        writer.Write(',');
+                        writer.Write(Stars[i].Position[j]);
                     }
-                    writer.WriteLine();
                 }
+                writer.WriteLine();
             }
         }
 

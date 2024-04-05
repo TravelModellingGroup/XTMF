@@ -276,17 +276,15 @@ namespace XTMF
 
         private static int IndexOf<T>(IList<T> data, Predicate<T> condition)
         {
-            using (var enumerator = data.GetEnumerator())
+            using var enumerator = data.GetEnumerator();
+            for (int i = 0; enumerator.MoveNext(); i++)
             {
-                for (int i = 0; enumerator.MoveNext(); i++)
+                if (condition(enumerator.Current))
                 {
-                    if (condition(enumerator.Current))
-                    {
-                        return i;
-                    }
+                    return i;
                 }
-                return -1;
             }
+            return -1;
         }
 
         /// <summary>

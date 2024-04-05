@@ -62,41 +62,39 @@ namespace TMG.GTAModel.Input
             {
                 throw new XTMFRuntimeException(this, $"Unable to find a file named: {path}");
             }
-            using (CsvReader reader = new CsvReader(path))
+            using CsvReader reader = new CsvReader(path);
+            ODData<float> point;
+            int length;
+            var anyLinesRead = false;
+            // burn header
+            length = reader.LoadLine();
+            var destinationMap = new int[length - 1];
+            var zonesNumbers = zones.Select(z => z.ZoneNumber).ToArray();
+            for (int i = 1; i < length; i++)
             {
-                ODData<float> point;
-                int length;
-                var anyLinesRead = false;
-                // burn header
+                reader.Get(out int zoneNumber, i);
+                destinationMap[i - 1] = zoneNumber;
+                if (Array.BinarySearch(zonesNumbers, zoneNumber) < 0)
+                {
+                    throw new XTMFRuntimeException(this, $"In {Name} we were found a zone number {zoneNumber} that is not contained in the zone system!");
+                }
+            }
+            // now read in data
+            while (!reader.EndOfFile)
+            {
                 length = reader.LoadLine();
-                var destinationMap = new int[length - 1];
-                var zonesNumbers = zones.Select(z => z.ZoneNumber).ToArray();
-                for (int i = 1; i < length; i++)
+                anyLinesRead = true;
+                reader.Get(out point.O, 0);
+                for (int i = 1; i < length && i <= destinationMap.Length; i++)
                 {
-                    reader.Get(out int zoneNumber, i);
-                    destinationMap[i - 1] = zoneNumber;
-                    if (Array.BinarySearch(zonesNumbers, zoneNumber) < 0)
-                    {
-                        throw new XTMFRuntimeException(this, $"In {Name} we were found a zone number {zoneNumber} that is not contained in the zone system!");
-                    }
+                    point.D = destinationMap[i - 1];
+                    reader.Get(out point.Data, i);
+                    yield return point;
                 }
-                // now read in data
-                while (!reader.EndOfFile)
-                {
-                    length = reader.LoadLine();
-                    anyLinesRead = true;
-                    reader.Get(out point.O, 0);
-                    for (int i = 1; i < length && i <= destinationMap.Length; i++)
-                    {
-                        point.D = destinationMap[i - 1];
-                        reader.Get(out point.Data, i);
-                        yield return point;
-                    }
-                }
-                if (!anyLinesRead)
-                {
-                    throw new XTMFRuntimeException(this, $"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
-                }
+            }
+            if (!anyLinesRead)
+            {
+                throw new XTMFRuntimeException(this, $"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
             }
         }
 

@@ -325,21 +325,19 @@ namespace TMG.GTAModel.V2.Generation
             buildInside.Append(OccupationCategory);
             buildInside.Append(',');
             string categoryData = buildInside.ToString();
-            using (StreamWriter writer = new StreamWriter(AttractionFileName.GetFileName(), true))
+            using StreamWriter writer = new StreamWriter(AttractionFileName.GetFileName(), true);
+            if (first)
             {
-                if (first)
-                {
-                    // if we are the first thing to generate, then write the header as well
-                    writer.WriteLine("Zone,Age,Employment,Occupation,Production,Attraction");
-                }
-                for (int i = 0; i < flatAttractions.Length; i++)
-                {
-                    writer.Write(attractions.GetSparseIndex(i));
-                    writer.Write(categoryData);
-                    writer.Write(flatProduction[i]);
-                    writer.Write(',');
-                    writer.WriteLine(flatAttractions[i]);
-                }
+                // if we are the first thing to generate, then write the header as well
+                writer.WriteLine("Zone,Age,Employment,Occupation,Production,Attraction");
+            }
+            for (int i = 0; i < flatAttractions.Length; i++)
+            {
+                writer.Write(attractions.GetSparseIndex(i));
+                writer.Write(categoryData);
+                writer.Write(flatProduction[i]);
+                writer.Write(',');
+                writer.WriteLine(flatAttractions[i]);
             }
         }
 
@@ -355,26 +353,24 @@ namespace TMG.GTAModel.V2.Generation
                 }
                 bool first = !File.Exists(GenerationOutputFileName);
                 // if the file name exists try to write to it, appending
-                using (StreamWriter writer = new StreamWriter(GenerationOutputFileName, true))
+                using StreamWriter writer = new StreamWriter(GenerationOutputFileName, true);
+                if (first)
                 {
-                    if (first)
-                    {
-                        writer.WriteLine("Age,Employment,Occupation,Production,Attraction,WAH,IntraZonal");
-                    }
-                    writer.Write(AgeCategoryRange.ToString());
-                    writer.Write(',');
-                    writer.Write(EmploymentStatusCategory.ToString());
-                    writer.Write(',');
-                    writer.Write(OccupationCategory.ToString());
-                    writer.Write(',');
-                    writer.Write(totalProduction);
-                    writer.Write(',');
-                    writer.Write(totalAttraction);
-                    writer.Write(',');
-                    writer.Write(WorkAtHomeTotal);
-                    writer.Write(',');
-                    writer.WriteLine(WorkIntrazonalTotal);
+                    writer.WriteLine("Age,Employment,Occupation,Production,Attraction,WAH,IntraZonal");
                 }
+                writer.Write(AgeCategoryRange.ToString());
+                writer.Write(',');
+                writer.Write(EmploymentStatusCategory.ToString());
+                writer.Write(',');
+                writer.Write(OccupationCategory.ToString());
+                writer.Write(',');
+                writer.Write(totalProduction);
+                writer.Write(',');
+                writer.Write(totalAttraction);
+                writer.Write(',');
+                writer.Write(WorkAtHomeTotal);
+                writer.Write(',');
+                writer.WriteLine(WorkIntrazonalTotal);
             }
         }
     }

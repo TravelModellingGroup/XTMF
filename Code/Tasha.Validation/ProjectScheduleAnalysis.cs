@@ -130,15 +130,13 @@ namespace Tasha.Validation
 
         private void SaveData(FileLocation file, float[] data)
         {
-            using (StreamWriter writer= new StreamWriter(file))
+            using StreamWriter writer = new StreamWriter(file);
+            writer.WriteLine("Bin,Data");
+            for (int i = 0; i < data.Length; i++)
             {
-                writer.WriteLine("Bin,Data");
-                for(int i = 0; i < data.Length; i++)
-                {
-                    writer.Write(i);
-                    writer.Write(',');
-                    writer.WriteLine(data[i]);
-                }
+                writer.Write(i);
+                writer.Write(',');
+                writer.WriteLine(data[i]);
             }
         }
 
@@ -209,33 +207,27 @@ namespace Tasha.Validation
 
         private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
         {
-            using (Chart chart = new Chart())
+            using Chart chart = new Chart();
+            chart.Width = Width;
+            chart.Height = Height;
+            using ChartArea area = new ChartArea("Start Times");
+            using Series series = new Series();
+            using (series.Points)
             {
-                chart.Width = Width;
-                chart.Height = Height;
-                using (ChartArea area = new ChartArea("Start Times"))
+                series.ChartType = SeriesChartType.Column;
+                for (int i = 0; i < values.Length; i++)
                 {
-                    using (Series series = new Series())
-                    {
-                        using (series.Points)
-                        {
-                            series.ChartType = SeriesChartType.Column;
-                            for(int i = 0; i < values.Length; i++)
-                            {
-                                series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
-                            }
-                            series.BorderWidth = 1;
-                            series.BorderColor = System.Drawing.Color.Black;
-                            area.AxisX.Title = xAxisName;// "Start Time";
-                            area.AxisY.Title = yAxisName;// "#Episodes";
-                            area.AxisX.Interval = 2;
-                            chart.Series.Add(series);
-                            chart.ChartAreas.Add(area);
-                            area.Visible = true;
-                            chart.SaveImage(fileName, ChartImageFormat.Png);
-                        }
-                    }
+                    series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * MinutesPerBucket)).ToString() });
                 }
+                series.BorderWidth = 1;
+                series.BorderColor = System.Drawing.Color.Black;
+                area.AxisX.Title = xAxisName;// "Start Time";
+                area.AxisY.Title = yAxisName;// "#Episodes";
+                area.AxisX.Interval = 2;
+                chart.Series.Add(series);
+                chart.ChartAreas.Add(area);
+                area.Visible = true;
+                chart.SaveImage(fileName, ChartImageFormat.Png);
             }
         }
 

@@ -446,10 +446,8 @@ namespace TMG.Estimation
                     }
                     else
                     {
-                        using (var writer = new StreamWriter( ResultFile.GetFilePath(), true ))
-                        {
-                            Write( currentJob, toWrite, writer );
-                        }
+                        using var writer = new StreamWriter(ResultFile.GetFilePath(), true);
+                        Write(currentJob, toWrite, writer);
                     }
                 }
                 catch

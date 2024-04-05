@@ -592,34 +592,32 @@ namespace TMG.NetworkEstimation
                 {
                     try
                     {
-                        using (StreamWriter writer = new StreamWriter(EvaluationFile, true))
+                        using StreamWriter writer = new StreamWriter(EvaluationFile, true);
+                        if (writeHeader)
                         {
-                            if (writeHeader)
-                            {
-                                writer.Write("Generation");
-                                writer.Write(',');
-                                writer.Write("Client");
-                                writer.Write(',');
-                                writer.Write("Value");
-                                for (int i = 0; i < length; i++)
-                                {
-                                    writer.Write(',');
-                                    writer.Write(run.Parameters[i].ParameterName);
-                                }
-                                writer.WriteLine();
-                            }
-                            writer.Write(CurrentIteration);
+                            writer.Write("Generation");
                             writer.Write(',');
-                            writer.Write(Population[index].ProcessedBy.UniqueID);
+                            writer.Write("Client");
                             writer.Write(',');
-                            writer.Write(run.Value);
+                            writer.Write("Value");
                             for (int i = 0; i < length; i++)
                             {
                                 writer.Write(',');
-                                writer.Write(run.Parameters[i].Current);
+                                writer.Write(run.Parameters[i].ParameterName);
                             }
                             writer.WriteLine();
                         }
+                        writer.Write(CurrentIteration);
+                        writer.Write(',');
+                        writer.Write(Population[index].ProcessedBy.UniqueID);
+                        writer.Write(',');
+                        writer.Write(run.Value);
+                        for (int i = 0; i < length; i++)
+                        {
+                            writer.Write(',');
+                            writer.Write(run.Parameters[i].Current);
+                        }
+                        writer.WriteLine();
                         break;
                     }
                     catch

@@ -192,32 +192,30 @@ This module will also work for a regular Logit model as well."
             {
                 if ( split.Result != null )
                 {
-                    using ( StreamWriter writer = new StreamWriter( Path.Combine( directoryName, modeNode.ModeName + ".csv" ) ) )
+                    using StreamWriter writer = new StreamWriter(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
+                    var header = true;
+                    var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                    var data = split.Result;
+                    for (int i = 0; i < zones.Length; i++)
                     {
-                        var header = true;
-                        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                        var data = split.Result;
-                        for ( int i = 0; i < zones.Length; i++ )
+                        if (header)
                         {
-                            if ( header )
+                            header = false;
+                            writer.Write("Zones O\\D");
+                            for (int j = 0; j < zones.Length; j++)
                             {
-                                header = false;
-                                writer.Write( "Zones O\\D" );
-                                for ( int j = 0; j < zones.Length; j++ )
-                                {
-                                    writer.Write( ',' );
-                                    writer.Write( zones[j].ZoneNumber );
-                                }
-                                writer.WriteLine();
-                            }
-                            writer.Write( zones[i].ZoneNumber );
-                            for ( int j = 0; j < zones.Length; j++ )
-                            {
-                                writer.Write( ',' );
-                                writer.Write( data[i * zones.Length + j] );
+                                writer.Write(',');
+                                writer.Write(zones[j].ZoneNumber);
                             }
                             writer.WriteLine();
                         }
+                        writer.Write(zones[i].ZoneNumber);
+                        for (int j = 0; j < zones.Length; j++)
+                        {
+                            writer.Write(',');
+                            writer.Write(data[i * zones.Length + j]);
+                        }
+                        writer.WriteLine();
                     }
                 }
             } );

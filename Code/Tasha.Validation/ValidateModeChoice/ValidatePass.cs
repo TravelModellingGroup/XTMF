@@ -85,26 +85,24 @@ namespace Tasha.Validation.ValidateModeChoice
 
                         if ( trip.Mode == Root.AllModes[PassengerIndex] )
                         {
-                            using ( StreamWriter writer = new StreamWriter( OutputFile, true ) )
+                            using StreamWriter writer = new StreamWriter(OutputFile, true);
+                            var originalTrip = (ITrip)trip["Driver"];
+                            var passengerDistance = Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
+                            var firstLeg = originalTrip.OriginalZone == trip.OriginalZone ? 0 : Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, trip.OriginalZone.ZoneNumber];
+                            var secondLeg = originalTrip.DestinationZone == trip.DestinationZone ? 0 : Root.ZoneSystem.Distances[trip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
+                            var newDistance = (passengerDistance + firstLeg + secondLeg);
+
+                            if (Data.Keys.Contains(passengerDistance))
                             {
-                                var originalTrip = (ITrip) trip["Driver"];
-                                var passengerDistance = Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
-                                var firstLeg = originalTrip.OriginalZone == trip.OriginalZone ? 0 : Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, trip.OriginalZone.ZoneNumber];
-                                var secondLeg = originalTrip.DestinationZone == trip.DestinationZone ? 0 : Root.ZoneSystem.Distances[trip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
-                                var newDistance = ( passengerDistance + firstLeg + secondLeg );
-
-                                if ( Data.Keys.Contains( passengerDistance ) )
-                                {
-                                    Data[passengerDistance].Add( newDistance );
-                                }
-                                else
-                                {
-                                    Data.TryAdd( passengerDistance, [] );
-                                    Data[passengerDistance].Add( newDistance );
-                                }
-
-                                writer.WriteLine( "{0}, {1}, {2}, {3}, {4}", household.HouseholdId, household.Persons[i].Id, originalTrip.TripChain.Person.Id, passengerDistance, newDistance );
+                                Data[passengerDistance].Add(newDistance);
                             }
+                            else
+                            {
+                                Data.TryAdd(passengerDistance, []);
+                                Data[passengerDistance].Add(newDistance);
+                            }
+
+                            writer.WriteLine("{0}, {1}, {2}, {3}, {4}", household.HouseholdId, household.Persons[i].Id, originalTrip.TripChain.Person.Id, passengerDistance, newDistance);
                         }
                     }
                 }

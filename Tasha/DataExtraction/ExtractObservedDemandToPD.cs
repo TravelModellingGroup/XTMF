@@ -148,46 +148,44 @@ namespace Tasha.DataExtraction
             public void Save()
             {
                 var pdIndexes = Parent.PDArray.ValidIndexArray();
-                using (StreamWriter writer = new StreamWriter(SaveTo))
+                using StreamWriter writer = new StreamWriter(SaveTo);
+                //write header
+                writer.Write("OriginPD\\DestinationPD");
+                for (int i = 0; i < pdIndexes.Length; i++)
                 {
-                    //write header
-                    writer.Write("OriginPD\\DestinationPD");
-                    for(int i = 0; i < pdIndexes.Length; i++)
+                    writer.Write(',');
+                    writer.Write(pdIndexes[i]);
+                }
+                writer.WriteLine();
+                //The main body of the loop is going to end the line
+                //write body
+                for (int mode = 0; mode < Demand.Length; mode++)
+                {
+                    writer.WriteLine(Parent.Modes[mode].ModeName);
+                    for (int i = 0; i < Demand[mode].Length; i++)
                     {
-                        writer.Write(',');
-                        writer.Write(pdIndexes[i]);
-                    }
-                    writer.WriteLine();
-                    //The main body of the loop is going to end the line
-                    //write body
-                    for(int mode = 0; mode < Demand.Length; mode++)
-                    {
-                        writer.WriteLine(Parent.Modes[mode].ModeName);
-                        for(int i = 0; i < Demand[mode].Length; i++)
+                        if (SkipPDZero)
                         {
-                            if(SkipPDZero)
+                            if (pdIndexes[i] == 0)
                             {
-                                if(pdIndexes[i] == 0)
+                                continue;
+                            }
+                        }
+                        writer.Write(pdIndexes[i]);
+                        var row = Demand[mode][i];
+                        for (int j = 0; j < row.Length; j++)
+                        {
+                            if (SkipPDZero)
+                            {
+                                if (pdIndexes[j] == 0)
                                 {
                                     continue;
                                 }
                             }
-                            writer.Write(pdIndexes[i]);
-                            var row = Demand[mode][i];
-                            for(int j = 0; j < row.Length; j++)
-                            {
-                                if(SkipPDZero)
-                                {
-                                    if(pdIndexes[j] == 0)
-                                    {
-                                        continue;
-                                    }
-                                }
-                                writer.Write(',');
-                                writer.Write(row[j]);
-                            }
-                            writer.WriteLine();
+                            writer.Write(',');
+                            writer.Write(row[j]);
                         }
+                        writer.WriteLine();
                     }
                 }
             }

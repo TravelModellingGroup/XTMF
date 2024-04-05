@@ -458,26 +458,24 @@ namespace Tasha.PopulationSynthesis
             var ret = new float[zones.Length * NumberOfWorkerCategories];
             try
             {
-                using (CsvReader reader = new CsvReader(WorkerCategorySplits))
+                using CsvReader reader = new CsvReader(WorkerCategorySplits);
+                //burn header
+                reader.LoadLine(out int columns);
+                // read data
+                while (reader.LoadLine(out columns))
                 {
-                    //burn header
-                    reader.LoadLine(out int columns);
-                    // read data
-                    while (reader.LoadLine(out columns))
+                    if (columns < 3)
                     {
-                        if (columns < 3)
-                        {
-                            continue;
-                        }
-                        reader.Get(out int zone, 0);
-                        reader.Get(out int category, 1);
-                        reader.Get(out float probability, 2);
-                        zone = zoneArray.GetFlatIndex(zone);
-                        // categories are 1 indexed however we want 0 indexed
-                        category -= 1;
-                        if (zone < 0 | category < 0 | category >= NumberOfWorkerCategories) continue;
-                        ret[zone + (zones.Length * category)] = probability;
+                        continue;
                     }
+                    reader.Get(out int zone, 0);
+                    reader.Get(out int category, 1);
+                    reader.Get(out float probability, 2);
+                    zone = zoneArray.GetFlatIndex(zone);
+                    // categories are 1 indexed however we want 0 indexed
+                    category -= 1;
+                    if (zone < 0 | category < 0 | category >= NumberOfWorkerCategories) continue;
+                    ret[zone + (zones.Length * category)] = probability;
                 }
             }
             catch(IOException e)

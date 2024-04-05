@@ -187,34 +187,32 @@ namespace TMG.GTAModel
             }
             Task writeTask = new Task( delegate
             {
-                    using ( StreamWriter writer = new StreamWriter( Path.Combine( directoryName, modeNode.ModeName + ".csv" ) ) )
+                using StreamWriter writer = new StreamWriter(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
+                var header = true;
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                for (int i = 0; i < zones.Length; i++)
+                {
+                    if (header)
                     {
-                        var header = true;
-                        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                        for ( int i = 0; i < zones.Length; i++ )
+                        header = false;
+                        writer.Write("Zones O\\D");
+                        for (int j = 0; j < zones.Length; j++)
                         {
-                            if ( header )
-                            {
-                                header = false;
-                                writer.Write( "Zones O\\D" );
-                                for ( int j = 0; j < zones.Length; j++ )
-                                {
-                                    writer.Write( ',' );
-                                    writer.Write( zones[j].ZoneNumber );
-                                }
-                                writer.WriteLine();
-                            }
-                            var row = split.Result == null ? null : split.Result[i];
-                            writer.Write( zones[i].ZoneNumber );
-                            for ( int j = 0; j < zones.Length; j++ )
-                            {
-                                writer.Write( ',' );
-                                writer.Write( row == null ? 0 : row[j] );
-                            }
-                            writer.WriteLine();
+                            writer.Write(',');
+                            writer.Write(zones[j].ZoneNumber);
                         }
+                        writer.WriteLine();
                     }
-                } );
+                    var row = split.Result == null ? null : split.Result[i];
+                    writer.Write(zones[i].ZoneNumber);
+                    for (int j = 0; j < zones.Length; j++)
+                    {
+                        writer.Write(',');
+                        writer.Write(row == null ? 0 : row[j]);
+                    }
+                    writer.WriteLine();
+                }
+            } );
             writeTask.Start();
             if ( split.Children != null )
             {

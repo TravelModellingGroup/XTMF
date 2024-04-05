@@ -57,11 +57,9 @@ namespace XTMF.Run
             ModelSystemStructureModelRoot = root;
             _deleteDirectory = deleteDirectory;
             _LinkedParameters = linkedParameters;
-            using (MemoryStream memStream = new MemoryStream())
-            {
-                WriteModelSystemToStream(memStream);
-                _modelSystemAsString = Encoding.Unicode.GetString(memStream.ToArray());
-            }
+            using MemoryStream memStream = new MemoryStream();
+            WriteModelSystemToStream(memStream);
+            _modelSystemAsString = Encoding.Unicode.GetString(memStream.ToArray());
         }
 
         private string GetXTMFRunFileName() => Path.Combine(Path.GetDirectoryName(
@@ -283,11 +281,9 @@ namespace XTMF.Run
                 {
                     soFar += reader.Read(msText, soFar, length - soFar);
                 }
-                using (var stream = new MemoryStream(msText))
-                {
-                    var mss = ModelSystemStructure.Load(stream, Configuration);
-                    SendProjectSaved(mss as ModelSystemStructure);
-                }
+                using var stream = new MemoryStream(msText);
+                var mss = ModelSystemStructure.Load(stream, Configuration);
+                SendProjectSaved(mss as ModelSystemStructure);
             }
             catch (Exception e)
             {
@@ -360,47 +356,42 @@ namespace XTMF.Run
         {
             lock (this)
             {
-                using (var memStream = new MemoryStream())
-                {
-                    BinaryWriter pipeWriter = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
-                    WriteModelSystemToStream(memStream);
-                    pipeWriter.Write((UInt32)ToClient.RunModelSystem);
-                    pipeWriter.Write(RunName);
-                    pipeWriter.Write(RunDirectory);
-                    pipeWriter.Write(_deleteDirectory);
-                    pipeWriter.Write(_modelSystemAsString);
-
-                }
+                using var memStream = new MemoryStream();
+                BinaryWriter pipeWriter = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
+                WriteModelSystemToStream(memStream);
+                pipeWriter.Write((UInt32)ToClient.RunModelSystem);
+                pipeWriter.Write(RunName);
+                pipeWriter.Write(RunDirectory);
+                pipeWriter.Write(_deleteDirectory);
+                pipeWriter.Write(_modelSystemAsString);
             }
         }
 
         private void WriteModelSystemToStream(MemoryStream memStream)
         {
-            using (XmlWriter xml = XmlTextWriter.Create(memStream, new XmlWriterSettings() { Encoding = Encoding.Unicode }))
+            using XmlWriter xml = XmlTextWriter.Create(memStream, new XmlWriterSettings() { Encoding = Encoding.Unicode });
+            xml.WriteStartDocument();
+            xml.WriteStartElement("Root");
+            var root = ModelSystemStructureModelRoot.RealModelSystemStructure;
+            root.Save(xml);
+            xml.WriteStartElement("LinkedParameters");
+            foreach (var lp in _LinkedParameters)
             {
-                xml.WriteStartDocument();
-                xml.WriteStartElement("Root");
-                var root = ModelSystemStructureModelRoot.RealModelSystemStructure;
-                root.Save(xml);
-                xml.WriteStartElement("LinkedParameters");
-                foreach (var lp in _LinkedParameters)
+                xml.WriteStartElement("LinkedParameter");
+                xml.WriteAttributeString("Name", lp.Name);
+                xml.WriteAttributeString("Value", lp.Value ?? String.Empty);
+                foreach (var reference in lp.Parameters)
                 {
-                    xml.WriteStartElement("LinkedParameter");
-                    xml.WriteAttributeString("Name", lp.Name);
-                    xml.WriteAttributeString("Value", lp.Value ?? String.Empty);
-                    foreach (var reference in lp.Parameters)
-                    {
-                        xml.WriteStartElement("Reference");
-                        xml.WriteAttributeString("Name", LookupName(reference, root));
-                        xml.WriteEndElement();
-                    }
+                    xml.WriteStartElement("Reference");
+                    xml.WriteAttributeString("Name", LookupName(reference, root));
                     xml.WriteEndElement();
                 }
                 xml.WriteEndElement();
-                xml.WriteEndElement();
-                xml.WriteEndDocument();
-                xml.Flush();
             }
+            xml.WriteEndElement();
+            xml.WriteEndElement();
+            xml.WriteEndDocument();
+            xml.Flush();
         }
 
         public override bool ExitRequest()

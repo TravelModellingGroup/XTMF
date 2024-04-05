@@ -92,12 +92,10 @@ namespace XTMF
         /// <returns>True if the model system was loaded, false otherwise with a description of the failure in error.</returns>
         public bool LoadDetachedModelSystemFromString(string modelSystemAsText, out ModelSystem modelSystem, ref string error)
         {
-            using (MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(modelSystemAsText)))
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-                modelSystem = ModelSystem.LoadDetachedModelSystem(stream, Runtime.Configuration, ref error);
-                return modelSystem != null;
-            }
+            using MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(modelSystemAsText));
+            stream.Seek(0, SeekOrigin.Begin);
+            modelSystem = ModelSystem.LoadDetachedModelSystem(stream, Runtime.Configuration, ref error);
+            return modelSystem != null;
         }
 
         /// <summary>
@@ -118,11 +116,9 @@ namespace XTMF
                     modelSystem = null;
                     return false;
                 }
-                using (var stream = fileInfo.OpenRead())
-                {
-                    modelSystem = ModelSystem.LoadDetachedModelSystem(stream, Runtime.Configuration, ref error);
-                    return modelSystem != null;
-                }
+                using var stream = fileInfo.OpenRead();
+                modelSystem = ModelSystem.LoadDetachedModelSystem(stream, Runtime.Configuration, ref error);
+                return modelSystem != null;
             }
             catch (IOException e)
             {
@@ -445,17 +441,15 @@ namespace XTMF
         /// <returns>True if the export was successful, false with description otherwise</returns>
         public bool ExportModelSystemAsString(ModelSystem ms, out string modelSystemAsString, ref string error)
         {
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            if (!ms.Save(stream, ref error))
             {
-                if (!ms.Save(stream, ref error))
-                {
-                    modelSystemAsString = null;
-                    return false;
-                }
-                var buffer = stream.ToArray();
-                modelSystemAsString = new string(Encoding.Unicode.GetChars(buffer, 0, buffer.Length));
-                return true;
+                modelSystemAsString = null;
+                return false;
             }
+            var buffer = stream.ToArray();
+            modelSystemAsString = new string(Encoding.Unicode.GetChars(buffer, 0, buffer.Length));
+            return true;
         }
 
 

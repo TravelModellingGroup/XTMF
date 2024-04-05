@@ -221,15 +221,13 @@ namespace TMG.NetworkEstimation
 
         private void SaveBoardings(FileLocation location, Dictionary<string, float> periodData)
         {
-            using (StreamWriter writer = new StreamWriter(location))
+            using StreamWriter writer = new StreamWriter(location);
+            writer.WriteLine("Line,Boardings");
+            foreach (var set in periodData)
             {
-                writer.WriteLine("Line,Boardings");
-                foreach (var set in periodData)
-                {
-                    writer.Write(set.Key);
-                    writer.Write(',');
-                    writer.WriteLine(set.Value);
-                }
+                writer.Write(set.Key);
+                writer.Write(',');
+                writer.WriteLine(set.Value);
             }
         }
 

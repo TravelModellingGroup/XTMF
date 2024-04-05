@@ -84,18 +84,16 @@ namespace TMG.Frameworks.Data.Saving
                     }
                 }
             }
-            using (var writer = new StreamWriter(OutputFile))
+            using var writer = new StreamWriter(OutputFile);
+            writer.WriteLine("Category,Amount");
+            for (int i = 0; i < acc.Length; i++)
             {
-                writer.WriteLine("Category,Amount");
-                for (int i = 0; i < acc.Length; i++)
-                {
-                    writer.Write('"');
-                    writer.Write('\'');
-                    writer.Write(bins[i].ToString());
-                    writer.Write('"');
-                    writer.Write(',');
-                    writer.WriteLine(acc[i]);
-                }
+                writer.Write('"');
+                writer.Write('\'');
+                writer.Write(bins[i].ToString());
+                writer.Write('"');
+                writer.Write(',');
+                writer.WriteLine(acc[i]);
             }
         }
 

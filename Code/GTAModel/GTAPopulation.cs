@@ -166,14 +166,12 @@ This module requires the root module in the model system to be of type ‘ITrave
             try
             {
                 fs = new FileStream( fileName, FileMode.Create, FileAccess.Write, FileShare.None, 0x4000, true );
-                using ( StreamWriter writer = new StreamWriter( fs ) )
-                {
-                    fs = null;
-                    // Print out all of the people
-                    var length = validZones.Length;
-                    writer.WriteLine( "Zone,Age,Cars,SchoolZone,WorkZone,EmploymentStatus,StudentStatus,Occupation,DriversLicense,ExpansionFactor" );
-                    WriteParallel( validZones, population, writer, length );
-                }
+                using StreamWriter writer = new StreamWriter(fs);
+                fs = null;
+                // Print out all of the people
+                var length = validZones.Length;
+                writer.WriteLine("Zone,Age,Cars,SchoolZone,WorkZone,EmploymentStatus,StudentStatus,Occupation,DriversLicense,ExpansionFactor");
+                WriteParallel(validZones, population, writer, length);
             }
             finally
             {

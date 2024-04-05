@@ -153,29 +153,23 @@ namespace Tasha.Scheduler
 
         private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
         {
-            using ( Chart chart = new Chart() )
+            using Chart chart = new Chart();
+            chart.Width = 1024;
+            chart.Height = 728;
+            using ChartArea area = new ChartArea("Start Times");
+            using Series series = new Series();
+            series.ChartType = SeriesChartType.Bar;
+            for (int i = 0; i < values.Length; i++)
             {
-                chart.Width = 1024;
-                chart.Height = 728;
-                using ( ChartArea area = new ChartArea( "Start Times" ) )
-                {
-                    using ( Series series = new Series() )
-                    {
-                        series.ChartType = SeriesChartType.Bar;
-                        for ( int i = 0; i < values.Length; i++ )
-                        {
-                            series.Points.Add( new DataPoint( i, values[i] ) { AxisLabel = ( Time.FromMinutes( ( 60 * 4 ) + i * ( 1440 / StartTimeQuantums ) ) ).ToString() } );
-                        }
-                        area.AxisX.Title = xAxisName;// "Start Time ";
-                        area.AxisY.Title = yAxisName;// "#Episodes";
-                        area.AxisX.Interval = 3;
-                        chart.Series.Add( series );
-                        chart.ChartAreas.Add( area );
-                        area.Visible = true;
-                        chart.SaveImage( fileName, ChartImageFormat.Png );
-                    }
-                }
+                series.Points.Add(new DataPoint(i, values[i]) { AxisLabel = (Time.FromMinutes((60 * 4) + i * (1440 / StartTimeQuantums))).ToString() });
             }
+            area.AxisX.Title = xAxisName;// "Start Time ";
+            area.AxisY.Title = yAxisName;// "#Episodes";
+            area.AxisX.Interval = 3;
+            chart.Series.Add(series);
+            chart.ChartAreas.Add(area);
+            area.Visible = true;
+            chart.SaveImage(fileName, ChartImageFormat.Png);
         }
 
         private string GetFullPath(string localPath)

@@ -88,59 +88,57 @@ namespace TMG.GTAModel
             IEnumerable<SparseArray<float>> attraction, IEnumerable<IDemographicCategory> category)
         {
             Progress = 0f;
-            using (var ep = production.GetEnumerator())
-            using (var ea = attraction.GetEnumerator())
-            using (var eCat = category.GetEnumerator())
+            using var ep = production.GetEnumerator();
+            using var ea = attraction.GetEnumerator();
+            using var eCat = category.GetEnumerator();
+            var zones = Root.ZoneSystem.ZoneArray;
+            if (String.IsNullOrWhiteSpace(LoadFrictionFileName))
             {
-                var zones = Root.ZoneSystem.ZoneArray;
-                if (String.IsNullOrWhiteSpace(LoadFrictionFileName))
+                if (BaseData.Count != MultiBlendSets.Count)
                 {
-                    if (BaseData.Count != MultiBlendSets.Count)
-                    {
-                        throw new XTMFRuntimeException(this, "In " + Name +
-                                                       " the number of BaseData entries is not the same as the number of Blend Sets!");
-                    }
+                    throw new XTMFRuntimeException(this, "In " + Name +
+                                                   " the number of BaseData entries is not the same as the number of Blend Sets!");
                 }
-                var productions = new List<SparseArray<float>>();
-                var attractions = new List<SparseArray<float>>();
-                var cats = new List<IDemographicCategory>();
-                // We need to pre-load all of our generations in order to handle blending properly
-                while (ep.MoveNext() && ea.MoveNext() && eCat.MoveNext())
+            }
+            var productions = new List<SparseArray<float>>();
+            var attractions = new List<SparseArray<float>>();
+            var cats = new List<IDemographicCategory>();
+            // We need to pre-load all of our generations in order to handle blending properly
+            while (ep.MoveNext() && ea.MoveNext() && eCat.MoveNext())
+            {
+                productions.Add(ep.Current);
+                attractions.Add(ea.Current);
+                cats.Add(eCat.Current);
+            }
+            int setNumber = -1;
+            var ret = zones.CreateSquareTwinArray<float>();
+            float[] p = new float[zones.GetFlatData().Length];
+            CountTotalBlendSets();
+            foreach (var multiset in MultiBlendSets)
+            {
+                setNumber++;
+                var numberOfBlendSets = multiset.Subsets.Count;
+                var productionSet = new float[numberOfBlendSets][][];
+                var attractionSet = new float[numberOfBlendSets][][];
+                var catSet = new IDemographicCategory[numberOfBlendSets][];
+                SetupFrictionData(productions, attractions, cats, multiset, productionSet, attractionSet, catSet);
+                for (int subsetIndex = 0; subsetIndex < multiset.Subsets.Count; subsetIndex++)
                 {
-                    productions.Add(ep.Current);
-                    attractions.Add(ea.Current);
-                    cats.Add(eCat.Current);
-                }
-                int setNumber = -1;
-                var ret = zones.CreateSquareTwinArray<float>();
-                float[] p = new float[zones.GetFlatData().Length];
-                CountTotalBlendSets();
-                foreach (var multiset in MultiBlendSets)
-                {
-                    setNumber++;
-                    var numberOfBlendSets = multiset.Subsets.Count;
-                    var productionSet = new float[numberOfBlendSets][][];
-                    var attractionSet = new float[numberOfBlendSets][][];
-                    var catSet = new IDemographicCategory[numberOfBlendSets][];
-                    SetupFrictionData(productions, attractions, cats, multiset, productionSet, attractionSet, catSet);
-                    for (int subsetIndex = 0; subsetIndex < multiset.Subsets.Count; subsetIndex++)
+                    SumProductionAndAttraction(p, productionSet[subsetIndex]);
+                    bool loadedFriction = false;
+                    // use the base data if we don't load in the friction base data
+                    if (String.IsNullOrWhiteSpace(LoadFrictionFileName))
                     {
-                        SumProductionAndAttraction(p, productionSet[subsetIndex]);
-                        bool loadedFriction = false;
-                        // use the base data if we don't load in the friction base data
-                        if (String.IsNullOrWhiteSpace(LoadFrictionFileName))
-                        {
-                            LoadInBaseData(ret, BaseData[setNumber]);
-                        }
-                        else
-                        {
-                            LoadFriction(ret.GetFlatData(), setNumber);
-                            loadedFriction = true;
-                        }
-                        UpdateData(ret.GetFlatData(), p, catSet, productionSet, attractionSet, zones.GetFlatData(),
-                            subsetIndex, loadedFriction);
-                        yield return ret;
+                        LoadInBaseData(ret, BaseData[setNumber]);
                     }
+                    else
+                    {
+                        LoadFriction(ret.GetFlatData(), setNumber);
+                        loadedFriction = true;
+                    }
+                    UpdateData(ret.GetFlatData(), p, catSet, productionSet, attractionSet, zones.GetFlatData(),
+                        subsetIndex, loadedFriction);
+                    yield return ret;
                 }
             }
         }

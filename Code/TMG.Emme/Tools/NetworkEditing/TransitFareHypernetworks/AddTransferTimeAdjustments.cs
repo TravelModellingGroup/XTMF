@@ -92,27 +92,25 @@ namespace TMG.Emme.Tools.NetworkEditing.TransitFareHypernetworks
             }
 
             //Write out the found stations
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream))
             {
-                using (var writer = new Utf8JsonWriter(stream))
+                writer.WriteStartObject();
+                writer.WriteNumber("scenario", ScenarioNumber);
+                writer.WritePropertyName("stations");
+                writer.WriteStartArray();
+                foreach (var adjustment in adjustments)
                 {
                     writer.WriteStartObject();
-                    writer.WriteNumber("scenario", ScenarioNumber);
-                    writer.WritePropertyName("stations");
-                    writer.WriteStartArray();
-                    foreach (var adjustment in adjustments)
-                    {
-                        writer.WriteStartObject();
-                        writer.WriteNumber("station_number", adjustment.StationNode);
-                        writer.WriteNumber("transfer_time", adjustment.AdjustedTime);
-                        writer.WriteEndObject();
-                    }
-                    writer.WriteEndArray();
-                    writer.WriteString("transfer_modes", TransferModes);
+                    writer.WriteNumber("station_number", adjustment.StationNode);
+                    writer.WriteNumber("transfer_time", adjustment.AdjustedTime);
                     writer.WriteEndObject();
                 }
-                return Encoding.UTF8.GetString(stream.ToArray());
+                writer.WriteEndArray();
+                writer.WriteString("transfer_modes", TransferModes);
+                writer.WriteEndObject();
             }
+            return Encoding.UTF8.GetString(stream.ToArray());
         }
 
         public string Name { get; set; }

@@ -339,52 +339,50 @@ namespace Datastructure
 
             // do this because highest zone isn't high enough for array indexes
             HighestZone += 1;
-            using (StreamReader reader = new StreamReader(new
+            using StreamReader reader = new StreamReader(new
                 FileStream(emme2File, FileMode.Open, FileAccess.Read, FileShare.Read,
-                0x1000, FileOptions.SequentialScan)))
-            {
-                FilesLoaded.Add(new DimensionInfo(emme2File, offsetType, offsetTimes, true, false, false));
+                0x1000, FileOptions.SequentialScan));
+            FilesLoaded.Add(new DimensionInfo(emme2File, offsetType, offsetTimes, true, false, false));
 
-                int injectIndex = Times * offsetType + offsetTimes;
-                while ((line = reader.ReadLine()) != null)
+            int injectIndex = Times * offsetType + offsetTimes;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (line.Length > 0 && line[0] == 'a') break;
+            }
+            while ((line = reader.ReadLine()) != null)
+            {
+                int length = line.Length;
+                // don't read blank lines
+                if (length < 7) continue;
+                int o = FastParse.ParseFixedInt(line, 0, 7);
+                if (o > Data.Length) continue;
+                if (Data[o] == null)
                 {
-                    if (line.Length > 0 && line[0] == 'a') break;
+                    Data[o] = new float[HighestZone][];
+                    for (int k = HighestZone - 1; k >= 0; k--)
+                    {
+                        Data[o][k] = new float[AmmountOfData];
+                    }
+                    HasData[o] = new bool[HighestZone];
+                    for (int i = 0; i < HighestZone; i++) HasData[o][i] = false;
                 }
-                while ((line = reader.ReadLine()) != null)
+                pos = 7;
+                while (pos + 13 <= length)
                 {
-                    int length = line.Length;
-                    // don't read blank lines
-                    if (length < 7) continue;
-                    int o = FastParse.ParseFixedInt(line, 0, 7);
-                    if (o > Data.Length) continue;
-                    if (Data[o] == null)
+                    int d = FastParse.ParseFixedInt(line, pos, 7);
+                    if (d < Data.Length)
                     {
-                        Data[o] = new float[HighestZone][];
-                        for (int k = HighestZone - 1; k >= 0; k--)
+                        if (line[pos + 7] == ':')
                         {
-                            Data[o][k] = new float[AmmountOfData];
+                            Data[o][d][injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, 5);
                         }
-                        HasData[o] = new bool[HighestZone];
-                        for (int i = 0; i < HighestZone; i++) HasData[o][i] = false;
-                    }
-                    pos = 7;
-                    while (pos + 13 <= length)
-                    {
-                        int d = FastParse.ParseFixedInt(line, pos, 7);
-                        if (d < Data.Length)
+                        else
                         {
-                            if (line[pos + 7] == ':')
-                            {
-                                Data[o][d][injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, 5);
-                            }
-                            else
-                            {
-                                Data[o][d][injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, 9);
-                            }
-                            HasData[o][d] = true;
+                            Data[o][d][injectIndex] = FastParse.ParseFixedFloat(line, pos + 8, 9);
                         }
-                        pos += 13;
+                        HasData[o][d] = true;
                     }
+                    pos += 13;
                 }
             }
         }
@@ -449,10 +447,8 @@ namespace Datastructure
             }
             var xmlName = Path.Combine(dirname, fname) + ".xml";
             var serializer = new XmlSerializer(typeof(CacheGenerationInfo));
-            using (TextWriter textWriter = new StreamWriter(xmlName))
-            {
-                serializer.Serialize(textWriter, FilesLoaded);
-            }
+            using TextWriter textWriter = new StreamWriter(xmlName);
+            serializer.Serialize(textWriter, FilesLoaded);
         }
 
         /// <summary>

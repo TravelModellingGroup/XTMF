@@ -153,95 +153,93 @@ namespace Tasha.Estimation
             BaseLoader.LoadData();
             var households = BaseLoader.ToArray();
             Households = households;
-            using (MemoryStream mem = new MemoryStream())
+            using MemoryStream mem = new MemoryStream();
+            BinaryWriter writer = new BinaryWriter(mem);
+            writer.Write(households.Length);
+            var numberOfVehicleTypes = Root.VehicleTypes.Count;
+            writer.Write(numberOfVehicleTypes);
+            for (int i = 0; i < numberOfVehicleTypes; i++)
             {
-                BinaryWriter writer = new BinaryWriter(mem);
-                writer.Write(households.Length);
-                var numberOfVehicleTypes = Root.VehicleTypes.Count;
-                writer.Write(numberOfVehicleTypes);
+                writer.Write(Root.VehicleTypes[i].VehicleName);
+            }
+            foreach (var household in households)
+            {
+                // write out all of the household attributes
+                writer.Write(household.HouseholdId);
+                writer.Write(household.Persons.Length);
                 for (int i = 0; i < numberOfVehicleTypes; i++)
                 {
-                    writer.Write(Root.VehicleTypes[i].VehicleName);
+                    writer.Write(household.Vehicles.Count((v) => v.VehicleType.VehicleName == Root.VehicleTypes[i].VehicleName));
                 }
-                foreach (var household in households)
+                writer.Write(household.HomeZone.ZoneNumber);
+                SendAttached(writer, household);
+                foreach (var person in household.Persons)
                 {
-                    // write out all of the household attributes
-                    writer.Write(household.HouseholdId);
-                    writer.Write(household.Persons.Length);
-                    for (int i = 0; i < numberOfVehicleTypes; i++)
+                    // Send the person's information
+                    writer.Write(person.Age);
+                    writer.Write(person.Female);
+                    writer.Write((Int32)person.EmploymentStatus);
+                    writer.Write((Int32)person.Occupation);
+                    if (person.EmploymentZone == null)
                     {
-                        writer.Write(household.Vehicles.Count((v) => v.VehicleType.VehicleName == Root.VehicleTypes[i].VehicleName));
+                        writer.Write(-1);
                     }
-                    writer.Write(household.HomeZone.ZoneNumber);
-                    SendAttached(writer, household);
-                    foreach (var person in household.Persons)
+                    else
                     {
-                        // Send the person's information
-                        writer.Write(person.Age);
-                        writer.Write(person.Female);
-                        writer.Write((Int32)person.EmploymentStatus);
-                        writer.Write((Int32)person.Occupation);
-                        if (person.EmploymentZone == null)
-                        {
-                            writer.Write(-1);
-                        }
-                        else
-                        {
-                            writer.Write(person.EmploymentZone.ZoneNumber);
-                        }
-                        writer.Write((Int32)person.StudentStatus);
-                        if (person.SchoolZone == null)
-                        {
-                            writer.Write(-1);
-                        }
-                        else
-                        {
-                            writer.Write(person.SchoolZone.ZoneNumber);
-                        }
-                        writer.Write(person.Licence);
+                        writer.Write(person.EmploymentZone.ZoneNumber);
+                    }
+                    writer.Write((Int32)person.StudentStatus);
+                    if (person.SchoolZone == null)
+                    {
+                        writer.Write(-1);
+                    }
+                    else
+                    {
+                        writer.Write(person.SchoolZone.ZoneNumber);
+                    }
+                    writer.Write(person.Licence);
 
-                        writer.Write(person.FreeParking);
-                        SendAttached(writer, person);
-                        // Start sending the trip chains
-                        writer.Write(person.TripChains.Count);
-                        foreach (var tripChain in person.TripChains)
+                    writer.Write(person.FreeParking);
+                    SendAttached(writer, person);
+                    // Start sending the trip chains
+                    writer.Write(person.TripChains.Count);
+                    foreach (var tripChain in person.TripChains)
+                    {
+                        writer.Write(tripChain.JointTripID);
+                        writer.Write(tripChain.JointTripRep);
+                        SendAttached(writer, tripChain);
+                        writer.Write(tripChain.Trips.Count);
+                        foreach (var trip in tripChain.Trips)
                         {
-                            writer.Write(tripChain.JointTripID);
-                            writer.Write(tripChain.JointTripRep);
-                            SendAttached(writer, tripChain);
-                            writer.Write(tripChain.Trips.Count);
-                            foreach (var trip in tripChain.Trips)
+                            writer.Write(trip.OriginalZone.ZoneNumber);
+                            writer.Write(trip.DestinationZone.ZoneNumber);
+                            writer.Write((Int32)trip.Purpose);
+                            writer.Write(trip.ActivityStartTime.Hours);
+                            writer.Write(trip.ActivityStartTime.Minutes);
+                            writer.Write(trip.ActivityStartTime.Seconds);
+                            var mode = ((ITashaMode)trip[ObservedMode]);
+                            if (mode == null)
                             {
-                                writer.Write(trip.OriginalZone.ZoneNumber);
-                                writer.Write(trip.DestinationZone.ZoneNumber);
-                                writer.Write((Int32)trip.Purpose);
-                                writer.Write(trip.ActivityStartTime.Hours);
-                                writer.Write(trip.ActivityStartTime.Minutes);
-                                writer.Write(trip.ActivityStartTime.Seconds);
-                                var mode = ((ITashaMode)trip[ObservedMode]);
-                                if (mode == null)
-                                {
-                                    throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
-                                        + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!");
-                                }
-                                writer.Write(mode.ModeName);
-                                SendAttached(writer, trip);
+                                throw new XTMFRuntimeException(this, "In household #" + household.HouseholdId
+                                    + " for Person #" + person.Id + " for Trip #" + trip.TripNumber + " there was no observed mode stored!");
                             }
+                            writer.Write(mode.ModeName);
+                            SendAttached(writer, trip);
                         }
                     }
                 }
-                writer.Flush();
-                // rewind to the beginning
-                mem.Seek(0, SeekOrigin.Begin);
-                MemoryStream encryptedMemory = new MemoryStream();
-                using Aes aes = Aes.Create();
-                aes.Key = GetKey();
-                aes.IV = GetIV();
-                using var encryption = new CryptoStream(encryptedMemory, aes.CreateEncryptor(), CryptoStreamMode.Write);
-                mem.WriteTo(encryption);
-                encryption.FlushFinalBlock();
-                HouseholdEncryptedData = encryptedMemory.ToArray();
             }
+            writer.Flush();
+            // rewind to the beginning
+            mem.Seek(0, SeekOrigin.Begin);
+            MemoryStream encryptedMemory = new MemoryStream();
+            using Aes aes = Aes.Create();
+            aes.Key = GetKey();
+            aes.IV = GetIV();
+            using var encryption = new CryptoStream(encryptedMemory, aes.CreateEncryptor(), CryptoStreamMode.Write);
+            mem.WriteTo(encryption);
+            encryption.FlushFinalBlock();
+            HouseholdEncryptedData = encryptedMemory.ToArray();
         }
 
         private byte[] GetIV()

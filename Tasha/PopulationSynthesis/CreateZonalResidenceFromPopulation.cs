@@ -132,15 +132,13 @@ namespace Tasha.PopulationSynthesis
             var zones = _zones.GetFlatData();
             try
             {
-                using (var writer = new StreamWriter(location))
+                using var writer = new StreamWriter(location);
+                writer.WriteLine("Zone,Workers");
+                for (int i = 0; i < data.Length; i++)
                 {
-                    writer.WriteLine("Zone,Workers");
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        writer.Write(zones[i].ZoneNumber);
-                        writer.Write(',');
-                        writer.WriteLine(data[i]);
-                    }
+                    writer.Write(zones[i].ZoneNumber);
+                    writer.Write(',');
+                    writer.WriteLine(data[i]);
                 }
             }
             catch(IOException e)

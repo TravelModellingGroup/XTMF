@@ -516,19 +516,17 @@ namespace XTMF.Networking
                         }
                         if (getConverter)
                         {
-                            using (MemoryStream mem = new MemoryStream(0x100))
+                            using MemoryStream mem = new MemoryStream(0x100);
+                            try
                             {
-                                try
-                                {
-                                    customConverter(msg.Data, mem);
-                                    mem.Position = 0;
-                                    buffer = mem.ToArray();
-                                    length = buffer.Length;
-                                }
-                                catch
-                                {
-                                    failed = true;
-                                }
+                                customConverter(msg.Data, mem);
+                                mem.Position = 0;
+                                buffer = mem.ToArray();
+                                length = buffer.Length;
+                            }
+                            catch
+                            {
+                                failed = true;
                             }
                         }
                         writer.Write((Int32)MessageType.SendCustomMessage);
@@ -553,29 +551,27 @@ namespace XTMF.Networking
                         }
                         if (getConverted)
                         {
-                            using (var stream = msg.Stream)
+                            using var stream = msg.Stream;
+                            try
                             {
-                                try
+                                object output = customConverter(stream);
+                                if (_CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object>> handlers))
                                 {
-                                    object output = customConverter(stream);
-                                    if (_CustomHandlers.TryGetValue(msg.CustomMessageNumber, out List<Action<object>> handlers))
+                                    foreach (var handler in handlers)
                                     {
-                                        foreach (var handler in handlers)
+                                        try
                                         {
-                                            try
-                                            {
-                                                handler(output);
-                                            }
-                                            catch (Exception e)
-                                            {
-                                                Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
-                                            }
+                                            handler(output);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
                                         }
                                     }
                                 }
-                                catch
-                                {
-                                }
+                            }
+                            catch
+                            {
                             }
                         }
                     }

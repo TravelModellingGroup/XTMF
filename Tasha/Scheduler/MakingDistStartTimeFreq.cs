@@ -396,21 +396,19 @@ namespace Tasha.Scheduler
             Status = "Writing Start Time Distribution File...";
             Progress = 0;
 
-            using (StreamWriter writer = new StreamWriter(OutputResults))
-            {
-                writer.WriteLine("DistID, Freq, StartTime, ExpPersons");
+            using StreamWriter writer = new StreamWriter(OutputResults);
+            writer.WriteLine("DistID, Freq, StartTime, ExpPersons");
 
-                for(int i = 0; i < ResultsArray.Length; i++)
+            for (int i = 0; i < ResultsArray.Length; i++)
+            {
+                for (int j = 0; j < MaxFrequencyLocal + 1; j++)
                 {
-                    for(int j = 0; j < MaxFrequencyLocal + 1; j++)
+                    for (int t = 0; t < StartTimeQuantums; t++)
                     {
-                        for(int t = 0; t < StartTimeQuantums; t++)
-                        {
-                            writer.WriteLine("{0},{1},{2},{3}", i, j, t, ResultsArray[i][j][t]);
-                        }
+                        writer.WriteLine("{0},{1},{2},{3}", i, j, t, ResultsArray[i][j][t]);
                     }
-                    Progress = (float)i / ResultsArray.Length;
                 }
+                Progress = (float)i / ResultsArray.Length;
             }
         }
 

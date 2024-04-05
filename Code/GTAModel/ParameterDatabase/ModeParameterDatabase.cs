@@ -238,49 +238,47 @@ its mode when switching context between different demographic categories."
             var dbf = GetFullPath( DatabaseFile );
             try
             {
-                using ( StreamReader reader = new StreamReader( dbf ) )
+                using StreamReader reader = new StreamReader(dbf);
+                // First read the header, we will need that data to store in the mode parameters
+                var headerLine = reader.ReadLine();
+                if (headerLine == null)
                 {
-                    // First read the header, we will need that data to store in the mode parameters
-                    var headerLine = reader.ReadLine();
-                    if ( headerLine == null )
+                    throw new XTMFRuntimeException(this, "The file \"" + DatabaseFile + "\" does not contain any data to load parameters from!");
+                }
+                string[] header = headerLine.Split(',');
+                var numberOfParameters = header.Length;
+                Parameter[] parameterMapping = CreateParameterMapping(header);
+                string line;
+                int numberOfLines = 0;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    var parameters = line.Split(',');
+                    if (parameters.Length < numberOfParameters) continue;
+                    numberOfLines++;
+                    for (int i = 0; i < numberOfParameters; i++)
                     {
-                        throw new XTMFRuntimeException(this, "The file \"" + DatabaseFile + "\" does not contain any data to load parameters from!" );
-                    }
-                    string[] header = headerLine.Split( ',' );
-                    var numberOfParameters = header.Length;
-                    Parameter[] parameterMapping = CreateParameterMapping( header );
-                    string line;
-                    int numberOfLines = 0;
-                    while ( ( line = reader.ReadLine() ) != null )
-                    {
-                        var parameters = line.Split( ',' );
-                        if ( parameters.Length < numberOfParameters ) continue;
-                        numberOfLines++;
-                        for ( int i = 0; i < numberOfParameters; i++ )
+                        if (parameterMapping[i] == null) continue;
+                        Type t = parameterMapping[i].Field != null ? parameterMapping[i].Field.FieldType
+                            : parameterMapping[i].Property.PropertyType;
+                        if (t == typeof(float))
                         {
-                            if ( parameterMapping[i] == null ) continue;
-                            Type t = parameterMapping[i].Field != null ? parameterMapping[i].Field.FieldType
-                                : parameterMapping[i].Property.PropertyType;
-                            if ( t == typeof( float ) )
-                            {
-                                parameterMapping[i].Values.Add( float.Parse( parameters[i] ) );
-                            }
-                            else if ( t == typeof( double ) )
-                            {
-                                parameterMapping[i].Values.Add( double.Parse( parameters[i] ) );
-                            }
-                            else if ( t == typeof( bool ) )
-                            {
-                                parameterMapping[i].Values.Add( bool.Parse( parameters[i] ) );
-                            }
-                            else if ( t == typeof( int ) )
-                            {
-                                parameterMapping[i].Values.Add( int.Parse( parameters[i] ) );
-                            }
+                            parameterMapping[i].Values.Add(float.Parse(parameters[i]));
+                        }
+                        else if (t == typeof(double))
+                        {
+                            parameterMapping[i].Values.Add(double.Parse(parameters[i]));
+                        }
+                        else if (t == typeof(bool))
+                        {
+                            parameterMapping[i].Values.Add(bool.Parse(parameters[i]));
+                        }
+                        else if (t == typeof(int))
+                        {
+                            parameterMapping[i].Values.Add(int.Parse(parameters[i]));
                         }
                     }
-                    _NumberOfParameterSets = numberOfLines;
                 }
+                _NumberOfParameterSets = numberOfLines;
             }
             catch ( IOException )
             {

@@ -103,25 +103,23 @@ namespace Tasha.DataExtraction
         private void SaveData(SparseArray<float>[] pdData, int ageCat)
         {
             var pdIndexes = pdData[0].ValidIndexArray();
-            using ( var writer = new StreamWriter( OutputFileName.GetFilePath(), ageCat != 0 ) )
+            using var writer = new StreamWriter(OutputFileName.GetFilePath(), ageCat != 0);
+            if (ageCat == 0)
             {
-                if ( ageCat == 0 )
+                writer.WriteLine("PD,EmploymentStatus,AgeCategory,ExpandedPopulation");
+            }
+            for (int empStat = 0; empStat < pdData.Length; empStat++)
+            {
+                var pdArray = pdData[empStat];
+                for (int j = 0; j < pdIndexes.Length; j++)
                 {
-                    writer.WriteLine( "PD,EmploymentStatus,AgeCategory,ExpandedPopulation" );
-                }
-                for ( int empStat = 0; empStat < pdData.Length; empStat++ )
-                {
-                    var pdArray = pdData[empStat];
-                    for ( int j = 0; j < pdIndexes.Length; j++ )
-                    {
-                        writer.Write( pdIndexes[j] );
-                        writer.Write( ',' );
-                        writer.Write( empStat );
-                        writer.Write( ',' );
-                        writer.Write( ageCat );
-                        writer.Write( ',' );
-                        writer.WriteLine( pdArray[pdIndexes[j]] );
-                    }
+                    writer.Write(pdIndexes[j]);
+                    writer.Write(',');
+                    writer.Write(empStat);
+                    writer.Write(',');
+                    writer.Write(ageCat);
+                    writer.Write(',');
+                    writer.WriteLine(pdArray[pdIndexes[j]]);
                 }
             }
         }
@@ -211,16 +209,14 @@ GROUP BY [{3}].[{0}];",
                             EmploymentStatusString[i],
                         //13
                             EmploymentStatusColumn );
-                    using ( var reader = command.ExecuteReader() )
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        while ( reader.Read() )
+                        var zone = reader.GetInt32(0);
+                        var index = zones.GetFlatIndex(zone);
+                        if (index >= 0)
                         {
-                            var zone = reader.GetInt32( 0 );
-                            var index = zones.GetFlatIndex( zone );
-                            if ( index >= 0 )
-                            {
-                                populationByAge[j][i][index] = (float)reader.GetDouble( 1 );
-                            }
+                            populationByAge[j][i][index] = (float)reader.GetDouble(1);
                         }
                     }
                 }

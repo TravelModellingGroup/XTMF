@@ -194,63 +194,59 @@ namespace XTMF.Testing
 
         private void Create311File(int[] zones, float[][] data, string fileName)
         {
-            using ( var writer = new StreamWriter( fileName ) )
+            using var writer = new StreamWriter(fileName);
+            var numberOfZones = zones.Length;
+            StringBuilder builder = new StringBuilder();
+            builder.EnsureCapacity(100);
+            char[] buff = new char[100];
+            writer.WriteLine("c Emme Modeller - Matrix Transaction");
+            writer.WriteLine("c Date: 2012-12-21 10:23:52");
+            writer.WriteLine("c Project:        durham model");
+            writer.WriteLine("t matrices");
+            writer.WriteLine("a matrix=mf13   acost   0.0 Auto cost matrix ($) ");
+            for (int i = 0; i < numberOfZones; i++)
             {
-                var numberOfZones = zones.Length;
-                StringBuilder builder = new StringBuilder();
-                builder.EnsureCapacity( 100 );
-                char[] buff = new char[100];
-                writer.WriteLine( "c Emme Modeller - Matrix Transaction" );
-                writer.WriteLine( "c Date: 2012-12-21 10:23:52" );
-                writer.WriteLine( "c Project:        durham model" );
-                writer.WriteLine( "t matrices" );
-                writer.WriteLine( "a matrix=mf13   acost   0.0 Auto cost matrix ($) " );
-                for ( int i = 0; i < numberOfZones; i++ )
+                for (int j = 0; j < numberOfZones; j++)
                 {
-                    for ( int j = 0; j < numberOfZones; j++ )
+                    builder.AppendFormat("{0,7}", zones[i]);
+                    builder.AppendFormat("{0,7} ", zones[j]);
+                    builder.AppendFormat("{0,9}", data[i][j]);
+                    var size = builder.Length;
+                    if (size >= buff.Length)
                     {
-                        builder.AppendFormat( "{0,7}", zones[i] );
-                        builder.AppendFormat( "{0,7} ", zones[j] );
-                        builder.AppendFormat( "{0,9}", data[i][j] );
-                        var size = builder.Length;
-                        if ( size >= buff.Length )
-                        {
-                            buff = new char[size * 2];
-                        }
-                        builder.CopyTo( 0, buff, 0, size );
-                        writer.WriteLine( buff, 0, size );
-                        builder.Clear();
+                        buff = new char[size * 2];
                     }
+                    builder.CopyTo(0, buff, 0, size);
+                    writer.WriteLine(buff, 0, size);
+                    builder.Clear();
                 }
             }
         }
 
         private void CreateCSVFile(int[] zones, float[][] data, string fileName)
         {
-            using ( var writer = new StreamWriter( fileName ) )
+            using var writer = new StreamWriter(fileName);
+            var numberOfZones = zones.Length;
+            StringBuilder builder = new StringBuilder();
+            builder.EnsureCapacity(100);
+            char[] buff = new char[100];
+            for (int i = 0; i < numberOfZones; i++)
             {
-                var numberOfZones = zones.Length;
-                StringBuilder builder = new StringBuilder();
-                builder.EnsureCapacity( 100 );
-                char[] buff = new char[100];
-                for ( int i = 0; i < numberOfZones; i++ )
+                for (int j = 0; j < numberOfZones; j++)
                 {
-                    for ( int j = 0; j < numberOfZones; j++ )
+                    builder.Append(zones[i]);
+                    builder.Append(',');
+                    builder.Append(zones[j]);
+                    builder.Append(',');
+                    builder.Append(data[i][j]);
+                    var size = builder.Length;
+                    if (size >= buff.Length)
                     {
-                        builder.Append( zones[i] );
-                        builder.Append( ',' );
-                        builder.Append( zones[j] );
-                        builder.Append( ',' );
-                        builder.Append( data[i][j] );
-                        var size = builder.Length;
-                        if ( size >= buff.Length )
-                        {
-                            buff = new char[size * 2];
-                        }
-                        builder.CopyTo( 0, buff, 0, size );
-                        writer.WriteLine( buff, 0, size );
-                        builder.Clear();
+                        buff = new char[size * 2];
                     }
+                    builder.CopyTo(0, buff, 0, size);
+                    writer.WriteLine(buff, 0, size);
+                    builder.Clear();
                 }
             }
         }

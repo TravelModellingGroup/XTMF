@@ -89,28 +89,25 @@ namespace Tasha.Validation.PerformanceMeasures
 
             float niAsum = niApop.Sum();
             var normalDenominator = 1.0f / (analyzedpopulationSum * employmentSum);
-            var niaDenominator = 1.0f / (niAsum * employmentSum);            
+            var niaDenominator = 1.0f / (niAsum * employmentSum);
 
-            using(StreamWriter writer = new StreamWriter(ResultsFile))
-            {
-                CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, zonePopulation, false);
-                writer.WriteLine("Analyzed Population Accessibility");                
-                WriteToFile(normalDenominator, writer);
-                writer.WriteLine();
+            using StreamWriter writer = new StreamWriter(ResultsFile);
+            CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, zonePopulation, false);
+            writer.WriteLine("Analyzed Population Accessibility");
+            WriteToFile(normalDenominator, writer);
+            writer.WriteLine();
 
-                AutoAccessibilityResults.Clear();
-                TransitIVTTAccessibilityResults.Clear();
-                TransitAccessibilityResults.Clear();
-                
-                CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, niApop, true);
-                writer.WriteLine("NIA Zone Accessibility");
-                WriteToFile(niaDenominator, writer);
+            AutoAccessibilityResults.Clear();
+            TransitIVTTAccessibilityResults.Clear();
+            TransitAccessibilityResults.Clear();
 
-                AutoAccessibilityResults.Clear();
-                TransitIVTTAccessibilityResults.Clear();
-                TransitAccessibilityResults.Clear();
+            CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, niApop, true);
+            writer.WriteLine("NIA Zone Accessibility");
+            WriteToFile(niaDenominator, writer);
 
-            }
+            AutoAccessibilityResults.Clear();
+            TransitIVTTAccessibilityResults.Clear();
+            TransitAccessibilityResults.Clear();
         }
 
         private void WriteToFile(float denominator, StreamWriter writer)

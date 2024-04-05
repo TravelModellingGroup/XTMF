@@ -57,21 +57,19 @@ namespace Tasha.Validation.ValidateModeChoice
                 lock (this)
                 {
                     var writeHeader = !File.Exists(OutputFile);
-                    using (StreamWriter writer = new StreamWriter(OutputFile, true))
+                    using StreamWriter writer = new StreamWriter(OutputFile, true);
+                    if (writeHeader)
                     {
-                        if (writeHeader)
-                        {
-                            writer.WriteLine("HouseholdID,HouseholdIteration,Household Utility");
-                        }
-                        var util = Utilities[household.HouseholdId];
-                        for (int i = 0; i < util.Length; i++)
-                        {
-                            writer.Write(household.HouseholdId);
-                            writer.Write(',');
-                            writer.Write(i);
-                            writer.Write(',');
-                            writer.WriteLine(util[i]);
-                        }
+                        writer.WriteLine("HouseholdID,HouseholdIteration,Household Utility");
+                    }
+                    var util = Utilities[household.HouseholdId];
+                    for (int i = 0; i < util.Length; i++)
+                    {
+                        writer.Write(household.HouseholdId);
+                        writer.Write(',');
+                        writer.Write(i);
+                        writer.Write(',');
+                        writer.WriteLine(util[i]);
                     }
                 }
             }

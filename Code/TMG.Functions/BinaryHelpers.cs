@@ -38,10 +38,8 @@ namespace TMG.Functions
         [Obsolete("Please use ExecuteWriter(IModule, Action<BinaryWriter>, string)")]
         public static void ExecuteWriter(Action<BinaryWriter> toRun, string fileName)
         {
-            using (var writer = CreateWrite(null, fileName))
-            {
-                toRun(writer);
-            }
+            using var writer = CreateWrite(null, fileName);
+            toRun(writer);
         }
 
         /// <summary>
@@ -54,10 +52,8 @@ namespace TMG.Functions
         /// <exception cref="XTMFRuntimeException">Can throw a captured IOException.</exception>
         public static void ExecuteWriter(IModule module, Action<BinaryWriter> toRun, string fileName)
         {
-            using (var writer = CreateWrite(module, fileName))
-            {
-                toRun(writer);
-            }
+            using var writer = CreateWrite(module, fileName);
+            toRun(writer);
         }
 
         /// <summary>
@@ -104,10 +100,8 @@ namespace TMG.Functions
         /// <exception cref="XTMFRuntimeException">Can throw a captured IOException.</exception>
         public static void ExecuteReader(IModule module, Action<BinaryReader> toRun, string fileName)
         {
-            using (var reader = CreateReader(module, fileName))
-            {
-                toRun(reader);
-            }
+            using var reader = CreateReader(module, fileName);
+            toRun(reader);
         }
 
         /// <summary>

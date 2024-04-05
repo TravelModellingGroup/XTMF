@@ -89,16 +89,14 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            using (var ep = productions.GetEnumerator())
-            using (var ec = category.GetEnumerator())
+            using var ep = productions.GetEnumerator();
+            using var ec = category.GetEnumerator();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            float[] friction = null;
+            while (ep.MoveNext() && ec.MoveNext())
             {
-                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                float[] friction = null;
-                while (ep.MoveNext() && ec.MoveNext())
-                {
-                    friction = ComputeFriction(zones, ec.Current, friction);
-                    yield return SinglyConstrainedGravityModel.Process(ep.Current, friction);
-                }
+                friction = ComputeFriction(zones, ec.Current, friction);
+                yield return SinglyConstrainedGravityModel.Process(ep.Current, friction);
             }
         }
 

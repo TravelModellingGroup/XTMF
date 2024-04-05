@@ -70,27 +70,25 @@ namespace Tasha.Validation.ValidateModeChoice
                 lock ( this )
                 {
                     var writeHeader = !File.Exists( OutputFile );
-                    using ( StreamWriter writer = new StreamWriter( OutputFile, true ) )
+                    using StreamWriter writer = new StreamWriter(OutputFile, true);
+                    if (writeHeader)
                     {
-                        if ( writeHeader )
-                        {
-                            writer.WriteLine( "HouseholdID, Iteration, VKT, Number of Vehicles, Average VKT" );
-                        }
+                        writer.WriteLine("HouseholdID, Iteration, VKT, Number of Vehicles, Average VKT");
+                    }
 
-                        var householdVKT = VKT[household.HouseholdId];
-                        for ( int i = 0; i < householdVKT.Length; i++ )
+                    var householdVKT = VKT[household.HouseholdId];
+                    for (int i = 0; i < householdVKT.Length; i++)
+                    {
+                        float average;
+                        if (householdVKT[i] == 0)
                         {
-                            float average;
-                            if ( householdVKT[i] == 0 )
-                            {
-                                average = 0;
-                            }
-                            else
-                            {
-                                average = householdVKT[i] / household.Vehicles.Length;
-                            }
-                            writer.WriteLine( "{0}, {1}, {2}, {3}, {4}", household.HouseholdId, i, householdVKT[i], household.Vehicles.Length, average );
+                            average = 0;
                         }
+                        else
+                        {
+                            average = householdVKT[i] / household.Vehicles.Length;
+                        }
+                        writer.WriteLine("{0}, {1}, {2}, {3}, {4}", household.HouseholdId, i, householdVKT[i], household.Vehicles.Length, average);
                     }
                 }
             }

@@ -1125,14 +1125,10 @@ namespace Tasha.Validation.ModeChoice
             {
                 using (FileStream originalFileStream = fileToCompress.OpenRead())
                 {
-                    using (FileStream compressedFileStream = File.Create(fileToCompress.FullName + ".gz"))
-                    {
-                        using (GZipStream compressionStream = new GZipStream(compressedFileStream,
-                           CompressionMode.Compress))
-                        {
-                            originalFileStream.CopyTo(compressionStream);
-                        }
-                    }
+                    using FileStream compressedFileStream = File.Create(fileToCompress.FullName + ".gz");
+                    using GZipStream compressionStream = new GZipStream(compressedFileStream,
+                       CompressionMode.Compress);
+                    originalFileStream.CopyTo(compressionStream);
                 }
                 //delete the file once we've finished compressing it
                 fileToCompress.Delete();

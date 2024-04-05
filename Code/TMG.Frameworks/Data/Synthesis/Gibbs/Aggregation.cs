@@ -86,55 +86,53 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 EnsureAllColumnsExist(columns);
                 var factors = BuildFactors();
                 var accepted = LoadAggregationFile(columns, factors);
-                using (var writer = new StreamWriter(SaveAggregationTo))
+                using var writer = new StreamWriter(SaveAggregationTo);
+                if (ZoneSystem != null)
                 {
+                    writer.Write("Zone");
+                    writer.Write(',');
+                }
+                writer.Write(Parent._PrimaryPool.Name);
+                for (int i = 0; i < _SecondaryPool.Attributes.Length; i++)
+                {
+                    writer.Write(',');
+                    writer.Write(_SecondaryPool.Attributes[i].Name);
+                }
+                writer.WriteLine();
+                var originalData = Parent._PrimaryPool.PoolChoices;
+                var baseHouseholdId = 1;
+                for (int zoneIndex = 0; zoneIndex < originalData.Length; zoneIndex++)
+                {
+                    var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, columns, accepted, zoneIndex);
+                    var r = new Random(RandomSeed);
+                    string zoneString = null;
                     if (ZoneSystem != null)
                     {
-                        writer.Write("Zone");
-                        writer.Write(',');
+                        zoneString = ZoneSystem.ZoneArray.GetFlatData()[zoneIndex].ZoneNumber.ToString();
                     }
-                    writer.Write(Parent._PrimaryPool.Name);
-                    for (int i = 0; i < _SecondaryPool.Attributes.Length; i++)
+                    var primaryAttributeColumn = Array.IndexOf(Parent._PrimaryPool.Attributes, _PrimaryAttribute);
+                    for (int i = 0; i < originalData[zoneIndex].Length; i++)
                     {
-                        writer.Write(',');
-                        writer.Write(_SecondaryPool.Attributes[i].Name);
-                    }
-                    writer.WriteLine();
-                    var originalData = Parent._PrimaryPool.PoolChoices;
-                    var baseHouseholdId = 1;
-                    for (int zoneIndex = 0; zoneIndex < originalData.Length; zoneIndex++)
-                    {
-                        var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, columns, accepted, zoneIndex);
-                        var r = new Random(RandomSeed);
-                        string zoneString = null;
-                        if(ZoneSystem != null)
+                        var index = originalData[zoneIndex][i][primaryAttributeColumn];
+                        var candidates = candidatesByValue[index];
+                        if (candidates.Count > 0)
                         {
-                            zoneString = ZoneSystem.ZoneArray.GetFlatData()[zoneIndex].ZoneNumber.ToString();
-                        }
-                        var primaryAttributeColumn = Array.IndexOf(Parent._PrimaryPool.Attributes, _PrimaryAttribute);
-                        for (int i = 0; i < originalData[zoneIndex].Length; i++)
-                        {
-                            var index = originalData[zoneIndex][i][primaryAttributeColumn];
-                            var candidates = candidatesByValue[index];
-                            if (candidates.Count > 0)
+                            var candidate = candidates[(int)(r.NextDouble() * candidates.Count)];
+                            if (ZoneSystem != null)
                             {
-                                var candidate = candidates[(int)(r.NextDouble() * candidates.Count)];
-                                if (ZoneSystem != null)
-                                {
-                                    writer.Write(zoneString);
-                                    writer.Write(',');
-                                }
-                                writer.Write(baseHouseholdId + i);
-                                for (int j = 0; j < candidate.Length; j++)
-                                {
-                                    writer.Write(',');
-                                    writer.Write(candidate[j]);
-                                }
-                                writer.WriteLine();
+                                writer.Write(zoneString);
+                                writer.Write(',');
                             }
+                            writer.Write(baseHouseholdId + i);
+                            for (int j = 0; j < candidate.Length; j++)
+                            {
+                                writer.Write(',');
+                                writer.Write(candidate[j]);
+                            }
+                            writer.WriteLine();
                         }
-                        baseHouseholdId += originalData[zoneIndex].Length;
                     }
+                    baseHouseholdId += originalData[zoneIndex].Length;
                 }
             }
 

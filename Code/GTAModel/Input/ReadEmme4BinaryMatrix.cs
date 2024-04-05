@@ -59,81 +59,79 @@ namespace TMG.GTAModel.Input
             {
                 throw new XTMFRuntimeException(this, $"Unable to read an EMME Binary Matrix located at {InputFile.GetFilePath()}");
             }
-            using (BinaryReader reader = TMG.Functions.BinaryHelpers.CreateReader(this, InputFile))
+            using BinaryReader reader = TMG.Functions.BinaryHelpers.CreateReader(this, InputFile);
+            EmmeMatrix matrix = new EmmeMatrix(reader);
+            if (!matrix.IsValidHeader())
             {
-                EmmeMatrix matrix = new EmmeMatrix(reader);
-                if (!matrix.IsValidHeader())
-                {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'");
-                }
-                ODData<float> result = new ODData<float>();
-                int pos = 0;
-                var indexes = matrix.Indexes;
-                var originIndexes = indexes[0];
-                var destinationIndexes = indexes[1];
-                switch (matrix.Type)
-                {
-                    case EmmeMatrix.DataType.Float:
+                throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'");
+            }
+            ODData<float> result = new ODData<float>();
+            int pos = 0;
+            var indexes = matrix.Indexes;
+            var originIndexes = indexes[0];
+            var destinationIndexes = indexes[1];
+            switch (matrix.Type)
+            {
+                case EmmeMatrix.DataType.Float:
+                    {
+                        var data = matrix.FloatData;
+                        for (int i = 0; i < originIndexes.Length; i++)
                         {
-                            var data = matrix.FloatData;
-                            for (int i = 0; i < originIndexes.Length; i++)
+                            result.O = originIndexes[i];
+                            for (int j = 0; j < destinationIndexes.Length; j++)
                             {
-                                result.O = originIndexes[i];
-                                for (int j = 0; j < destinationIndexes.Length; j++)
-                                {
-                                    result.D = destinationIndexes[j];
-                                    result.Data = data[pos++];
-                                    yield return result;
-                                }
+                                result.D = destinationIndexes[j];
+                                result.Data = data[pos++];
+                                yield return result;
                             }
                         }
-                        break;
-                    case EmmeMatrix.DataType.Double:
+                    }
+                    break;
+                case EmmeMatrix.DataType.Double:
+                    {
+                        var data = matrix.DoubleData;
+                        for (int i = 0; i < originIndexes.Length; i++)
                         {
-                            var data = matrix.DoubleData;
-                            for (int i = 0; i < originIndexes.Length; i++)
+                            result.O = originIndexes[i];
+                            for (int j = 0; j < destinationIndexes.Length; j++)
                             {
-                                result.O = originIndexes[i];
-                                for (int j = 0; j < destinationIndexes.Length; j++)
-                                {
-                                    result.D = destinationIndexes[j];
-                                    result.Data = (float)data[pos++];
-                                    yield return result;
-                                }
+                                result.D = destinationIndexes[j];
+                                result.Data = (float)data[pos++];
+                                yield return result;
                             }
                         }
-                        break;
-                    case EmmeMatrix.DataType.SignedInteger:
+                    }
+                    break;
+                case EmmeMatrix.DataType.SignedInteger:
+                    {
+                        var data = matrix.SignedIntData;
+                        for (int i = 0; i < originIndexes.Length; i++)
                         {
-                            var data = matrix.SignedIntData;
-                            for (int i = 0; i < originIndexes.Length; i++)
+                            result.O = originIndexes[i];
+                            for (int j = 0; j < destinationIndexes.Length; j++)
                             {
-                                result.O = originIndexes[i];
-                                for (int j = 0; j < destinationIndexes.Length; j++)
-                                {
-                                    result.D = destinationIndexes[j];
-                                    result.Data = data[pos++];
-                                    yield return result;
-                                }
+                                result.D = destinationIndexes[j];
+                                result.Data = data[pos++];
+                                yield return result;
                             }
                         }
-                        break;
-                    case EmmeMatrix.DataType.UnsignedInteger:
+                    }
+                    break;
+                case EmmeMatrix.DataType.UnsignedInteger:
+                    {
+                        var data = matrix.UnsignedIntData;
+                        for (int i = 0; i < originIndexes.Length; i++)
                         {
-                            var data = matrix.UnsignedIntData;
-                            for (int i = 0; i < originIndexes.Length; i++)
+                            result.O = originIndexes[i];
+                            for (int j = 0; j < destinationIndexes.Length; j++)
                             {
-                                result.O = originIndexes[i];
-                                for (int j = 0; j < destinationIndexes.Length; j++)
-                                {
-                                    result.D = destinationIndexes[j];
-                                    result.Data = data[pos++];
-                                    yield return result;
-                                }
+                                result.D = destinationIndexes[j];
+                                result.Data = data[pos++];
+                                yield return result;
                             }
                         }
-                        break;
-                }
+                    }
+                    break;
             }
         }
 

@@ -675,34 +675,30 @@ namespace XTMF.Gui.UserControls
             {
                 Owner = GetWindow()
             };
-            using (var modelSystemSession = openMS.OpenModelSystem(xtmf))
+            using var modelSystemSession = openMS.OpenModelSystem(xtmf);
+            var loading = openMS.LoadTask;
+            if (loading != null)
             {
-                var loading = openMS.LoadTask;
-                if (loading != null)
+                loading.Wait();
+                using var realSession = openMS.ModelSystemSession;
+                if (realSession != null)
                 {
-                    loading.Wait();
-                    using (var realSession = openMS.ModelSystemSession)
+                    string error = null;
+
+                    var dialog = new StringRequestDialog(RootDialogHost, "Model System Name",
+                        newName => Session.ValidateModelSystemName(newName), realSession.Name);
+
+                    var result = await dialog.ShowAsync(false);
+                    if (dialog.DidComplete)
                     {
-                        if (realSession != null)
+                        if (!Session.AddModelSystem(realSession.ModelSystemModel, dialog.UserInput, ref error))
                         {
-                            string error = null;
-
-                            var dialog = new StringRequestDialog(RootDialogHost, "Model System Name",
-                                newName => Session.ValidateModelSystemName(newName), realSession.Name);
-
-                            var result = await dialog.ShowAsync(false);
-                            if (dialog.DidComplete)
-                            {
-                                if (!Session.AddModelSystem(realSession.ModelSystemModel, dialog.UserInput, ref error))
-                                {
-                                    MessageBox.Show(GetWindow(), error, "Unable to Import Model System",
-                                        MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                                    return;
-                                }
-
-                                Model.RefreshModelSystems();
-                            }
+                            MessageBox.Show(GetWindow(), error, "Unable to Import Model System",
+                                MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                            return;
                         }
+
+                        Model.RefreshModelSystems();
                     }
                 }
             }

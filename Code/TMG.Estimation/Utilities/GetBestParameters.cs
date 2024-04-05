@@ -65,34 +65,32 @@ namespace TMG.Estimation.Utilities
         private void OutputBest(GenerationJob[] best)
         {
             if ( best.Length == 0 ) return;
-            using (var writer = new StreamWriter( OutputResultFile.GetFilePath() ))
+            using var writer = new StreamWriter(OutputResultFile.GetFilePath());
+            writer.Write("Generation,Value");
+            //write header
+            foreach (var parameter in best[0].Job.Parameters)
             {
-                writer.Write( "Generation,Value" );
-                //write header
-                foreach ( var parameter in best[0].Job.Parameters )
+                foreach (var name in parameter.Names)
                 {
-                    foreach ( var name in parameter.Names )
+                    writer.Write(',');
+                    writer.Write(name);
+                }
+            }
+            writer.WriteLine();
+            for (int i = 0; i < best.Length; i++)
+            {
+                writer.Write(best[i].Generation);
+                writer.Write(',');
+                writer.Write(best[i].Job.Value);
+                for (int j = 0; j < best[i].Job.Parameters.Length; j++)
+                {
+                    for (int k = 0; k < best[i].Job.Parameters[j].Names.Length; k++)
                     {
-                        writer.Write( ',' );
-                        writer.Write( name );
+                        writer.Write(',');
+                        writer.Write(best[i].Job.Parameters[j].Current);
                     }
                 }
                 writer.WriteLine();
-                for ( int i = 0; i < best.Length; i++ )
-                {
-                    writer.Write( best[i].Generation );
-                    writer.Write( ',' );
-                    writer.Write( best[i].Job.Value );
-                    for ( int j = 0; j < best[i].Job.Parameters.Length; j++ )
-                    {
-                        for ( int k = 0; k < best[i].Job.Parameters[j].Names.Length; k++ )
-                        {
-                            writer.Write( ',' );
-                            writer.Write( best[i].Job.Parameters[j].Current );
-                        }
-                    }
-                    writer.WriteLine();
-                }
             }
         }
 

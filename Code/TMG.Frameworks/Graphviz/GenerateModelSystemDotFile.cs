@@ -145,15 +145,13 @@ namespace TMG.Frameworks.Graphviz
 
         private void WriteDotFile()
         {
-            using (var dotFile =
-                new StreamWriter(OutputPath.GetFilePath()))
-            {
-                dotFile.Write("graph xtmf_model_system_graph { \r\n");
-                WriteModule(_modelSystemStructure[0], dotFile);
-                WriteMetaModule(_modelSystemStructure[0], dotFile);
-                WriteModuleConnections(_modelSystemStructure[0], dotFile);
-                dotFile.Write("}\r\n");
-            }
+            using var dotFile =
+                new StreamWriter(OutputPath.GetFilePath());
+            dotFile.Write("graph xtmf_model_system_graph { \r\n");
+            WriteModule(_modelSystemStructure[0], dotFile);
+            WriteMetaModule(_modelSystemStructure[0], dotFile);
+            WriteModuleConnections(_modelSystemStructure[0], dotFile);
+            dotFile.Write("}\r\n");
         }
     }
 }

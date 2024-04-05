@@ -74,17 +74,15 @@ namespace TMG.GTAModel.Input
             }
             ODData<float> ret = new ODData<float>();
             // this will close the file at the end of reading it
-            using (BinaryReader reader = new BinaryReader(s))
+            using BinaryReader reader = new BinaryReader(s);
+            for (int i = 0; i < numberOfZones; i++)
             {
-                for (int i = 0; i < numberOfZones; i++)
+                ret.O = zones[i].ZoneNumber;
+                for (int j = 0; j < numberOfZones; j++)
                 {
-                    ret.O = zones[i].ZoneNumber;
-                    for (int j = 0; j < numberOfZones; j++)
-                    {
-                        ret.D = zones[j].ZoneNumber;
-                        ret.Data = reader.ReadSingle();
-                        yield return ret;
-                    }
+                    ret.D = zones[j].ZoneNumber;
+                    ret.Data = reader.ReadSingle();
+                    yield return ret;
                 }
             }
         }

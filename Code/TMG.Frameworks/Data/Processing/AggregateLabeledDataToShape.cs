@@ -68,27 +68,25 @@ If a mapping file is not provided it will do a left join onto the DataToAggregat
             if (DataMap != null)
             {
                 //Load in the map
-                using (var reader = new CsvReader(DataMap, true))
+                using var reader = new CsvReader(DataMap, true);
+                //burn header
+                reader.LoadLine();
+                while (reader.LoadLine(out int columns))
                 {
-                    //burn header
-                    reader.LoadLine();
-                    while (reader.LoadLine(out int columns))
+                    if (columns >= 3)
                     {
-                        if (columns >= 3)
+                        reader.Get(out string destName, 0);
+                        reader.Get(out string originName, 1);
+                        reader.Get(out float toApply, 2);
+                        if (!ret.TryGetValue(destName, out float destValue))
                         {
-                            reader.Get(out string destName, 0);
-                            reader.Get(out string originName, 1);
-                            reader.Get(out float toApply, 2);
-                            if (!ret.TryGetValue(destName, out float destValue))
-                            {
-                                continue;
-                            }
-                            if (!toAggregate.TryGetValue(originName, out float originValue))
-                            {
-                                continue;
-                            }
-                            ret[destName] = originValue * toApply + destValue;
+                            continue;
                         }
+                        if (!toAggregate.TryGetValue(originName, out float originValue))
+                        {
+                            continue;
+                        }
+                        ret[destName] = originValue * toApply + destValue;
                     }
                 }
             }

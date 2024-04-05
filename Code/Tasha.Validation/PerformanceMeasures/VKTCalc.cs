@@ -108,13 +108,11 @@ namespace Tasha.Validation.PerformanceMeasures
                             }
                         }
                     }
-                    using (StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone))
+                    using StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone);
+                    writer.WriteLine("Home Zone, Total VKTs");
+                    foreach (var pair in totalVKT)
                     {
-                        writer.WriteLine("Home Zone, Total VKTs");
-                        foreach (var pair in totalVKT)
-                        {
-                            writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
-                        }
+                        writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
                     }
                 }
                 catch (IOException e)

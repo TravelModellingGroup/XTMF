@@ -604,10 +604,8 @@ namespace XTMF
             {
                 Directory.CreateDirectory(dirName);
             }
-            using (FileStream fs = new FileStream(fileName, FileMode.Create))
-            {
-                Save(fs);
-            }
+            using FileStream fs = new FileStream(fileName, FileMode.Create);
+            Save(fs);
         }
 
         public override string ToString() => Name ?? "No Name";

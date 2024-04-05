@@ -215,29 +215,27 @@ namespace TMG.NetworkEstimation
             if (RerunFromLastRunParameters && File.Exists(EvaluationFile))
             {
                 // store the best values in the kernel
-                using (StreamReader reader = new StreamReader(EvaluationFile))
+                using StreamReader reader = new StreamReader(EvaluationFile);
+                string line;
+                // Burn the header
+                reader.ReadLine();
+                while ((line = reader.ReadLine()) != null)
                 {
-                    string line;
-                    // Burn the header
-                    reader.ReadLine();
-                    while ((line = reader.ReadLine()) != null)
+                    string[] split = line.Split(Comma);
+                    // make sure our 3 metrics are here
+                    if (split.Length == dimensions + 4)
                     {
-                        string[] split = line.Split(Comma);
-                        // make sure our 3 metrics are here
-                        if (split.Length == dimensions + 4)
+                        int offset = split.Length - 3;
+                        float rmse = float.Parse(split[offset + 0]);
+                        float mse = float.Parse(split[offset + 1]);
+                        float error = float.Parse(split[offset + 2]);
+                        float value = ErrorCombinationFunction(rmse, mse, error);
+                        if (value < BestRunError)
                         {
-                            int offset = split.Length - 3;
-                            float rmse = float.Parse(split[offset + 0]);
-                            float mse = float.Parse(split[offset + 1]);
-                            float error = float.Parse(split[offset + 2]);
-                            float value = ErrorCombinationFunction(rmse, mse, error);
-                            if (value < BestRunError)
+                            BestRunError = value;
+                            for (int i = 0; i < Kernel.Length; i++)
                             {
-                                BestRunError = value;
-                                for (int i = 0; i < Kernel.Length; i++)
-                                {
-                                    Kernel[i].Current = float.Parse(split[i]);
-                                }
+                                Kernel[i].Current = float.Parse(split[i]);
                             }
                         }
                     }

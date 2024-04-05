@@ -33,19 +33,17 @@ namespace XTMF.Testing.Editing
             controller.Delete( msName );
             var ms = controller.LoadOrCreate( msName );
             Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            using (var session = controller.EditModelSystem( ms ))
-            {
-                var modelSystem = session.ModelSystemModel;
-                var linkedParameters = modelSystem.LinkedParameters;
-                Assert.AreEqual( 0, linkedParameters.Count, "The model system already had a linked parameter before we added any!" );
-                string? error = null;
-                Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
-                Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
-                Assert.IsTrue( session.Undo( ref error ) );
-                Assert.AreEqual( 0, linkedParameters.Count, "After undoing the add new linked parameter there was still a linked parameter left!" );
-                Assert.IsTrue( session.Redo( ref error ) );
-                Assert.AreEqual( 1, linkedParameters.Count, "After re-adding a linked parameter it still reports that there isn't one linked parameter." );
-            }
+            using var session = controller.EditModelSystem(ms);
+            var modelSystem = session.ModelSystemModel;
+            var linkedParameters = modelSystem.LinkedParameters;
+            Assert.AreEqual(0, linkedParameters.Count, "The model system already had a linked parameter before we added any!");
+            string? error = null;
+            Assert.IsTrue(linkedParameters.NewLinkedParameter("Test", ref error), "We failed to create our first linked parameter!");
+            Assert.AreEqual(1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter.");
+            Assert.IsTrue(session.Undo(ref error));
+            Assert.AreEqual(0, linkedParameters.Count, "After undoing the add new linked parameter there was still a linked parameter left!");
+            Assert.IsTrue(session.Redo(ref error));
+            Assert.AreEqual(1, linkedParameters.Count, "After re-adding a linked parameter it still reports that there isn't one linked parameter.");
         }
 
         [TestMethod]
@@ -57,24 +55,22 @@ namespace XTMF.Testing.Editing
             controller.Delete( msName );
             var ms = controller.LoadOrCreate( msName );
             Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            using (var session = controller.EditModelSystem( ms ))
-            {
-                var modelSystem = session.ModelSystemModel;
-                var linkedParameters = modelSystem.LinkedParameters;
-                Assert.AreEqual( 0, linkedParameters.Count, "The model system already had a linked parameter before we added any!" );
-                string? error = null;
-                Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
-                Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
-                var linkedParameterList = linkedParameters.GetLinkedParameters();
-                var zeroElement = linkedParameterList[0];
-                Assert.IsTrue( linkedParameters.RemoveLinkedParameter(zeroElement , ref error ), "We were unable to delete the linked parameter!" );
-                Assert.IsFalse( linkedParameters.RemoveLinkedParameter( zeroElement, ref error ), "We were able to delete the linked parameter for a second time!" );
-                Assert.AreEqual( 0, linkedParameters.Count, "A linked parameter remained after deleting the only one!" );
-                Assert.IsTrue( session.Undo( ref error ) );
-                Assert.AreEqual( 1, linkedParameters.Count, "After undoing the linked parameter was not added back!" );
-                Assert.IsTrue( session.Redo( ref error ) );
-                Assert.AreEqual( 0, linkedParameters.Count, "After redoing the linked parameter remained!" );
-            }
+            using var session = controller.EditModelSystem(ms);
+            var modelSystem = session.ModelSystemModel;
+            var linkedParameters = modelSystem.LinkedParameters;
+            Assert.AreEqual(0, linkedParameters.Count, "The model system already had a linked parameter before we added any!");
+            string? error = null;
+            Assert.IsTrue(linkedParameters.NewLinkedParameter("Test", ref error), "We failed to create our first linked parameter!");
+            Assert.AreEqual(1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter.");
+            var linkedParameterList = linkedParameters.GetLinkedParameters();
+            var zeroElement = linkedParameterList[0];
+            Assert.IsTrue(linkedParameters.RemoveLinkedParameter(zeroElement, ref error), "We were unable to delete the linked parameter!");
+            Assert.IsFalse(linkedParameters.RemoveLinkedParameter(zeroElement, ref error), "We were able to delete the linked parameter for a second time!");
+            Assert.AreEqual(0, linkedParameters.Count, "A linked parameter remained after deleting the only one!");
+            Assert.IsTrue(session.Undo(ref error));
+            Assert.AreEqual(1, linkedParameters.Count, "After undoing the linked parameter was not added back!");
+            Assert.IsTrue(session.Redo(ref error));
+            Assert.AreEqual(0, linkedParameters.Count, "After redoing the linked parameter remained!");
         }
     }
 }

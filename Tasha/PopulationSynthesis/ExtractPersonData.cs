@@ -144,60 +144,58 @@ namespace Tasha.PopulationSynthesis
 
             internal void Save()
             {
-                using ( StreamWriter writer = new StreamWriter( self.SaveFile.GetFileName() ) )
+                using StreamWriter writer = new StreamWriter(self.SaveFile.GetFileName());
+                WriterHeader(writer);
+                for (int entry = 0; entry < EntryList.Count; entry++)
                 {
-                    WriterHeader( writer );
-                    for ( int entry = 0; entry < EntryList.Count; entry++ )
+                    var personType = EntryList[entry];
+                    writer.Write(personType.PlaningDistrict);
+                    writer.Write(',');
+                    writer.Write(personType.AgeCat);
+                    writer.Write(',');
+                    writer.Write(personType.Female ? 'F' : 'M');
+                    writer.Write(',');
+                    writer.Write(personType.DriversLicense ? 'Y' : 'N');
+                    writer.Write(',');
+                    switch (personType.EmploymentStatus)
                     {
-                        var personType = EntryList[entry];
-                        writer.Write( personType.PlaningDistrict );
-                        writer.Write( ',' );
-                        writer.Write( personType.AgeCat );
-                        writer.Write( ',' );
-                        writer.Write( personType.Female ? 'F' : 'M' );
-                        writer.Write( ',' );
-                        writer.Write( personType.DriversLicense ? 'Y' : 'N' );
-                        writer.Write( ',' );
-                        switch ( personType.EmploymentStatus )
-                        {
-                            case TTSEmploymentStatus.FullTime:
-                                writer.Write( 'F' );
-                                break;
+                        case TTSEmploymentStatus.FullTime:
+                            writer.Write('F');
+                            break;
 
-                            case TTSEmploymentStatus.PartTime:
-                                writer.Write( 'P' );
-                                break;
+                        case TTSEmploymentStatus.PartTime:
+                            writer.Write('P');
+                            break;
 
-                            default:
-                                writer.Write( 'O' );
-                                break;
-                        }
-                        writer.Write( ',' );
-                        switch ( personType.Occupation )
-                        {
-                            case Occupation.Professional:
-                                writer.Write( 'P' );
-                                break;
-
-                            case Occupation.Office:
-                                writer.Write( 'G' );
-                                break;
-
-                            case Occupation.Retail:
-                                writer.Write( 'S' );
-                                break;
-
-                            case Occupation.Manufacturing:
-                                writer.Write( 'M' );
-                                break;
-
-                            default:
-                                writer.Write( 'O' );
-                                break;
-                        }
-                        writer.Write( ',' );
-                        writer.WriteLine( personType.ExpansionFactor );
+                        default:
+                            writer.Write('O');
+                            break;
                     }
+                    writer.Write(',');
+                    switch (personType.Occupation)
+                    {
+                        case Occupation.Professional:
+                            writer.Write('P');
+                            break;
+
+                        case Occupation.Office:
+                            writer.Write('G');
+                            break;
+
+                        case Occupation.Retail:
+                            writer.Write('S');
+                            break;
+
+                        case Occupation.Manufacturing:
+                            writer.Write('M');
+                            break;
+
+                        default:
+                            writer.Write('O');
+                            break;
+                    }
+                    writer.Write(',');
+                    writer.WriteLine(personType.ExpansionFactor);
                 }
             }
 

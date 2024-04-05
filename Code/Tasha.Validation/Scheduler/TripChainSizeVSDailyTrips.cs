@@ -66,27 +66,25 @@ namespace Tasha.Validation.Scheduler
 
         public void IterationFinished(int iteration)
         {
-            using (StreamWriter writer = new StreamWriter(OutputLocation))
+            using StreamWriter writer = new StreamWriter(OutputLocation);
+            //write header
+            writer.Write("TripChainSize\\DailyTripCount");
+            for (int i = 0; i < Results.Length; i++)
             {
-                //write header
-                writer.Write("TripChainSize\\DailyTripCount");
-                for (int i = 0; i < Results.Length; i++)
+                writer.Write(',');
+                writer.Write(i);
+            }
+            writer.WriteLine();
+            // for each row
+            for (int i = 0; i < Results.Length; i++)
+            {
+                writer.Write(i);
+                for (int j = 0; j < Results[i].Length; j++)
                 {
                     writer.Write(',');
-                    writer.Write(i);
+                    writer.Write(Results[i][j]);
                 }
                 writer.WriteLine();
-                // for each row
-                for (int i = 0; i < Results.Length; i++)
-                {
-                    writer.Write(i);
-                    for (int j = 0; j < Results[i].Length; j++)
-                    {
-                        writer.Write(',');
-                        writer.Write(Results[i][j]);
-                    }
-                    writer.WriteLine();
-                }
             }
         }
 

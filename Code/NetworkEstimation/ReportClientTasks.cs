@@ -42,25 +42,23 @@ namespace TMG.NetworkEstimation
         {
             var exists = File.Exists(ReportFile.GetFileName());
 
-            using (var writer = new StreamWriter(ReportFile.GetFileName(),true))
+            using var writer = new StreamWriter(ReportFile.GetFileName(), true);
+            if (!exists)
             {
-                if (!exists)
+                var s1 = "Generation,Index";
+                foreach (var ps in Root.Parameters)
                 {
-                    var s1 = "Generation,Index";
-                    foreach (var ps in Root.Parameters)
-                    {
-                        s1 += "," + string.Join(" ", ps.Names, 0, ps.Names.Length);
-                    }
-                    writer.WriteLine(s1);
+                    s1 += "," + string.Join(" ", ps.Names, 0, ps.Names.Length);
                 }
-
-                var s2 = string.Join(",", Root.CurrentTask.Generation, Root.CurrentTask.Index);
-                foreach (var val in Root.CurrentTask.ParameterValues)
-                {
-                    s2 += "," + val;
-                }
-                writer.WriteLine(s2);
+                writer.WriteLine(s1);
             }
+
+            var s2 = string.Join(",", Root.CurrentTask.Generation, Root.CurrentTask.Index);
+            foreach (var val in Root.CurrentTask.ParameterValues)
+            {
+                s2 += "," + val;
+            }
+            writer.WriteLine(s2);
         }
 
 

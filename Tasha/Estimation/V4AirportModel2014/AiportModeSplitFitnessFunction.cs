@@ -111,26 +111,24 @@ namespace Tasha.Estimation.V4AirportModel2014
             AutoProbabilities = new float[zones.Length];
             TransitProbabilities = new float[zones.Length];
             TotalTrips = new float[zones.Length];
-            using (CsvReader reader = new CsvReader(ModeSplitTruthData))
+            using CsvReader reader = new CsvReader(ModeSplitTruthData);
+            // burn header
+            reader.LoadLine();
+            // read in the rest of the data
+            while (reader.LoadLine(out int columns))
             {
-                // burn header
-                reader.LoadLine();
-                // read in the rest of the data
-                while (reader.LoadLine(out int columns))
+                if (columns >= 3)
                 {
-                    if (columns >= 3)
+                    reader.Get(out int zone, 0);
+                    zone = zoneSystem.GetFlatIndex(zone);
+                    if (zone >= 0)
                     {
-                        reader.Get(out int zone, 0);
-                        zone = zoneSystem.GetFlatIndex(zone);
-                        if (zone >= 0)
-                        {
-                            reader.Get(out float auto, 1);
-                            reader.Get(out float transit, 2);
-                            reader.Get(out float totalTrips, 3);
-                            AutoProbabilities[zone] = auto;
-                            TransitProbabilities[zone] = transit;
-                            TotalTrips[zone] = totalTrips;
-                        }
+                        reader.Get(out float auto, 1);
+                        reader.Get(out float transit, 2);
+                        reader.Get(out float totalTrips, 3);
+                        AutoProbabilities[zone] = auto;
+                        TransitProbabilities[zone] = transit;
+                        TotalTrips[zone] = totalTrips;
                     }
                 }
             }

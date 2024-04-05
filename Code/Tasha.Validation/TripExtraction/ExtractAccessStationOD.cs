@@ -150,25 +150,23 @@ namespace Tasha.Validation.TripExtraction
             var results = Results;
             var zoneNumbers = Zones.GetFlatData().Select(z => z.ZoneNumber.ToString()).ToArray();
             var stationIndexStr = StationIndex.Select(z => z.ToString()).ToArray();
-            using (var writer = new StreamWriter(SaveTo))
+            using var writer = new StreamWriter(SaveTo);
+            writer.WriteLine("Station,Origin,Destination,Trips");
+            for (int sIndex = 0; sIndex < results.Length; sIndex++)
             {
-                writer.WriteLine("Station,Origin,Destination,Trips");
-                for (int sIndex = 0; sIndex < results.Length; sIndex++)
+                for (int o = 0; o < results[sIndex].Length; o++)
                 {
-                    for (int o = 0; o < results[sIndex].Length; o++)
+                    for (int d = 0; d < results[sIndex][o].Length; d++)
                     {
-                        for (int d = 0; d < results[sIndex][o].Length; d++)
+                        if (results[sIndex][o][d] > 0.0f)
                         {
-                            if (results[sIndex][o][d] > 0.0f)
-                            {
-                                writer.Write(stationIndexStr[sIndex]);
-                                writer.Write(',');
-                                writer.Write(zoneNumbers[o]);
-                                writer.Write(',');
-                                writer.Write(zoneNumbers[d]);
-                                writer.Write(',');
-                                writer.WriteLine(results[sIndex][o][d]);
-                            }
+                            writer.Write(stationIndexStr[sIndex]);
+                            writer.Write(',');
+                            writer.Write(zoneNumbers[o]);
+                            writer.Write(',');
+                            writer.Write(zoneNumbers[d]);
+                            writer.Write(',');
+                            writer.WriteLine(results[sIndex][o][d]);
                         }
                     }
                 }

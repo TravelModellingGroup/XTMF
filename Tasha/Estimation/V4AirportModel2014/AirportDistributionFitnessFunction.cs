@@ -102,24 +102,22 @@ namespace Tasha.Estimation.V4AirportModel2014
             var zones = zoneSystem.GetFlatData();
             ObservedDistribution = new float[zones.Length];
             TotalTrips = new float[zones.Length];
-            using (var reader = new CsvReader(ObservedDistributionFile))
+            using var reader = new CsvReader(ObservedDistributionFile);
+            // burn header
+            reader.LoadLine();
+            // read in the rest of the data
+            while (reader.LoadLine(out int columns))
             {
-                // burn header
-                reader.LoadLine();
-                // read in the rest of the data
-                while (reader.LoadLine(out int columns))
+                if (columns >= 2)
                 {
-                    if (columns >= 2)
+                    reader.Get(out int zone, 0);
+                    zone = zoneSystem.GetFlatIndex(zone);
+                    if (zone >= 0)
                     {
-                        reader.Get(out int zone, 0);
-                        zone = zoneSystem.GetFlatIndex(zone);
-                        if (zone >= 0)
-                        {
-                            reader.Get(out float probability, 1);
-                            reader.Get(out float totalTrips, 2);
-                            ObservedDistribution[zone] = probability;
-                            TotalTrips[zone] = totalTrips;
-                        }
+                        reader.Get(out float probability, 1);
+                        reader.Get(out float totalTrips, 2);
+                        ObservedDistribution[zone] = probability;
+                        TotalTrips[zone] = totalTrips;
                     }
                 }
             }

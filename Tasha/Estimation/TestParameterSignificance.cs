@@ -123,27 +123,23 @@ namespace Tasha.Estimation
             if ( iteration == 0 )
             {
                 BaseFitness = Fitness;
-                using ( StreamWriter writer = new StreamWriter( SignificanceResultFile.GetFilePath() ) )
-                {
-                    writer.WriteLine( "Parameter,Rho^2,Difference" );
-                    writer.Write( "Base," );
-                    writer.Write( 1.0 - ( BaseFitness / BaseRandomFitness ) );
-                    writer.Write( ',' );
-                    writer.WriteLine( '0' );
-                }
+                using StreamWriter writer = new StreamWriter(SignificanceResultFile.GetFilePath());
+                writer.WriteLine("Parameter,Rho^2,Difference");
+                writer.Write("Base,");
+                writer.Write(1.0 - (BaseFitness / BaseRandomFitness));
+                writer.Write(',');
+                writer.WriteLine('0');
             }
             else
             {
                 var baseRho = ( 1.0 - ( BaseFitness / BaseRandomFitness ) );
                 var ourRho = ( 1.0 - ( Fitness / BaseRandomFitness ) );
-                using ( StreamWriter writer = new StreamWriter( SignificanceResultFile.GetFilePath(), true ) )
-                {
-                    writer.Write( Parameters[iteration - 1].Names[0] );
-                    writer.Write( ',' );
-                    writer.Write( ourRho );
-                    writer.Write( ',' );
-                    writer.WriteLine( baseRho - ourRho );
-                }
+                using StreamWriter writer = new StreamWriter(SignificanceResultFile.GetFilePath(), true);
+                writer.Write(Parameters[iteration - 1].Names[0]);
+                writer.Write(',');
+                writer.Write(ourRho);
+                writer.Write(',');
+                writer.WriteLine(baseRho - ourRho);
             }
             // Reset rho
             Fitness = 0.0;
@@ -373,58 +369,56 @@ namespace Tasha.Estimation
         private void LoadEstimationResult()
         {
             var modeParameterFile = EstimationResult.GetFilePath();
-            using ( StreamReader reader = new StreamReader( modeParameterFile ) )
+            using StreamReader reader = new StreamReader(modeParameterFile);
+            // First read the header, we will need that data to store in the mode parameters
+            var headerLine = reader.ReadLine();
+            if (headerLine == null)
             {
-                // First read the header, we will need that data to store in the mode parameters
-                var headerLine = reader.ReadLine();
-                if ( headerLine == null )
+                throw new XTMFRuntimeException(this, "The file \"" + modeParameterFile + "\" does not contain any data to load parameters from!");
+            }
+            string[] header = headerLine.Split(',');
+            for (int i = 1; (i < ModeParameterFileRow) && (reader.ReadLine() != null); i++)
+            {
+                // do nothing
+            }
+            string line = reader.ReadLine();
+            if (line == null)
+            {
+                throw new XTMFRuntimeException(this, "We were unable to find a row#" + ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"");
+            }
+            var parameters = line.Split(',');
+            var localParameters = Parameters;
+            var numberOfParameters = header.Length;
+            for (int i = 0; i < numberOfParameters; i++)
+            {
+                var endOfMode = header[i].IndexOf('.');
+                if (endOfMode < 0)
                 {
-                    throw new XTMFRuntimeException(this, "The file \"" + modeParameterFile + "\" does not contain any data to load parameters from!" );
+                    continue;
                 }
-                string[] header = headerLine.Split( ',' );
-                for ( int i = 1; ( i < ModeParameterFileRow ) && ( reader.ReadLine() != null ); i++ )
+                bool found = false;
+                // find the matching mode
+                for (int j = 0; j < localParameters.Length; j++)
                 {
-                    // do nothing
-                }
-                string line = reader.ReadLine();
-                if ( line == null )
-                {
-                    throw new XTMFRuntimeException(this, "We were unable to find a row#" + ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"" );
-                }
-                var parameters = line.Split( ',' );
-                var localParameters = Parameters;
-                var numberOfParameters = header.Length;
-                for ( int i = 0; i < numberOfParameters; i++ )
-                {
-                    var endOfMode = header[i].IndexOf( '.' );
-                    if ( endOfMode < 0 )
+                    for (int k = 0; k < localParameters[j].Names.Length; k++)
                     {
-                        continue;
-                    }
-                    bool found = false;
-                    // find the matching mode
-                    for ( int j = 0; j < localParameters.Length; j++ )
-                    {
-                        for ( int k = 0; k < localParameters[j].Names.Length; k++ )
+                        if (localParameters[j].Names[k] == header[i])
                         {
-                            if ( localParameters[j].Names[k] == header[i] )
+                            if (!float.TryParse(parameters[i], out localParameters[j].Current))
                             {
-                                if ( !float.TryParse( parameters[i], out localParameters[j].Current ) )
-                                {
-                                    throw new XTMFRuntimeException(this, "In '" + Name
-                                        + "' we were unable to read in the parameter, '" + parameters[i]
-                                        + "' in order to assign it as a value." );
-                                }
-                                localParameters[j].InitialValue = localParameters[j].Current;
-                                found = true;
+                                throw new XTMFRuntimeException(this, "In '" + Name
+                                    + "' we were unable to read in the parameter, '" + parameters[i]
+                                    + "' in order to assign it as a value.");
                             }
+                            localParameters[j].InitialValue = localParameters[j].Current;
+                            found = true;
                         }
                     }
-                    if ( !found )
-                    {
-                        throw new XTMFRuntimeException(this, "In '" + Name
-                                        + "' we were unable to match a parameter called '" + header[i] + "'" );
-                    }
+                }
+                if (!found)
+                {
+                    throw new XTMFRuntimeException(this, "In '" + Name
+                                    + "' we were unable to match a parameter called '" + header[i] + "'");
                 }
             }
         }

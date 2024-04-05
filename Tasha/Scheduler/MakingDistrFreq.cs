@@ -478,57 +478,55 @@ namespace Tasha.Scheduler
         {
             Status = "Writing Distribution Frequency File";
             Progress = 0;
-            using (StreamWriter writer = new StreamWriter(OutputResults))
-            {
-                writer.WriteLine("DistID, Freq, ExpPersons");
+            using StreamWriter writer = new StreamWriter(OutputResults);
+            writer.WriteLine("DistID, Freq, ExpPersons");
 
-                for(int i = 0; i < ResultsArray.Length; i++)
+            for (int i = 0; i < ResultsArray.Length; i++)
+            {
+                for (int j = 0; j < 11; j++)
                 {
-                    for(int j = 0; j < 11; j++)
+                    if (i < 32)
                     {
-                        if(i < 32)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, ResultsArray[i][j]);
-                        }
-                        else if(i >= 32 && i < 40)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * SecondaryWorkInflation);
-                        }
-                        else if(i >= 40 && i < 72)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkBusinessInflation);
-                        }
-                        else if(i >= 72 && i < 84)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkAtHomeInflation);
-                        }
-                        else if(i >= 84 && i < 94)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, ResultsArray[i][j]);
-                        }
-                        else if(i >= 94 && i < 102)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * ReturnFromWorkInflation);
-                        }
-                        else if(i >= 102 && i < 158)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * OtherInflation);
-                        }
-                        else if(i >= 158 && i < 182)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointOtherInflation);
-                        }
-                        else if(i >= 182 && i < 238)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * MarketInflation);
-                        }
-                        else if(i >= 238 && i < 262)
-                        {
-                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointMarketInflation);
-                        }
+                        writer.WriteLine("{0},{1},{2}", i, j, ResultsArray[i][j]);
                     }
-                    Progress = (float)i / ResultsArray.Length;
+                    else if (i >= 32 && i < 40)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * SecondaryWorkInflation);
+                    }
+                    else if (i >= 40 && i < 72)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkBusinessInflation);
+                    }
+                    else if (i >= 72 && i < 84)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkAtHomeInflation);
+                    }
+                    else if (i >= 84 && i < 94)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, ResultsArray[i][j]);
+                    }
+                    else if (i >= 94 && i < 102)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * ReturnFromWorkInflation);
+                    }
+                    else if (i >= 102 && i < 158)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * OtherInflation);
+                    }
+                    else if (i >= 158 && i < 182)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointOtherInflation);
+                    }
+                    else if (i >= 182 && i < 238)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * MarketInflation);
+                    }
+                    else if (i >= 238 && i < 262)
+                    {
+                        writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointMarketInflation);
+                    }
                 }
+                Progress = (float)i / ResultsArray.Length;
             }
         }
 

@@ -132,46 +132,44 @@ namespace TMG.NetworkEstimation
             if ( !IsNullOrWhiteSpace( RegionErrorFile ) )
             {
                 bool exists = File.Exists( RegionErrorFile );
-                using ( var writer = new StreamWriter( RegionErrorFile, true ) )
+                using var writer = new StreamWriter(RegionErrorFile, true);
+                if (!exists)
                 {
-                    if ( !exists )
+                    for (int i = 0; i < numberOfModesFirstLetters; i++)
                     {
-                        for ( int i = 0; i < numberOfModesFirstLetters; i++ )
+                        writer.Write(foundModes[i].Second);
+                        writer.Write(':');
+                        writer.Write(foundModes[i].First);
+                        if (i == numberOfModesFirstLetters - 1)
                         {
-                            writer.Write( foundModes[i].Second );
-                            writer.Write( ':' );
-                            writer.Write( foundModes[i].First );
-                            if ( i == numberOfModesFirstLetters - 1 )
+                            if (RegionPercentError)
                             {
-                                if ( RegionPercentError )
-                                {
-                                    writer.WriteLine( ",%Error" );
-                                }
-                                else
-                                {
-                                    writer.WriteLine( ",Error" );
-                                }
+                                writer.WriteLine(",%Error");
                             }
                             else
                             {
-                                writer.Write( ',' );
+                                writer.WriteLine(",Error");
                             }
-                        }
-                    }
-                    for ( int i = 0; i < numberOfModesFirstLetters; i++ )
-                    {
-                        if ( RegionPercentError )
-                        {
-                            writer.Write( Math.Abs( aggPredToMode[i] - aggTtsToMode[i] ) / aggTtsToMode[i] );
                         }
                         else
                         {
-                            writer.Write( aggPredToMode[i] - aggTtsToMode[i] );
+                            writer.Write(',');
                         }
-                        writer.Write( ',' );
                     }
-                    writer.WriteLine( finalError );
                 }
+                for (int i = 0; i < numberOfModesFirstLetters; i++)
+                {
+                    if (RegionPercentError)
+                    {
+                        writer.Write(Math.Abs(aggPredToMode[i] - aggTtsToMode[i]) / aggTtsToMode[i]);
+                    }
+                    else
+                    {
+                        writer.Write(aggPredToMode[i] - aggTtsToMode[i]);
+                    }
+                    writer.Write(',');
+                }
+                writer.WriteLine(finalError);
             }
             return finalError;
         }

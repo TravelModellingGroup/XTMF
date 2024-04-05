@@ -59,10 +59,8 @@ namespace XTMF.Testing.Editing
                         secondSession.Dispose();
                     }
                     secondSession = null;
-                    using (var fourthSession = controller.EditModelSystem(ms))
-                    {
-                        Assert.IsFalse(thirdSession == fourthSession, "The third session and the fourth session should have been different!");
-                    }
+                    using var fourthSession = controller.EditModelSystem(ms);
+                    Assert.IsFalse(thirdSession == fourthSession, "The third session and the fourth session should have been different!");
                 }
                 finally
                 {
@@ -90,13 +88,11 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
-            }
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
         }
 
         [TestMethod]
@@ -108,22 +104,20 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
 
-                root.Type = typeof(TestModelSystemTemplate);
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
-                string? error = null;
-                Assert.IsTrue(session.Undo(ref error), "The undo failed!");
-                Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
+            root.Type = typeof(TestModelSystemTemplate);
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+            string? error = null;
+            Assert.IsTrue(session.Undo(ref error), "The undo failed!");
+            Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
 
-                Assert.IsTrue(session.Redo(ref error), "The undo failed!");
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type after redo!");
-            }
+            Assert.IsTrue(session.Redo(ref error), "The undo failed!");
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type after redo!");
         }
 
         [TestMethod]
@@ -135,24 +129,22 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
 
-                root.Type = typeof(TestModelSystemTemplate);
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
-                Assert.AreEqual(1, root.Children.Count);
-                string? error = null;
-                Assert.IsTrue(session.Undo(ref error), "The undo failed!");
-                Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
-                Assert.AreEqual(0, root.Children.Count, "There should be no children!");
+            root.Type = typeof(TestModelSystemTemplate);
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+            Assert.AreEqual(1, root.Children.Count);
+            string? error = null;
+            Assert.IsTrue(session.Undo(ref error), "The undo failed!");
+            Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
+            Assert.AreEqual(0, root.Children.Count, "There should be no children!");
 
-                Assert.IsTrue(session.Redo(ref error), "The undo failed!");
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type after redo!");
-            }
+            Assert.IsTrue(session.Redo(ref error), "The undo failed!");
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type after redo!");
         }
 
         [TestMethod]
@@ -164,25 +156,23 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
 
-                root.Type = typeof(TestModelSystemTemplate);
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+            root.Type = typeof(TestModelSystemTemplate);
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
 
-                Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
+            Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
 
-                var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string? error = null;
-                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
-                Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
-            }
+            string? error = null;
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+            Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
         }
 
         [TestMethod]
@@ -194,31 +184,29 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
 
-                root.Type = typeof(TestModelSystemTemplate);
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+            root.Type = typeof(TestModelSystemTemplate);
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
 
-                Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
+            Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
 
-                var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string? error = null;
-                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
-                Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
+            string? error = null;
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+            Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
 
-                Assert.IsFalse(collection.RemoveCollectionMember(1, ref error), "We received a success while trying to remove a collection member that doesn't exist!");
-                Assert.IsTrue(collection.RemoveCollectionMember(0, ref error), "We were unable to remove a collection member that does exist!");
-                Assert.AreEqual(0, collection.Children.Count);
-                Assert.IsTrue(session.Undo(ref error), "We were unable to undo the remove collection!");
-                Assert.AreEqual(1, collection.Children.Count, "The undo did not add back our collection member!");
-            }
+            Assert.IsFalse(collection.RemoveCollectionMember(1, ref error), "We received a success while trying to remove a collection member that doesn't exist!");
+            Assert.IsTrue(collection.RemoveCollectionMember(0, ref error), "We were unable to remove a collection member that does exist!");
+            Assert.AreEqual(0, collection.Children.Count);
+            Assert.IsTrue(session.Undo(ref error), "We were unable to undo the remove collection!");
+            Assert.AreEqual(1, collection.Children.Count, "The undo did not add back our collection member!");
         }
 
         [TestMethod]
@@ -230,37 +218,35 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
+
+            root.Type = typeof(TestModelSystemTemplate);
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+
+            Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
+
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
+
+            string? error = null;
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+            Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
+
+            Assert.AreEqual(2, collection.Children.Count, "An incorrect number of children were found.");
+            var oldChildren = collection.Children.ToList();
+            Assert.IsTrue(collection.RemoveAllCollectionMembers(ref error), "We were unable to remove all collection members!");
+            Assert.AreEqual(0, collection.Children.Count, "After removing all of the collection members, there were still elements left in the collection.");
+            Assert.IsTrue(session.Undo(ref error), "We failed to undo the remove all!");
+            Assert.AreEqual(2, collection.Children.Count, "After undoing the remove all there were still issues.");
+
+            for (int i = 0; i < collection.Children.Count; i++)
             {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
-
-                root.Type = typeof(TestModelSystemTemplate);
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
-
-                Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
-
-                var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
-
-                string? error = null;
-                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
-                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
-                Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
-
-                Assert.AreEqual(2, collection.Children.Count, "An incorrect number of children were found.");
-                var oldChildren = collection.Children.ToList();
-                Assert.IsTrue(collection.RemoveAllCollectionMembers(ref error), "We were unable to remove all collection members!");
-                Assert.AreEqual(0, collection.Children.Count, "After removing all of the collection members, there were still elements left in the collection.");
-                Assert.IsTrue(session.Undo(ref error), "We failed to undo the remove all!");
-                Assert.AreEqual(2, collection.Children.Count, "After undoing the remove all there were still issues.");
-
-                for(int i = 0; i < collection.Children.Count; i++)
-                {
-                    Assert.AreEqual(oldChildren[i], collection.Children[i], "A child was not the same as before!");
-                }
+                Assert.AreEqual(oldChildren[i], collection.Children[i], "A child was not the same as before!");
             }
         }
 
@@ -274,36 +260,33 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
 
-                root.Type = typeof(TestModelSystemTemplate);
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+            root.Type = typeof(TestModelSystemTemplate);
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
 
-                Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
+            Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
 
-                var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string? error = null;
-                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
-                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
-                var members = collection.Children;
-                var first = members[0];
-                var second = members[1];
-                Assert.IsFalse(collection.MoveChild(-1, 0, ref error));
-                Assert.IsFalse(collection.MoveChild(0, -1, ref error));
-                Assert.IsFalse(collection.MoveChild(2, 0, ref error));
-                Assert.IsFalse(collection.MoveChild(0, 2, ref error));
-                Assert.IsTrue(collection.MoveChild(0, 1, ref error));
-                Assert.AreEqual(first, collection.Children[1]);
-                Assert.AreEqual(second, collection.Children[0]);
-
-            }
+            string? error = null;
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+            var members = collection.Children;
+            var first = members[0];
+            var second = members[1];
+            Assert.IsFalse(collection.MoveChild(-1, 0, ref error));
+            Assert.IsFalse(collection.MoveChild(0, -1, ref error));
+            Assert.IsFalse(collection.MoveChild(2, 0, ref error));
+            Assert.IsFalse(collection.MoveChild(0, 2, ref error));
+            Assert.IsTrue(collection.MoveChild(0, 1, ref error));
+            Assert.AreEqual(first, collection.Children[1]);
+            Assert.AreEqual(second, collection.Children[0]);
         }
 
         [TestMethod]
@@ -315,28 +298,26 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
+            using var session = controller.EditModelSystem(ms);
+            string? error = null;
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
+            var oldName = root.Name;
+            const string? newName = "New Name";
+            Assert.IsTrue(root.SetName(newName, ref error), "Failed to set the module's name!");
+            Assert.AreEqual(root.Name, newName, "The new name was not assigned!");
+            if (!session.Undo(ref error))
             {
-                string? error = null;
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
-                var oldName = root.Name;
-                const string? newName = "New Name";
-                Assert.IsTrue(root.SetName(newName, ref error), "Failed to set the module's name!");
-                Assert.AreEqual(root.Name, newName, "The new name was not assigned!");
-                if(!session.Undo(ref error))
-                {
-                    Assert.Fail("We were unable to undo! " + error);
-                }
-                Assert.AreEqual(root.Name, oldName, "The old name was not restored!");
-                if(!session.Redo(ref error))
-                {
-                    Assert.Fail("We were unable to redo! " + error);
-                }
-                Assert.AreEqual(root.Name, newName, "The new name was not restored after redo!");
+                Assert.Fail("We were unable to undo! " + error);
             }
+            Assert.AreEqual(root.Name, oldName, "The old name was not restored!");
+            if (!session.Redo(ref error))
+            {
+                Assert.Fail("We were unable to redo! " + error);
+            }
+            Assert.AreEqual(root.Name, newName, "The new name was not restored after redo!");
         }
 
         [TestMethod]
@@ -349,51 +330,47 @@ namespace XTMF.Testing.Editing
             Project project;
             Assert.IsTrue((project = controller.LoadOrCreate("TestProject", ref error)) != null);
             ((Configuration)runtime.Configuration).RunInSeperateProcess = false;
-            using (var session = controller.EditProject(project))
+            using var session = controller.EditProject(project);
+            var testModelSystem = CreateTestModelSystem(runtime);
+            Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
+            using var modelSystemSession = session.EditModelSystem(0);
+            Assert.IsNotNull(modelSystemSession);
+            var root = modelSystemSession.ModelSystemModel.Root;
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection);
+            XTMFRun run;
+            Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
+            modelSystemSession.ExecuteRun(run, true);
+            bool finished = false;
+            List<ErrorWithPath>? errors = null;
+            void catchErrors(List<ErrorWithPath> errorPath)
             {
-                var testModelSystem = CreateTestModelSystem(runtime);
-                Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
-                using (var modelSystemSession = session.EditModelSystem(0))
-                {
-                    Assert.IsNotNull(modelSystemSession);
-                    var root = modelSystemSession.ModelSystemModel.Root;
-                    var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                    Assert.IsNotNull(collection);
-                    XTMFRun run;
-                    Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
-                    modelSystemSession.ExecuteRun(run,true);
-                    bool finished = false;
-                    List<ErrorWithPath>? errors = null;
-                    void catchErrors(List<ErrorWithPath> errorPath)
-                    {
-                        errors = errorPath;
-                        finished = true;
-                    }
-                    run.ValidationError += catchErrors;
-                    run.RuntimeValidationError += catchErrors;
-                    run.RunCompleted += () =>
-                    {
-                        finished = true;
-                    };
-                    // Runs now allow changes during the execution
-                    // Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
-                    for(int i = 0; i < 100 & !finished; i++)
-                    {
-                        Thread.Sleep(i);
-                        Thread.MemoryBarrier();
-                    }
-                    if(!finished)
-                    {
-                        Assert.Fail("The model system did not complete in time.");
-                    }
-                    if(errors != null)
-                    {
-                        Assert.Fail(errors[0].Message);
-                    }
-                    // now that it is done we should be able to edit it again
-                    Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), error);
-                }
+                errors = errorPath;
+                finished = true;
             }
+            run.ValidationError += catchErrors;
+            run.RuntimeValidationError += catchErrors;
+            run.RunCompleted += () =>
+            {
+                finished = true;
+            };
+            // Runs now allow changes during the execution
+            // Assert.IsFalse(collection.AddCollectionMember(typeof(TestModule), ref error));
+            for (int i = 0; i < 100 & !finished; i++)
+            {
+                Thread.Sleep(i);
+                Thread.MemoryBarrier();
+            }
+            if (!finished)
+            {
+                Assert.Fail("The model system did not complete in time.");
+            }
+            if (errors != null)
+            {
+                Assert.Fail(errors[0].Message);
+            }
+            // now that it is done we should be able to edit it again
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), error);
         }
 
         [TestMethod]
@@ -405,31 +382,29 @@ namespace XTMF.Testing.Editing
             controller.Delete(msName);
             var ms = controller.LoadOrCreate(msName);
             Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
-            using (var session = controller.EditModelSystem(ms))
-            {
-                var model = session.ModelSystemModel;
-                Assert.IsNotNull(model, "No model system model was created!");
-                ModelSystemStructureModel root = model.Root;
-                Assert.IsNotNull(root, "No root object was made!");
+            using var session = controller.EditModelSystem(ms);
+            var model = session.ModelSystemModel;
+            Assert.IsNotNull(model, "No model system model was created!");
+            ModelSystemStructureModel root = model.Root;
+            Assert.IsNotNull(root, "No root object was made!");
 
-                root.Type = typeof(TestModelSystemTemplate);
-                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+            root.Type = typeof(TestModelSystemTemplate);
+            Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
 
-                Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
+            Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
 
-                var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
-                Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
+            var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+            Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
 
-                string? error = null;
-                Assert.IsTrue(collection.AddCollectionMember(typeof(TestRequiredSubmodule), ref error), "We were unable to properly add a new collection member.");
-                Assert.AreEqual(1, collection.Children.Count, "The collection does not have 1 child!");
-                var parent = collection.Children[0];
-                Assert.AreEqual(1, parent.Children.Count, "TestRequiredSubmodule has more than one child!");
-                var childToRename = parent.Children[0];
-                var originalName = childToRename.Name;
-                childToRename.Type = typeof(TestRequiredSubmodule);
-                Assert.AreEqual(originalName, childToRename.Name, "The name changed when the type changed on a non collection member!");
-            }
+            string? error = null;
+            Assert.IsTrue(collection.AddCollectionMember(typeof(TestRequiredSubmodule), ref error), "We were unable to properly add a new collection member.");
+            Assert.AreEqual(1, collection.Children.Count, "The collection does not have 1 child!");
+            var parent = collection.Children[0];
+            Assert.AreEqual(1, parent.Children.Count, "TestRequiredSubmodule has more than one child!");
+            var childToRename = parent.Children[0];
+            var originalName = childToRename.Name;
+            childToRename.Type = typeof(TestRequiredSubmodule);
+            Assert.AreEqual(originalName, childToRename.Name, "The name changed when the type changed on a non collection member!");
         }
 
         private ModelSystem CreateTestModelSystem(XTMFRuntime runtime)

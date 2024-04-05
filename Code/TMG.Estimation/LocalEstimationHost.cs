@@ -127,44 +127,42 @@ namespace TMG.Estimation
             {
                 try
                 {
-                    using (var writer = new StreamWriter(ResultFile.GetFilePath(), true))
+                    using var writer = new StreamWriter(ResultFile.GetFilePath(), true);
+                    if (CurrentIteration == 0)
                     {
-                        if (CurrentIteration == 0)
+                        // write header here
+                        StringBuilder header = new StringBuilder();
+                        header.Append("Generation,Value");
+                        for (int i = 0; i < Parameters.Count; i++)
                         {
-                            // write header here
-                            StringBuilder header = new StringBuilder();
-                            header.Append("Generation,Value");
-                            for (int i = 0; i < Parameters.Count; i++)
+                            for (int j = 0; j < Parameters[i].Names.Length; j++)
                             {
-                                for (int j = 0; j < Parameters[i].Names.Length; j++)
-                                {
-                                    header.Append(',');
-                                    header.Append('"');
-                                    header.Append(Parameters[i].Names[j]);
-                                    header.Append('"');
-                                }
+                                header.Append(',');
+                                header.Append('"');
+                                header.Append(Parameters[i].Names[j]);
+                                header.Append('"');
                             }
-                            writer.WriteLine(header.ToString());
                         }
-                        for (int i = 0; i < CurrentJobs.Count; i++)
-                        {
-                            var currentJob = CurrentJobs[i];
-                            writer.Write(CurrentIteration);
-                            writer.Write(',');
-                            writer.Write(currentJob.Value);
-                            for (int j = 0; j < currentJob.Parameters.Length; j++)
-                            {
-                                for (int k = 0; k < Parameters[j].Names.Length; k++)
-                                {
-                                    writer.Write(',');
-                                    // this uses the i th value since they are all the same
-                                    writer.Write(currentJob.Parameters[j].Current);
-                                }
-                            }
-                            writer.WriteLine();
-                        }
-                        break;
+                        writer.WriteLine(header.ToString());
                     }
+                    for (int i = 0; i < CurrentJobs.Count; i++)
+                    {
+                        var currentJob = CurrentJobs[i];
+                        writer.Write(CurrentIteration);
+                        writer.Write(',');
+                        writer.Write(currentJob.Value);
+                        for (int j = 0; j < currentJob.Parameters.Length; j++)
+                        {
+                            for (int k = 0; k < Parameters[j].Names.Length; k++)
+                            {
+                                writer.Write(',');
+                                // this uses the i th value since they are all the same
+                                writer.Write(currentJob.Parameters[j].Current);
+                            }
+                        }
+                        writer.WriteLine();
+                    }
+                    break;
                 }
                 catch
                 {

@@ -299,35 +299,33 @@ namespace TMG.NetworkEstimation
 
         private void PrintSummery(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
         {
-            using (StreamWriter writer = new StreamWriter("LineSummery" + (SummeryNumber++) + ".csv"))
+            using StreamWriter writer = new StreamWriter("LineSummery" + (SummeryNumber++) + ".csv");
+            writer.WriteLine("Truth,Predicted,Error,Error^2,EmmeLines");
+            for (int i = 0; i < aggToTruth.Length; i++)
             {
-                writer.WriteLine("Truth,Predicted,Error,Error^2,EmmeLines");
-                for (int i = 0; i < aggToTruth.Length; i++)
+                float error = aggToTruth[i] - Truth[i].Bordings;
+                writer.Write(Truth[i].Bordings);
+                writer.Write(',');
+                writer.Write(aggToTruth[i]);
+                writer.Write(',');
+                writer.Write(error);
+                writer.Write(',');
+                writer.Write(error * error);
+                for (int j = 0; j < Truth[i].Id.Length; j++)
                 {
-                    float error = aggToTruth[i] - Truth[i].Bordings;
-                    writer.Write(Truth[i].Bordings);
                     writer.Write(',');
-                    writer.Write(aggToTruth[i]);
-                    writer.Write(',');
-                    writer.Write(error);
-                    writer.Write(',');
-                    writer.Write(error * error);
-                    for (int j = 0; j < Truth[i].Id.Length; j++)
-                    {
-                        writer.Write(',');
-                        writer.Write(Truth[i].Id[j]);
-                    }
-                    writer.WriteLine();
+                    writer.Write(Truth[i].Id[j]);
                 }
                 writer.WriteLine();
-                writer.WriteLine();
-                writer.WriteLine("Orphans");
-                foreach (var orphan in orphans)
-                {
-                    writer.Write(orphan.Value);
-                    writer.Write(',');
-                    writer.WriteLine(orphan.Key);
-                }
+            }
+            writer.WriteLine();
+            writer.WriteLine();
+            writer.WriteLine("Orphans");
+            foreach (var orphan in orphans)
+            {
+                writer.Write(orphan.Value);
+                writer.Write(',');
+                writer.WriteLine(orphan.Key);
             }
         }
 
@@ -443,14 +441,12 @@ namespace TMG.NetworkEstimation
              * m ms[MS:##] [NAME]
              *  all all: [VALUE]
              */
-            using (StreamWriter writer = new StreamWriter(MacroInputFile))
+            using StreamWriter writer = new StreamWriter(MacroInputFile);
+            writer.WriteLine("t matrices");
+            foreach (var p in param)
             {
-                writer.WriteLine("t matrices");
-                foreach (var p in param)
-                {
-                    writer.WriteLine($"m ms{p.MsNumber} {p.ParameterName}");
-                    writer.WriteLine($" all all: {ToEmmeFloat(p.Current)}");
-                }
+                writer.WriteLine($"m ms{p.MsNumber} {p.ParameterName}");
+                writer.WriteLine($" all all: {ToEmmeFloat(p.Current)}");
             }
         }
 

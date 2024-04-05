@@ -66,28 +66,26 @@ namespace Tasha.Validation.ModeChoice
         {
             var modes = Root.AllModes.ToArray();
             var regionNumbers = regions.ValidIndexArray();
-            using (StreamWriter writer = new StreamWriter(RegionModeSplitFile))
+            using StreamWriter writer = new StreamWriter(RegionModeSplitFile);
+            writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
+            for (int m = 0; m < data.Length; m++)
             {
-                writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
-                for(int m = 0; m < data.Length; m++)
+                string modeName = modes[m].ModeName + ",";
+                var oRow = data[m];
+                for (int o = 0; o < oRow.Length; o++)
                 {
-                    string modeName = modes[m].ModeName + ",";
-                    var oRow = data[m];
-                    for(int o = 0; o < oRow.Length; o++)
+                    var dRow = oRow[o];
+                    for (int d = 0; d < dRow.Length; d++)
                     {
-                        var dRow = oRow[o];
-                        for(int d = 0; d < dRow.Length; d++)
+                        if (dRow[d] > 0)
                         {
-                            if(dRow[d] > 0)
-                            {
-                                // this includes the comma already
-                                writer.Write(modeName);
-                                writer.Write(regionNumbers[o]);
-                                writer.Write(',');
-                                writer.Write(regionNumbers[d]);
-                                writer.Write(',');
-                                writer.WriteLine(dRow[d]);
-                            }
+                            // this includes the comma already
+                            writer.Write(modeName);
+                            writer.Write(regionNumbers[o]);
+                            writer.Write(',');
+                            writer.Write(regionNumbers[d]);
+                            writer.Write(',');
+                            writer.WriteLine(dRow[d]);
                         }
                     }
                 }

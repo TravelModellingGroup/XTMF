@@ -314,31 +314,29 @@ namespace Tasha
 
         private void InitializeParameters()
         {
-            using (var reader = new CsvReader(GetFullPath(ModeParameterFile)))
+            using var reader = new CsvReader(GetFullPath(ModeParameterFile));
+            reader.LoadLine(out int numberOfParameters);
+            var headers = new string[numberOfParameters];
+            for (int i = 2; i < numberOfParameters; i++)
             {
-                reader.LoadLine(out int numberOfParameters);
-                var headers = new string[numberOfParameters];
+                reader.Get(out headers[i], i);
+            }
+            for (int i = 0; i < ModeParameterFileRow; i++)
+            {
+                reader.LoadLine();
+            }
+            if (reader.LoadLine(out int lineSize))
+            {
+                if (lineSize < numberOfParameters) numberOfParameters = lineSize;
                 for (int i = 2; i < numberOfParameters; i++)
                 {
-                    reader.Get(out headers[i], i);
+                    reader.Get(out float temp, i);
+                    AssignValue(headers[i], temp);
                 }
-                for (int i = 0; i < ModeParameterFileRow; i++)
-                {
-                    reader.LoadLine();
-                }
-                if (reader.LoadLine(out int lineSize))
-                {
-                    if (lineSize < numberOfParameters) numberOfParameters = lineSize;
-                    for (int i = 2; i < numberOfParameters; i++)
-                    {
-                        reader.Get(out float temp, i);
-                        AssignValue(headers[i], temp);
-                    }
-                }
-                else
-                {
-                    throw new XTMFRuntimeException(this, "In '" + Name + "' there was no parameter row '" + ModeParameterFileRow + "' in '" + ModeParameterFile + "';");
-                }
+            }
+            else
+            {
+                throw new XTMFRuntimeException(this, "In '" + Name + "' there was no parameter row '" + ModeParameterFileRow + "' in '" + ModeParameterFile + "';");
             }
         }
 

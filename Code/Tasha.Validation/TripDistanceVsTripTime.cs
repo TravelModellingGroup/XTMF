@@ -114,15 +114,13 @@ namespace Tasha.Validation
                 {
                     fileName = OutputFile + "Tasha.csv";
                 }
-                using (StreamWriter writer = new StreamWriter(fileName))
-                {
-                    writer.WriteLine("Start Time Hour, Average Distance, Number of Occurances");
+                using StreamWriter writer = new StreamWriter(fileName);
+                writer.WriteLine("Start Time Hour, Average Distance, Number of Occurances");
 
-                    foreach (var pair in Results)
-                    {
-                        var averageDistance = pair.Value.Average();
-                        writer.WriteLine("{0}, {1}, {2}", pair.Key, averageDistance, pair.Value.Count);
-                    }
+                foreach (var pair in Results)
+                {
+                    var averageDistance = pair.Value.Average();
+                    writer.WriteLine("{0}, {1}, {2}", pair.Key, averageDistance, pair.Value.Count);
                 }
             }
         }

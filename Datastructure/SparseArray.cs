@@ -191,32 +191,30 @@ namespace Datastructure
 
         public void Save(string fileName, Func<T?, float[]> decompose, int types)
         {
-            using (var writer = new BinaryWriter(new
+            using var writer = new BinaryWriter(new
                 FileStream(fileName, FileMode.Create, FileAccess.Write,
                 FileShare.None, 0x8000, FileOptions.SequentialScan),
-                Encoding.Default))
+                Encoding.Default);
+            var dataLength = Data.Length;
+            var highestZone = 0;
+
+            for (var i = 0; i < dataLength; i++)
             {
-                var dataLength = Data.Length;
-                var highestZone = 0;
+                if (Data[i] != null) highestZone = i;
+            }
+            writer.Write(highestZone);
+            writer.Write(Version);
+            writer.Write(types);
+            WriteSparseIndexes(writer, types);
 
-                for(var i = 0; i < dataLength; i++)
+            for (var i = 0; i < dataLength; i++)
+            {
+                if (Data[i] != null)
                 {
-                    if(Data[i] != null) highestZone = i;
-                }
-                writer.Write(highestZone);
-                writer.Write(Version);
-                writer.Write(types);
-                WriteSparseIndexes(writer, types);
-
-                for(var i = 0; i < dataLength; i++)
-                {
-                    if(Data[i] != null)
+                    var data = decompose(Data[i]);
+                    for (var j = 0; j < data.Length; j++)
                     {
-                        var data = decompose(Data[i]);
-                        for(var j = 0; j < data.Length; j++)
-                        {
-                            writer.Write(data[j]);
-                        }
+                        writer.Write(data[j]);
                     }
                 }
             }

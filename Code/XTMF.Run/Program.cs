@@ -59,21 +59,19 @@ namespace XTMF.Run
                 Console.WriteLine("Error loading project\r\n" + error);
                 return;
             }
-            using (var projectSession = runtime.ProjectController.EditProject(project))
+            using var projectSession = runtime.ProjectController.EditProject(project);
+            var modelSystems = projectSession.Project.ProjectModelSystems.Select((m, i) => new { MSS = m, Index = i }).Where((m, i) => m.MSS.Name == modelSystemName).ToList();
+            switch (modelSystems.Count)
             {
-                var modelSystems = projectSession.Project.ProjectModelSystems.Select((m, i) => new { MSS = m, Index = i }).Where((m, i) => m.MSS.Name == modelSystemName).ToList();
-                switch (modelSystems.Count)
-                {
-                    case 0:
-                        Console.WriteLine("There was no model system in the project " + project.Name + " called " + modelSystemName + "!");
-                        return;
-                    case 1:
-                        Run(modelSystems[0].Index, projectSession, runName);
-                        break;
-                    default:
-                        Console.WriteLine("There were multiple model systems in the project " + project.Name + " called " + modelSystemName + "!");
-                        return;
-                }
+                case 0:
+                    Console.WriteLine("There was no model system in the project " + project.Name + " called " + modelSystemName + "!");
+                    return;
+                case 1:
+                    Run(modelSystems[0].Index, projectSession, runName);
+                    break;
+                default:
+                    Console.WriteLine("There were multiple model systems in the project " + project.Name + " called " + modelSystemName + "!");
+                    return;
             }
         }
 
@@ -83,98 +81,94 @@ namespace XTMF.Run
 
         private static void StartupExecuteRunsInADifferentProcess(string pipeName)
         {
-            using (var clientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous))
+            using var clientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
+            if (!clientStream.IsConnected)
             {
-                if (!clientStream.IsConnected)
+                clientStream.Connect();
+            }
+            IModelSystemStructure root = null;
+            using var messagesToSend = new BlockingCollection<byte[]>();
+            XTMFRuntime runtime = null;
+            // create the client
+            Task.Factory.StartNew(() =>
+            {
+                var reader = new BinaryReader(clientStream, Encoding.Unicode, true);
+                Configuration config = new Configuration(reader.ReadString())
                 {
-                    clientStream.Connect();
-                }
-                IModelSystemStructure root = null;
-                using (var messagesToSend = new BlockingCollection<byte[]>())
+                    DivertSaveRequests = true
+                };
+                Configuration = config;
+                config.AddingNewProgressReport += (o) =>
                 {
-                    XTMFRuntime runtime = null;
-                    // create the client
-                    Task.Factory.StartNew(() =>
+                    WriteMessageToStream(messagesToSend, (writer) =>
                     {
-                        var reader = new BinaryReader(clientStream, Encoding.Unicode, true);
-                        Configuration config = new Configuration(reader.ReadString())
-                        {
-                            DivertSaveRequests = true
-                        };
-                        Configuration = config;
-                        config.AddingNewProgressReport += (o) =>
-                        {
-                            WriteMessageToStream(messagesToSend, (writer) =>
-                            {
-                                var newReport = (IProgressReport)o;
-                                var colour = newReport.Colour;
-                                writer.Write((Int32)ToHost.ClientCreatedProgressReport);
-                                writer.Write(newReport.Name);
-                                writer.Write(colour.Item1);
-                                writer.Write(colour.Item2);
-                                writer.Write(colour.Item3);
-                            });
-                        };
-                        config.ProgressReports.BeforeRemove += (o, e) =>
-                        {
-                            var toBeRemoved = config.ProgressReports[e.NewIndex];
-                            WriteMessageToStream(messagesToSend, (writer) =>
-                            {
-                                writer.Write((Int32)ToHost.ClientRemovedProgressReport);
-                                writer.Write(toBeRemoved.Name);
-                            });
-                        };
-                        config.DeletedProgressReports += () =>
-                        {
-                            WriteMessageToStream(messagesToSend, (writer) =>
-                            {
-                                writer.Write((Int32)ToHost.ClientClearedProgressReports);
-                            });
-                        };
-                        runtime = new XTMFRuntime(config);
-                        try
-                        {
-                            while (true)
-                            {
-                                switch ((ToClient)reader.ReadInt32())
-                                {
-                                    case ToClient.Heartbeat:
-                                        // do nothing
-                                        break;
-                                    case ToClient.RunModelSystem:
-                                        RunModelSystem(config, reader, messagesToSend);
-                                        break;
-                                    case ToClient.RequestProgress:
-                                        ProgressRequested(messagesToSend);
-                                        break;
-                                    case ToClient.RequestStatus:
-                                        StatusRequested(messagesToSend);
-                                        break;
-                                    case ToClient.CancelModelRun:
-                                        CancelModelSystem(root);
-                                        Console.WriteLine("Model System cancelled by host.");
-                                        return;
-                                    case ToClient.KillModelRun:
-                                        Console.WriteLine("Model system termination signalled.");
-                                        return;
-                                    default:
-                                        Console.WriteLine("Unknown command!");
-                                        return;
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            messagesToSend?.CompleteAdding();
-                            Environment.Exit(0);
-                        }
-                    }, TaskCreationOptions.LongRunning);
-                    // Send out the messages as they arise
-                    foreach (var msg in messagesToSend.GetConsumingEnumerable())
+                        var newReport = (IProgressReport)o;
+                        var colour = newReport.Colour;
+                        writer.Write((Int32)ToHost.ClientCreatedProgressReport);
+                        writer.Write(newReport.Name);
+                        writer.Write(colour.Item1);
+                        writer.Write(colour.Item2);
+                        writer.Write(colour.Item3);
+                    });
+                };
+                config.ProgressReports.BeforeRemove += (o, e) =>
+                {
+                    var toBeRemoved = config.ProgressReports[e.NewIndex];
+                    WriteMessageToStream(messagesToSend, (writer) =>
                     {
-                        clientStream.Write(msg, 0, msg.Length);
+                        writer.Write((Int32)ToHost.ClientRemovedProgressReport);
+                        writer.Write(toBeRemoved.Name);
+                    });
+                };
+                config.DeletedProgressReports += () =>
+                {
+                    WriteMessageToStream(messagesToSend, (writer) =>
+                    {
+                        writer.Write((Int32)ToHost.ClientClearedProgressReports);
+                    });
+                };
+                runtime = new XTMFRuntime(config);
+                try
+                {
+                    while (true)
+                    {
+                        switch ((ToClient)reader.ReadInt32())
+                        {
+                            case ToClient.Heartbeat:
+                                // do nothing
+                                break;
+                            case ToClient.RunModelSystem:
+                                RunModelSystem(config, reader, messagesToSend);
+                                break;
+                            case ToClient.RequestProgress:
+                                ProgressRequested(messagesToSend);
+                                break;
+                            case ToClient.RequestStatus:
+                                StatusRequested(messagesToSend);
+                                break;
+                            case ToClient.CancelModelRun:
+                                CancelModelSystem(root);
+                                Console.WriteLine("Model System cancelled by host.");
+                                return;
+                            case ToClient.KillModelRun:
+                                Console.WriteLine("Model system termination signalled.");
+                                return;
+                            default:
+                                Console.WriteLine("Unknown command!");
+                                return;
+                        }
                     }
                 }
+                finally
+                {
+                    messagesToSend?.CompleteAdding();
+                    Environment.Exit(0);
+                }
+            }, TaskCreationOptions.LongRunning);
+            // Send out the messages as they arise
+            foreach (var msg in messagesToSend.GetConsumingEnumerable())
+            {
+                clientStream.Write(msg, 0, msg.Length);
             }
         }
 
@@ -279,13 +273,11 @@ namespace XTMF.Run
 
         private static void WriteMessageToStream(BlockingCollection<byte[]> messagesToSend, Action<BinaryWriter> action)
         {
-            using (var backend = new MemoryStream())
-            {
-                BinaryWriter writer = new BinaryWriter(backend, System.Text.Encoding.Unicode, true);
-                action(writer);
-                writer.Flush();
-                messagesToSend.Add(backend.ToArray());
-            }
+            using var backend = new MemoryStream();
+            BinaryWriter writer = new BinaryWriter(backend, System.Text.Encoding.Unicode, true);
+            action(writer);
+            writer.Flush();
+            messagesToSend.Add(backend.ToArray());
         }
 
         private static void ProgressRequested(BlockingCollection<byte[]> messagesToSend)
@@ -377,19 +369,17 @@ namespace XTMF.Run
 
         private static void Run(int index, ProjectEditingSession projectSession, string runName)
         {
-            using (var modelSystemSession = projectSession.EditModelSystem(index))
+            using var modelSystemSession = projectSession.EditModelSystem(index);
+            XTMFRun run;
+            string error = null;
+            if ((run = modelSystemSession.Run(runName, ref error, true, true, true)) == null)
             {
-                XTMFRun run;
-                string error = null;
-                if ((run = modelSystemSession.Run(runName, ref error, true, true, true)) == null)
-                {
-                    Console.WriteLine("Unable to run \r\n" + error);
-                    return;
-                }
-                modelSystemSession.ExecuteRun(run,true);
-                run.RunCompleted += Run_RunComplete;
-                run.Wait();
+                Console.WriteLine("Unable to run \r\n" + error);
+                return;
             }
+            modelSystemSession.ExecuteRun(run, true);
+            run.RunCompleted += Run_RunComplete;
+            run.Wait();
         }
 
         private static void Run_RunComplete()

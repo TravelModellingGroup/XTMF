@@ -88,15 +88,14 @@ namespace Tasha.DataExtraction
         {
             var connection = DatabaseConnection.AcquireResource<IDbConnection>();
             var zones = ZoneSystem.AcquireResource<IZoneSystem>();
-            using ( var command = connection.CreateCommand() )
-            {
-                AddParameter( command, "@TTSYear", TTSYear, DbType.Int32 );
-                AddParameter( command, "@ZoneSystemNumber", ZoneSystemNumber, DbType.Int32 );
-                AddParameter( command, "@MinimumAge", MinAge, DbType.Int32 );
-                AddParameter( command, "@MaximumAge", MaxAge, DbType.Int32 );
+            using var command = connection.CreateCommand();
+            AddParameter(command, "@TTSYear", TTSYear, DbType.Int32);
+            AddParameter(command, "@ZoneSystemNumber", ZoneSystemNumber, DbType.Int32);
+            AddParameter(command, "@MinimumAge", MinAge, DbType.Int32);
+            AddParameter(command, "@MaximumAge", MaxAge, DbType.Int32);
 
-                command.CommandText = String.Format(
-                    @"SELECT [{0}].[{1}], [{3}].[SchoolZone], SUM([{2}].[{4}])
+            command.CommandText = String.Format(
+                @"SELECT [{0}].[{1}], [{3}].[SchoolZone], SUM([{2}].[{4}])
 FROM ([{2}] INNER JOIN [{0}] ON
 [{2}].[{5}] = [{0}].[{5}] 
     AND [{2}].[{6}] = [{0}].[{6}])
@@ -107,130 +106,129 @@ WHERE [{2}].[{6}] = @TTSYear AND
 [{3}].[{7}] = @ZoneSystemNumber AND [{0}].[{7}] = @ZoneSystemNumber AND
 [{2}].[{9}] >= @MinimumAge AND [{2}].[{9}] <= @MaximumAge
 GROUP BY [{0}].[{1}], [{3}].[SchoolZone];",
-                    //0
-                                                                                HomeZoneTableName,
-                    //1
-                                                                                ZoneNumberColumn,
-                    //2
-                                                                                PersonsTable,
-                    //3
-                                                                                SchoolZoneTableName,
-                    //4
-                                                                                ExpansionFactorColumnName,
-                    //5
-                                                                                HouseholdIDColumn,
-                    //6
-                                                                                TTSYearColumn,
-                    //7
-                                                                                ZoneSystemColumn,
-                                                                                PersonsIDColumn,
-                    //9
-                                                                                AgeColumn
-                                                                                );
-                var zoneArray = zones.ZoneArray;
-                var flatZones = zoneArray.GetFlatData();
-                var result = zoneArray.CreateSquareTwinArray<float>();
-                using ( var reader = command.ExecuteReader() )
+                                                                            //0
+                                                                            HomeZoneTableName,
+                                                                            //1
+                                                                            ZoneNumberColumn,
+                                                                            //2
+                                                                            PersonsTable,
+                                                                            //3
+                                                                            SchoolZoneTableName,
+                                                                            //4
+                                                                            ExpansionFactorColumnName,
+                                                                            //5
+                                                                            HouseholdIDColumn,
+                                                                            //6
+                                                                            TTSYearColumn,
+                                                                            //7
+                                                                            ZoneSystemColumn,
+                                                                            PersonsIDColumn,
+                                                                            //9
+                                                                            AgeColumn
+                                                                            );
+            var zoneArray = zones.ZoneArray;
+            var flatZones = zoneArray.GetFlatData();
+            var result = zoneArray.CreateSquareTwinArray<float>();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
                 {
-                    while ( reader.Read() )
+                    var homeZone = reader.GetInt32(0);
+                    var schoolZones = reader.GetInt32(1);
+                    var exp = reader.GetDouble(2);
+                    if (result.ContainsIndex(homeZone, schoolZones))
                     {
-                        var homeZone = reader.GetInt32( 0 );
-                        var schoolZones = reader.GetInt32( 1 );
-                        var exp = reader.GetDouble( 2 );
-                        if ( result.ContainsIndex( homeZone, schoolZones ) )
+                        result[homeZone, schoolZones] = (float)exp;
+                    }
+                }
+            }
+            var flatResult = result.GetFlatData();
+            using (var writer = new StreamWriter(OutputFileName.GetFilePath()))
+            {
+                writer.WriteLine("HomeZone,SchoolZone,People");
+                for (int i = 0; i < flatZones.Length; i++)
+                {
+                    var row = flatResult[i];
+                    var iAsString = flatZones[i].ZoneNumber.ToString();
+                    for (int j = 0; j < flatZones.Length; j++)
+                    {
+                        if (row[j] > 0)
                         {
-                            result[homeZone, schoolZones] = (float)exp;
+                            writer.Write(iAsString);
+                            writer.Write(',');
+                            writer.Write(flatZones[j].ZoneNumber);
+                            writer.Write(',');
+                            writer.WriteLine(row[j]);
                         }
                     }
                 }
-                var flatResult = result.GetFlatData();
-                using ( var writer = new StreamWriter( OutputFileName.GetFilePath() ) )
-                {
-                    writer.WriteLine( "HomeZone,SchoolZone,People" );
-                    for ( int i = 0; i < flatZones.Length; i++ )
-                    {
-                        var row = flatResult[i];
-                        var iAsString = flatZones[i].ZoneNumber.ToString();
-                        for ( int j = 0; j < flatZones.Length; j++ )
-                        {
-                            if ( row[j] > 0 )
-                            {
-                                writer.Write( iAsString );
-                                writer.Write( ',' );
-                                writer.Write( flatZones[j].ZoneNumber );
-                                writer.Write( ',' );
-                                writer.WriteLine( row[j] );
-                            }
-                        }
-                    }
-                }
-                float[] populationInZone = new float[flatZones.Length];
-                //Build SQL request
-                command.CommandText =
-                    String.Format( @"SELECT [{3}].[{0}], SUM([{2}].[{1}])
+            }
+            float[] populationInZone = new float[flatZones.Length];
+            //Build SQL request
+            command.CommandText =
+                String.Format(@"SELECT [{3}].[{0}], SUM([{2}].[{1}])
 FROM [{2}] INNER JOIN [{3}] ON
 [{2}].[{4}] = [{3}].[{4}] AND [{2}].[{5}] = [{3}].[{5}] 
 WHERE [{2}].[{5}] = {6} AND [{3}].[{7}] = {8}
 GROUP BY [{3}].[{0}];",
-                    //0
-                            ZoneNumberColumn,
-                    //1
-                            ExpansionFactorColumnName,
-                    //2
-                            PersonsTable,
-                    //3
-                            HomeZoneTableName,
-                    //4
-                            HouseholdIDColumn,
-                    //5
-                            TTSYearColumn,
-                    //6
-                            TTSYear,
-                    //7
-                            ZoneSystemColumn,
-                    //8
-                            ZoneSystemNumber );
-                // process data
-                using ( var reader = command.ExecuteReader() )
+                        //0
+                        ZoneNumberColumn,
+                        //1
+                        ExpansionFactorColumnName,
+                        //2
+                        PersonsTable,
+                        //3
+                        HomeZoneTableName,
+                        //4
+                        HouseholdIDColumn,
+                        //5
+                        TTSYearColumn,
+                        //6
+                        TTSYear,
+                        //7
+                        ZoneSystemColumn,
+                        //8
+                        ZoneSystemNumber);
+            // process data
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
                 {
-                    while ( reader.Read() )
+                    // if the zone is in our zone system add them to it
+                    var zoneNumber = reader.GetInt32(0);
+                    var index = zoneArray.GetFlatIndex(zoneNumber);
+                    if (index >= 0)
                     {
-                        // if the zone is in our zone system add them to it
-                        var zoneNumber = reader.GetInt32( 0 );
-                        var index = zoneArray.GetFlatIndex( zoneNumber );
-                        if ( index >= 0 )
-                        {
-                            populationInZone[index] = (float)reader.GetDouble( 1 );
-                        }
+                        populationInZone[index] = (float)reader.GetDouble(1);
                     }
                 }
-                var pdStudents = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>( zoneArray );
-                var pdPopulation = pdStudents.CreateSimilarArray<float>();
-                for ( int i = 0; i < flatResult.Length; i++ )
+            }
+            var pdStudents = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(zoneArray);
+            var pdPopulation = pdStudents.CreateSimilarArray<float>();
+            for (int i = 0; i < flatResult.Length; i++)
+            {
+                var pd = flatZones[i].PlanningDistrict;
+                pdStudents[pd] = pdStudents[pd] + flatResult[i].Sum();
+                pdPopulation[pd] = pdPopulation[pd] + populationInZone[i];
+            }
+            using (var writer = new StreamWriter(StudentRateOutput.GetFilePath()))
+            {
+                var flatPdStudents = pdStudents.GetFlatData();
+                var flatPdPopulation = pdPopulation.GetFlatData();
+                var indexes = pdPopulation.ValidIndexArray();
+                writer.WriteLine("PD,StudentRate");
+                for (int i = 0; i < indexes.Length; i++)
                 {
-                    var pd = flatZones[i].PlanningDistrict;
-                    pdStudents[pd] = pdStudents[pd] + flatResult[i].Sum();
-                    pdPopulation[pd] = pdPopulation[pd] + populationInZone[i];
-                }
-                using ( var writer = new StreamWriter( StudentRateOutput.GetFilePath() ) )
-                {
-                    var flatPdStudents = pdStudents.GetFlatData();
-                    var flatPdPopulation = pdPopulation.GetFlatData();
-                    var indexes = pdPopulation.ValidIndexArray();
-                    writer.WriteLine( "PD,StudentRate" );
-                    for ( int i = 0; i < indexes.Length; i++ )
+                    var pop = flatPdPopulation[i];
+                    writer.Write(indexes[i]);
+                    writer.Write(',');
+                    if (pop <= 0)
                     {
-                        var pop = flatPdPopulation[i];
-                        writer.Write( indexes[i] );
-                        writer.Write( ',' );
-                        if ( pop <= 0 )
-                        {
-                            writer.WriteLine( '0' );
-                        }
-                        else
-                        {
-                            writer.WriteLine( flatPdStudents[i] / pop );
-                        }
+                        writer.WriteLine('0');
+                    }
+                    else
+                    {
+                        writer.WriteLine(flatPdStudents[i] / pop);
                     }
                 }
             }

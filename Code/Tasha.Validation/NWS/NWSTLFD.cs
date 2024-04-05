@@ -174,48 +174,46 @@ namespace Tasha.Validation.NWS
 
         public void IterationFinished(int iteration)
         {
-            using (var writer = new StreamWriter(SaveTo))
+            using var writer = new StreamWriter(SaveTo);
+            var bins = _abb.NumberOfBins;
+            WriteHeader(writer);
+            float from = 0f;
+            // intrazonal
+            writer.Write("intrazonal,0");
+            writer.Write(',');
+            writer.Write(_abb.Intrazonal);
+            writer.Write(',');
+            writer.Write(_hbm.Intrazonal);
+            writer.Write(',');
+            writer.Write(_hbo.Intrazonal);
+            writer.Write(',');
+            writer.WriteLine(_nhb.Intrazonal);
+            // bins
+            for (int i = 0; i < bins; i++)
             {
-                var bins = _abb.NumberOfBins;
-                WriteHeader(writer);
-                float from = 0f;
-                // intrazonal
-                writer.Write("intrazonal,0");
-                writer.Write(',');
-                writer.Write(_abb.Intrazonal);
-                writer.Write(',');
-                writer.Write(_hbm.Intrazonal);
-                writer.Write(',');
-                writer.Write(_hbo.Intrazonal);
-                writer.Write(',');
-                writer.WriteLine(_nhb.Intrazonal);
-                // bins
-                for (int i = 0; i < bins; i++)
-                {
-                    writer.Write(from);
-                    writer.Write(',');
-                    writer.Write(from + StepSize);
-                    writer.Write(',');
-                    writer.Write(_abb.Bins[i]);
-                    writer.Write(',');
-                    writer.Write(_hbm.Bins[i]);
-                    writer.Write(',');
-                    writer.Write(_hbo.Bins[i]);
-                    writer.Write(',');
-                    writer.WriteLine(_nhb.Bins[i]);
-                    from += StepSize;
-                }
-                // over last bin
                 writer.Write(from);
-                writer.Write(",inf,");
-                writer.Write(_abb.BeyondMax);
                 writer.Write(',');
-                writer.Write(_hbm.BeyondMax);
+                writer.Write(from + StepSize);
                 writer.Write(',');
-                writer.Write(_hbo.BeyondMax);
+                writer.Write(_abb.Bins[i]);
                 writer.Write(',');
-                writer.WriteLine(_nhb.BeyondMax);
+                writer.Write(_hbm.Bins[i]);
+                writer.Write(',');
+                writer.Write(_hbo.Bins[i]);
+                writer.Write(',');
+                writer.WriteLine(_nhb.Bins[i]);
+                from += StepSize;
             }
+            // over last bin
+            writer.Write(from);
+            writer.Write(",inf,");
+            writer.Write(_abb.BeyondMax);
+            writer.Write(',');
+            writer.Write(_hbm.BeyondMax);
+            writer.Write(',');
+            writer.Write(_hbo.BeyondMax);
+            writer.Write(',');
+            writer.WriteLine(_nhb.BeyondMax);
         }
 
         private void WriteHeader(StreamWriter writer)

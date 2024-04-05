@@ -245,20 +245,18 @@ namespace Tasha.PopulationSynthesis
                     if (SaveWorkerCategory != null && WorkerResults != null)
                     {
                         var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                        using (var writer = new StreamWriter(SaveWorkerCategory))
+                        using var writer = new StreamWriter(SaveWorkerCategory);
+                        writer.WriteLine("Zone,Category,Total");
+                        for (int i = 0; i < zones.Length; i++)
                         {
-                            writer.WriteLine("Zone,Category,Total");
-                            for (int i = 0; i < zones.Length; i++)
+                            var zoneNumber = zones[i].ZoneNumber;
+                            for (int cat = 0; cat < WorkerResults.Length; cat++)
                             {
-                                var zoneNumber = zones[i].ZoneNumber;
-                                for (int cat = 0; cat < WorkerResults.Length; cat++)
-                                {
-                                    writer.Write(zoneNumber);
-                                    writer.Write(',');
-                                    writer.Write(cat + 1);
-                                    writer.Write(',');
-                                    writer.WriteLine(WorkerResults[cat][i]);
-                                }
+                                writer.Write(zoneNumber);
+                                writer.Write(',');
+                                writer.Write(cat + 1);
+                                writer.Write(',');
+                                writer.WriteLine(WorkerResults[cat][i]);
                             }
                         }
                     }

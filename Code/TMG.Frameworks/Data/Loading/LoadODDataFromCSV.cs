@@ -129,72 +129,69 @@ public class LoadODDataFromCSV : IReadODData<float>
         {
             throw new XTMFRuntimeException(this, $"In {Name} the file '{LoadFrom.GetFilePath()}' does not exist!");
         }
-        using (var reader = new CsvReader(LoadFrom, true))
+        using var reader = new CsvReader(LoadFrom, true);
+        if (ContainsHeader)
         {
-            if (ContainsHeader)
-            {
-                reader.LoadLine();
-            }
-            switch (ThirdNormalizedType)
-            {
-                case ReadType.AutoDetect:
+            reader.LoadLine();
+        }
+        switch (ThirdNormalizedType)
+        {
+            case ReadType.AutoDetect:
+                while (reader.LoadLine(out int columns))
+                {
+                    if (columns >= 2)
+                    {
+                        ODData<float> data = new ODData<float>();
+                        reader.Get(out data.O, 0);
+                        if (columns >= 3)
+                        {
+                            reader.Get(out data.D, 1);
+                            reader.Get(out data.Data, 2);
+                        }
+                        else
+                        {
+                            reader.Get(out data.Data, 1);
+                        }
+                        yield return data;
+                    }
+                }
+                break;
+            case ReadType.Matrix:
+                {
+                    var originColumn = OriginColumn;
+                    var destinationColumn = DestinationColumn;
+                    var dataColumn = DataColumn;
+                    var minRowSize = Math.Max(Math.Max(originColumn, destinationColumn), dataColumn) + 1;
                     while (reader.LoadLine(out int columns))
                     {
-                        if (columns >= 2)
+                        if (columns >= minRowSize)
                         {
-                            ODData<float> data = new ODData<float>();
-                            reader.Get(out data.O, 0);
-                            if (columns >= 3)
-                            {
-                                reader.Get(out data.D, 1);
-                                reader.Get(out data.Data, 2);
-                            }
-                            else
-                            {
-                                reader.Get(out data.Data, 1);
-                            }
+                            ODData<float> data = new();
+                            reader.Get(out data.O, originColumn);
+                            reader.Get(out data.D, destinationColumn);
+                            reader.Get(out data.Data, dataColumn);
                             yield return data;
                         }
                     }
-                    break;
-                case ReadType.Matrix:
+                }
+                break;
+            case ReadType.Vector:
+                {
+                    var originColumn = OriginColumn;
+                    var dataColumn = DataColumn;
+                    var minRowSize = Math.Max(originColumn, dataColumn) + 1;
+                    while (reader.LoadLine(out int columns))
                     {
-                        var originColumn = OriginColumn;
-                        var destinationColumn = DestinationColumn;
-                        var dataColumn = DataColumn;
-                        var minRowSize = Math.Max(Math.Max(originColumn, destinationColumn), dataColumn) + 1;
-                        while (reader.LoadLine(out int columns))
+                        if (columns >= minRowSize)
                         {
-                            if (columns >= minRowSize)
-                            {
-                                ODData<float> data = new();
-                                reader.Get(out data.O, originColumn);
-                                reader.Get(out data.D, destinationColumn);
-                                reader.Get(out data.Data, dataColumn);
-                                yield return data;
-                            }
+                            ODData<float> data = new();
+                            reader.Get(out data.O, originColumn);
+                            reader.Get(out data.Data, dataColumn);
+                            yield return data;
                         }
                     }
-                    break;
-                case ReadType.Vector:
-                    {
-                        var originColumn = OriginColumn;
-                        var dataColumn = DataColumn;
-                        var minRowSize = Math.Max(originColumn, dataColumn) + 1;
-                        while (reader.LoadLine(out int columns))
-                        {
-                            if (columns >= minRowSize)
-                            {
-                                ODData<float> data = new();
-                                reader.Get(out data.O, originColumn);
-                                reader.Get(out data.Data, dataColumn);
-                                yield return data;
-                            }
-                        }
-                    }
-                    break;
-            }
-
+                }
+                break;
         }
     }
 

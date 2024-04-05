@@ -48,28 +48,26 @@ namespace TMG.Emme.Analysis
         private void SaveData(float[][] aggData, string[] aggregationHeaders)
         {
 
-            using (StreamWriter writer = new StreamWriter(OutputFile))
+            using StreamWriter writer = new StreamWriter(OutputFile);
+            if (ThirdNormalizedForm)
             {
-                if(ThirdNormalizedForm)
+                writer.WriteLine("From,To,Value");
+                for (int i = 0; i < aggregationHeaders.Length; i++)
                 {
-                    writer.WriteLine("From,To,Value");
-                    for(int i = 0; i < aggregationHeaders.Length; i++)
+                    var row = aggData[i];
+                    for (int j = 0; j < aggregationHeaders.Length; j++)
                     {
-                        var row = aggData[i];
-                        for(int j = 0; j < aggregationHeaders.Length; j++)
-                        {
-                            writer.Write(aggregationHeaders[i]);
-                            writer.Write(',');
-                            writer.Write(aggregationHeaders[j]);
-                            writer.Write(',');
-                            writer.WriteLine(row[j]);
-                        }
+                        writer.Write(aggregationHeaders[i]);
+                        writer.Write(',');
+                        writer.Write(aggregationHeaders[j]);
+                        writer.Write(',');
+                        writer.WriteLine(row[j]);
                     }
                 }
-                else
-                {
-                    SaveMatrix(aggData, aggregationHeaders, writer);
-                }
+            }
+            else
+            {
+                SaveMatrix(aggData, aggregationHeaders, writer);
             }
         }
 

@@ -86,10 +86,8 @@ namespace TMG.NetworkEstimation
             }
             else
             {
-                using (StreamWriter writer = new StreamWriter(SaveToFile) )
-                {
-                    writer.WriteLine(builder.ToString());
-                }
+                using StreamWriter writer = new StreamWriter(SaveToFile);
+                writer.WriteLine(builder.ToString());
             }
             return true;
         }

@@ -63,21 +63,19 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> cat)
         {
-            using (var productionEnum = productions.GetEnumerator())
-            using (var attractionEnum = attractions.GetEnumerator())
-            using (var catEnum = cat.GetEnumerator())
+            using var productionEnum = productions.GetEnumerator();
+            using var attractionEnum = attractions.GetEnumerator();
+            using var catEnum = cat.GetEnumerator();
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            var sparseFriction = zoneArray.CreateSquareTwinArray<float>();
+            float[][] friction = sparseFriction.GetFlatData();
+            var validZones = zoneArray.ValidIndexArray();
+            while (productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext())
             {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                var sparseFriction = zoneArray.CreateSquareTwinArray<float>();
-                float[][] friction = sparseFriction.GetFlatData();
-                var validZones = zoneArray.ValidIndexArray();
-                while (productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext())
-                {
-                    friction = ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
-                    yield return
-                        new GravityModel(sparseFriction, (p => Progress = p), Epsilon, MaxIterations).ProcessFlow(
-                            productionEnum.Current, attractionEnum.Current, validZones);
-                }
+                friction = ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
+                yield return
+                    new GravityModel(sparseFriction, (p => Progress = p), Epsilon, MaxIterations).ProcessFlow(
+                        productionEnum.Current, attractionEnum.Current, validZones);
             }
         }
 

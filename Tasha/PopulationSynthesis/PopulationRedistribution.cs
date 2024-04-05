@@ -361,47 +361,43 @@ where you still want the same demographics."
 
         private void SaveWorkerData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[] workers)
         {
-            using (StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerForceDirectory)))
+            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerForceDirectory));
+            writer.WriteLine("Zone,Persons");
+            for (int i = 0; i < workers.Length; i++)
             {
-                writer.WriteLine("Zone,Persons");
-                for (int i = 0; i < workers.Length; i++)
+                if (workers[i] > 0)
                 {
-                    if (workers[i] > 0)
-                    {
-                        writer.Write(zones[i].ZoneNumber);
-                        writer.Write(',');
-                        writer.WriteLine(workers[i]);
-                    }
+                    writer.Write(zones[i].ZoneNumber);
+                    writer.Write(',');
+                    writer.WriteLine(workers[i]);
                 }
             }
         }
 
         private void SaveWorkerCategoryData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[][] workers)
         {
-            using (StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory)))
+            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
+            writer.WriteLine("Zone,WorkerCategory,Persons");
+            for (int i = 0; i < workers.Length; i++)
             {
-                writer.WriteLine("Zone,WorkerCategory,Persons");
-                for (int i = 0; i < workers.Length; i++)
+                var factor = 1.0f / workers[i].Sum();
+                if (float.IsNaN(factor))
                 {
-                    var factor = 1.0f / workers[i].Sum();
-                    if (float.IsNaN(factor))
+                    continue;
+                }
+                for (int cat = 0; cat < workers[i].Length; cat++)
+                {
+                    workers[i][cat] *= factor;
+                }
+                for (int cat = 0; cat < workers[i].Length; cat++)
+                {
+                    if (workers[i][cat] > 0)
                     {
-                        continue;
-                    }
-                    for (int cat = 0; cat < workers[i].Length; cat++)
-                    {
-                        workers[i][cat] *= factor;
-                    }
-                    for (int cat = 0; cat < workers[i].Length; cat++)
-                    {
-                        if (workers[i][cat] > 0)
-                        {
-                            writer.Write(zones[i].ZoneNumber);
-                            writer.Write(',');
-                            writer.Write(cat + 1);
-                            writer.Write(',');
-                            writer.WriteLine(workers[i][cat]);
-                        }
+                        writer.Write(zones[i].ZoneNumber);
+                        writer.Write(',');
+                        writer.Write(cat + 1);
+                        writer.Write(',');
+                        writer.WriteLine(workers[i][cat]);
                     }
                 }
             }
@@ -411,14 +407,12 @@ where you still want the same demographics."
         {
             if (SummaryFile != null)
             {
-                using (var writer = new StreamWriter(SummaryFile))
-                {
-                    writer.WriteLine("Type,Total");
-                    writer.Write("Households,");
-                    writer.WriteLine((householdID - 1));
-                    writer.Write("Persons,");
-                    writer.WriteLine(totalPerson);
-                }
+                using var writer = new StreamWriter(SummaryFile);
+                writer.WriteLine("Type,Total");
+                writer.Write("Households,");
+                writer.WriteLine((householdID - 1));
+                writer.Write("Persons,");
+                writer.WriteLine(totalPerson);
             }
         }
 
@@ -666,28 +660,26 @@ where you still want the same demographics."
         private void SaveHouseholds(List<KeyValuePair<int, int>>[] results, List<ITashaHousehold>[] householdsByRegion, int[] zones)
         {
             int householdID = 1;
-            using (var writer = new StreamWriter(HouseholdFile))
+            using var writer = new StreamWriter(HouseholdFile);
+            writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles");
+            for (int i = 0; i < results.Length; i++)
             {
-                writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles");
-                for (int i = 0; i < results.Length; i++)
+                var households = householdsByRegion[i];
+                foreach (var record in results[i])
                 {
-                    var households = householdsByRegion[i];
-                    foreach (var record in results[i])
-                    {
-                        var zone = record.Key;
-                        var household = households[record.Value];
-                        writer.Write(householdID);
-                        writer.Write(',');
-                        writer.Write(zones[zone]);
-                        // the expansion factor is always 1
-                        writer.Write(",1,");
-                        writer.Write((int)household.DwellingType);
-                        writer.Write(',');
-                        writer.Write(household.Persons.Length);
-                        writer.Write(',');
-                        writer.WriteLine(household.Vehicles.Length);
-                        householdID++;
-                    }
+                    var zone = record.Key;
+                    var household = households[record.Value];
+                    writer.Write(householdID);
+                    writer.Write(',');
+                    writer.Write(zones[zone]);
+                    // the expansion factor is always 1
+                    writer.Write(",1,");
+                    writer.Write((int)household.DwellingType);
+                    writer.Write(',');
+                    writer.Write(household.Persons.Length);
+                    writer.Write(',');
+                    writer.WriteLine(household.Vehicles.Length);
+                    householdID++;
                 }
             }
         }

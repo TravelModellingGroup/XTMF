@@ -120,16 +120,14 @@ namespace Tasha.Validation
         {
             if ( iteration == Root.TotalIterations - 1 )
             {
-                using (StreamWriter writer = new StreamWriter( OutputFile, true ))
+                using StreamWriter writer = new StreamWriter(OutputFile, true);
+                writer.WriteLine("Iteration,Activity,AverageDistance");
+                lock (this)
                 {
-                    writer.WriteLine( "Iteration,Activity,AverageDistance" );
-                    lock (this)
+                    foreach (var pair in DistancesDictionary)
                     {
-                        foreach ( var pair in DistancesDictionary )
-                        {
-                            float averageDistance = pair.Value.TotalDistance / pair.Value.Records;
-                            writer.WriteLine( "{2}, {0}, {1}", pair.Key, averageDistance, iteration );
-                        }
+                        float averageDistance = pair.Value.TotalDistance / pair.Value.Records;
+                        writer.WriteLine("{2}, {0}, {1}", pair.Key, averageDistance, iteration);
                     }
                 }
             }

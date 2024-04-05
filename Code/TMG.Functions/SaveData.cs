@@ -83,13 +83,11 @@ namespace TMG.Functions
                         }
                     });
                 });
-            using (StreamWriter writer = new StreamWriter(fileName))
+            using StreamWriter writer = new StreamWriter(fileName);
+            writer.WriteLine(header);
+            for (int i = 0; i < zoneLines.Length; i++)
             {
-                writer.WriteLine(header);
-                for (int i = 0; i < zoneLines.Length; i++)
-                {
-                    writer.WriteLine(zoneLines[i]);
-                }
+                writer.WriteLine(zoneLines[i]);
             }
         }
 
@@ -102,31 +100,29 @@ namespace TMG.Functions
         {
             var flatData = data.GetFlatData();
             var indexes = data.ValidIndexArray().Select(index => index.ToString()).ToArray();
-            using (StreamWriter writer = new StreamWriter(saveTo, false, Encoding.UTF8))
+            using StreamWriter writer = new StreamWriter(saveTo, false, Encoding.UTF8);
+            void WriteRecord(string zone, float value)
             {
-                void WriteRecord(string zone, float value)
+                writer.Write(zone);
+                writer.Write(',');
+                writer.WriteLine(value);
+            }
+            writer.WriteLine("Zone,Value");
+            if (skipZeros)
+            {
+                for (int i = 0; i < flatData.Length; i++)
                 {
-                    writer.Write(zone);
-                    writer.Write(',');
-                    writer.WriteLine(value);
-                }
-                writer.WriteLine("Zone,Value");
-                if (skipZeros)
-                {
-                    for (int i = 0; i < flatData.Length; i++)
-                    {
-                        if (flatData[i] != 0)
-                        {
-                            WriteRecord(indexes[i], flatData[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < flatData.Length; i++)
+                    if (flatData[i] != 0)
                     {
                         WriteRecord(indexes[i], flatData[i]);
                     }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    WriteRecord(indexes[i], flatData[i]);
                 }
             }
         }
@@ -139,36 +135,34 @@ namespace TMG.Functions
         public static void SaveMatrixThirdNormalized(IZone[] zones, float[][] data, string saveLocation, bool skipZeros)
         {
             var zoneNumbers = zones.Select(z => z.ZoneNumber.ToString()).ToArray();
-            using (StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8))
+            using StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8);
+            void WriteRecord(string origin, string destination, float value)
             {
-                void WriteRecord(string origin, string destination, float value)
+                writer.Write(origin);
+                writer.Write(',');
+                writer.Write(destination);
+                writer.Write(',');
+                writer.WriteLine(value);
+            }
+            writer.WriteLine("Origin,Destination,Data");
+            for (int i = 0; i < data.Length; i++)
+            {
+                var row = data[i];
+                if (skipZeros)
                 {
-                    writer.Write(origin);
-                    writer.Write(',');
-                    writer.Write(destination);
-                    writer.Write(',');
-                    writer.WriteLine(value);
-                }
-                writer.WriteLine("Origin,Destination,Data");
-                for (int i = 0; i < data.Length; i++)
-                {
-                    var row = data[i];
-                    if (skipZeros)
+                    for (int j = 0; j < row.Length; j++)
                     {
-                        for (int j = 0; j < row.Length; j++)
-                        {
-                            if (row[j] != 0)
-                            {
-                                WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int j = 0; j < row.Length; j++)
+                        if (row[j] != 0)
                         {
                             WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j]);
                         }
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < row.Length; j++)
+                    {
+                        WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j]);
                     }
                 }
             }
@@ -181,36 +175,34 @@ namespace TMG.Functions
 
         public static void SaveMatrixThirdNormalized(SparseTwinIndex<float> matrix, FileLocation saveLocation, bool skipZeros)
         {
-            using (StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8))
+            using StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8);
+            writer.WriteLine("Origin,Destination,Data");
+            void WriteRecord(int origin, int destination, float value)
             {
-                writer.WriteLine("Origin,Destination,Data");
-                void WriteRecord(int origin, int destination, float value)
+                writer.Write(origin);
+                writer.Write(',');
+                writer.Write(destination);
+                writer.Write(',');
+                writer.WriteLine(value);
+            }
+            foreach (var o in matrix.ValidIndexes())
+            {
+                if (skipZeros)
                 {
-                    writer.Write(origin);
-                    writer.Write(',');
-                    writer.Write(destination);
-                    writer.Write(',');
-                    writer.WriteLine(value);
-                }
-                foreach (var o in matrix.ValidIndexes())
-                {
-                    if (skipZeros)
+                    foreach (var d in matrix.ValidIndexes(o))
                     {
-                        foreach (var d in matrix.ValidIndexes(o))
+                        var entry = matrix[o, d];
+                        if (entry != 0.0)
                         {
-                            var entry = matrix[o, d];
-                            if (entry != 0.0)
-                            {
-                                WriteRecord(o, d, entry);
-                            }
+                            WriteRecord(o, d, entry);
                         }
                     }
-                    else
+                }
+                else
+                {
+                    foreach (var d in matrix.ValidIndexes(o))
                     {
-                        foreach (var d in matrix.ValidIndexes(o))
-                        {
-                            WriteRecord(o, d, matrix[o, d]);
-                        }
+                        WriteRecord(o, d, matrix[o, d]);
                     }
                 }
             }
@@ -232,79 +224,77 @@ namespace TMG.Functions
                     Directory.CreateDirectory(dir);
                 }
             }
-            using (StreamWriter writer = new StreamWriter(fileName, false, Encoding.UTF8))
+            using StreamWriter writer = new StreamWriter(fileName, false, Encoding.UTF8);
+            BlockingCollection<SaveTask> toWrite = [];
+            var saveTask = Task.Run(() =>
             {
-                BlockingCollection<SaveTask> toWrite = [];
-                var saveTask = Task.Run(() =>
+                int nextRow = 0;
+                SortedList<int, SaveTask> backlog = [];
+                foreach (var newTask in toWrite.GetConsumingEnumerable())
                 {
-                    int nextRow = 0;
-                    SortedList<int, SaveTask> backlog = [];
-                    foreach (var newTask in toWrite.GetConsumingEnumerable())
+                    var task = newTask;
+                    do
                     {
-                        var task = newTask;
-                        do
+                        string currentString = task.Text;
+                        int currentRow = task.RowNumber;
+                        if (nextRow == currentRow)
                         {
-                            string currentString = task.Text;
-                            int currentRow = task.RowNumber;
-                            if (nextRow == currentRow)
-                            {
-                                // ReSharper disable once AccessToDisposedClosure
-                                writer.WriteLine(currentString);
-                                nextRow++;
-                            }
-                            else
-                            {
-                                backlog.Add(currentRow, new SaveTask() { RowNumber = currentRow, Text = currentString });
-                                break;
-                            }
-                            if (backlog.Count == 0)
-                            {
-                                break;
-                            }
-                            if (backlog.TryGetValue(nextRow, out task))
-                            {
-                                backlog.Remove(nextRow);
-                                continue;
-                            }
+                            // ReSharper disable once AccessToDisposedClosure
+                            writer.WriteLine(currentString);
+                            nextRow++;
+                        }
+                        else
+                        {
+                            backlog.Add(currentRow, new SaveTask() { RowNumber = currentRow, Text = currentString });
                             break;
-                        } while (true);
-                    }
-                });
-                var stringBuilder = new StringBuilder();
-                stringBuilder.Append("Zones O\\D");
-                for (int i = 0; i < zones.Length; i++)
-                {
-                    stringBuilder.Append(',');
-                    stringBuilder.Append(zones[i].ZoneNumber);
+                        }
+                        if (backlog.Count == 0)
+                        {
+                            break;
+                        }
+                        if (backlog.TryGetValue(nextRow, out task))
+                        {
+                            backlog.Remove(nextRow);
+                            continue;
+                        }
+                        break;
+                    } while (true);
                 }
-                toWrite.Add(new SaveTask() { RowNumber = 0, Text = stringBuilder.ToString() });
-                Parallel.For(0, zones.Length, () => new StringBuilder(),
-                    (i, _, strBuilder) =>
-                {
-                    strBuilder.Clear();
-                    strBuilder.Append(zones[i].ZoneNumber);
-                    var row = data[i];
-                    if (row == null)
-                    {
-                        for (int j = 0; j < zones.Length; j++)
-                        {
-                            strBuilder.Append(",0");
-                        }
-                    }
-                    else
-                    {
-                        for (int j = 0; j < row.Length; j++)
-                        {
-                            strBuilder.Append(',');
-                            strBuilder.Append(row[j]);
-                        }
-                    }
-                    toWrite.Add(new SaveTask() { RowNumber = i + 1, Text = strBuilder.ToString() });
-                    return strBuilder;
-                }, _ => { });
-                toWrite.CompleteAdding();
-                saveTask.Wait();
+            });
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("Zones O\\D");
+            for (int i = 0; i < zones.Length; i++)
+            {
+                stringBuilder.Append(',');
+                stringBuilder.Append(zones[i].ZoneNumber);
             }
+            toWrite.Add(new SaveTask() { RowNumber = 0, Text = stringBuilder.ToString() });
+            Parallel.For(0, zones.Length, () => new StringBuilder(),
+                (i, _, strBuilder) =>
+            {
+                strBuilder.Clear();
+                strBuilder.Append(zones[i].ZoneNumber);
+                var row = data[i];
+                if (row == null)
+                {
+                    for (int j = 0; j < zones.Length; j++)
+                    {
+                        strBuilder.Append(",0");
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < row.Length; j++)
+                    {
+                        strBuilder.Append(',');
+                        strBuilder.Append(row[j]);
+                    }
+                }
+                toWrite.Add(new SaveTask() { RowNumber = i + 1, Text = strBuilder.ToString() });
+                return strBuilder;
+            }, _ => { });
+            toWrite.CompleteAdding();
+            saveTask.Wait();
         }
 
         public static void SaveMatrix(IZone[] zones, float[] data, string fileName)
@@ -351,13 +341,11 @@ namespace TMG.Functions
                         }
                     });
                 });
-            using (StreamWriter writer = new StreamWriter(fileName))
+            using StreamWriter writer = new StreamWriter(fileName);
+            writer.WriteLine(header);
+            for (int i = 0; i < zoneLines.Length; i++)
             {
-                writer.WriteLine(header);
-                for (int i = 0; i < zoneLines.Length; i++)
-                {
-                    writer.WriteLine(zoneLines[i]);
-                }
+                writer.WriteLine(zoneLines[i]);
             }
         }
     }

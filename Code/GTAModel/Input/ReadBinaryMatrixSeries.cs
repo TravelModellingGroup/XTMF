@@ -123,14 +123,12 @@ namespace TMG.GTAModel.Input
             processingTask.Start();
             try
             {
-                using ( var reader = new BinaryReader( File.Open( fileName, FileMode.Open ) ) )
+                using var reader = new BinaryReader(File.Open(fileName, FileMode.Open));
+                for (int i = 0; i < flatRet.Length; i++)
                 {
-                    for ( int i = 0; i < flatRet.Length; i++ )
-                    {
-                        var temp = new byte[flatRet.Length * sizeof( float )];
-                        FillBuffer( reader, temp );
-                        toProcess.Add( new ProcessOrder { RawData = temp, RowIndex = i } );
-                    }
+                    var temp = new byte[flatRet.Length * sizeof(float)];
+                    FillBuffer(reader, temp);
+                    toProcess.Add(new ProcessOrder { RawData = temp, RowIndex = i });
                 }
             }
             catch ( FileNotFoundException )

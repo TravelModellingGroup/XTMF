@@ -287,19 +287,17 @@ namespace TMG.GTAModel.Generation
             buildInside.Append(Mobility);
             buildInside.Append(',');
             string categoryData = buildInside.ToString();
-            using (StreamWriter writer = new StreamWriter(AttractionFileName.GetFileName(), true))
+            using StreamWriter writer = new StreamWriter(AttractionFileName.GetFileName(), true);
+            if (first)
             {
-                if(first)
-                {
-                    // if we are the first thing to generate, then write the header as well
-                    writer.WriteLine("Zone,Age,Employment,Occupation,Mobility,Attraction");
-                }
-                for(int i = 0; i < flatAttractions.Length; i++)
-                {
-                    writer.Write(attractions.GetSparseIndex(i));
-                    writer.Write(categoryData);
-                    writer.WriteLine(flatAttractions[i]);
-                }
+                // if we are the first thing to generate, then write the header as well
+                writer.WriteLine("Zone,Age,Employment,Occupation,Mobility,Attraction");
+            }
+            for (int i = 0; i < flatAttractions.Length; i++)
+            {
+                writer.Write(attractions.GetSparseIndex(i));
+                writer.Write(categoryData);
+                writer.WriteLine(flatAttractions[i]);
             }
         }
 
@@ -315,26 +313,24 @@ namespace TMG.GTAModel.Generation
                     Directory.CreateDirectory(dir);
                 }
                 // if the file name exists try to write to it, appending
-                using (StreamWriter writer = new StreamWriter(GenerationOutputFileName, true))
+                using StreamWriter writer = new StreamWriter(GenerationOutputFileName, true);
+                if (first)
                 {
-                    if(first)
-                    {
-                        writer.WriteLine("Age,Employment,Occupation,Mobility,Production,Attraction,WAH");
-                    }
-                    writer.Write(AgeCategoryRange.ToString());
-                    writer.Write(',');
-                    writer.Write(EmploymentStatusCategory.ToString());
-                    writer.Write(',');
-                    writer.Write(OccupationCategory.ToString());
-                    writer.Write(',');
-                    writer.Write(Mobility.ToString());
-                    writer.Write(',');
-                    writer.Write(totalProduction);
-                    writer.Write(',');
-                    writer.Write(totalAttraction);
-                    writer.Write(',');
-                    writer.WriteLine(WorkAtHomeTotal);
+                    writer.WriteLine("Age,Employment,Occupation,Mobility,Production,Attraction,WAH");
                 }
+                writer.Write(AgeCategoryRange.ToString());
+                writer.Write(',');
+                writer.Write(EmploymentStatusCategory.ToString());
+                writer.Write(',');
+                writer.Write(OccupationCategory.ToString());
+                writer.Write(',');
+                writer.Write(Mobility.ToString());
+                writer.Write(',');
+                writer.Write(totalProduction);
+                writer.Write(',');
+                writer.Write(totalAttraction);
+                writer.Write(',');
+                writer.WriteLine(WorkAtHomeTotal);
             }
         }
     }

@@ -53,10 +53,8 @@ namespace TMG.Estimation.Utilities
             {
                 if ( !string.IsNullOrWhiteSpace( Header ) )
                 {
-                    using ( var writer = new StreamWriter( OutputFile ) )
-                    {
-                        writer.WriteLine( Header );
-                    }
+                    using var writer = new StreamWriter(OutputFile);
+                    writer.WriteLine(Header);
                 }
                 Host.RegisterCustomReceiver( DataChannel, (stream, remote) =>
                     {
@@ -75,11 +73,9 @@ namespace TMG.Estimation.Utilities
                             {
                                 lock ( WriteLock )
                                 {
-                                    using ( var writer = File.Open( OutputFile, FileMode.Append) )
-                                    {
-                                        writer.Write( data, 0, data.Length );
-                                        writer.Flush();
-                                    }
+                                    using var writer = File.Open(OutputFile, FileMode.Append);
+                                    writer.Write(data, 0, data.Length);
+                                    writer.Flush();
                                 }
                             } );
                     } );
