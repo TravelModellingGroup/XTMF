@@ -115,34 +115,35 @@ namespace Tasha.Estimation
                                        try
                                        {
                                            memStream = new MemoryStream(data);
-                                           using (var fromHost = new CryptoStream(memStream,
-                                               new RijndaelManaged().CreateDecryptor(key, iv), CryptoStreamMode.Read))
+                                           using Aes aes = Aes.Create();
+                                           aes.Key = key;
+                                           aes.IV = iv;
+                                           using var fromHost = new CryptoStream(memStream,
+                                               aes.CreateDecryptor(), CryptoStreamMode.Read);
+                                           memStream = null;
+                                           var reader = new BinaryReader(fromHost);
+                                           int numberOfHouseholds = reader.ReadInt32();
+                                           int numberOfVehicles = reader.ReadInt32();
+                                           if (numberOfVehicles != Root.VehicleTypes.Count)
                                            {
-                                               memStream = null;
-                                               var reader = new BinaryReader(fromHost);
-                                               int numberOfHouseholds = reader.ReadInt32();
-                                               int numberOfVehicles = reader.ReadInt32();
-                                               if (numberOfVehicles != Root.VehicleTypes.Count)
-                                               {
-                                                   throw new XTMFRuntimeException(this, "We were expecting to have '" + Root.VehicleTypes.Count + "' different types of vehicles but the host has '" + numberOfVehicles + "'");
-                                               }
-                                               for (int i = 0; i < numberOfVehicles; i++)
-                                               {
-                                                   string temp;
-                                                   if (Root.VehicleTypes[i].VehicleName != (temp = reader.ReadString()))
-                                                   {
-                                                       throw new XTMFRuntimeException(this, "We were expecting the vehicle type to be named '" + Root.VehicleTypes[i].VehicleName + "' and instead found '" + temp + "'");
-                                                   }
-                                               }
-                                               ITashaHousehold[] households = new ITashaHousehold[numberOfHouseholds];
-                                               var zoneArray = Root.ZoneSystem.ZoneArray;
-                                               for (int i = 0; i < numberOfHouseholds; i++)
-                                               {
-                                                   households[i] = LoadHousehold(reader, zoneArray);
-                                               }
-                                               Households = households;
-                                               householdsRecieved = true;
+                                               throw new XTMFRuntimeException(this, "We were expecting to have '" + Root.VehicleTypes.Count + "' different types of vehicles but the host has '" + numberOfVehicles + "'");
                                            }
+                                           for (int i = 0; i < numberOfVehicles; i++)
+                                           {
+                                               string temp;
+                                               if (Root.VehicleTypes[i].VehicleName != (temp = reader.ReadString()))
+                                               {
+                                                   throw new XTMFRuntimeException(this, "We were expecting the vehicle type to be named '" + Root.VehicleTypes[i].VehicleName + "' and instead found '" + temp + "'");
+                                               }
+                                           }
+                                           ITashaHousehold[] households = new ITashaHousehold[numberOfHouseholds];
+                                           var zoneArray = Root.ZoneSystem.ZoneArray;
+                                           for (int i = 0; i < numberOfHouseholds; i++)
+                                           {
+                                               households[i] = LoadHousehold(reader, zoneArray);
+                                           }
+                                           Households = households;
+                                           householdsRecieved = true;
                                        }
                                        catch(Exception e)
                                        {
