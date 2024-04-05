@@ -47,7 +47,7 @@ namespace XTMF.Gui.UserControls
             set
             {
                 _Header = value;
-                NotifyChanged( "HeaderText" );
+                NotifyChanged( nameof(HeaderText));
             }
         }
 
@@ -75,7 +75,7 @@ namespace XTMF.Gui.UserControls
 
         private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            NotifyChanged( "Text" );
+            NotifyChanged( nameof(Text));
             TextChanged?.Invoke(this);
         }
 

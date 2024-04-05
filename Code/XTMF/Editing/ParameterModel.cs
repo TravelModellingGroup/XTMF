@@ -108,7 +108,7 @@ namespace XTMF
                     _Value = value;
                     string error = null;
                     RealParameter.Value = ArbitraryParameterParser.ArbitraryParameterParse(RealParameter.Type, _Value, ref error);
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "Value");
+                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Value));
                 }
             }
         }
@@ -134,17 +134,17 @@ namespace XTMF
                         (ref string erro) =>
                         {
                             RealParameter.QuickParameter = value;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(QuickParameter));
                             return true;
                         }, (ref string erro) =>
                         {
                             RealParameter.QuickParameter = !value;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(QuickParameter));
                             return true;
                         }, (ref string erro) =>
                         {
                             RealParameter.QuickParameter = value;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(QuickParameter));
                             return true;
                         }), ref error);
 
@@ -191,7 +191,7 @@ namespace XTMF
 
         internal void SignalIsLinkedChanged()
         {
-            ModelHelper.PropertyChanged(PropertyChanged, this, "IsLinked");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsLinked));
         }
 
         /// <summary>

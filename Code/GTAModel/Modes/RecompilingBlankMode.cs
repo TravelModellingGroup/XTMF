@@ -216,7 +216,7 @@ namespace TMG.GTAModel.Modes
             }
             feasibleMethod.Statements.Add(
                 new CodeMethodReturnStatement(
-                    new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeThisReferenceExpression(), "CurrentlyFeasible"), CodeBinaryOperatorType.GreaterThan,
+                    new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeThisReferenceExpression(), nameof(CurrentlyFeasible)), CodeBinaryOperatorType.GreaterThan,
                         new CodePrimitiveExpression(0))
                     )
                 );
@@ -260,7 +260,7 @@ namespace TMG.GTAModel.Modes
             calculateV.Parameters.Add(new CodeParameterDeclarationExpression(typeof(IZone), "destination"));
             calculateV.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Time), "time"));
 
-            initializeUtilityComponents.Statements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeThisReferenceExpression(), "UtilityComponents"),
+            initializeUtilityComponents.Statements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeThisReferenceExpression(), nameof(UtilityComponents)),
                 new CodeArgumentReferenceExpression("utilityComponents")));
             if (FeasibilityCalculation != null)
             {

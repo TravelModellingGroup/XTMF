@@ -258,7 +258,7 @@ namespace Datastructure
         {
             if ( array.Length - arrayIndex < Elements)
             {
-                throw new ArgumentException( "The array has an insufficient length for copying to!", "array" );
+                throw new ArgumentException( "The array has an insufficient length for copying to!", nameof(array));
             }
             Array.Copy(Data, 0, array, arrayIndex, Data.Length );
         }

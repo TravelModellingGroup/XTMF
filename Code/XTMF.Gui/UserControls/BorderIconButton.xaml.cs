@@ -88,7 +88,7 @@ namespace XTMF.Gui
             set
             {
                 _Icon = value;
-                NotifyChanged("Icon");
+                NotifyChanged(nameof(Icon));
             }
         }
 

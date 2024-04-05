@@ -160,7 +160,7 @@ namespace XTMF
                 if (_ModelSystemDirectory != value)
                 {
                     _ModelSystemDirectory = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ModelSystemDirectory"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModelSystemDirectory)));
                 }
             }
         }
@@ -185,7 +185,7 @@ namespace XTMF
                 if (_ProjectDirectory != value)
                 {
                     _ProjectDirectory = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProjectDirectory"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProjectDirectory)));
                 }
             }
         }
@@ -208,7 +208,7 @@ namespace XTMF
                 if (_HostPort != value)
                 {
                     _HostPort = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("HostPort"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HostPort)));
                 }
             }
         }

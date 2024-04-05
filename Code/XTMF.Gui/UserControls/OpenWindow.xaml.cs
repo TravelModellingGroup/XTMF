@@ -43,7 +43,7 @@ namespace XTMF.Gui.UserControls
                     if (_currentName != value)
                     {
                         _currentName = value;
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "CurrentName");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(CurrentName));
                     }
                 }
             }
@@ -57,7 +57,7 @@ namespace XTMF.Gui.UserControls
                     if (_currentText != value)
                     {
                         _currentText = value;
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "CurrentText");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(CurrentText));
                     }
                 }
             }
@@ -91,7 +91,7 @@ namespace XTMF.Gui.UserControls
                         if (_IsSelected != value)
                         {
                             _IsSelected = value;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "IsSelected");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsSelected));
                             if (value)
                             {
                                 Root.CurrentName = Name;

@@ -83,7 +83,7 @@ namespace XTMF.Gui.Models
             set
             {
                 _IsExpanded = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsExpanded"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsExpanded)));
             }
         }
 
@@ -95,7 +95,7 @@ namespace XTMF.Gui.Models
                 if (_ModuleVisibility != value)
                 {
                     _ModuleVisibility = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "ModuleVisibility");
+                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(ModuleVisibility));
                 }
             }
         }
@@ -143,7 +143,7 @@ namespace XTMF.Gui.Models
                 }
             }
 
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace XTMF.Gui.Models
             }
 
             UpdateIndices();
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
         }
 
         private void UpdateIndices()

@@ -95,7 +95,7 @@ namespace XTMF.Gui.UserControls
                         {
                             _projectDirectory = value;
                             Configuration.ReloadProjects();
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "ProjectDirectory");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(ProjectDirectory));
                             Save();
                         }
                         else
@@ -119,7 +119,7 @@ namespace XTMF.Gui.UserControls
                         {
                             _modelSystemDirectory = value;
                             Configuration.ReloadModelSystems();
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "ModelSystemDirectory");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(ModelSystemDirectory));
                             Save();
                         }
                         else
@@ -140,7 +140,7 @@ namespace XTMF.Gui.UserControls
                     {
                         _hostPort = value;
                         Configuration.HostPort = _hostPort;
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "HostPort");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(HostPort));
                         Save();
                     }
                 }

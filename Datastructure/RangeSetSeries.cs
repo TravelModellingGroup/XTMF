@@ -130,7 +130,7 @@ namespace Datastructure
             }
             if (arrayIndex < 0)
             {
-                throw new ArgumentOutOfRangeException("arrayIndex", "This argument must be greater than or equal to zero!");
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex), "This argument must be greater than or equal to zero!");
             }
             for (var i = 0; i < localRangeSets.Length; i++)
             {
@@ -171,7 +171,7 @@ namespace Datastructure
         {
             if (item == null)
             {
-                throw new ArgumentNullException("item", "The item to search for must not be null!");
+                throw new ArgumentNullException(nameof(item), "The item to search for must not be null!");
             }
             for (var i = 0; i < RangeSets.Length; i++)
             {

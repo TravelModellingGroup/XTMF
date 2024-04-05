@@ -1027,7 +1027,7 @@ namespace XTMF.Gui.UserControls
                         if (_IsSelected != value)
                         {
                             _IsSelected = value;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "IsSelected");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsSelected));
                         }
                     }
                 }
@@ -1043,7 +1043,7 @@ namespace XTMF.Gui.UserControls
                 internal bool SetName(string newName, ref string error)
                 {
                     var ret = _session.RenameModelSystem(_projectModelSystem, newName, ref error);
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
                     return ret;
                 }
 

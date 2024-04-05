@@ -74,9 +74,9 @@ namespace XTMF.Gui.UserControls
             get => (bool)GetValue(ShowMinorIconDependencyProperty);
             set
             {
-                OnPropertyChanged("ShowMinorIcon");
-                OnPropertyChanged("ShowMinorIconBackground");
-                OnPropertyChanged("MinorIconVisibility");
+                OnPropertyChanged(nameof(ShowMinorIcon));
+                OnPropertyChanged(nameof(ShowMinorIconBackground));
+                OnPropertyChanged(nameof(MinorIconVisibility));
                 OnPropertyChanged(nameof(MinorIconBackgroundVisibility));
                 SetValue(ShowMinorIconDependencyProperty, value);
             }

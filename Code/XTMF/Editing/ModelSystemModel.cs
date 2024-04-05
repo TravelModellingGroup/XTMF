@@ -171,10 +171,10 @@ namespace XTMF
                 }
                 _Dirty = true;
                 _Description = value;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
                 if (dirtyChanged)
                 {
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
                 }
             }
         }

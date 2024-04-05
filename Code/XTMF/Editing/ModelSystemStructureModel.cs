@@ -149,13 +149,13 @@ namespace XTMF
                         RealModelSystemStructure.Type = value;
                         UpdateChildren();
                         Parameters = new ParametersModel(this, _Session);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Type));
                         if (oldDirty == false)
                         {
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
                         }
 
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Parameters));
                         return true;
                     }
 
@@ -183,13 +183,13 @@ namespace XTMF
                             Parameters = oldParameters;
                             SetRealParametersToModel();
                             Dirty = oldDirty;
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Type));
                             if (oldDirty ^ IsDirty)
                             {
-                                ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
                             }
 
-                            ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
+                            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Parameters));
                             return true;
                         }, apply), ref error);
                 }
@@ -1070,21 +1070,21 @@ namespace XTMF
                         data.ModelInQuestion = Children[data.Index];
                         RealModelSystemStructure.Children.RemoveAt(data.Index);
                         Children.RemoveAt(data.Index);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
                         return true;
                     },
                     (ref string e) =>
                     {
                         RealModelSystemStructure.Children.Insert(data.Index, data.StructureInQuestion);
                         Children.Insert(data.Index, data.ModelInQuestion);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
                         return true;
                     },
                     (ref string e) =>
                     {
                         RealModelSystemStructure.Children.RemoveAt(data.Index);
                         Children.RemoveAt(data.Index);
-                        ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
                         return true;
                     }),
                 ref error);
@@ -1430,7 +1430,7 @@ namespace XTMF
         private void UpdateChildren()
         {
             Children = CreateChildren(_Session, RealModelSystemStructure);
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Children));
         }
 
         private bool Dirty = false;
@@ -1472,7 +1472,7 @@ namespace XTMF
             if (Dirty)
             {
                 Dirty = false;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "IsDirty");
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDirty));
             }
             return true;
         }

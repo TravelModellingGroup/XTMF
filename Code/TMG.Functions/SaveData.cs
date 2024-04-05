@@ -313,7 +313,7 @@ namespace TMG.Functions
             StringBuilder[] zoneLines = new StringBuilder[zones.Length];
             if (data.Length != zones.Length * zones.Length)
             {
-                throw new ArgumentException("The data must be a square matrix in size to the zones!", "data");
+                throw new ArgumentException("The data must be a square matrix in size to the zones!", nameof(data));
             }
             Parallel.Invoke(
                 () =>

@@ -40,7 +40,7 @@ namespace XTMF.Gui.Models
             {
                 string error = null;
                 _RealLinkedParameter.SetName(value, ref error);
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
             }
         }
 
