@@ -133,7 +133,7 @@ public class GenerateParameterTStatistics : IEstimationAI
     {
         var baseParameters = new ParameterSetting[parameters.Length];
         // we only read the first line
-        if (reader.LoadLine(out int columns))
+        if (reader.LoadLine(out int _))
         {
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -169,7 +169,7 @@ public class GenerateParameterTStatistics : IEstimationAI
         return ret;
     }
 
-    private int IndexOf(ParameterSetting[] parameters, ParameterSetting selectedParameter)
+    private static int IndexOf(ParameterSetting[] parameters, ParameterSetting selectedParameter)
     {
         for(int i = 0; i < parameters.Length; i++)
         {
