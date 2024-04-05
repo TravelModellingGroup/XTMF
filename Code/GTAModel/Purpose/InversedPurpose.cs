@@ -203,7 +203,7 @@ public class InversedPurpose : IPurpose
                     }
                     writer.WriteLine();
                 }
-                var row = split.Result == null ? null : split.Result[i];
+                var row = split.Result?[i];
                 writer.Write(zones[i].ZoneNumber);
                 for (int j = 0; j < zones.Length; j++)
                 {

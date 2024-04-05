@@ -241,10 +241,7 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
 
     public void Reset()
     {
-        if ( Reader != null )
-        {
-            Reader.Reset();
-        }
+        Reader?.Reset();
     }
 
     /// <summary>

@@ -64,18 +64,12 @@ public class TestModelSystemEditingSession
             }
             finally
             {
-                if(secondSession != null)
-                {
-                    secondSession.Dispose();
-                }
+                secondSession?.Dispose();
             }
         }
         finally
         {
-            if(session != null)
-            {
-                session.Dispose();
-            }
+            session?.Dispose();
         }
     }
 

@@ -925,10 +925,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         private void Run_RunMessage(string message)
         {
             message = message.Replace("***", " ");
-            if (_log != null)
-            {
-                _log.Info(message);
-            }
+            _log?.Info(message);
         }
 
         /// <summary>

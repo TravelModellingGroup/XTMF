@@ -214,10 +214,7 @@ internal sealed class SchedulerTripChain : Attachable, ITripChain
         JointTripID = 0;
         JointTripRep = false;
         GetRepTripChain = null;
-        if (JointTripChains != null)
-        {
-            JointTripChains.Clear();
-        }
+        JointTripChains?.Clear();
         Person = null;
         Chains.Enqueue(this);
     }

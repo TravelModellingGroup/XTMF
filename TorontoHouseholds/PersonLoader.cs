@@ -282,10 +282,7 @@ public class PersonLoader : IDatachainLoader<ITashaHousehold, ITashaPerson>, IDi
                 p.Occupation = Occupation.NotEmployed;
             }
 
-            if(TripchainLoader != null)
-            {
-                TripchainLoader.Load(p);
-            }
+            TripchainLoader?.Load(p);
             if(PersonExpansionFactorCol < 0)
             {
                 p.ExpansionFactor = household.ExpansionFactor;
@@ -312,10 +309,7 @@ public class PersonLoader : IDatachainLoader<ITashaHousehold, ITashaPerson>, IDi
 
     public void Reset()
     {
-        if(TripchainLoader != null)
-        {
-            TripchainLoader.Reset();
-        }
+        TripchainLoader?.Reset();
         if(DriverLicenseModel != null)
         {
             DriverLicenseModel.Unload();

@@ -318,10 +318,7 @@ public class ModeChoiceEstimationClient : ITashaRuntime
             return;
         }
         var propertyInfo = modeType.GetProperty(parameter);
-        if (propertyInfo != null)
-        {
-            propertyInfo.SetValue(mode, value, null);
-        }
+        propertyInfo?.SetValue(mode, value, null);
     }
 
     private float EvaluateHousehold(TashaHousehold household)

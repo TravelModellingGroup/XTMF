@@ -106,10 +106,7 @@ public class ClientDistributionManager : IClientDistributionManager
     public void Start()
     {
         InitializeNetworking();
-        if(Initialization != null)
-        {
-            Initialization.Start();
-        }
+        Initialization?.Start();
         SignalReady();
         while(!Exit)
         {
@@ -145,10 +142,7 @@ public class ClientDistributionManager : IClientDistributionManager
                             var taskToRun = Tasks.FirstOrDefault(t => t.TaskName == request.TaskName);
                             try
                             {
-                                if(taskToRun != null)
-                                {
-                                    taskToRun.TaskModelSystem.Start();
-                                }
+                                taskToRun?.TaskModelSystem.Start();
                                 request.Success = true;
                             }
                             catch (Exception e)

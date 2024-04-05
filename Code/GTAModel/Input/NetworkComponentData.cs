@@ -302,10 +302,7 @@ public class NetworkComponentData : ITripComponentData, IDisposable
 
     public void LoadData()
     {
-        if ( Data != null )
-        {
-            Data.Release();
-        }
+        Data?.Release();
         if ( IterativeRoot != null )
         {
             AlreadyLoaded = Regenerate & ( IterativeRoot.CurrentIteration > 0 );

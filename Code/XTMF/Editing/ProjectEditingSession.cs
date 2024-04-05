@@ -71,10 +71,7 @@ public sealed class ProjectEditingSession : IDisposable
                 for (int i = 0; i < _EditingSessions.Length; i++)
                 {
                     var session = _EditingSessions[i].Session;
-                    if (session != null)
-                    {
-                        session.ProjectWasExternalSaved();
-                    }
+                    session?.ProjectWasExternalSaved();
                 }
             }
             ProjectWasExternallySaved?.Invoke(this, e);
@@ -142,10 +139,7 @@ public sealed class ProjectEditingSession : IDisposable
             for (int i = 0; i < _EditingSessions.Length; i++)
             {
                
-                if (_EditingSessions[i].Session != null)
-                {
-                    _EditingSessions[i].Session.Dispose();
-                }
+                _EditingSessions[i].Session?.Dispose();
             }
             _Runtime.ProjectController.RemoveEditingReference(this);
 

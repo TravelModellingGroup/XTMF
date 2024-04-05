@@ -250,17 +250,11 @@ public class TripChain : Attachable, ITripChain
             trips[i].Recycle();
         }
         Trips.Clear();
-        if (Passengers != null )
-        {
-            Passengers.Clear();
-        }
+        Passengers?.Clear();
         GetRepTripChain = null;
         JointTripRep = false;
         JointTripID = 0;
-        if (JointTripChains != null)
-        {
-            JointTripChains.Clear();
-        }
+        JointTripChains?.Clear();
         GetRepTripChain = null;
         TripChains.Enqueue(this);
     }

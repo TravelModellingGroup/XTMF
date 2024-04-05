@@ -98,10 +98,7 @@ public class V2PoRPoWDistribution : IDemographicDistribution
 
     public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
     {
-        if(SaveFriction != null)
-        {
-            SaveFriction.Reset();
-        }
+        SaveFriction?.Reset();
         Progress = 0f;
         WCatParameters.LoadData();
         var ep = productions.GetEnumerator();
@@ -172,10 +169,7 @@ public class V2PoRPoWDistribution : IDemographicDistribution
 
     private void CheckSaveFriction(float[][] friction)
     {
-        if(SaveFriction != null)
-        {
-            SaveFriction.SaveMatrix(friction);
-        }
+        SaveFriction?.SaveMatrix(friction);
     }
 
     private void ComputeFriction(IZone[] zones, PoRPoWGeneration[][] cats, float[][][] productions, float[][][] attractions, float[][] friction, float[] production, float[] attraction)

@@ -256,15 +256,9 @@ public class TashaRuntime : ITashaRuntime, IIterativeModel
             InitializeParameters();
         }
         LoadNetworkData(0);
-        if (Scheduler != null)
-        {
-            Scheduler.LoadOneTimeLocalData();
-        }
+        Scheduler?.LoadOneTimeLocalData();
 
-        if (ModeChoice != null)
-        {
-            ModeChoice.LoadOneTimeLocalData();
-        }
+        ModeChoice?.LoadOneTimeLocalData();
 
         for (int i = 0; i < TotalIterations; i++)
         {
@@ -468,10 +462,7 @@ public class TashaRuntime : ITashaRuntime, IIterativeModel
         for (int i = 0; i < trips.Count; i++)
         {
             var md = Tasha.ModeChoice.ModeData.Get(trips[i]);
-            if (md != null)
-            {
-                md.Recycle();
-            }
+            md?.Recycle();
         }
     }
 

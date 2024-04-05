@@ -83,10 +83,7 @@ public sealed class SqlServerDataSource : IDataSource<IDbConnection>, IDisposabl
 
     private void LocalDispose()
     {
-        if ( Connection != null )
-        {
-            Connection.Dispose();
-        }
+        Connection?.Dispose();
         Connection = null;
     }
 

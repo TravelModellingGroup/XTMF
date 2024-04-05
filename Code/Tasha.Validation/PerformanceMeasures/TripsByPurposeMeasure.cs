@@ -186,14 +186,8 @@ public class TripsByPurposeMeasure : IPostHousehold
 
     public void IterationStarting(int iteration)
     {
-        if(PurposeDictionary != null)
-        {
-            PurposeDictionary.Clear();
-        }
-        if(SummaryTripCount != null)
-        {
-            SummaryTripCount.Clear();
-        }
+        PurposeDictionary?.Clear();
+        SummaryTripCount?.Clear();
     }
 
     public override string ToString()

@@ -230,10 +230,7 @@ internal class Client : IClient, IDisposable
         }
         finally
         {
-            if (connection != null)
-            {
-                connection.Close();
-            }
+            connection?.Close();
             done = true;
         }
         done = true;

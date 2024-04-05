@@ -77,10 +77,7 @@ public static class ModeChoiceTripChain
         for ( int i = 0; i < data.Length; i++ )
         {
             data[i] = ModeData.Get( trips[i] );
-            if ( data[i] != null )
-            {
-                data[i].GenerateError();
-            }
+            data[i]?.GenerateError();
         }
         ModeSet set = ModeSet.Make( chain );
         // launch the recursive version to explore all sets

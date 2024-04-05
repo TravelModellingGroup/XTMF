@@ -165,9 +165,7 @@ public class NetworkEstimationTemplate : I4StepModel
         InitializeAssignment();
         LoadParameterInstructions();
         FirstRun = true;
-        if (Client != null)
-        {
-            Client.RegisterCustomSender(ResultPort, delegate (object o, Stream s)
+        Client?.RegisterCustomSender(ResultPort, delegate (object o, Stream s)
            {
                var results = o as float[];
                if (results == null) return;
@@ -178,7 +176,6 @@ public class NetworkEstimationTemplate : I4StepModel
                    writer.Write(results[i]);
                }
            });
-        }
         for (int run = 0; run < NumberOfRuns; run++)
         {
             float currentPoint = (float)run / NumberOfRuns;

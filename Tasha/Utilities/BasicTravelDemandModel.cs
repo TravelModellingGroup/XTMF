@@ -63,10 +63,7 @@ public class BasicTravelDemandModel : ITravelDemandModel, IResourceSource
 
     public void Start()
     {
-        if (ZoneSystem != null)
-        {
-            ZoneSystem.LoadData();
-        }
+        ZoneSystem?.LoadData();
         int i = 0;
         _Progress = () =>
         {
@@ -92,10 +89,7 @@ public class BasicTravelDemandModel : ITravelDemandModel, IResourceSource
         {
             NetworkData[n].UnloadData();
         });
-        if (ZoneSystem != null)
-        {
-            ZoneSystem.UnloadData();
-        }
+        ZoneSystem?.UnloadData();
     }
 
     public override string ToString()

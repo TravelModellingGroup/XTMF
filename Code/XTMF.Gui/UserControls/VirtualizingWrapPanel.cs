@@ -734,8 +734,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
         _offset.X = offset;
 
-        if (_owner != null)
-            _owner.InvalidateScrollInfo();
+        _owner?.InvalidateScrollInfo();
 
         InvalidateMeasure();
         firstIndex = GetFirstVisibleIndex();
@@ -757,8 +756,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollInfo
 
         _offset.Y = offset;
 
-        if (_owner != null)
-            _owner.InvalidateScrollInfo();
+        _owner?.InvalidateScrollInfo();
 
         //_trans.Y = -offset;
 

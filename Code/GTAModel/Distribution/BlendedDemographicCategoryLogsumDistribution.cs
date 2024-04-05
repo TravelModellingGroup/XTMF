@@ -549,10 +549,7 @@ public class BlendedDemographicCategoryLogsumDistribution : IDemographicDistribu
             }
             finally
             {
-                if (file != null)
-                {
-                    file.Dispose();
-                }
+                file?.Dispose();
             }
         }
         catch (IOException e)
@@ -644,10 +641,7 @@ public class BlendedDemographicCategoryLogsumDistribution : IDemographicDistribu
             }
             finally
             {
-                if (file != null)
-                {
-                    file.Dispose();
-                }
+                file?.Dispose();
             }
         }
         catch (IOException e)

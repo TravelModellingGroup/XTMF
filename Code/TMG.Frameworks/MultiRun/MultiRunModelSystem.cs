@@ -756,9 +756,9 @@ public class MultiRunModelSystem : IModelSystemTemplate
                         {
                             res.ReleaseResource();
                         }
-                        else if (dataSource != null)
+                        else
                         {
-                            dataSource.UnloadData();
+                            dataSource?.UnloadData();
                         }
                     }
                 }
@@ -806,9 +806,9 @@ public class MultiRunModelSystem : IModelSystemTemplate
         {
             res.ReleaseResource();
         }
-        else if (dataSource != null)
+        else
         {
-            dataSource.UnloadData();
+            dataSource?.UnloadData();
         }
     }
 

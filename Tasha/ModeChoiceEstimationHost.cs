@@ -599,10 +599,7 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
             }
             Thread.MemoryBarrier();
         }
-        if (StartGeneration != null)
-        {
-            StartGeneration.Dispose();
-        }
+        StartGeneration?.Dispose();
     }
 
     private string GetFileLocation(string input)

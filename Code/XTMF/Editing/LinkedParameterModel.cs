@@ -199,10 +199,7 @@ public class LinkedParameterModel : INotifyPropertyChanged
             // redo
             (ref string e) =>
             {
-                if(change.OriginalContainedIn != null)
-                {
-                    change.OriginalContainedIn.NoCommandRemove(toAdd);
-                }
+                change.OriginalContainedIn?.NoCommandRemove(toAdd);
                 return NoCommandAdd(toAdd, change.Index, ref e);
             }
             ), ref error);

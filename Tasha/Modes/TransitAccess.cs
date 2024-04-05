@@ -283,10 +283,7 @@ public sealed class TransitAccess : ITashaMode
     /// </summary>
     public void ReleaseData()
     {
-        if ( TransitAccessData != null )
-        {
-            TransitAccessData.UnloadData();
-        }
+        TransitAccessData?.UnloadData();
     }
 
     /// <summary>

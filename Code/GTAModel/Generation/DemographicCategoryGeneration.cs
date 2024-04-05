@@ -77,10 +77,7 @@ public abstract class DemographicCategoryGeneration : IDemographicCategoryGenera
     public virtual void InitializeDemographicCategory()
     {
         var dataBase = Root.ModeParameterDatabase;
-        if ( dataBase != null )
-        {
-            dataBase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
-        }
+        dataBase?.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
     }
 
     public bool IsContained(IPerson person)

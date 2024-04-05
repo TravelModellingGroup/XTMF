@@ -225,10 +225,7 @@ public sealed class EstimationHost : IEstimationHost, IDisposable
             PendingResults.CompleteAdding();
             processResults.Wait();
         }
-        if ( ResultFileWriter != null )
-        {
-            ResultFileWriter.Close();
-        }
+        ResultFileWriter?.Close();
         lock (Host)
         {
             foreach ( var client in Host.ConnectedClients )

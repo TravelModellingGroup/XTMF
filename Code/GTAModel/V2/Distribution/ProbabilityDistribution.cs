@@ -88,10 +88,7 @@ public class ProbabilityDistribution : IDemographicDistribution
 
     public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
     {
-        if ( SaveDistributionSeries != null )
-        {
-            SaveDistributionSeries.Reset();
-        }
+        SaveDistributionSeries?.Reset();
         IDemographicCategory cat;
         var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
         var linkages = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
@@ -133,10 +130,7 @@ public class ProbabilityDistribution : IDemographicDistribution
                             });
                         }
                         yield return ret;
-                        if (save != null)
-                        {
-                            save.Wait();
-                        }
+                        save?.Wait();
                         catIndex++;
                     }
                 }
