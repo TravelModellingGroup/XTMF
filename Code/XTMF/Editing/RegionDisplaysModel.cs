@@ -242,7 +242,6 @@ public class RegionDisplaysModel : INotifyPropertyChanged
 
     public ModelSystemStructureModel RootModelSystemStructureModel { get; set; }
 
-    [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
 

@@ -223,7 +223,6 @@ public class MakingDistFreq : ITashaRuntime
         return false;
     }
 
-    [DoNotAutomate]
     public int GetIndexOfMode(ITashaMode mode)
     {
         throw new NotImplementedException();

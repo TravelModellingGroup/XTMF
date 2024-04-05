@@ -36,7 +36,6 @@ public sealed class CommandDisplayModel : INotifyPropertyChanged
         Name = command.Name;
     }
 
-    [NotifyPropertyChangedInvocator]
     private void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

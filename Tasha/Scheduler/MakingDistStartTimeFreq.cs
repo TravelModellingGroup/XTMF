@@ -200,7 +200,6 @@ public class MakingDistStartTimeFreq : ITashaRuntime
         return false;
     }
 
-    [DoNotAutomate]
     public int GetIndexOfMode(ITashaMode mode)
     {
         throw new NotImplementedException();

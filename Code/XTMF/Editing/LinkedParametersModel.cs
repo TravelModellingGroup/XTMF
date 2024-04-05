@@ -212,6 +212,5 @@ public class LinkedParametersModel : INotifyPropertyChanged
         }
     }
 
-    [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
