@@ -77,7 +77,7 @@ public class LaunchProgram : ISelfContainedModule
         try
         {
             var arguments = CreateArguments();
-            Console.WriteLine($"Running Program \"{Program}\" {arguments}");
+            Console.WriteLine($"Running Program \"{Program.GetFilePath()}\" {arguments}");
             var process = RunningProcess = Process.Start(new ProcessStartInfo(Program)
             {
                 Arguments = arguments,
