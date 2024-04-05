@@ -32,7 +32,7 @@ namespace TMG.Emme.Tools.Analysis.Transit
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
         [RunParameter("Scenario Number", 0, "The scenario numbers to run against.")]
         public int ScenarioNumber;
@@ -86,7 +86,7 @@ namespace TMG.Emme.Tools.Analysis.Transit
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
             public bool RuntimeValidation(ref string error)
             {

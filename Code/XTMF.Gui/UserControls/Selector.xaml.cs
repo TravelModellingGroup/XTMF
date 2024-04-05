@@ -37,21 +37,21 @@ namespace XTMF.Gui
 
         private Color ControlBackground = (Color)Application.Current.FindResource("ControlBackgroundColour");
 
-        private List<object> DisplayedItems = new List<object>(10);
+        private List<object> DisplayedItems = new(10);
 
         private int FocusedSelectedModule;
 
-        private List<object> Items = new List<object>(10);
+        private List<object> Items = new(10);
 
-        private List<BorderIconButton> ModelSystemsButtons = new List<BorderIconButton>(10);
+        private List<BorderIconButton> ModelSystemsButtons = new(10);
 
         private Action<object> RightClickedAction;
 
-        private List<string> Searchable = new List<string>(10);
+        private List<string> Searchable = new(10);
 
         private Color SelectionBlue = (Color)Application.Current.FindResource("SelectionBlue");
 
-        private BitmapImage SettingsImage = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Resources/Settings.png"));
+        private BitmapImage SettingsImage = new(new Uri("pack://application:,,,/XTMF.Gui;component/Resources/Settings.png"));
 
         public Selector()
         {
@@ -104,7 +104,7 @@ namespace XTMF.Gui
         public void Add(string name, string description, object data, ContextMenu menu)
         {
             FocusedSelectedModule = -1;
-            BorderIconButton newModelSystem = new BorderIconButton
+            BorderIconButton newModelSystem = new()
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -129,7 +129,7 @@ namespace XTMF.Gui
         public void Add(string name, string description, object data, ContextMenu menu, Color colour)
         {
             FocusedSelectedModule = -1;
-            BorderIconButton newModelSystem = new BorderIconButton
+            BorderIconButton newModelSystem = new()
             {
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Center,

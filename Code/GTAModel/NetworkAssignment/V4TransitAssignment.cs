@@ -84,7 +84,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Relative Gap", 0.001f, "Convergence criterion")]
         public float RelativeGap;
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         private const string ToolName = "tmg.assignment.transit.V4_FBTA";
 

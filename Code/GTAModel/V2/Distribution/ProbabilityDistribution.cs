@@ -255,7 +255,7 @@ namespace TMG.GTAModel.V2.Distribution
             {
                 var loadIn = catIndex / NumberOfCategoriesPerOccupation;
                 var file = WorkCacheFile + loadIn + ".bin";
-                using BinaryReader reader = new BinaryReader(File.OpenRead(file));
+                using BinaryReader reader = new(File.OpenRead(file));
                 var length = (int)reader.BaseStream.Length;
                 byte[] temp = new byte[length];
                 FillBuffer(reader, temp);
@@ -282,7 +282,7 @@ namespace TMG.GTAModel.V2.Distribution
                 // time for the next one
                 var loadIn = catIndex / NumberOfCategoriesPerOccupation;
                 var file = MobilityCacheFile + loadIn + ".bin";
-                using ( BinaryReader reader = new BinaryReader( File.OpenRead( file ) ) )
+                using ( BinaryReader reader = new( File.OpenRead( file ) ) )
                 {
                     var size = (int)reader.BaseStream.Length / 4;
                     MobilityCache = new float[size];

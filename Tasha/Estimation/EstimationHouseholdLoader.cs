@@ -311,7 +311,7 @@ namespace Tasha.Estimation
 
         private TashaPerson LoadPerson(BinaryReader reader, Datastructure.SparseArray<IZone> zoneArray, TashaHousehold household, int personID)
         {
-            TashaPerson person = new TashaPerson
+            TashaPerson person = new()
             {
                 Household = household,
                 Id = personID,
@@ -349,7 +349,7 @@ namespace Tasha.Estimation
             trip.DestinationZone = zoneArray[reader.ReadInt32()];
             trip.Purpose = (Activity)reader.ReadInt32();
             // And learn when we are leaving, and at what time we need to get there
-            Time time = new Time
+            Time time = new()
             {
                 // The activity's start time
                 Hours = reader.ReadInt32(),

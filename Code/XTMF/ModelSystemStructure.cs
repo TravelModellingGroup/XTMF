@@ -346,14 +346,14 @@ namespace XTMF
 
         public static IModelSystemStructure Load(Stream stream, IConfiguration config)
         {
-            ModelSystemStructure root = new ModelSystemStructure(config)
+            ModelSystemStructure root = new(config)
             {
                 Description = "The Model System Template that the project is based on",
                 Required = true,
                 ParentFieldType = typeof(IModelSystemTemplate),
                 ParentFieldName = "Root"
             };
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load(stream);
             var rootChildren = doc["Root"]?.ChildNodes;
             if (rootChildren == null)
@@ -366,7 +366,7 @@ namespace XTMF
 
         public static IModelSystemStructure Load(string fileName, IConfiguration config)
         {
-            ModelSystemStructure root = new ModelSystemStructure(config)
+            ModelSystemStructure root = new(config)
             {
                 Description = "The Model System Template that the project is based on",
                 Required = true,
@@ -377,7 +377,7 @@ namespace XTMF
             {
                 return root;
             }
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load(fileName);
             var list = doc["Root"]?.ChildNodes;
             if (list == null)
@@ -419,7 +419,7 @@ namespace XTMF
         /// <returns></returns>
         public IModelSystemStructure Clone(IModelSystemStructure parent = null)
         {
-            ModelSystemStructure cloneUs = new ModelSystemStructure(Configuration)
+            ModelSystemStructure cloneUs = new(Configuration)
             {
                 Name = Name,
                 Description = Description,
@@ -476,7 +476,7 @@ namespace XTMF
                 {
                     Children = new List<IModelSystemStructure>();
                 }
-                ModelSystemStructure p = new ModelSystemStructure(Configuration);
+                ModelSystemStructure p = new(Configuration);
                 Type innerType = ParentFieldType.IsArray ? ParentFieldType.GetElementType()
                     : ParentFieldType.GetGenericArguments()[0];
                 p.Type = newType;
@@ -569,7 +569,7 @@ namespace XTMF
         /// <param name="stream"></param>
         public void Save(Stream stream)
         {
-            XmlTextWriter writer = new XmlTextWriter(stream, Encoding.Unicode)
+            XmlTextWriter writer = new(stream, Encoding.Unicode)
             {
                 Formatting = Formatting.Indented
             };
@@ -604,7 +604,7 @@ namespace XTMF
             {
                 Directory.CreateDirectory(dirName);
             }
-            using FileStream fs = new FileStream(fileName, FileMode.Create);
+            using FileStream fs = new(fileName, FileMode.Create);
             Save(fs);
         }
 
@@ -713,7 +713,7 @@ namespace XTMF
 
         public bool Validate(ref string error, IModelSystemStructure parent = null)
         {
-            ErrorWithPath e = new ErrorWithPath();
+            ErrorWithPath e = new();
             var ret = Validate(ref e, [], parent);
             if (!ret)
             {
@@ -724,7 +724,7 @@ namespace XTMF
 
         internal static ModelSystemStructure Load(XmlNode modelSystemNode, IConfiguration config)
         {
-            ModelSystemStructure structure = new ModelSystemStructure(config)
+            ModelSystemStructure structure = new(config)
             {
                 Required = true
             };
@@ -829,7 +829,7 @@ namespace XTMF
 
         private static string CreateModuleName(string baseName)
         {
-            StringBuilder nameBuilder = new StringBuilder(50);
+            StringBuilder nameBuilder = new(50);
             var length = baseName.Length;
             bool lastUpper = true;
             if (length > 0)
@@ -900,7 +900,7 @@ namespace XTMF
                 var argument = type.GetElementType();
                 if (iModel.IsAssignableFrom(argument))
                 {
-                    ModelSystemStructure child = new ModelSystemStructure(config)
+                    ModelSystemStructure child = new(config)
                     {
                         IsCollection = true,
                         Children = new List<IModelSystemStructure>()
@@ -938,7 +938,7 @@ namespace XTMF
                         Type iCollection = typeof(ICollection<>).MakeGenericType(arguements[0]);
                         if (iCollection.IsAssignableFrom(type))
                         {
-                            ModelSystemStructure child = new ModelSystemStructure(config)
+                            ModelSystemStructure child = new(config)
                             {
                                 IsCollection = true,
                                 Children = new List<IModelSystemStructure>()
@@ -969,7 +969,7 @@ namespace XTMF
             }
             if (iModel.IsAssignableFrom(type))
             {
-                ModelSystemStructure child = new ModelSystemStructure(config);
+                ModelSystemStructure child = new(config);
                 foreach (var at in attributes)
                 {
                     if (at is ParentModel || at is DoNotAutomate || at is RootModule)
@@ -1326,7 +1326,7 @@ namespace XTMF
                     {
                         foreach (XmlNode element in child.ChildNodes)
                         {
-                            ModelSystemStructure ps = new ModelSystemStructure(config);
+                            ModelSystemStructure ps = new(config);
                             Load(ps, us, element, config, lookUp);
                             if (ps.ParentFieldType == null || ps.ParentFieldName == null)
                             {

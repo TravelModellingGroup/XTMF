@@ -204,7 +204,7 @@ namespace TMG.DataUtility
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             for ( int i = 0; i < Values.Length; i++ )
             {
                 builder.Append( Values[i] );

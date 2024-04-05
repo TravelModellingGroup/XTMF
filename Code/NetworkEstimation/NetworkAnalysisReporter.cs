@@ -60,7 +60,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("Remove Parameter Path Header", "", "Remove this string from headers")]
         public string RemoveParamterPathHeader;
 
-        private static Tuple<byte, byte, byte> ProgressColourT = new Tuple<byte, byte, byte>(50, 150, 50);
+        private static Tuple<byte, byte, byte> ProgressColourT = new(50, 150, 50);
 
         [RunParameter("Input Directory", "../../Input", "The location of the input files for this model system.")]
         public string InputBaseDirectory
@@ -114,7 +114,7 @@ namespace TMG.NetworkEstimation
                 string[] headers = null;
                 var data = LoadData(ref headers, out int bestIndex).ToArray();
                 SanitizeHeaders(headers);
-                using BinaryWriter writer = new BinaryWriter(File.OpenWrite(OutputFile));
+                using BinaryWriter writer = new(File.OpenWrite(OutputFile));
                 writer.Write(headers.Length);
                 for (int i = 0; i < headers.Length; i++)
                 {
@@ -147,13 +147,13 @@ namespace TMG.NetworkEstimation
                     System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.BelowNormal;
                     for (int j = i; j <= end; j++)
                     {
-                        using (Chart chart = new Chart())
+                        using (Chart chart = new())
                         {
                             chart.Width = Width;
                             chart.Height = Height;
                             ChartArea ca;
                             chart.ChartAreas.Add(ca = new ChartArea());
-                            Series ourSeries = new Series();
+                            Series ourSeries = new();
                             ourSeries.ChartType = SeriesChartType.Point;
                             AddData(ca, ourSeries, i, j);
                             chart.Series.Add(ourSeries);
@@ -168,12 +168,12 @@ namespace TMG.NetworkEstimation
 
         private byte[] BuildChart(string[] headers, int i, int j, Pair<double[], double>[] data, int bestIndex)
         {
-            using Chart chart = new Chart();
+            using Chart chart = new();
             chart.Width = Width;
             chart.Height = Height;
             ChartArea ca;
             chart.ChartAreas.Add(ca = new ChartArea());
-            Series ourSeries = new Series();
+            Series ourSeries = new();
 
             ourSeries.ChartType = SeriesChartType.Point;
             ProcessData(data, bestIndex, ourSeries, i, j);
@@ -208,7 +208,7 @@ namespace TMG.NetworkEstimation
                 return;
             }
             var invalidCharacters = Path.GetInvalidPathChars();
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             for (int i = 0; i < headers.Length; i++)
             {
                 sb.Clear();
@@ -229,7 +229,7 @@ namespace TMG.NetworkEstimation
         {
             List<DataPoint> points = [];
             List<double> pointHeight = [];
-            using (StreamReader reader = new StreamReader(EstimationFile))
+            using (StreamReader reader = new(EstimationFile))
             {
                 int minNumberOfColumns = first + 1;
                 string line = null;
@@ -245,7 +245,7 @@ namespace TMG.NetworkEstimation
                         while ((line = reader.ReadLine()) != null && ((parts = line.Split(',')).Length >= minNumberOfColumns))
                         {
                             double height = double.Parse(parts[ColourAxisCol]);
-                            DataPoint point = new DataPoint();
+                            DataPoint point = new();
                             point.XValue = double.Parse(parts[first]);
                             point.YValues = new[] { double.Parse(parts[second]) };
                             if (height > maxHeight) maxHeight = height;
@@ -330,7 +330,7 @@ namespace TMG.NetworkEstimation
         {
             List<Pair<double[], double>> data = [];
             bestIndex = -1;
-            using (StreamReader reader = new StreamReader(EstimationFile))
+            using (StreamReader reader = new(EstimationFile))
             {
                 int minNumberOfColumns = FirstDataCol + 1;
                 string line = null;

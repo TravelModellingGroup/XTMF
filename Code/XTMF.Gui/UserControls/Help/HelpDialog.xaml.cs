@@ -39,7 +39,7 @@ namespace XTMF.Gui.UserControls.Help
         /// </summary>
         private IConfiguration Config;
 
-        private SpinLock FullyLoaded = new SpinLock(false);
+        private SpinLock FullyLoaded = new(false);
 
         /// <summary>
         /// 
@@ -112,7 +112,7 @@ namespace XTMF.Gui.UserControls.Help
                 {
                     text = SearchBox.Box.Text;
                 });
-                Regex searchFor = new Regex(text, RegexOptions.IgnoreCase);
+                Regex searchFor = new(text, RegexOptions.IgnoreCase);
                 var loadTask = Task.Run(() =>
                 {
                     try

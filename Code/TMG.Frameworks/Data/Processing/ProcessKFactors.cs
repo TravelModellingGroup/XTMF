@@ -21,7 +21,7 @@ namespace TMG.Frameworks.Data.Processing
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
         private SparseTwinIndex<float> _data;
 
@@ -35,7 +35,7 @@ namespace TMG.Frameworks.Data.Processing
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
             [RunParameter("Origin PDs", "1", typeof(RangeSet), "The range of planning district origins to apply this kfactor to.")]
             public RangeSet OriginPDs;

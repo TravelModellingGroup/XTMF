@@ -111,7 +111,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             if (iteration == totalIterations - 1)
             {
-                using StreamWriter writer = new StreamWriter(ResultsFile);
+                using StreamWriter writer = new(ResultsFile);
                 writer.WriteLine("Mode, Trips");
                 foreach (var pair in AMModeDictionary)
                 {

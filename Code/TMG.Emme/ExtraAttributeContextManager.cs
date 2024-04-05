@@ -59,7 +59,7 @@ namespace TMG.Emme
             get { return 1.0f; }
         }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         public Tuple<byte, byte, byte> ProgressColour
         {
             get { return _ProgressColour; }
@@ -178,7 +178,7 @@ namespace TMG.Emme
             }
         }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         public Tuple<byte, byte, byte> ProgressColour
         {
             get { return _ProgressColour; }

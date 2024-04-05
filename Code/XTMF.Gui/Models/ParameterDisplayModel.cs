@@ -30,7 +30,7 @@ namespace XTMF.Gui.Models
 {
     internal sealed class ParameterDisplayModel : INotifyPropertyChanged, IDisposable
     {
-        private static readonly List<string> BoolValueList = new List<string>(new[] { "True", "False" });
+        private static readonly List<string> BoolValueList = new(new[] { "True", "False" });
 
         private readonly LinkedParameterModel _linkedParameterModel;
 

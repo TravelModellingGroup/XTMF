@@ -54,7 +54,7 @@ namespace TMG.GTAModel.Input
             // if there isn't anything just exit
             if (!FileToRead.ContainsFileName()) yield break;
             // otherwise load in the data
-            ODData<float> currentData = new ODData<float>();
+            ODData<float> currentData = new();
             var zoneArray = Root.ZoneSystem.ZoneArray;
             var zoneNumbers = zoneArray.ValidIndexArray();
             var zones = zoneArray.GetFlatData();

@@ -471,7 +471,7 @@ namespace Tasha.Scheduler
                     // save results
                     //NO HEADER
                     //DistributionID,NumberOfAdults,ExpandedSum,Probability,CDF
-                    using StreamWriter writer = new StreamWriter(ResultFile.GetFilePath());
+                    using StreamWriter writer = new(ResultFile.GetFilePath());
                     for (int dist = 0; dist < combinedResults.Length; dist++)
                     {
                         var cdf = 0.0;

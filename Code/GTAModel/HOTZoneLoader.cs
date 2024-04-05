@@ -126,7 +126,7 @@ namespace TMG.GTAModel
         public void LoadData()
         {
             SparseArray<Node> nodes;
-            using (Network network = new Network( GetFullPath( ZoneFile ) ) )
+            using (Network network = new( GetFullPath( ZoneFile ) ) )
             {
                 nodes = network.GetNodes();
             }
@@ -201,7 +201,7 @@ namespace TMG.GTAModel
             var flatzones = new IZone[centroidIndexes.Length];
             for ( int i = 0; i < centroidIndexes.Length; i++ )
             {
-                HOTZone zone = new HOTZone();
+                HOTZone zone = new();
                 var node = nodes[centroidIndexes[i]];
                 // update the centroid indexes to the sparse space
                 zone.ZoneNumber = (short)centroidIndexes[i];
@@ -246,7 +246,7 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( ZoneAttributesFile ) ) return;
             try
             {
-                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(ZoneAttributesFile));
+                using CommentedCsvReader reader = new(GetFullPath(ZoneAttributesFile));
                 while (reader.NextLine())
                 {
                     var colRead = reader.NumberOfCurrentCells;
@@ -287,7 +287,7 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( EmploymentFile ) ) return;
             try
             {
-                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(EmploymentFile));
+                using CommentedCsvReader reader = new(GetFullPath(EmploymentFile));
                 while (reader.NextLine())
                 {
                     var colRead = reader.NumberOfCurrentCells;
@@ -338,7 +338,7 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( PlanningDistrictFile ) ) return;
             try
             {
-                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(PlanningDistrictFile));
+                using CommentedCsvReader reader = new(GetFullPath(PlanningDistrictFile));
                 while (reader.NextLine())
                 {
                     var colRead = reader.NumberOfCurrentCells;
@@ -373,7 +373,7 @@ namespace TMG.GTAModel
             if ( string.IsNullOrWhiteSpace( PopulationFile ) ) return;
             try
             {
-                using CommentedCsvReader reader = new CommentedCsvReader(GetFullPath(PopulationFile));
+                using CommentedCsvReader reader = new(GetFullPath(PopulationFile));
                 while (reader.NextLine())
                 {
                     var colRead = reader.NumberOfCurrentCells;

@@ -58,7 +58,7 @@ namespace Datastructure
         public void LoadCsvTimes(string csv, bool header, int offsetTimes, int offsetType)
         {
             // Gain access to the files
-            using StreamReader reader = new StreamReader(new
+            using StreamReader reader = new(new
                 FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan));
             string line;
@@ -126,7 +126,7 @@ namespace Datastructure
         public void LoadCsvTypes(string csv, bool header, int offsetTimes, int offsetType)
         {
             // Gain access to the files
-            using StreamReader reader = new StreamReader(new
+            using StreamReader reader = new(new
                 FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan));
             string line;
@@ -181,7 +181,7 @@ namespace Datastructure
             int pos;
             var ammountOfData = Types * Times;
             // do this because highest zone isn't high enough for array indexes
-            using StreamReader reader = new StreamReader(new
+            using StreamReader reader = new(new
                 FileStream(emme2File, FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan));
             int injectIndex = Times * offsetType + offsetTimes;
@@ -224,7 +224,7 @@ namespace Datastructure
         /// <param name="xmlInfo"></param>
         public void Save(string fileName, bool xmlInfo)
         {
-            using BinaryWriter writer = new BinaryWriter(new
+            using BinaryWriter writer = new(new
             FileStream(fileName, FileMode.Create, FileAccess.Write,
             FileShare.None, 0x10000, FileOptions.RandomAccess),
             Encoding.Default);
@@ -263,7 +263,7 @@ namespace Datastructure
         private Index[] GetSubIndexes(int[] validIndexes)
         {
             List<Index> ret = [];
-            Index current = new Index();
+            Index current = new();
             int position = current.Start = validIndexes[0];
             for (int i = 1; i < validIndexes.Length; i++)
             {

@@ -83,7 +83,7 @@ namespace Tasha.Emissions
         [SubModelInformation(Required = true, Description = "CSV: Home,Origin,Destination,Mode,StartHour,ExpandedPersons.")]
         public FileLocation SaveTo;
 
-        private SpinLock WriteLock = new SpinLock(false);
+        private SpinLock WriteLock = new(false);
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {

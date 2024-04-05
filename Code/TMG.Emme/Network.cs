@@ -85,7 +85,7 @@ namespace TMG.Emme
         {
             Dictionary<int, Node> nodes = [];
             Dictionary<Pair<int, int>, Link> links = [];
-            using (StreamReader reader = new StreamReader(fileName211))
+            using (StreamReader reader = new(fileName211))
             {
                 string line;
 
@@ -105,7 +105,7 @@ namespace TMG.Emme
                         {
                             continue;
                         }
-                        Node node = new Node();
+                        Node node = new();
                         if (offset == -1)
                         {
                             node.IsCentroid = false;
@@ -201,7 +201,7 @@ namespace TMG.Emme
 
         public void SaveModFile(string fileName)
         {
-            using StreamWriter writer = new StreamWriter(fileName);
+            using StreamWriter writer = new(fileName);
             writer.WriteLine("t nodes");
             foreach (var nodeI in Nodes.ValidIndexies())
             {

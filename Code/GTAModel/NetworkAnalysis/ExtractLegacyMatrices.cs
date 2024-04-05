@@ -65,7 +65,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter( "Walk Time Cutoff", 40.0f, "Maximum walk time for feasible transit OD pairs." )]
         public float WalkTimeCutoff;
 
-        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 255, 173, 28 );
+        private Tuple<byte, byte, byte> _progressColour = new( 255, 173, 28 );
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_constrained_LOS_matrices";
         private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractConstrainedLOSMatrices";
 

@@ -43,7 +43,7 @@ namespace Tasha.Common
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         private struct TimePeriodData
         {
@@ -121,7 +121,7 @@ namespace Tasha.Common
             _parkingInformation = new ParkingInformation[_zoneSystem.Count];
             try
             {
-                using CsvReader reader = new CsvReader(ParkingData);
+                using CsvReader reader = new(ParkingData);
                 reader.LoadLine();
                 while (reader.LoadLine(out var columns))
                 {

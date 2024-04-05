@@ -83,7 +83,7 @@ namespace TMG.Functions
                         }
                     });
                 });
-            using StreamWriter writer = new StreamWriter(fileName);
+            using StreamWriter writer = new(fileName);
             writer.WriteLine(header);
             for (int i = 0; i < zoneLines.Length; i++)
             {
@@ -100,7 +100,7 @@ namespace TMG.Functions
         {
             var flatData = data.GetFlatData();
             var indexes = data.ValidIndexArray().Select(index => index.ToString()).ToArray();
-            using StreamWriter writer = new StreamWriter(saveTo, false, Encoding.UTF8);
+            using StreamWriter writer = new(saveTo, false, Encoding.UTF8);
             void WriteRecord(string zone, float value)
             {
                 writer.Write(zone);
@@ -135,7 +135,7 @@ namespace TMG.Functions
         public static void SaveMatrixThirdNormalized(IZone[] zones, float[][] data, string saveLocation, bool skipZeros)
         {
             var zoneNumbers = zones.Select(z => z.ZoneNumber.ToString()).ToArray();
-            using StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8);
+            using StreamWriter writer = new(saveLocation, false, Encoding.UTF8);
             void WriteRecord(string origin, string destination, float value)
             {
                 writer.Write(origin);
@@ -175,7 +175,7 @@ namespace TMG.Functions
 
         public static void SaveMatrixThirdNormalized(SparseTwinIndex<float> matrix, FileLocation saveLocation, bool skipZeros)
         {
-            using StreamWriter writer = new StreamWriter(saveLocation, false, Encoding.UTF8);
+            using StreamWriter writer = new(saveLocation, false, Encoding.UTF8);
             writer.WriteLine("Origin,Destination,Data");
             void WriteRecord(int origin, int destination, float value)
             {
@@ -224,7 +224,7 @@ namespace TMG.Functions
                     Directory.CreateDirectory(dir);
                 }
             }
-            using StreamWriter writer = new StreamWriter(fileName, false, Encoding.UTF8);
+            using StreamWriter writer = new(fileName, false, Encoding.UTF8);
             BlockingCollection<SaveTask> toWrite = [];
             var saveTask = Task.Run(() =>
             {
@@ -341,7 +341,7 @@ namespace TMG.Functions
                         }
                     });
                 });
-            using StreamWriter writer = new StreamWriter(fileName);
+            using StreamWriter writer = new(fileName);
             writer.WriteLine(header);
             for (int i = 0; i < zoneLines.Length; i++)
             {

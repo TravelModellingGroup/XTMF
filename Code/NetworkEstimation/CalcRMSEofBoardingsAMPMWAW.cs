@@ -78,7 +78,7 @@ namespace TMG.NetworkEstimation
 
         private const string ToolName = "tmg.XTMF_internal.return_boardings_and_WAW";
         private const string WawKey = "Walk-all-way";
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         public bool Execute(Controller controller)
         {
@@ -141,7 +141,7 @@ namespace TMG.NetworkEstimation
         {
             var result = new Dictionary<string, float>();
 
-            using (CsvReader reader = new CsvReader(filepath))
+            using (CsvReader reader = new(filepath))
             {
                 reader.LoadLine(); //Skip the first line                
                 while (reader.LoadLine(out int numCol))
@@ -221,7 +221,7 @@ namespace TMG.NetworkEstimation
 
         private void SaveBoardings(FileLocation location, Dictionary<string, float> periodData)
         {
-            using StreamWriter writer = new StreamWriter(location);
+            using StreamWriter writer = new(location);
             writer.WriteLine("Line,Boardings");
             foreach (var set in periodData)
             {

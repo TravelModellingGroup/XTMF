@@ -40,7 +40,7 @@ namespace XTMF.Testing.TMG.Data
 
         private LabeledData<float> LoadLabeledData(string path)
         {
-            LabeledDataFromCSV<float> loader = new LabeledDataFromCSV<float>();
+            LabeledDataFromCSV<float> loader = new();
             loader.LoadFrom = CreateFileLocationFromOutputDirectory(path);
             loader.LoadData();
             var data = loader.GiveData();
@@ -122,7 +122,7 @@ namespace XTMF.Testing.TMG.Data
                     }
                 }
                 // now that our data files have been created create the aggregation
-                AggregateLabeledDataToShape agg = new AggregateLabeledDataToShape();
+                AggregateLabeledDataToShape agg = new();
                 agg.DataMap = CreateFileLocationFromOutputDirectory(mapLocation);
                 agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
                 agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
@@ -174,7 +174,7 @@ namespace XTMF.Testing.TMG.Data
                     }
                 }
                 // now that our data files have been created create the aggregation
-                AggregateLabeledDataToShape agg = new AggregateLabeledDataToShape();
+                AggregateLabeledDataToShape agg = new();
                 agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
                 agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
                 agg.LoadData();
@@ -207,7 +207,7 @@ namespace XTMF.Testing.TMG.Data
             }
             try
             {
-                ConvertLabeledDataToSparseArray cv = new ConvertLabeledDataToSparseArray();
+                ConvertLabeledDataToSparseArray cv = new();
                 cv.Labeled = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
                 cv.LoadData();
                 var array = cv.GiveData();

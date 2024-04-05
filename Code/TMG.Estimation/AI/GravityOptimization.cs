@@ -220,7 +220,7 @@ namespace TMG.Estimation.AI
         {
             var generation = Root.CurrentIteration;
             var exists = File.Exists(StarLog);
-            using StreamWriter writer = new StreamWriter(StarLog, true);
+            using StreamWriter writer = new(StarLog, true);
             if (!exists)
             {
                 writer.Write("Generation,Star,Mass");

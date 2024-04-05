@@ -79,8 +79,8 @@ namespace XTMF
             return _Session.RunCommand(
                 XTMFCommand.CreateCommand("New Linked Parameter",(ref string e) =>
                 {
-                    LinkedParameter linkedParameter = new LinkedParameter(name);
-                    LinkedParameterModel newModel = new LinkedParameterModel(linkedParameter, _Session, _ModelSystem);
+                    LinkedParameter linkedParameter = new(name);
+                    LinkedParameterModel newModel = new(linkedParameter, _Session, _ModelSystem);
                     _RealLinkedParameters.Add(linkedParameter);
                     LinkedParameters.Add(newModel);
                     lp.Model = newModel;
@@ -191,8 +191,8 @@ namespace XTMF
         /// <returns>The newly created linked parameter</returns>
         internal LinkedParameterModel AddWithoutCommand(string name, string value)
         {
-            LinkedParameter linkedParameter = new LinkedParameter(name);
-            LinkedParameterModel newModel = new LinkedParameterModel(linkedParameter, _Session, _ModelSystem);
+            LinkedParameter linkedParameter = new(name);
+            LinkedParameterModel newModel = new(linkedParameter, _Session, _ModelSystem);
             AddWithoutCommand(newModel);
             string error = null;
             newModel.SetWithoutCommand(value, ref error);

@@ -191,7 +191,7 @@ For specification about the language, and extensibility please consult the TMG F
 
         private XmlNode GetRootOfDocument(string fileName)
         {
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load(fileName);
             var root = doc.FirstChild;
             return root;
@@ -354,7 +354,7 @@ For specification about the language, and extensibility please consult the TMG F
         private static void DirectoryCopy(string sourceDirectory, string destinationDirectory)
         {
             // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new DirectoryInfo(sourceDirectory);
+            DirectoryInfo dir = new(sourceDirectory);
             DirectoryInfo[] dirs = dir.GetDirectories();
             if (!dir.Exists)
             {
@@ -528,8 +528,8 @@ For specification about the language, and extensibility please consult the TMG F
                 if (firstIndex >= 0)
                 {
                     // initialize the builder up until we found the first escape character
-                    StringBuilder builder = new StringBuilder(originalString.Length);
-                    StringBuilder nameBuilder = new StringBuilder();
+                    StringBuilder builder = new(originalString.Length);
+                    StringBuilder nameBuilder = new();
                     builder.Append(originalString, 0, firstIndex);
                     // invoking string length is quite slow, so since it isn't changing just store it
                     var length = originalString.Length;
@@ -596,7 +596,7 @@ For specification about the language, and extensibility please consult the TMG F
             }
         }
 
-        Stack<XmlNode> ExecutionStack = new Stack<XmlNode>();
+        Stack<XmlNode> ExecutionStack = new();
 
         Dictionary<string, MultirunTemplate> Templates = [];
 
@@ -873,7 +873,7 @@ For specification about the language, and extensibility please consult the TMG F
         private void WriteToFile(XmlNode command)
         {
             var path = GetAttributeOrError(command, "Path", "The attribute 'Path' was not defined!");
-            using StreamWriter writer = new StreamWriter(path, true);
+            using StreamWriter writer = new(path, true);
             writer.WriteLine(command.InnerText);
         }
 
@@ -898,7 +898,7 @@ For specification about the language, and extensibility please consult the TMG F
                     Directory.SetCurrentDirectory(OriginalDirectory);
                 }
                 var newDirectoryName = saveAndRunAs.InnerText;
-                DirectoryInfo info = new DirectoryInfo(newDirectoryName);
+                DirectoryInfo info = new(newDirectoryName);
                 if (!info.Exists)
                 {
                     info.Create();

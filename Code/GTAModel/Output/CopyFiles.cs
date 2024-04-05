@@ -152,7 +152,7 @@ If a directory with the same name exists already, it will be deleted before the 
             private void DirectoryCopy(string sourceDirectory, string destinationDirectory)
             {
                 // Get the subdirectories for the specified directory.
-                DirectoryInfo dir = new DirectoryInfo( sourceDirectory );
+                DirectoryInfo dir = new( sourceDirectory );
                 DirectoryInfo[] dirs = dir.GetDirectories();
                 if ( !dir.Exists )
                 {

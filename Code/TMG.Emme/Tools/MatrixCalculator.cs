@@ -76,7 +76,7 @@ namespace TMG.Emme.Tools
             set;
         }
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(120, 25, 100);
+        public Tuple<byte, byte, byte> ProgressColour => new(120, 25, 100);
 
         public bool RuntimeValidation(ref string error)
         {

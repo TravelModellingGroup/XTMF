@@ -121,7 +121,7 @@ to be the same as in the parameter.")]
         {
             try
             {
-                using CsvReader reader = new CsvReader(GetFileLocation(FileName));
+                using CsvReader reader = new(GetFileLocation(FileName));
                 var numberOfDataColumns = DataColumnToSparseSpace.Count;
                 BurnHeader(reader);
                 var dataSpace = DataColumnToSparseSpace.ToArray();

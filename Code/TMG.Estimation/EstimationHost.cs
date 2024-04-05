@@ -308,7 +308,7 @@ namespace TMG.Estimation
                 {
                     lock (this)
                     {
-                        BinaryReader reader = new BinaryReader( stream );
+                        BinaryReader reader = new( stream );
                         PendingResults.Add( new ResultMessage()
                         {
                             Generation = reader.ReadInt32(),
@@ -335,7 +335,7 @@ namespace TMG.Estimation
                     {
                         var index = (int)data;
                         var job = CurrentJobs[index];
-                        BinaryWriter writer = new BinaryWriter( stream );
+                        BinaryWriter writer = new( stream );
                         writer.Write( CurrentIteration );
                         writer.Write( index );
                         writer.Write( job.Parameters.Length );
@@ -360,7 +360,7 @@ namespace TMG.Estimation
                 } );
             Host.RegisterCustomSender( SendParameterDefinitions, (data, client, stream) =>
                 {
-                    BinaryWriter writer = new BinaryWriter( stream );
+                    BinaryWriter writer = new( stream );
                     writer.Write( Parameters.Count );
                     for ( int i = 0; i < Parameters.Count; i++ )
                     {
@@ -419,7 +419,7 @@ namespace TMG.Estimation
 
         private void StoreResult(Job currentJob)
         {
-            StringBuilder toWrite = new StringBuilder();
+            StringBuilder toWrite = new();
             toWrite.Append( CurrentIteration );
             toWrite.Append( ',' );
             toWrite.Append( currentJob.Value );
@@ -464,7 +464,7 @@ namespace TMG.Estimation
             if ( FirstLineToWrite )
             {
                 // write header here
-                StringBuilder header = new StringBuilder();
+                StringBuilder header = new();
                 header.Append( "Generation,Value" );
                 for ( int i = 0; i < currentJob.Parameters.Length; i++ )
                 {

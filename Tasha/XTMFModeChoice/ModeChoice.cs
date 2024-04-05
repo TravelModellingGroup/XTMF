@@ -105,9 +105,9 @@ namespace Tasha.XTMFModeChoice
                     return false;
                 }
             }
-            Random random = new Random(RandomSeed + household.HouseholdId);
-            ModeChoiceHouseholdData householdData = new ModeChoiceHouseholdData(household, AllModes.Length, VehicleTypes.Length + 1);
-            HouseholdResourceAllocator householdResourceAllocator = new HouseholdResourceAllocator(household, AllModes);
+            Random random = new(RandomSeed + household.HouseholdId);
+            ModeChoiceHouseholdData householdData = new(household, AllModes.Length, VehicleTypes.Length + 1);
+            HouseholdResourceAllocator householdResourceAllocator = new(household, AllModes);
             PassengerMatchingAlgorithm passengerMatchingAlgorithm = null;
             // attach this so analysis modules can look at it later
             household.Attach("ModeChoiceData", householdData);

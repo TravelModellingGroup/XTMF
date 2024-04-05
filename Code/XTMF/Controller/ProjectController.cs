@@ -46,7 +46,7 @@ namespace XTMF
         /// <summary>
         /// This lock needs to be acquired before we are allowed to touch the editing sessions.
         /// </summary>
-        private object EditingSessionLock = new object();
+        private object EditingSessionLock = new();
 
         /// <summary>
         /// Get a session to edit a project.

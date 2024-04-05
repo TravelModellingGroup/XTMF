@@ -97,7 +97,7 @@ namespace TMG.Estimation.Utilities
         [RunParameter("Maximize", false, "Find the max or min value.")]
         public bool Maximize;
 
-        private SpinLock FitnessLock = new SpinLock(false);
+        private SpinLock FitnessLock = new(false);
         private float BestFitness;
 
         public void Start()

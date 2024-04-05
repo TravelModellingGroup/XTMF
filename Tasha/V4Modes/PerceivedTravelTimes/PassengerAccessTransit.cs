@@ -126,7 +126,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         [RunParameter("AutoAccess", true, "Should this mode use access or egress with auto?")]
         public bool AutoAccess;

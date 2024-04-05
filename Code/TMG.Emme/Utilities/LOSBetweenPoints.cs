@@ -250,7 +250,7 @@ namespace TMG.Emme.Utilities
         private List<int> GetNodesToExplore()
         {
             List<int> nodes = [];
-            using (CsvReader reader = new CsvReader(NodeFileLocation))
+            using (CsvReader reader = new(NodeFileLocation))
             {
                 // burn the header
                 reader.LoadLine();

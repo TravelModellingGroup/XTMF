@@ -26,11 +26,11 @@ namespace Tasha.Modes
 {
     internal static class Common
     {
-        private static Time Nine = new Time( "9:00 AM" );
+        private static Time Nine = new( "9:00 AM" );
 
-        private static Time Six = new Time( "6:00 AM" );
-        private static Time SixThirty = new Time( "6:30 PM" );
-        private static Time ThreeThirty = new Time( "3:30 PM" );
+        private static Time Six = new( "6:00 AM" );
+        private static Time SixThirty = new( "6:30 PM" );
+        private static Time ThreeThirty = new( "3:30 PM" );
 
         public static float ConvertToHours(float minutes)
         {

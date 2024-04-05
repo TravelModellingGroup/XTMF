@@ -248,7 +248,7 @@ namespace TMG.Functions
             }
             List<string> parts = [];
             var stringLength = parameterName.Length;
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             for (int i = 0; i < stringLength; i++)
             {
                 switch (parameterName[i])

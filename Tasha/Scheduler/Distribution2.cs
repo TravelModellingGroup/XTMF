@@ -28,7 +28,7 @@ namespace Tasha.Scheduler
     {
         public static Time DistributionToDuration(int distributionVal)
         {
-            Time time = new Time();
+            Time time = new();
 
             int totalMinutes = distributionVal * Scheduler.StartTimeQuantaInterval;
             time.Hours = (sbyte)(totalMinutes / 60);
@@ -38,7 +38,7 @@ namespace Tasha.Scheduler
 
         public static Time DistributionToTashaTime(int distributionVal)
         {
-            Time time = new Time();
+            Time time = new();
 
             int totalMinutes = distributionVal * Scheduler.StartTimeQuantaInterval;
             time.Hours = (sbyte)(totalMinutes / 60);
@@ -48,7 +48,7 @@ namespace Tasha.Scheduler
 
         public static Time DistributionToTimeOfDay(int distributionVal)
         {
-            Time time = new Time();
+            Time time = new();
             int totalMinutes = distributionVal * Scheduler.StartTimeQuantaInterval;
             time.Hours = (sbyte)(totalMinutes / 60);
             time.Minutes = (sbyte)(totalMinutes % 60);

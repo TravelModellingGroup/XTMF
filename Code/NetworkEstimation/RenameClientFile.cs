@@ -36,7 +36,7 @@ namespace TMG.NetworkEstimation
         [SubModelInformation(Description= "File to Rename", Required= true)]
         public FileLocation FileToRename;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         public string Name
         {

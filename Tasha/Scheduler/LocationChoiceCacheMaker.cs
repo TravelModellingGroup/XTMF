@@ -125,7 +125,7 @@ namespace Tasha.Scheduler
             string temp = Path.GetTempFileName();
             //string temp = Directory.GetCurrentDirectory() + "\\" + "test.csv";
             Console.WriteLine(temp);
-            StreamWriter writer = new StreamWriter(temp);
+            StreamWriter writer = new(temp);
             //fire up the cache
             //each row comparing one zone to another zone
             //column 1 zone ID, column 2 zone(comparing zone),column 3 distance,
@@ -160,7 +160,7 @@ namespace Tasha.Scheduler
 
             //IConfigurationDirectory directory =
             //    TashaConfiguration.GetDirectory("LocationChoiceModelParameters");
-            SparseZoneCreator creator = new SparseZoneCreator(3, (4 * flatZones.Last().ZoneNumber) + 1);
+            SparseZoneCreator creator = new(3, (4 * flatZones.Last().ZoneNumber) + 1);
             creator.LoadCsv(temp, false);
             creator.Save(LocatonChoiceModelWorkCache);
             File.Delete(temp);
@@ -170,7 +170,7 @@ namespace Tasha.Scheduler
         {
             string temp = Path.GetTempFileName();
             //string temp = Directory.GetCurrentDirectory() + "\\" + "test2.csv";
-            StreamWriter writer = new StreamWriter(temp);
+            StreamWriter writer = new(temp);
             //fire up the cache
 
             StringBuilder line;
@@ -456,7 +456,7 @@ namespace Tasha.Scheduler
             writer.Close();
             //IConfigurationDirectory directory =
             //    TashaConfiguration.GetDirectory("LocationChoiceModelParameters");
-            SparseZoneCreator creator = new SparseZoneCreator(3, (4 * flatZones.Last().ZoneNumber) + 1);
+            SparseZoneCreator creator = new(3, (4 * flatZones.Last().ZoneNumber) + 1);
             creator.LoadCsv(temp, false);
             creator.Save(LocatonChoiceModelHomeCache);
             File.Delete(temp);

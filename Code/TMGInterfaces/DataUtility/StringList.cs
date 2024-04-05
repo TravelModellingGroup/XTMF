@@ -38,7 +38,7 @@ namespace TMG.DataUtility
         public static bool TryParse(string input, out StringList stringList)
         {
             List<string> temp = [];
-            StringBuilder current = new StringBuilder();
+            StringBuilder current = new();
             bool escape = false;
             var length = input.Length;
             for ( int i = 0; i < length; i++ )
@@ -161,7 +161,7 @@ namespace TMG.DataUtility
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             var data = Data;
             for ( int i = 0; i < data.Length; i++ )
             {

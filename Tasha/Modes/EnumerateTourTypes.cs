@@ -41,7 +41,7 @@ namespace Tasha.Modes
         [RunParameter( "Expansion Factor Flag", true, "Set to 'true' to report the weighted sum of observations; 'false' to enumerate number of observed records." )]
         public bool UseExpansionFactor;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
         private Dictionary<string, double> Data;
 
         public string Name
@@ -61,7 +61,7 @@ namespace Tasha.Modes
             get { return _ProgressColour; }
         }
 
-        private StringBuilder _builder = new StringBuilder();
+        private StringBuilder _builder = new();
 
         public void Execute(ITashaHousehold household, int iteration)
         {

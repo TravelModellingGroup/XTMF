@@ -86,12 +86,12 @@ namespace XTMF
         /// </summary>
         private void ConfigureLog4Net()
         {
-            PatternLayout layout = new PatternLayout(
+            PatternLayout layout = new(
                         Pattern);
             ConsoleAppender appender =
-                new ConsoleAppender() {Layout = layout};
+                new() {Layout = layout};
             //create logger (console) unrelated to global logging under XTMFRun
-            LoggerMatchFilter filter = new LoggerMatchFilter
+            LoggerMatchFilter filter = new()
             {
                 AcceptOnMatch = false,
                 LoggerToMatch = "XTMFRun"
@@ -139,7 +139,7 @@ namespace XTMF
        
         protected static void ClearFolder(string path)
         {
-            DirectoryInfo directory = new DirectoryInfo(path);
+            DirectoryInfo directory = new(path);
             if (!directory.Exists)
             {
                 return;

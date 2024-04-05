@@ -27,7 +27,7 @@ namespace TMG.Functions
             List<TreeData<T>> ret = [];
             for ( int i = 0; i < modes.Count; i++ )
             {
-                TreeData<T> node = new TreeData<T>();
+                TreeData<T> node = new();
                 if (modes[i] is IModeCategory asCat && asCat.Children != null)
                 {
                     node.Children = new TreeData<T>[asCat.Children.Count];

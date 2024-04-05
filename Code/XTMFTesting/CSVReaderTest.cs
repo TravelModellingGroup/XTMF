@@ -34,40 +34,40 @@ namespace XTMF.Testing
         {
             if ( !IsEnvironmentLoaded() )
             {
-                using ( StreamWriter writer = new StreamWriter( TestCSVFileNames[0] ) )
+                using ( StreamWriter writer = new( TestCSVFileNames[0] ) )
                 {
                     writer.WriteLine( "A,B,C,D,E" );
                     writer.WriteLine( "1,2,3,4,5" );
                     writer.WriteLine( "3,1,4,5,2" );
                     writer.WriteLine( "1.23,4.56,7.89,10.1112,0.1314" );
                 }
-                using ( StreamWriter writer = new StreamWriter( TestCSVFileNames[1] ) )
+                using ( StreamWriter writer = new( TestCSVFileNames[1] ) )
                 {
                     writer.WriteLine( "\"A\",\"B\",\"C\",\"D\",\"E\"" );
                     writer.WriteLine( "\"1\",\"2\",3,\"4\",5" );
                     writer.WriteLine( "3,1,\"4\",5,2" );
                     writer.WriteLine( "1.23,\"4.56\",7.89,10.1112,0.1314" );
                 }
-                using ( StreamWriter writer = new StreamWriter( TestCSVFileNames[2] ) )
+                using ( StreamWriter writer = new( TestCSVFileNames[2] ) )
                 {
                     writer.WriteLine( "A,B,C,D,E" );
                     writer.WriteLine( "1,2,3,4,5" );
                     writer.WriteLine( "3,1,4,5,2" );
                     writer.WriteLine( "1.23,4.56,7.89,10.1112,0.1314" );
                 }
-                using (StreamWriter writer = new StreamWriter(TestCSVFileNames[3]))
+                using (StreamWriter writer = new(TestCSVFileNames[3]))
                 {
                     writer.WriteLine("A,B,C,D,E");
                     writer.WriteLine("1,2,3,4,5");
                     writer.WriteLine("3,1,4,5,2");
                     writer.Write("1.23,4.56,7.89,10.1112,0.1314");
                 }
-                using (StreamWriter writer = new StreamWriter(TestCSVFileNames[4]))
+                using (StreamWriter writer = new(TestCSVFileNames[4]))
                 {
                     writer.WriteLine("A,B,C,D,E");
                     writer.WriteLine("\"abc\"\"1\",2,3,4,5");
                 }
-                using (StreamWriter writer = new StreamWriter(new GZipStream(File.Open(TestCSVFileNames[5], FileMode.Create, FileAccess.Write), CompressionMode.Compress)))
+                using (StreamWriter writer = new(new GZipStream(File.Open(TestCSVFileNames[5], FileMode.Create, FileAccess.Write), CompressionMode.Compress)))
                 {
                     writer.WriteLine("A,B,C,D,E");
                     writer.WriteLine("1,2,3,4,5");
@@ -89,7 +89,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestCSVReadLine()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[0]);
+            using CsvReader reader = new(TestCSVFileNames[0]);
             reader.LoadLine();
             //"A,B,C,D,E"
             for (int i = 0; i < 5; i++)
@@ -102,7 +102,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestQuotes()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[1]);
+            using CsvReader reader = new(TestCSVFileNames[1]);
             // first line
             reader.LoadLine();
             //"A,B,C,D,E"
@@ -123,7 +123,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestDoubleQuotes()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[4]);
+            using CsvReader reader = new(TestCSVFileNames[4]);
             // first line
             reader.LoadLine();
             //"A,B,C,D,E"
@@ -141,7 +141,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestLoadLineBool()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[1]);
+            using CsvReader reader = new(TestCSVFileNames[1]);
             int numberOfLines = 0;
             while (reader.LoadLine(out int columns))
             {
@@ -161,7 +161,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestNoEnterLastLine()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[3]);
+            using CsvReader reader = new(TestCSVFileNames[3]);
             int numberOfLines = 0;
             while (reader.LoadLine(out int columns))
             {
@@ -181,7 +181,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestLineReadValue()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[2]);
+            using CsvReader reader = new(TestCSVFileNames[2]);
             float lastColumnValue = float.NaN;
             while (reader.LoadLine(out int columns))
             {
@@ -196,7 +196,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestNoEnterLastLineReadValue()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[3]);
+            using CsvReader reader = new(TestCSVFileNames[3]);
             int numberOfLines = 0;
             float lastColumnValue = float.NaN;
             while (reader.LoadLine(out int columns))
@@ -219,7 +219,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestReadingCompressedStream()
         {
-            using CsvReader reader = new CsvReader(TestCSVFileNames[5]);
+            using CsvReader reader = new(TestCSVFileNames[5]);
             reader.LoadLine();
             //"A,B,C,D,E"
             for (int i = 0; i < 5; i++)

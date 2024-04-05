@@ -44,7 +44,7 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
             var ret = new List<Job>();
             var parameters = Root.Parameters.ToArray();
             int totalParameters = parameters.Sum(p => p.Names.Length);
-            using ( CsvReader reader = new CsvReader( ResultFile.GetFilePath() ) )
+            using ( CsvReader reader = new( ResultFile.GetFilePath() ) )
             {
                 int[] headerToParameterIndex = ProcessHeader(parameters, reader, reader.LoadLine());
                 while (reader.LoadLine(out int columns))

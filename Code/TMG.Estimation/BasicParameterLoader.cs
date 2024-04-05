@@ -49,7 +49,7 @@ namespace TMG.Estimation
             {
                 throw new XTMFRuntimeException(this, $"In {Name} the parameter file '{Path.GetFullPath(ParameterFileLocation.GetFilePath())}' does not exist!");
             }
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load( ParameterFileLocation.GetFilePath() );
             List<ParameterSetting> parameters = [];
             var root = doc["Root"];
@@ -62,7 +62,7 @@ namespace TMG.Estimation
             {
                 if ( child.Name == "Parameter" )
                 {
-                    ParameterSetting current = new ParameterSetting();
+                    ParameterSetting current = new();
                     if (child.HasChildNodes)
                     {
                         var nodes = child.ChildNodes;

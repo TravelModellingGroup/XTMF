@@ -27,7 +27,7 @@ namespace XTMF
     public static class ArbitraryParameterParser
     {
         private static ConcurrentDictionary<Type, KeyValuePair<int, MethodInfo>> ParserLookup =
-            new ConcurrentDictionary<Type, KeyValuePair<int, MethodInfo>>();
+            new();
 
         /// <summary>
         /// Parse the input for the given type

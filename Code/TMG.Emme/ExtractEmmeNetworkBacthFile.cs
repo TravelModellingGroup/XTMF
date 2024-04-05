@@ -31,7 +31,7 @@ namespace TMG.Emme
         [SubModelInformation(Description = "Network Batch File", Required = true)]
         public FileLocation ExportFile;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         private const string ToolName = "tmg.XTMF_internal.export_network_batch_file";
         private const string OldToolName = "TMG2.XTMF.exportNetworkBatchFile";
 

@@ -179,7 +179,7 @@ namespace Tasha.Scheduler
             //parameter calculations
             //and the 2 is for the SUM value / 7
             //ignore "1" value because data[0] is just the zone nUmber we are looking at
-            LocationChoiceInformation lci = new LocationChoiceInformation
+            LocationChoiceInformation lci = new()
             {
                 Data = new float[data.Length / 4][]
             };

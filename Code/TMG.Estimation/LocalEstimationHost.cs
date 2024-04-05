@@ -131,7 +131,7 @@ namespace TMG.Estimation
                     if (CurrentIteration == 0)
                     {
                         // write header here
-                        StringBuilder header = new StringBuilder();
+                        StringBuilder header = new();
                         header.Append("Generation,Value");
                         for (int i = 0; i < Parameters.Count; i++)
                         {

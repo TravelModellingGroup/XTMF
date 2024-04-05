@@ -29,7 +29,7 @@ namespace XTMF.Testing.TMG.Parallel
         [TestMethod]
         public void TestComputeInParallel()
         {
-            Random r = new Random(12345);
+            Random r = new(12345);
             for (int i = 0; i < 100; i++)
             {
                 var a = new float[0x1000];

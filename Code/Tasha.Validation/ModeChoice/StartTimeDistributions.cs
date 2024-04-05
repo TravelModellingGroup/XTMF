@@ -174,8 +174,8 @@ namespace Tasha.Validation.ModeChoice
                 }
             }
             writer.WriteLine();
-            Time thirtyMinutes = new Time() { Minutes = 30 };
-            Time currentTime = new Time();
+            Time thirtyMinutes = new() { Minutes = 30 };
+            Time currentTime = new();
             for (int i = 0; i < NumberOfTimeBins; i++)
             {
                 writer.Write(currentTime);

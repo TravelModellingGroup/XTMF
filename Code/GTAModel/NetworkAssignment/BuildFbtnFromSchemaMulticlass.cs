@@ -58,7 +58,7 @@ namespace TMG.GTAModel.NetworkAssignment
         public FareClass[] FareClasses;
 
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         private const string ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema_multiclass";
 

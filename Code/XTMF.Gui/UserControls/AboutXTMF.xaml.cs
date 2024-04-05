@@ -50,7 +50,7 @@ namespace XTMF.Gui.UserControls
             var versionFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "version.txt");
             try
             {
-                using StreamReader reader = new StreamReader(versionFile);
+                using StreamReader reader = new(versionFile);
                 return reader.ReadLine();
             }
             catch

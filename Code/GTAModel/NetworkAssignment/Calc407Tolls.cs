@@ -70,7 +70,7 @@ namespace TMG.GTAModel.NetworkAssignment
             set;
         }
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         public Tuple<byte, byte, byte> ProgressColour
         {

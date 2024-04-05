@@ -70,7 +70,7 @@ This module requires the root module in the model system to be of type ‘I4Step
         [SubModelInformation( Description = "Tallies used for counting the number of trips between Origin and Destination", Required = false )]
         public List<IModeAggregationTally> Tallies;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
 
         public string Name
         {
@@ -165,7 +165,7 @@ This module requires the root module in the model system to be of type ‘I4Step
             {
                 Tallies[i].IncludeTally( tally );
             }
-            using ( StreamWriter writer = new StreamWriter( outputFileName ) )
+            using ( StreamWriter writer = new( outputFileName ) )
             {
                 // We need to know what the head should look like.
                 writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", MatrixNumber );

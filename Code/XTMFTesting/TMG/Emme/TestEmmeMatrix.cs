@@ -31,11 +31,11 @@ namespace XTMF.Testing.TMG.Emme
         {
             int[] zones = CreateZones(2000);
             float[][] data = CreateIdentityMatrix(zones);
-            EmmeMatrix matrix = new EmmeMatrix(zones, data);
+            EmmeMatrix matrix = new(zones, data);
             matrix.Save("matrix.mtx", false);
             matrix.Save("matrix.mtx.gz", false);
-            FileInfo uncompressed = new FileInfo("matrix.mtx");
-            FileInfo compressed = new FileInfo("matrix.mtx.gz");
+            FileInfo uncompressed = new("matrix.mtx");
+            FileInfo compressed = new("matrix.mtx.gz");
             Assert.IsTrue(uncompressed.Length >  compressed.Length);
         }
 
@@ -44,7 +44,7 @@ namespace XTMF.Testing.TMG.Emme
         {
             int[] zones = CreateZones(2000);
             float[][] data = CreateIdentityMatrix(zones);
-            EmmeMatrix matrix = new EmmeMatrix(zones, data);
+            EmmeMatrix matrix = new(zones, data);
             matrix.Save("matrix.mtx.gz", false);
             EmmeMatrix loaded = default;
             BinaryHelpers.ExecuteReader(null, (reader) =>

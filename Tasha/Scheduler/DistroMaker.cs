@@ -69,7 +69,7 @@ namespace DistroCacheMaker
         [RunParameter("StartTimeQuantums", 96, "The number of different time units in a day")]
         public int StartTimeQuantums;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(50, 150, 50);
+        private static Tuple<byte, byte, byte> Colour = new(50, 150, 50);
 
         [RunParameter("Base Input Directory", "../../Input", "Ignore if not the root of the model system. The base input directory for this model system.")]
         public string InputBaseDirectory
@@ -128,13 +128,13 @@ namespace DistroCacheMaker
                 return;
             }
             string temp = Path.GetTempFileName();
-            using (StreamReader reader = new StreamReader(AdultIn))
+            using (StreamReader reader = new(AdultIn))
             {
-                using StreamWriter writer = new StreamWriter(temp);
+                using StreamWriter writer = new(temp);
                 //0...num of distributions
                 for (int i = 0; i < AdultDistributions; i++)
                 {
-                    StringBuilder sb = new StringBuilder(1000000);
+                    StringBuilder sb = new(1000000);
                     //convert the data to one line
 
                     sb.Append(i);
@@ -162,7 +162,7 @@ namespace DistroCacheMaker
                 catch (IOException)
                 { }
             }
-            SparseZoneCreator zc = new SparseZoneCreator(AdultDistributions, NumberOfAdultFrequencies);
+            SparseZoneCreator zc = new(AdultDistributions, NumberOfAdultFrequencies);
             zc.LoadCsv(temp, false);
             zc.Save(AdultDistributionsZFC);
             File.Delete(temp);
@@ -221,7 +221,7 @@ namespace DistroCacheMaker
                 catch (IOException)
                 { }
             }
-            SparseZoneCreator zc = new SparseZoneCreator(NumberOfDistributions, types);
+            SparseZoneCreator zc = new(NumberOfDistributions, types);
             zc.LoadCsv(temp, false);
             zc.Save(FrequencyLevelsZFC);
             File.Delete(temp);

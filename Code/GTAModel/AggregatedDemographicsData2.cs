@@ -321,7 +321,7 @@ namespace TMG.GTAModel
         {
             List<AgeDist> ageDistributions = [];
             var ageCategories = AgeCategories.Count;
-            using (CommentedCsvReader reader = new CommentedCsvReader(AgeDistributionFile.GetFileName(Root.InputBaseDirectory)))
+            using (CommentedCsvReader reader = new(AgeDistributionFile.GetFileName(Root.InputBaseDirectory)))
             {
                 while (reader.NextLine())
                 {
@@ -383,7 +383,7 @@ namespace TMG.GTAModel
             {
                 return;
             }
-            using CommentedCsvReader reader = new CommentedCsvReader(DriversLicenseRateFile.GetFileName(Root.InputBaseDirectory));
+            using CommentedCsvReader reader = new(DriversLicenseRateFile.GetFileName(Root.InputBaseDirectory));
             while (reader.NextLine())
             {
                 if (reader.NumberOfCurrentCells >= 4)
@@ -410,7 +410,7 @@ namespace TMG.GTAModel
         {
             List<EmploymentDist> employment = [];
 
-            using (CommentedCsvReader reader = new CommentedCsvReader(EmploymentDistributionFile.GetFileName(Root.InputBaseDirectory)))
+            using (CommentedCsvReader reader = new(EmploymentDistributionFile.GetFileName(Root.InputBaseDirectory)))
             {
                 float[] data = new float[5];
                 while (reader.NextLine())
@@ -509,7 +509,7 @@ namespace TMG.GTAModel
         {
             JobOccupationRates = SparseTriIndex<float>.CreateSimilarArray(Root.ZoneSystem.ZoneArray, EmploymentStatus, OccupationCategories);
             var occupationIndexes = OccupationCategories.ValidIndexies().ToArray();
-            using CommentedCsvReader reader = new CommentedCsvReader(JobOccupationRateFile.GetFileName(Root.InputBaseDirectory));
+            using CommentedCsvReader reader = new(JobOccupationRateFile.GetFileName(Root.InputBaseDirectory));
 
             while (reader.NextLine())
             {
@@ -537,7 +537,7 @@ namespace TMG.GTAModel
         {
             JobTypeRates = SparseTwinIndex<float>.CreateSimilarArray(Root.ZoneSystem.ZoneArray, EmploymentStatus);
             var employmentIndexes = EmploymentStatus.ValidIndexies().ToArray();
-            using CommentedCsvReader reader = new CommentedCsvReader(JobEmploymentRateFile.GetFileName(Root.InputBaseDirectory));
+            using CommentedCsvReader reader = new(JobEmploymentRateFile.GetFileName(Root.InputBaseDirectory));
 
             while (reader.NextLine())
             {
@@ -559,14 +559,14 @@ namespace TMG.GTAModel
         {
             NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
             SparseArray<float> driversLicense =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
             if (!NonWorkerVehicleRateFile.ContainsFileName())
             {
                 return;
             }
-            using CommentedCsvReader reader = new CommentedCsvReader(NonWorkerVehicleRateFile.GetFileName(Root.InputBaseDirectory));
+            using CommentedCsvReader reader = new(NonWorkerVehicleRateFile.GetFileName(Root.InputBaseDirectory));
             while (reader.NextLine())
             {
                 if (reader.NumberOfCurrentCells >= 6)
@@ -613,7 +613,7 @@ namespace TMG.GTAModel
                     z.WorkRetail = 0;
                 }
             }
-            using (CommentedCsvReader reader = new CommentedCsvReader(OccupationDistributionFile.GetFileName(Root.InputBaseDirectory)))
+            using (CommentedCsvReader reader = new(OccupationDistributionFile.GetFileName(Root.InputBaseDirectory)))
             {
                 float[] data = new float[7];
 
@@ -771,7 +771,7 @@ namespace TMG.GTAModel
         private void LoadStudentDist()
         {
             List<StudentDist> studentData = [];
-            using (CommentedCsvReader reader = new CommentedCsvReader(StudentDistributionFile.GetFileName(Root.InputBaseDirectory)))
+            using (CommentedCsvReader reader = new(StudentDistributionFile.GetFileName(Root.InputBaseDirectory)))
             {
                 float[] data = new float[4];
 
@@ -871,14 +871,14 @@ namespace TMG.GTAModel
         {
             WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
             SparseArray<float> driversLicense =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
             if (!WorkerVehicleRateFile.ContainsFileName())
             {
                 return;
             }
-            using CommentedCsvReader reader = new CommentedCsvReader(WorkerVehicleRateFile.GetFileName(Root.InputBaseDirectory));
+            using CommentedCsvReader reader = new(WorkerVehicleRateFile.GetFileName(Root.InputBaseDirectory));
             while (reader.NextLine())
             {
                 if (reader.NumberOfCurrentCells >= 6) //Only read if the number of columns in the row matches.

@@ -92,7 +92,7 @@ namespace TMG.GTAModel.Input
         /// <param name="data">The data to be stored at the address</param>
         protected virtual void StoreData(List<int> first, List<int> second, List<int> third, List<float> data)
         {
-            using CsvReader reader = new CsvReader(GetFileLocation(FileName));
+            using CsvReader reader = new(GetFileLocation(FileName));
             BurnHeader(reader);
             while (!reader.EndOfFile)
             {

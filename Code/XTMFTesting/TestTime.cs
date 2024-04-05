@@ -65,10 +65,10 @@ namespace XTMF.Testing
         public void TestFloatingConstructorMinus()
         {
             var times = 1000;
-            Time baseTime = new Time() { Hours = times / 2 };
+            Time baseTime = new() { Hours = times / 2 };
             for (int i = times; i >= 0; i--)
             {
-                Time test = new Time((i / 2) + ((i % 2) == 0 ? 0 : 0.30f));
+                Time test = new((i / 2) + ((i % 2) == 0 ? 0 : 0.30f));
                 if (test != baseTime)
                 {
                     Assert.Fail("Base Time:'" + baseTime + "' is not the same as '" + test + "'");
@@ -80,10 +80,10 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestFloatingConstructorPlus()
         {
-            Time baseTime = new Time();
+            Time baseTime = new();
             for (int i = 0; i < 1000; i++)
             {
-                Time test = new Time(i / 2 + ((i % 2) == 0 ? 0 : 0.30f));
+                Time test = new(i / 2 + ((i % 2) == 0 ? 0 : 0.30f));
                 if (test != baseTime)
                 {
                     Assert.Fail("Base Time:'" + baseTime + "' is not the same as '" + test + "'");
@@ -95,10 +95,10 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestIntersection()
         {
-            Time start1 = new Time();
-            Time end1 = new Time() { Hours = 3 };
-            Time start2 = new Time() { Hours = 1 };
-            Time end2 = new Time() { Hours = 2 };
+            Time start1 = new();
+            Time end1 = new() { Hours = 3 };
+            Time start2 = new() { Hours = 1 };
+            Time end2 = new() { Hours = 2 };
             if (!Time.Intersection(start1, end1, start2, end2, out Time intersection))
             {
                 Assert.Fail("Intersection failed in a case where there was an intersection!");
@@ -155,7 +155,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestParseByWords()
         {
-            Time a = new Time("15 minutes");
+            Time a = new("15 minutes");
             if (a.Minutes != 15)
             {
                 Assert.Fail("We were expecting 15 minutes, instead we found " + a);
@@ -244,7 +244,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestToString()
         {
-            Time a = new Time() { Hours = 23, Minutes = 22, Seconds = 21 };
+            Time a = new() { Hours = 23, Minutes = 22, Seconds = 21 };
             if (a.ToString() != "23:22:21")
             {
                 Assert.Fail("The ToString() of '23:22:21' was given as '" + a + "' instead!");

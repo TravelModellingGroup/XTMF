@@ -37,7 +37,7 @@ namespace TMG.GTAModel.NetworkAnalysis
 
         private const string ToolName = "TMG2.Analysis.Transit.Strategies.ExtractRawIvttMatrix";
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         public bool Execute(Controller controller)
         {

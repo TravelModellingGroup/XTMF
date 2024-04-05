@@ -47,7 +47,7 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         [RunParameter("Unemployed Status", 0, "The index of the unemployed Employment Status")]
         public int UnemployedOccupation;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(100, 200, 100);
+        private static Tuple<byte, byte, byte> Colour = new(100, 200, 100);
 
         private int[] ValidAges;
 
@@ -254,7 +254,7 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private void Generation(SparseArray<IZone> zoneArray, int[] validZones, int numberOfZones, SparseArray<IPerson[]> population, int i)
         {
-            Random rand = new Random(RandomSeed * i);
+            Random rand = new(RandomSeed * i);
             for (int j = 0; j < 100 && j + i * 100 < numberOfZones; j++)
             {
                 var zoneIndex = validZones[i * 100 + j];
@@ -267,8 +267,8 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private void ProducePopulation()
         {
-            using StreamWriter performance = new StreamWriter("Performance.txt");
-            Stopwatch watch = new Stopwatch();
+            using StreamWriter performance = new("Performance.txt");
+            Stopwatch watch = new();
             watch.Start();
             ZoneSystem.LoadData();
             watch.Stop();
@@ -362,9 +362,9 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private SparseArray<int> SplitCars(Person[] people, int zoneIndex, int validAgeIndex, int validOccupationIndex, bool license, int ageOffset, int agePop, Random rand, out int[] indexes)
         {
-            SparseArray<float> ret = new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+            SparseArray<float> ret = new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
             // Because everything is random at this point we actually need to scan to see how many people we have
-            List<int> indexesList = new List<int>(agePop);
+            List<int> indexesList = new(agePop);
             if (validOccupationIndex == UnemployedOccupation)
             {
                 for (int i = 0; i < agePop; i++)

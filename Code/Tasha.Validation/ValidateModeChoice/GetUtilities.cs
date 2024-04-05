@@ -39,7 +39,7 @@ namespace Tasha.Validation.ValidateModeChoice
         [RootModule]
         public ITashaRuntime Root;
 
-        private ConcurrentDictionary<ITashaHousehold, float[][]> HouseUtilities = new ConcurrentDictionary<ITashaHousehold, float[][]>();
+        private ConcurrentDictionary<ITashaHousehold, float[][]> HouseUtilities = new();
         private int PassengerIndex;
 
         public string Name
@@ -76,7 +76,7 @@ namespace Tasha.Validation.ValidateModeChoice
                         tripChains += person.TripChains.Count;
                     }
                     var writeHeader = !File.Exists(OutputFile);
-                    using StreamWriter writer = new StreamWriter(OutputFile, true);
+                    using StreamWriter writer = new(OutputFile, true);
                     if (writeHeader)
                     {
                         writer.WriteLine("HouseholdID,ouseholdIteration,First Household Utility,Second Household Utility,After Passenger Household Utility, TripChains Count");

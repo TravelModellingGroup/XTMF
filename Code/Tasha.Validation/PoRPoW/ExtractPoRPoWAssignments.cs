@@ -51,7 +51,7 @@ namespace Tasha.Validation.PoRPoW
             }
         }
 
-        SpinLock WriteLock = new SpinLock(false);
+        SpinLock WriteLock = new(false);
         Dictionary<Occupation, Dictionary<TTSEmploymentStatus, float[][]>> Data = [];
         public void Execute(ITashaHousehold household, int iteration)
         {
@@ -108,7 +108,7 @@ namespace Tasha.Validation.PoRPoW
             {
                 info.Create();
             }
-            StringBuilder buildFileName = new StringBuilder();
+            StringBuilder buildFileName = new();
             switch(occ)
             {
                 case Occupation.Professional:

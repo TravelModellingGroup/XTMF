@@ -35,7 +35,7 @@ namespace Tasha
     {
         public IClient Client;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(50, 150, 50);
 
         private bool Exit;
 
@@ -580,7 +580,7 @@ namespace Tasha
 
         private TashaPerson LoadPerson(BinaryReader reader, Datastructure.SparseArray<IZone> zoneArray, TashaHousehold household, int personID)
         {
-            TashaPerson person = new TashaPerson
+            TashaPerson person = new()
             {
                 Household = household,
                 Id = personID,
@@ -614,7 +614,7 @@ namespace Tasha
             trip.DestinationZone = zoneArray[reader.ReadInt32()];
             trip.Purpose = (Activity)reader.ReadInt32();
             // And learn when we are leaving, and at what time we need to get there
-            Time time = new Time
+            Time time = new()
             {
                 // The activity's start time
                 Hours = reader.ReadInt32(),
@@ -659,7 +659,7 @@ namespace Tasha
         private object ProcessParameters(Stream customMessage)
         {
             // We do not use a using statement here because we do not want the reader to close the base stream
-            BinaryReader reader = new BinaryReader(customMessage);
+            BinaryReader reader = new(customMessage);
             // first read in the generation and what index we are processing
             var generation = reader.ReadInt32();
             var index = reader.ReadInt32();
@@ -819,7 +819,7 @@ namespace Tasha
             {
                 return;
             }
-            BinaryWriter writer = new BinaryWriter(toHost);
+            BinaryWriter writer = new(toHost);
             writer.Write(job.Generation);
             writer.Write(job.Index);
             writer.Write(job.Result);

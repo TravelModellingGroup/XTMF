@@ -50,7 +50,7 @@ namespace Tasha.Validation.Data
         {
             var sparse = ToOutput.AcquireResource<SparseArray<float>>();
             var data = sparse.GetFlatData();
-            using StreamWriter writer = new StreamWriter(OutputFile);
+            using StreamWriter writer = new(OutputFile);
             writer.WriteLine("SparseIndex,Value");
             for (int i = 0; i < data.Length; i++)
             {

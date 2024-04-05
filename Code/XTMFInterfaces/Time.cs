@@ -26,11 +26,11 @@ namespace XTMF
     /// </summary>
     public struct Time : IComparable<Time>
     {
-        public static Time EndOfDay = new Time() { Hours = 28 };
+        public static Time EndOfDay = new() { Hours = 28 };
 
         public static Time OneQuantum;
 
-        public static Time StartOfDay = new Time() { Hours = 4 };
+        public static Time StartOfDay = new() { Hours = 4 };
 
         /// <summary>
         /// Our internal representation, to the millisecond

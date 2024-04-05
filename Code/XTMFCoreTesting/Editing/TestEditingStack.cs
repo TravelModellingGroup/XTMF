@@ -60,7 +60,7 @@ namespace XTMF.Testing
             {
                 commands[i] = new TestCommand();
             }
-            EditingStack stack = new EditingStack( 10 );
+            EditingStack stack = new( 10 );
             Assert.AreEqual( 0, stack.Count, "The stack's count is incorrect!" );
             // fill the stack
             for ( int i = 0; i < 10; i++ )

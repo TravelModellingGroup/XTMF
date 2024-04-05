@@ -78,7 +78,7 @@ namespace Tasha.Validation
             {
                 return;
             }
-            using StreamWriter writer = new StreamWriter(OutputFileName.GetFilePath());
+            using StreamWriter writer = new(OutputFileName.GetFilePath());
             writer.WriteLine("AgeRange,ExpandedPersons");
             for (int i = 0; i < AgeSets.Count; i++)
             {

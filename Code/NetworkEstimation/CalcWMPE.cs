@@ -44,7 +44,7 @@ namespace TMG.NetworkEstimation
         public FileLocation LineAggregationFile;
 
         private const string ToolName = "TMG2.XTMF.returnBoardings";
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         public bool Execute(Controller controller)
         {
@@ -86,7 +86,7 @@ namespace TMG.NetworkEstimation
         {
             var result = new Dictionary<string, Tuple<float, float>>();
 
-            using (CsvReader reader = new CsvReader(ObservedBoardingsFile.GetFilePath()))
+            using (CsvReader reader = new(ObservedBoardingsFile.GetFilePath()))
             {
                 reader.LoadLine(); //Skip the first line                
                 while (reader.LoadLine(out int numCol))

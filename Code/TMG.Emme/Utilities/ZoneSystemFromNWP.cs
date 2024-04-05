@@ -114,7 +114,7 @@ namespace TMG.Emme.Utilities
             {
                 throw new XTMFRuntimeException(this, $"Unable to find a network package at the location '{NWPLocation.GetFilePath()}'!");
             }
-            using (ZipArchive archive = new ZipArchive(File.OpenRead(NWPLocation), ZipArchiveMode.Read, false))
+            using (ZipArchive archive = new(File.OpenRead(NWPLocation), ZipArchiveMode.Read, false))
             {
                 foreach (var entry in archive.Entries)
                 {
@@ -131,7 +131,7 @@ namespace TMG.Emme.Utilities
                         // burn the header
                         reader.ReadLine();
                         var seperators = new char[] { ' ', '\t' };
-                        List<Zone> zones = new List<Zone>(2500);
+                        List<Zone> zones = new(2500);
                         while ((line = reader.ReadLine()) != null && line[0] != 't')
                         {
                             // ignore blank lines
@@ -246,7 +246,7 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing region information was not found '{RegionFile.GetFilePath()}'!");
                 }
-                using CsvReader reader = new CsvReader(RegionFile);
+                using CsvReader reader = new(RegionFile);
                 // burn header
                 reader.LoadLine(out int columns);
                 // read the rest
@@ -282,7 +282,7 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing planning district information was not found '{PDFile.GetFilePath()}'!");
                 }
-                using CsvReader reader = new CsvReader(PDFile);
+                using CsvReader reader = new(PDFile);
                 // burn header
                 reader.LoadLine(out int columns);
                 // read the rest
@@ -317,7 +317,7 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing population information was not found '{PopulationFile.GetFilePath()}'!");
                 }
-                using CsvReader reader = new CsvReader(PopulationFile);
+                using CsvReader reader = new(PopulationFile);
                 // burn header
                 reader.LoadLine(out int columns);
                 // read the rest
@@ -352,7 +352,7 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing intrazonal distance information was not found '{IntrazonalDistanceFile.GetFilePath()}'!");
                 }
-                using CsvReader reader = new CsvReader(IntrazonalDistanceFile);
+                using CsvReader reader = new(IntrazonalDistanceFile);
                 // burn header
                 reader.LoadLine(out int columns);
                 // read the rest
@@ -388,7 +388,7 @@ namespace TMG.Emme.Utilities
                 {
                     throw new XTMFRuntimeException(this, $"The file containing parking cost information was not found '{ParkingCostFile.GetFilePath()}'!");
                 }
-                using CsvReader reader = new CsvReader(ParkingCostFile);
+                using CsvReader reader = new(ParkingCostFile);
                 // burn header
                 reader.LoadLine(out int columns);
                 // read the rest

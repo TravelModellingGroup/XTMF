@@ -478,7 +478,7 @@ namespace Tasha.Scheduler
         {
             Status = "Writing Distribution Frequency File";
             Progress = 0;
-            using StreamWriter writer = new StreamWriter(OutputResults);
+            using StreamWriter writer = new(OutputResults);
             writer.WriteLine("DistID, Freq, ExpPersons");
 
             for (int i = 0; i < ResultsArray.Length; i++)

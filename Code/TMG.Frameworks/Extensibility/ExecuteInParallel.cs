@@ -50,7 +50,7 @@ namespace TMG.Frameworks.Extensibility
              to make sure that all of these are running in parallel in case of deadlocks
              or IO bound work */
             Thread[] threads = new Thread[RunInParallel.Length];
-            ConcurrentQueue<Exception> errorList = new ConcurrentQueue<Exception>();
+            ConcurrentQueue<Exception> errorList = new();
             for (int i = 0; i < threads.Length; i++)
             {
                 var avoidSharingI = i;

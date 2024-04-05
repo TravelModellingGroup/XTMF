@@ -153,7 +153,7 @@ namespace TMG.GTAModel
                 var indexes = assign.Indexes;
                 var flatDist = dist.GetFlatData();
                 var distributionForZone = flatWorkplaceDistribution[z];
-                Random rand = new Random((RandomSeed * z) * (CurrentOccupationIndex * numberOfZones));
+                Random rand = new((RandomSeed * z) * (CurrentOccupationIndex * numberOfZones));
                 var zonePop = flatPopulation[z];
                 int popLength = zonePop.Length;
                 if (indexes == null || indexes.Length < popLength)
@@ -319,7 +319,7 @@ namespace TMG.GTAModel
                 }
 
                 Categories[i].Generate(o, d);
-                GravityModel gravityModel = new GravityModel(ImpedenceFunction, (progress => Progress = (progress / numCat) + ((float)i / numCat)), Epsilon, MaxIterations);
+                GravityModel gravityModel = new(ImpedenceFunction, (progress => Progress = (progress / numCat) + ((float)i / numCat)), Epsilon, MaxIterations);
                 workplaceDistribution = gravityModel.ProcessFlow(o, d, validZones);
                 Progress = ((float)(i + 1) / numCat);
                 if (assignToPopulation != null)

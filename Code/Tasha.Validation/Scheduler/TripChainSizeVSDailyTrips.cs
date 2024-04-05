@@ -66,7 +66,7 @@ namespace Tasha.Validation.Scheduler
 
         public void IterationFinished(int iteration)
         {
-            using StreamWriter writer = new StreamWriter(OutputLocation);
+            using StreamWriter writer = new(OutputLocation);
             //write header
             writer.Write("TripChainSize\\DailyTripCount");
             for (int i = 0; i < Results.Length; i++)

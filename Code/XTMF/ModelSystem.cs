@@ -471,7 +471,7 @@ namespace XTMF
                                     }
                                 }
                             }
-                            LinkedParameter lp = new LinkedParameter(linkedParameterName);
+                            LinkedParameter lp = new(linkedParameterName);
                             lp.SetValue(valueRepresentation, ref error);
                             _LinkedParameters.Add(lp);
                             skipRead = true;
@@ -628,7 +628,7 @@ namespace XTMF
             List<string> ret = [];
             bool escape = false;
             var length = variableLink.Length;
-            StringBuilder builder = new StringBuilder(length);
+            StringBuilder builder = new(length);
             for (int i = 0; i < length; i++)
             {
                 var c = variableLink[i];

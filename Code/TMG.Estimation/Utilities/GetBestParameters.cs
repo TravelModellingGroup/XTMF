@@ -55,7 +55,7 @@ namespace TMG.Estimation.Utilities
         public void Start()
         {
             GenerationJob[] best;
-            using (CsvReader reader = new CsvReader( InputResultFile.GetFilePath() ))
+            using (CsvReader reader = new( InputResultFile.GetFilePath() ))
             {
                 best = GetBest( reader );
             }
@@ -137,7 +137,7 @@ namespace TMG.Estimation.Utilities
                         Parameters = localParameters
                     };
                     reader.Get(out int generation, 0);
-                    GenerationJob genJob = new GenerationJob(job, generation);
+                    GenerationJob genJob = new(job, generation);
                     // we don't load the generation
                     reader.Get(out job.Value, 1);
                     for (int i = 0; i < localParameters.Length; i++)
@@ -168,7 +168,7 @@ namespace TMG.Estimation.Utilities
 
         private GenerationJob[] GetLowestBest(CsvReader reader, ParameterSetting[] parameters)
         {
-            List<GenerationJob> best = new List<GenerationJob>( ResultsToSave + 2 );
+            List<GenerationJob> best = new( ResultsToSave + 2 );
             GenerationJob currentJob;
             var maxResults = ResultsToSave;
             while ( ( currentJob = ReadJob( reader, parameters ) ) != null )
@@ -209,7 +209,7 @@ namespace TMG.Estimation.Utilities
 
         private GenerationJob[] GetHighestBest(CsvReader reader, ParameterSetting[] parameters)
         {
-            List<GenerationJob> best = new List<GenerationJob>( ResultsToSave + 2 );
+            List<GenerationJob> best = new( ResultsToSave + 2 );
             GenerationJob currentJob;
             var maxResults = ResultsToSave;
             while ( ( currentJob = ReadJob( reader, parameters ) ) != null )

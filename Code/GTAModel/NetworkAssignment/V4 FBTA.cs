@@ -140,7 +140,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("Add Congestion to IVTT", false, "Set to TRUE to extract the congestion matrix and add its weighted value to the in vehicle time (IVTT) matrix.")]
         public bool ExtractCongestedInVehicleTimeFlag;
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         private const string ToolName = "tmg.assignment.transit.V4_FBTA";
 

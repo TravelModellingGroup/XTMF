@@ -117,7 +117,7 @@ namespace XTMF
 
                 if (File.Exists(versionFile))
                 {
-                    using StreamReader reader = new StreamReader(versionFile);
+                    using StreamReader reader = new(versionFile);
                     version = new Version(reader.ReadLine());
                     if (!reader.EndOfStream)
                     {
@@ -352,7 +352,7 @@ namespace XTMF
 
         public bool CheckProjectExists(string name)
         {
-            DirectoryInfo info = new DirectoryInfo(Path.Combine(ProjectDirectory, name));
+            DirectoryInfo info = new(Path.Combine(ProjectDirectory, name));
             return (info.Exists && info.GetFiles().Any(fileInfo => fileInfo.Name == "Project.xml"));
         }
 
@@ -582,7 +582,7 @@ namespace XTMF
             }
             try
             {
-                DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                DirectoryInfo dirInfo = new(dir);
             }
             catch
             {
@@ -596,7 +596,7 @@ namespace XTMF
         public bool LoadErrorTerminal = false;
 
         private ConcurrentBag<Type> FreeVariableType = [];
-        internal readonly ConcurrentDictionary<string, Type> ModuleRedirection = new ConcurrentDictionary<string, Type>();
+        internal readonly ConcurrentDictionary<string, Type> ModuleRedirection = new();
 
         private void LoadAssembly(Assembly assembly)
         {
@@ -763,7 +763,7 @@ namespace XTMF
 
         private void LoadConfigurationFile(string configFileName)
         {
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             XmlElement root;
             try
             {

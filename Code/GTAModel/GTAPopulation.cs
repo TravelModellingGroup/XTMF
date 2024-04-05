@@ -73,7 +73,7 @@ This module requires the root module in the model system to be of type ‘ITrave
             SparseArray<Household[]> households = Root.ZoneSystem.ZoneArray.CreateSimilarArray<Household[]>();
             var flatHouseholds = households.GetFlatData();
             var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            Dictionary<int, List<IPerson>> tempPop = new Dictionary<int, List<IPerson>>( flatZones.Length );
+            Dictionary<int, List<IPerson>> tempPop = new( flatZones.Length );
             Parallel.For( 0, flatZones.Length, delegate(int i)
             {
                 IZone zone = flatZones[i];
@@ -83,7 +83,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                         new Household { Cars = 2, Zone = zone }
                     };
             } );
-            using ( CommentedCsvReader reader = new CommentedCsvReader( fileName ) )
+            using ( CommentedCsvReader reader = new( fileName ) )
             {
                 int i = 0;
                 var baseStream = reader.BaseStream;
@@ -166,7 +166,7 @@ This module requires the root module in the model system to be of type ‘ITrave
             try
             {
                 fs = new FileStream( fileName, FileMode.Create, FileAccess.Write, FileShare.None, 0x4000, true );
-                using StreamWriter writer = new StreamWriter(fs);
+                using StreamWriter writer = new(fs);
                 fs = null;
                 // Print out all of the people
                 var length = validZones.Length;
@@ -207,7 +207,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                 {
                     var popInZone = flatPop[i];
                     if ( popInZone == null ) return;
-                    StringBuilder builder = new StringBuilder();
+                    StringBuilder builder = new();
                     foreach ( var person in popInZone )
                     {
                         builder.Append( validZones[i] );

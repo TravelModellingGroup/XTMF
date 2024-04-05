@@ -322,7 +322,7 @@ namespace Tasha.Scheduler
         /// <param name="h">The household to schedule</param>
         public void Run(ITashaHousehold h)
         {
-            Random r = new Random(h.HouseholdId * Seed);
+            Random r = new(h.HouseholdId * Seed);
             // Setup the data, no random is needed here
             AddProjects(h);
             // Generate the schedules for each type of project

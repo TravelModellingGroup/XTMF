@@ -37,7 +37,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter("WriteIndividualRoutes", true, "If a line is not included in an aggregation file, should it be written out separately in the repot file?")]
         public bool WriteIndividualRoutes;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         private const string ToolName = "tmg.analysis.transit.export_boardings";
 
         public bool Execute(Controller controller)

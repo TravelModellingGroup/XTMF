@@ -49,7 +49,7 @@ namespace TMG.Tasha.MicrosimLoader
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(5, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(5, 150, 50);
 
         public void CopyTo(ITashaHousehold[] array, int index)
         {

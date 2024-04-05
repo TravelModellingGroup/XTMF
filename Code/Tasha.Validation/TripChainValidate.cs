@@ -90,7 +90,7 @@ namespace Tasha.Validation
         {
             lock (this)
             {
-                using StreamWriter writer = new StreamWriter(OutputFile);
+                using StreamWriter writer = new(OutputFile);
                 writer.WriteLine("Trips/TripChain, Total, Percentage of all Trips");
 
                 var sum = NumberOfTrips.Sum(v => v.Value);

@@ -53,7 +53,7 @@ namespace YourLibraryNameHere
         /// This will produce a green base colour for our progress.
         /// Values are (0-255,0-255,0-255) for red, green, and blue.
         /// </summary>
-        private Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        private Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
 
         /// <summary>
         /// This provides a way for XTMF to create an object of your model.

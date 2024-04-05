@@ -56,7 +56,7 @@ namespace TMG.Functions
                 int i;
                 Vector<float> zero = Vector<float>.Zero;
                 Vector<float> one = Vector<float>.One;
-                Vector<float> vValue = new Vector<float>(value);
+                Vector<float> vValue = new(value);
                 for (i = 0; i < data.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var vData = new Vector<float>(data, i);

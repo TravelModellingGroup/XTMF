@@ -60,7 +60,7 @@ namespace Tasha.Estimation.LocationChoice
 
         SparseTwinIndex<float> Choices;
 
-        SpinLock ChoicesLock = new SpinLock(false);
+        SpinLock ChoicesLock = new(false);
 
         public string Name
         {
@@ -83,7 +83,7 @@ namespace Tasha.Estimation.LocationChoice
             }
         }
 
-        SpinLock FitnessLock = new SpinLock(false);
+        SpinLock FitnessLock = new(false);
         private float Fitness;
 
         private SparseArray<IZone> ZoneSystem;
@@ -220,7 +220,7 @@ namespace Tasha.Estimation.LocationChoice
         private IEpisode[] BuildScheduleFromTrips(List<ITrip> trips)
         {
             ITashaPerson owner = trips[0].TripChain.Person;
-            PersonSchedule schedule = new PersonSchedule(owner);
+            PersonSchedule schedule = new(owner);
             // we don't do the last trip since it is always to home.
             for (int i = 0; i < trips.Count - 1; i++)
             {

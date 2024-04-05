@@ -91,7 +91,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             });
             // once we have the required data process the pool segments
             var poolSegments = new PoolSegment[(int)Math.Ceiling((float)SizeToGenerate / SegmentSize)];
-            Random r = new Random(RandomSeed);
+            Random r = new(RandomSeed);
             for (int i = 0; i < poolSegments.Length; i++)
             {
                 poolSegments[i] = new PoolSegment(this, r.Next());

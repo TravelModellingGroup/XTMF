@@ -79,7 +79,7 @@ namespace XTMF
             return ret;
         }
 
-        private object _ParameterModelsLock = new object();
+        private object _ParameterModelsLock = new();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -163,7 +163,7 @@ namespace XTMF
         /// <returns>True if we added the parameter to the linked parameter, false if it failed.</returns>
         public bool AddParameter(ParameterModel toAdd, ref string error)
         {
-            LinkedParameterChange change = new LinkedParameterChange();
+            LinkedParameterChange change = new();
             var originalValue = toAdd.Value;
             return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Add Parameter to Linked Parameter",
@@ -248,7 +248,7 @@ namespace XTMF
         /// <returns>True if the parameter was removed, false if it was not.</returns>
         public bool RemoveParameter(ParameterModel toRemove, ref string error)
         {
-            LinkedParameterChange change = new LinkedParameterChange();
+            LinkedParameterChange change = new();
             return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Remove Parameter from Linked Parameter",
                 // do

@@ -33,7 +33,7 @@ namespace XTMF.Testing
         {
             if ( !IsEnvironmentLoaded() )
             {
-                using ( StreamWriter writer = new StreamWriter( "CommentedCSVReaderTest.csv" ) )
+                using ( StreamWriter writer = new( "CommentedCSVReaderTest.csv" ) )
                 {
                     writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
                     for ( int i = 0; i < ExpectedNumberOfLines; i++ )
@@ -42,7 +42,7 @@ namespace XTMF.Testing
                     }
                 }
 
-                using ( StreamWriter writer = new StreamWriter( "CommentedCSVReaderTestFail.csv" ) )
+                using ( StreamWriter writer = new( "CommentedCSVReaderTestFail.csv" ) )
                 {
                     writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
                     for ( int i = 0; i < FailNumberOfLines; i++ )

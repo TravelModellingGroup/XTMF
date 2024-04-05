@@ -72,7 +72,7 @@ namespace TMG.GTAModel.Input
             // if there isn't anything just exit
             if (!FixedFormatFile.ContainsFileName()) yield break;
             // otherwise load in the data
-            ODData<float> currentData = new ODData<float>();
+            ODData<float> currentData = new();
             StreamReader reader;
             try
             {

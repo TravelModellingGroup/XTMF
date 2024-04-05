@@ -212,7 +212,7 @@ namespace TMG.GTAModel
                 *  3: Fare
                 *  4: Bording Times
                 */
-            OdcCreator2<IZone> creator = new OdcCreator2<IZone>( Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 3 );
+            OdcCreator2<IZone> creator = new( Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 3 );
             creator.LoadEmme2( FailIfNotExist( AlreadyLoaded ? UpdatedIvttAM : BaseIvttAM ), 0, (int)DataTypes.TravelTime );
             creator.LoadEmme2( FailIfNotExist( AlreadyLoaded ? UpdatedWaitAM : BaseWaitAM ), 0, (int)DataTypes.WaitTime );
             creator.LoadEmme2( FailIfNotExist( AlreadyLoaded ? UpdatedWalkAM : BaseWalkAM ), 0, (int)DataTypes.WalkTime );

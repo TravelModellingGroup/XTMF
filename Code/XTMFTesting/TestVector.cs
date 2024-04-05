@@ -165,7 +165,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestSelectIfFinite()
         {
-            Vector<float> alternate = new Vector<float>(1.0f);
+            Vector<float> alternate = new(1.0f);
             float[] temp = new float[Vector<float>.Count];
             for(int i = 0; i < temp.Length; i++)
             {
@@ -174,7 +174,7 @@ namespace XTMF.Testing
             temp[temp.Length - 1] = float.NaN;
             temp[temp.Length - 2] = float.PositiveInfinity;
             temp[temp.Length - 3] = float.NegativeInfinity;
-            Vector<float> v = new Vector<float>(temp);
+            Vector<float> v = new(temp);
             var result = new float[Vector<float>.Count];
             VectorHelper.SelectIfFinite(v, alternate).CopyTo(result);
             for(int i = 0; i < temp.Length - 3; i++)

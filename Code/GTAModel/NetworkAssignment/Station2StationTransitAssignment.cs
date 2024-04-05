@@ -82,7 +82,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("Walk Time Perception", 2.0f, "The perception factor applied to walking time.")]
         public float WalkPerception;
 
-        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(255, 173, 28);
+        private Tuple<byte, byte, byte> _progressColour = new(255, 173, 28);
 
         public string Name
         {
@@ -136,7 +136,7 @@ namespace TMG.GTAModel.NetworkAssignment
         private string ConvertStationsToEmmeSelectorString()
         {
             //Convert the Stations RangeSet into a string argument which Emme can interpret as zone selector
-            StringBuilder stationExpressionBuilder = new StringBuilder();
+            StringBuilder stationExpressionBuilder = new();
             stationExpressionBuilder.AppendFormat("{0}-{1}", Stations[0].Start, Stations[0].Stop);
             for (int i = 1; i < Stations.Count; i++)
             {
@@ -167,7 +167,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 Directory.CreateDirectory(dir);
             }
-            using (StreamWriter writer = new StreamWriter(outputFileName))
+            using (StreamWriter writer = new(outputFileName))
             {
                 writer.WriteLine("t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];

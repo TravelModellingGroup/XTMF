@@ -53,7 +53,7 @@ namespace XTMF.Gui
             RecentProjectsStackPanel.Children.Clear();
             foreach (var recentProject in MainWindow.Us.RecentProjects)
             {
-                Button b = new Button
+                Button b = new()
                 {
                     Content = recentProject,
                     HorizontalContentAlignment = HorizontalAlignment.Left,

@@ -128,7 +128,7 @@ namespace TMG.NetworkEstimation
         {
             if ( StationNameMap.Count == 0 )
             {
-                using CsvReader reader = new CsvReader(StationNameMapFile.GetFilePath());
+                using CsvReader reader = new(StationNameMapFile.GetFilePath());
                 // Burn header
                 reader.LoadLine();
                 // process data

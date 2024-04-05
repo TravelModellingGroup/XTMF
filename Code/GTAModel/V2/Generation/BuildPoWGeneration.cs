@@ -46,7 +46,7 @@ namespace TMG.GTAModel.V2.Generation
 
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int occ, Range age, int employmentStatus, int mobility)
         {
-            PowGeneration gen = new PowGeneration
+            PowGeneration gen = new()
             {
                 Root = Root,
                 OccupationCategory = CreateRangeSet(occ),
@@ -76,9 +76,9 @@ namespace TMG.GTAModel.V2.Generation
             }
         }
 
-        private RangeSet CreateRangeSet(int occ) => new RangeSet(new List<Range> { new Range(occ, occ) });
+        private RangeSet CreateRangeSet(int occ) => new(new List<Range> { new(occ, occ) });
 
-        private RangeSet CreateRangeSet(Range range) => new RangeSet(new List<Range> { range });
+        private RangeSet CreateRangeSet(Range range) => new(new List<Range> { range });
 
         private void GenerateChildren()
         {

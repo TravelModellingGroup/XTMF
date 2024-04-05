@@ -144,7 +144,7 @@ namespace Tasha.PopulationSynthesis
 
             internal void Save()
             {
-                using StreamWriter writer = new StreamWriter(self.SaveFile.GetFileName());
+                using StreamWriter writer = new(self.SaveFile.GetFileName());
                 WriterHeader(writer);
                 for (int entry = 0; entry < EntryList.Count; entry++)
                 {

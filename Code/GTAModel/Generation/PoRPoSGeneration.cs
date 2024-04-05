@@ -228,7 +228,7 @@ namespace TMG.GTAModel
             {
                 bool first = !File.Exists( GenerationOutputFileName );
                 // if the file name exists try to write to it, appending
-                using StreamWriter writer = new StreamWriter(GenerationOutputFileName, true);
+                using StreamWriter writer = new(GenerationOutputFileName, true);
                 if (first)
                 {
                     writer.WriteLine("Age,Employment,Occupation,Mobility,Total");

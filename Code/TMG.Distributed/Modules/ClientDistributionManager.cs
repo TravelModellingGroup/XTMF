@@ -129,7 +129,7 @@ namespace TMG.Distributed.Modules
         {
             Client.RegisterCustomReceiver(DistributionDataChannel, (stream) =>
             {
-                BinaryReader reader = new BinaryReader(stream);
+                BinaryReader reader = new(stream);
                 switch((CommunicationProtocol)reader.ReadInt32())
                 {
                     case CommunicationProtocol.RunTask:
@@ -168,7 +168,7 @@ namespace TMG.Distributed.Modules
             });
             Client.RegisterCustomSender(DistributionDataChannel, (data, stream) =>
             {
-                BinaryWriter writer = new BinaryWriter(stream);
+                BinaryWriter writer = new(stream);
                 var request = data as Request;
                 var message = data as string;
                 if(data == null)

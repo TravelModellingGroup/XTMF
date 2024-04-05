@@ -142,8 +142,8 @@ namespace Tasha.ModeChoice
             double utility = 0;
             int mode = 0;
             List<ModeSet> possibleTripChains = ModeSet.GetModeSets( chain ) as List<ModeSet>;
-            Stack<int> previousMode = new Stack<int>( 10 );
-            Stack<double> previousU = new Stack<double>( 10 );
+            Stack<int> previousMode = new( 10 );
+            Stack<double> previousU = new( 10 );
             var trips = chain.Trips;
             ITrip currentTrip = trips[0];
             while ( level != -1 )

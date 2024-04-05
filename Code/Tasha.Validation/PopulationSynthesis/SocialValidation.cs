@@ -105,7 +105,7 @@ namespace Tasha.Validation.PopulationSynthesis
 
         public void IterationFinished(int iteration)
         {
-            using (StreamWriter writer = new StreamWriter(AgeResults))
+            using (StreamWriter writer = new(AgeResults))
             {
                 writer.Write("Age, ");
                 for (int i = 0; i < ZoneSystem.GetFlatData().Length; i++)
@@ -127,7 +127,7 @@ namespace Tasha.Validation.PopulationSynthesis
                 }
             }
 
-            using (StreamWriter writer = new StreamWriter(OccEmpResults))
+            using (StreamWriter writer = new(OccEmpResults))
             {
                 writer.Write("Age, Employment, ");
 
@@ -152,7 +152,7 @@ namespace Tasha.Validation.PopulationSynthesis
                 }                
             }
 
-            using (StreamWriter writer = new StreamWriter(MiscResults))
+            using (StreamWriter writer = new(MiscResults))
             {
                 writer.WriteLine("Gender, Number of People");
                 writer.WriteLine("Male, {0}", GenderCounts[0]);

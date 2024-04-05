@@ -107,7 +107,7 @@ namespace XTMF.Run
         {
             string originalWorkingDirectory = Directory.GetCurrentDirectory();
             // create an empty error
-            ErrorWithPath error = new ErrorWithPath();
+            ErrorWithPath error = new();
             IModelSystemStructure mstStructure;
             bool validationError = false;
             try
@@ -254,7 +254,7 @@ namespace XTMF.Run
             errors = [];
             AlertValidationStarting();
             // check to see if the directory exists, if it doesn't create it
-            DirectoryInfo info = new DirectoryInfo(RunDirectory);
+            DirectoryInfo info = new(RunDirectory);
             if (!info.Exists)
             {
                 info.Create();

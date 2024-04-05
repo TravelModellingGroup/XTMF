@@ -26,7 +26,7 @@ namespace Tasha.Common
     {
         public static ITashaRuntime TashaRuntime;
 
-        private static TripComparer TripComparer = new TripComparer();
+        private static TripComparer TripComparer = new();
 
         /// <summary>
         /// Gets all the tripchains in a household
@@ -151,8 +151,8 @@ namespace Tasha.Common
             List<Pair<Time, int>> tripStartAndEndTimes = [];
             foreach ( var tripChain in tc )
             {
-                Pair<Time, int> startTime = new Pair<Time, int>( tripChain.StartTime, -1 );
-                Pair<Time, int> endTime = new Pair<Time, int>( tripChain.EndTime, 1 );
+                Pair<Time, int> startTime = new( tripChain.StartTime, -1 );
+                Pair<Time, int> endTime = new( tripChain.EndTime, 1 );
 
                 tripStartAndEndTimes.Add( startTime );
                 tripStartAndEndTimes.Add( endTime );

@@ -119,7 +119,7 @@ namespace Tasha.Validation.ModeChoice
         public void IterationFinished(int iteration, int totalIterations)
         {
             var zones = ZoneSystem.ValidIndexArray();
-            using (StreamWriter writer = new StreamWriter(SaveLocation))
+            using (StreamWriter writer = new(SaveLocation))
             {
                 writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
                 for(int m = 0; m < Data.Length; m++)

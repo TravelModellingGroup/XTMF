@@ -217,7 +217,7 @@ namespace XTMF
         /// <returns>True if the parameter was set to the new value, false otherwise with an error message in error.</returns>
         public bool SetValue(string newValue, ref string error)
         {
-            ParameterChange change = new ParameterChange();
+            ParameterChange change = new();
             return _Session.RunCommand(XTMFCommand.CreateCommand(
                 "Change Parameter",
                 // do

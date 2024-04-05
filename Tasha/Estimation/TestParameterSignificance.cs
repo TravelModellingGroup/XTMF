@@ -123,7 +123,7 @@ namespace Tasha.Estimation
             if ( iteration == 0 )
             {
                 BaseFitness = Fitness;
-                using StreamWriter writer = new StreamWriter(SignificanceResultFile.GetFilePath());
+                using StreamWriter writer = new(SignificanceResultFile.GetFilePath());
                 writer.WriteLine("Parameter,Rho^2,Difference");
                 writer.Write("Base,");
                 writer.Write(1.0 - (BaseFitness / BaseRandomFitness));
@@ -134,7 +134,7 @@ namespace Tasha.Estimation
             {
                 var baseRho = ( 1.0 - ( BaseFitness / BaseRandomFitness ) );
                 var ourRho = ( 1.0 - ( Fitness / BaseRandomFitness ) );
-                using StreamWriter writer = new StreamWriter(SignificanceResultFile.GetFilePath(), true);
+                using StreamWriter writer = new(SignificanceResultFile.GetFilePath(), true);
                 writer.Write(Parameters[iteration - 1].Names[0]);
                 writer.Write(',');
                 writer.Write(ourRho);
@@ -249,7 +249,7 @@ namespace Tasha.Estimation
         {
             List<string> parts = [];
             var stringLength = parameterName.Length;
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             for ( int i = 0; i < stringLength; i++ )
             {
                 switch ( parameterName[i] )
@@ -369,7 +369,7 @@ namespace Tasha.Estimation
         private void LoadEstimationResult()
         {
             var modeParameterFile = EstimationResult.GetFilePath();
-            using StreamReader reader = new StreamReader(modeParameterFile);
+            using StreamReader reader = new(modeParameterFile);
             // First read the header, we will need that data to store in the mode parameters
             var headerLine = reader.ReadLine();
             if (headerLine == null)
@@ -425,7 +425,7 @@ namespace Tasha.Estimation
 
         private void LoadParameterFile()
         {
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load( ParameterFile.GetFilePath() );
             List<ParameterSetting> parameters = [];
             var children = doc["Root"]?.ChildNodes;
@@ -435,7 +435,7 @@ namespace Tasha.Estimation
                 {
                     if (child.Name == "Parameter")
                     {
-                        ParameterSetting current = new ParameterSetting();
+                        ParameterSetting current = new();
                         if (child.HasChildNodes)
                         {
                             var nodes = child.ChildNodes;

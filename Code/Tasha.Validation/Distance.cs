@@ -120,7 +120,7 @@ namespace Tasha.Validation
         {
             if ( iteration == Root.TotalIterations - 1 )
             {
-                using StreamWriter writer = new StreamWriter(OutputFile, true);
+                using StreamWriter writer = new(OutputFile, true);
                 writer.WriteLine("Iteration,Activity,AverageDistance");
                 lock (this)
                 {

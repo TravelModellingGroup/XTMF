@@ -95,7 +95,7 @@ namespace TMG.GTAModel.NetworkAssignment
                  WalkPerception, InVehiclePerception, BoardingPerception, FarePerception, \
                  UseAdditiveDemand, WaitFactor
         */
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         public string Name
         {
@@ -175,7 +175,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 Directory.CreateDirectory(dir);
             }
-            using (StreamWriter writer = new StreamWriter(outputFileName))
+            using (StreamWriter writer = new(outputFileName))
             {
                 writer.WriteLine("t matrices\r\na matrix=mf{0} name={1} default=0 descr=generated", DemandMatrixNumber, DemandMatrixName.Replace(" ", ""));
                 StringBuilder[] builders = new StringBuilder[numberOfZones];

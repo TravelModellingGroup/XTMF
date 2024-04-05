@@ -52,7 +52,7 @@ namespace Tasha.Data
             var firstSparse = First.AcquireResource<SparseTwinIndex<float>>();
             var first = firstSparse.GetFlatData();
             var second = Second.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            ODData<float> point = new ODData<float>();
+            ODData<float> point = new();
             for(int i = 0; i < first.Length; i++)
             {
                 point.O = firstSparse.GetSparseIndex(i);

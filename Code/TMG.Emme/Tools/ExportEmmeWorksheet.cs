@@ -70,7 +70,7 @@ namespace TMG.Emme.Tools
         public EmmeWorksheetExportType ExportType;
 
         private const string _ToolName = "tmg.XTMF_internal.export_worksheet";
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(255, 255, 255);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(255, 255, 255);
 
         public bool Execute(Controller controller)
         {
@@ -331,7 +331,7 @@ namespace TMG.Emme.Tools
         [RunParameter("Index", 0, "For multi-value parameters, the index of the value to set.")]
         public int Index;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(255, 255, 255);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(255, 255, 255);
 
         internal Dictionary<string, object> Configuration
         {

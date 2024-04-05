@@ -149,7 +149,7 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
                 var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");
-                using (StreamWriter writer = new StreamWriter(filePath))
+                using (StreamWriter writer = new(filePath))
                 {
                     writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
                     foreach (var pair in PurposeDictionary.OrderBy(k => k.Key))
@@ -164,7 +164,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
                 var summaryFilePath = Path.Combine(Path.GetFullPath(ResultsFolder), "SummaryFile.csv");
 
-                using (StreamWriter writer = new StreamWriter(summaryFilePath))
+                using (StreamWriter writer = new(summaryFilePath))
                 {
                     writer.WriteLine("Purpose, Number of Occurrences");
                     foreach (var pair in SummaryTripCount.OrderBy(k => k.Key))

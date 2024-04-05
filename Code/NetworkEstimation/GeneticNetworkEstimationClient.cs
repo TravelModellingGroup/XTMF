@@ -56,7 +56,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("TruthFile", @"../../Input/TransitLineTruth.csv", "The name of the file the macro creates")]
         public string TruthFile;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(50, 150, 50);
 
         private static char[] Comma = { ',' };
 
@@ -184,13 +184,13 @@ namespace TMG.NetworkEstimation
             // Get all of the initial ground truth data
             List<TransitLine> truthList = [];
             // On the first pass go through all of the data and store the records of the TTS boardings
-            using (StreamReader reader = new StreamReader(TruthFile))
+            using (StreamReader reader = new(TruthFile))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     var split = line.Split(Comma, StringSplitOptions.RemoveEmptyEntries);
-                    TransitLine current = new TransitLine();
+                    TransitLine current = new();
                     string currentName;
                     current.Id = new[] { (currentName = split[1]) };
                     current.Bordings = float.Parse(split[0]);
@@ -218,7 +218,7 @@ namespace TMG.NetworkEstimation
             // now on the second pass go through and find all of the EMME Links that connect to the TTS data
             var truthEntries = truthList.Count;
             List<string>[] nameLinks = new List<string>[truthEntries];
-            using (StreamReader reader = new StreamReader(EmmetoTtsFile))
+            using (StreamReader reader = new(EmmetoTtsFile))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -270,7 +270,7 @@ namespace TMG.NetworkEstimation
 
         private void LoadInstructions()
         {
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load(ParameterInstructions);
             List<ParameterSetting> parameters = [];
             var childNodes = doc["Root"]?.ChildNodes;
@@ -280,7 +280,7 @@ namespace TMG.NetworkEstimation
                 {
                     if (child.Name == "Parameter")
                     {
-                        ParameterSetting current = new ParameterSetting();
+                        ParameterSetting current = new();
                         var attributes = child.Attributes;
                         if (attributes != null)
                         {
@@ -299,7 +299,7 @@ namespace TMG.NetworkEstimation
 
         private void PrintSummery(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
         {
-            using StreamWriter writer = new StreamWriter("LineSummery" + (SummeryNumber++) + ".csv");
+            using StreamWriter writer = new("LineSummery" + (SummeryNumber++) + ".csv");
             writer.WriteLine("Truth,Predicted,Error,Error^2,EmmeLines");
             for (int i = 0; i < aggToTruth.Length; i++)
             {
@@ -344,7 +344,7 @@ namespace TMG.NetworkEstimation
 
         private float ProcessResults()
         {
-            TransitLines currentLines = new TransitLines(MacroOutputFile);
+            TransitLines currentLines = new(MacroOutputFile);
             var predicted = currentLines.Lines;
             var numberOfLines = predicted.Length;
             double rmse = 0;
@@ -403,8 +403,8 @@ namespace TMG.NetworkEstimation
 
         private object ReceiveNewParameters(Stream s)
         {
-            Job job = new Job();
-            BinaryReader reader = new BinaryReader(s);
+            Job job = new();
+            BinaryReader reader = new(s);
             job.Generation = reader.ReadInt32();
             job.Index = reader.ReadInt32();
             var length = reader.ReadInt32();
@@ -424,7 +424,7 @@ namespace TMG.NetworkEstimation
 
         private void SendResultToHost(object o, Stream s)
         {
-            BinaryWriter writer = new BinaryWriter(s);
+            BinaryWriter writer = new(s);
             var res = (ProcessedResult)o;
             writer.Write(res.Generation);
             writer.Write(res.Index);
@@ -441,7 +441,7 @@ namespace TMG.NetworkEstimation
              * m ms[MS:##] [NAME]
              *  all all: [VALUE]
              */
-            using StreamWriter writer = new StreamWriter(MacroInputFile);
+            using StreamWriter writer = new(MacroInputFile);
             writer.WriteLine("t matrices");
             foreach (var p in param)
             {
@@ -457,7 +457,7 @@ namespace TMG.NetworkEstimation
         /// <returns>A limited precision non scientific number in a string</returns>
         private string ToEmmeFloat(float p)
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append((int)p);
             p = p - (int)p;
             if (p > 0)

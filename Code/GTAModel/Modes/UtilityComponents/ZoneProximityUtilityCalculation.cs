@@ -104,7 +104,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         private List<int> GetTargetedZones(IZone[] flatZones, bool[] flatData)
         {
-            List<int> targetedZones = new List<int>( flatData.Length );
+            List<int> targetedZones = new( flatData.Length );
             for ( int i = 0; i < flatZones.Length; i++ )
             {
                 if ( TargetedZones.Contains( flatZones[i].ZoneNumber ) )

@@ -39,17 +39,17 @@ namespace XTMF.Networking
 
         private const string PROGID_AUTHORIZED_APPLICATION = "HNetCfg.FwAuthorizedApplication";
 
-        private MessageQueue<IRemoteXTMF> _AvailableClients = new MessageQueue<IRemoteXTMF>();
+        private MessageQueue<IRemoteXTMF> _AvailableClients = new();
 
         private readonly IConfiguration _Configuration;
 
-        private readonly ConcurrentDictionary<int, List<Action<object, IRemoteXTMF>>> _CustomHandlers = new ConcurrentDictionary<int, List<Action<object, IRemoteXTMF>>>();
+        private readonly ConcurrentDictionary<int, List<Action<object, IRemoteXTMF>>> _CustomHandlers = new();
 
-        private readonly ConcurrentDictionary<int, Func<Stream, IRemoteXTMF, object>> _CustomReceivers = new ConcurrentDictionary<int, Func<Stream, IRemoteXTMF, object>>();
+        private readonly ConcurrentDictionary<int, Func<Stream, IRemoteXTMF, object>> _CustomReceivers = new();
 
-        private readonly ConcurrentDictionary<int, Action<object, IRemoteXTMF, Stream>> _CustomSenders = new ConcurrentDictionary<int, Action<object, IRemoteXTMF, Stream>>();
+        private readonly ConcurrentDictionary<int, Action<object, IRemoteXTMF, Stream>> _CustomSenders = new();
 
-        private MessageQueue<IModelSystemStructure> _ExecutionTasks = new MessageQueue<IModelSystemStructure>();
+        private MessageQueue<IModelSystemStructure> _ExecutionTasks = new();
 
         private volatile bool _Exit = false;
 
@@ -66,8 +66,8 @@ namespace XTMF.Networking
             IsShutdown = false;
             _Configuration = configuration;
             ConnectedClients = new List<IRemoteXTMF>();
-            Thread hostThread = new Thread(HostMain);
-            Thread taskDistributionThread = new Thread(DistributeTasks)
+            Thread hostThread = new(HostMain);
+            Thread taskDistributionThread = new(DistributeTasks)
             {
                 IsBackground = true
             };
@@ -259,7 +259,7 @@ namespace XTMF.Networking
         {
             if (!(clientObject is TcpClient client)) return;
             bool done = false;
-            RemoteXTMF ourRemoteClient = new RemoteXTMF();
+            RemoteXTMF ourRemoteClient = new();
             try
             {
                 // Step 1) Accept the Client
@@ -286,7 +286,7 @@ namespace XTMF.Networking
                            try
                            {
                                clientStream.ReadTimeout = Timeout.Infinite;
-                               BinaryReader reader = new BinaryReader(clientStream);
+                               BinaryReader reader = new(clientStream);
                                while (!done && !_Exit)
                                {
                                    var messageType = (MessageType)reader.ReadInt32();
@@ -330,7 +330,7 @@ namespace XTMF.Networking
                                                var number = reader.ReadInt32();
                                                var length = reader.ReadInt32();
                                                var buff = new byte[length];
-                                               MemoryStream buffer = new MemoryStream(buff);
+                                               MemoryStream buffer = new(buff);
                                                int soFar = 0;
                                                while (soFar < length)
                                                {
@@ -376,7 +376,7 @@ namespace XTMF.Networking
                        }
                        // don't close the reader/writer since this will also close the client stream
                    }).Start();
-                BinaryWriter writer = new BinaryWriter(clientStream);
+                BinaryWriter writer = new(clientStream);
                 clientStream.WriteTimeout = 10000;
                 while (!done && !_Exit)
                 {
@@ -537,7 +537,7 @@ namespace XTMF.Networking
                 {
                     hostPort = config.HostPort;
                 }
-                TcpListener listener = new TcpListener(IPAddress.Any, hostPort);
+                TcpListener listener = new(IPAddress.Any, hostPort);
                 listener.Start(20);
                 _SetupComplete = true;
                 _HostActive = true;
@@ -550,7 +550,7 @@ namespace XTMF.Networking
                         {
                             // Process the new connection
                             TcpClient client = listener.AcceptTcpClient();
-                            Thread newClientThread = new Thread(ClientMain);
+                            Thread newClientThread = new(ClientMain);
                             // fire and forget the client thread
                             newClientThread.Start(client);
                         }
@@ -651,7 +651,7 @@ namespace XTMF.Networking
                             try
                             {
                                 byte[] data = null;
-                                using (MemoryStream memStream = new MemoryStream())
+                                using (MemoryStream memStream = new())
                                 {
                                     mss.Save(memStream);
                                     memStream.Position = 0;
@@ -676,7 +676,7 @@ namespace XTMF.Networking
                             byte[] buffer = null;
                             if (_CustomSenders.TryGetValue(msgNumber, out Action<object, IRemoteXTMF, Stream> customConverter))
                             {
-                                using MemoryStream mem = new MemoryStream(0x100);
+                                using MemoryStream mem = new(0x100);
                                 try
                                 {
                                     customConverter(msg.Data, ourRemoteClient, mem);

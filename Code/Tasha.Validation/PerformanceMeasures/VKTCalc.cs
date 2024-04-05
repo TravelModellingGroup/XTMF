@@ -91,7 +91,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 var odCostMatrix = timePeriod.ODFlatCostMatrix.AcquireResource<SparseTwinIndex<float>>();
                 try
                 {
-                    using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
+                    using (CsvReader reader = new(timePeriod.ODTripsData))
                     {
                         reader.LoadLine();
                         while (reader.LoadLine(out int columns))
@@ -108,7 +108,7 @@ namespace Tasha.Validation.PerformanceMeasures
                             }
                         }
                     }
-                    using StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone);
+                    using StreamWriter writer = new(timePeriod.VKTbyHomeZone);
                     writer.WriteLine("Home Zone, Total VKTs");
                     foreach (var pair in totalVKT)
                     {

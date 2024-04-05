@@ -42,7 +42,7 @@ namespace TMG.GTAModel.Analysis
             var workerData = WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
             var flatZones = zones.GetFlatData();
             var flatWorkerData = workerData.GetFlatData();
-            using StreamWriter writer = new StreamWriter(OututFile.GetFilePath());
+            using StreamWriter writer = new(OututFile.GetFilePath());
             writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
             for (int i = 0; i < flatWorkerData.Length; i++)
             {

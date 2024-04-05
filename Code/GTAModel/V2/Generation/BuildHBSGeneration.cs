@@ -93,7 +93,7 @@ namespace TMG.GTAModel.V2.Generation
 
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int age)
         {
-            SchoolGeneration gen = new SchoolGeneration
+            SchoolGeneration gen = new()
             {
                 Root = Root,
                 Age = age,

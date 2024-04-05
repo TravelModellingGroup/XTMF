@@ -238,7 +238,7 @@ its mode when switching context between different demographic categories."
             var dbf = GetFullPath( DatabaseFile );
             try
             {
-                using StreamReader reader = new StreamReader(dbf);
+                using StreamReader reader = new(dbf);
                 // First read the header, we will need that data to store in the mode parameters
                 var headerLine = reader.ReadLine();
                 if (headerLine == null)

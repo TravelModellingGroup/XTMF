@@ -74,7 +74,7 @@ namespace Tasha.Data
 
         private SparseIndexing RootCreateIndices()
         {
-            SparseIndexing rootLevel = new SparseIndexing();
+            SparseIndexing rootLevel = new();
             rootLevel.Indexes = TriIndexSet.Select(range => new SparseSet() { Start = range.Start, Stop = range.Stop }).ToArray();
             return rootLevel;
         }

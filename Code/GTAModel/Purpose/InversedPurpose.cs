@@ -185,9 +185,9 @@ namespace TMG.GTAModel
             {
                 Directory.CreateDirectory( directoryName );
             }
-            Task writeTask = new Task( delegate
+            Task writeTask = new( delegate
             {
-                using StreamWriter writer = new StreamWriter(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
+                using StreamWriter writer = new(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
                 var header = true;
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 for (int i = 0; i < zones.Length; i++)

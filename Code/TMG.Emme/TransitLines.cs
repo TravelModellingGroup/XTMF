@@ -56,7 +56,7 @@ namespace TMG.Emme
         /// <param name="file621Name"></param>
         public TransitLines(string file621Name)
         {
-            using ( StreamReader reader = new StreamReader( file621Name ) )
+            using ( StreamReader reader = new( file621Name ) )
             {
                 var transitLines = new List<TransitLine>( 1000 );
                 char[] split = new char[] { ',', ' ', '\t' };
@@ -95,7 +95,7 @@ namespace TMG.Emme
                         }
                         catch
                         {
-                            StringBuilder errorMessage = new StringBuilder();
+                            StringBuilder errorMessage = new();
                             errorMessage.Append( "We had problems loading the transit lines file \"" );
                             errorMessage.Append( file621Name );
                             errorMessage.AppendLine( "\"." );

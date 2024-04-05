@@ -170,7 +170,7 @@ namespace TMG.Distributed.Modules
             Host.NewClientConnected += Host_NewClientConnected;
             Host.RegisterCustomReceiver(DistributionDataChannel, (stream, client) =>
             {
-                BinaryReader reader = new BinaryReader(stream);
+                BinaryReader reader = new(stream);
                 lock (Host)
                 {
                     switch((CommunicationProtocol)reader.ReadInt32())
@@ -202,7 +202,7 @@ namespace TMG.Distributed.Modules
             });
             Host.RegisterCustomSender(DistributionDataChannel, (task, client, stream) =>
             {
-                BinaryWriter writer = new BinaryWriter(stream);
+                BinaryWriter writer = new(stream);
                 var t = task as ExecutingTask;
                 if (t == null)
                 {
@@ -277,7 +277,7 @@ namespace TMG.Distributed.Modules
         /// <summary>
         /// The clients that are not currently executing
         /// </summary>
-        Stack<IRemoteXTMF> AvailableClients = new Stack<IRemoteXTMF>();
+        Stack<IRemoteXTMF> AvailableClients = new();
 
         Dictionary<string, IRemoteXTMF> PreviousTaskAssignments = [];
 

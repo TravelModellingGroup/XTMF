@@ -46,7 +46,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public List<IModeAggregationTally> Tallies;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
 
         public string Name
         {
@@ -84,7 +84,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 Tallies[i].IncludeTally( tally );
             }
-            using ( StreamWriter writer = new StreamWriter( outputFileName ) )
+            using ( StreamWriter writer = new( outputFileName ) )
             {
                 writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=\"{1}\" default=0 descr=\"{2}\"", MatrixId, MatrixName, MatrixDescription );
                 StringBuilder[] builders = new StringBuilder[numberOfZones];

@@ -147,7 +147,7 @@ namespace Tasha.PopulationSynthesis
 
             internal void Save(ExtractHouseholdData root)
             {
-                using StreamWriter writer = new StreamWriter(root.SaveFile.GetFileName());
+                using StreamWriter writer = new(root.SaveFile.GetFileName());
                 WriteHeader(root, writer);
                 for (int i = 0; i < EntryList.Count; i++)
                 {

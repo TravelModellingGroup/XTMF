@@ -87,7 +87,7 @@ namespace TMG.GTAModel.Input
         private SparseArray<int> CreatePDArray()
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            List<int> pdNumbersFound = new List<int>( 10 );
+            List<int> pdNumbersFound = new( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {
                 var pdID = zones[i].PlanningDistrict;

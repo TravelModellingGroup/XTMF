@@ -137,7 +137,7 @@ namespace XTMF
                 error = "There was already a model system with the name " + newName + "!";
                 return false;
             }
-            ModelSystem clone = new ModelSystem(_Config, newName)
+            ModelSystem clone = new(_Config, newName)
             {
                 Description = modelSystem.Description,
                 LinkedParameters = modelSystem.LinkedParameters,
@@ -198,7 +198,7 @@ namespace XTMF
         {
             if (!Directory.Exists(_Config.ModelSystemDirectory)) return;
             string[] files = Directory.GetFiles(_Config.ModelSystemDirectory);
-            ConcurrentQueue<IModelSystem> temp = new ConcurrentQueue<IModelSystem>();
+            ConcurrentQueue<IModelSystem> temp = new();
             Parallel.For(0, files.Length, (int i) =>
            {
                // Load the ModelSystem structure from disk

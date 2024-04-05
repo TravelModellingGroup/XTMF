@@ -50,7 +50,7 @@ namespace XTMF
 
             try
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.Load(fileLocation);
                 XmlNode rootNode = doc["Root"];
                 if (rootNode != null)
@@ -149,7 +149,7 @@ namespace XTMF
                     msPath = newMsPath;
                 }
             }
-            XmlDocument msDoc = new XmlDocument();
+            XmlDocument msDoc = new();
             msDoc.Load(msPath);
             var child = msDoc["Root"] ?? msDoc["AdvancedModelSystem"];
             var attributes = child.Attributes;
@@ -355,7 +355,7 @@ namespace XTMF
 
             foreach (XmlNode node in regionsNode.ChildNodes)
             {
-                RegionDisplay regionDisplay = new RegionDisplay()
+                RegionDisplay regionDisplay = new()
                 {
                     Name = node.Attributes?["Name"].Value,
                     Description = node.Attributes?["Description"]?.Value
@@ -367,7 +367,7 @@ namespace XTMF
                 {
                     foreach (XmlNode regionGroupNode in xmlRegionGroupNodes)
                     {
-                        RegionGroup regionGroup = new RegionGroup(regionDisplay)
+                        RegionGroup regionGroup = new(regionDisplay)
                         {
                             Name = regionGroupNode.Attributes?["Name"].Value
                         };
@@ -438,7 +438,7 @@ namespace XTMF
                         }
                     }
 
-                    LinkedParameter lp = new LinkedParameter(name);
+                    LinkedParameter lp = new(name);
                     string error = null;
                     lp.SetValue(value, ref error);
                     lpl.Add(lp);
@@ -593,8 +593,8 @@ namespace XTMF
 
             try
             {
-                List<Task> writeTasks = new List<Task>(ProjectModelSystems.Count);
-                using (XmlTextWriter writer = new XmlTextWriter(tempFileName, Encoding.Unicode))
+                List<Task> writeTasks = new(ProjectModelSystems.Count);
+                using (XmlTextWriter writer = new(tempFileName, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
                     writer.WriteStartDocument();
@@ -625,7 +625,7 @@ namespace XTMF
                             if (ms.Root.Type != null)
                             {
                                 var tempMSFileName = Path.GetTempFileName();
-                                using (XmlTextWriter msWriter = new XmlTextWriter(tempMSFileName, Encoding.Unicode))
+                                using (XmlTextWriter msWriter = new(tempMSFileName, Encoding.Unicode))
                                 {
                                     msWriter.WriteStartDocument();
                                     msWriter.WriteStartElement("Root");

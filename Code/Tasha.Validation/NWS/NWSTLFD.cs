@@ -46,7 +46,7 @@ namespace Tasha.Validation.NWS
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
         [SubModelInformation(Required = true, Description = "The location to store the validation to.")]
         public FileLocation SaveTo;

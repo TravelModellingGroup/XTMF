@@ -45,7 +45,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter("Scenario Number", 0, "The scenario number in which to flag the selected lines.")]
         public int ScenarioNumber;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         public string Name
         {

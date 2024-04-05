@@ -27,7 +27,7 @@ namespace TMG.Functions
         public static SparseArray<T> CreatePdArray<T>(SparseArray<IZone> zoneArray)
         {
             var zones = zoneArray.GetFlatData();
-            List<int> pdNumbersFound = new List<int>( 10 );
+            List<int> pdNumbersFound = new( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {
                 var pdId = zones[i].PlanningDistrict;
@@ -43,7 +43,7 @@ namespace TMG.Functions
         public static SparseArray<T> CreateRegionArray<T>(SparseArray<IZone> zoneArray)
         {
             var zones = zoneArray.GetFlatData();
-            List<int> regionNumbersFound = new List<int>(10);
+            List<int> regionNumbersFound = new(10);
             for(int i = 0; i < zones.Length; i++)
             {
                 var regionId = zones[i].RegionNumber;

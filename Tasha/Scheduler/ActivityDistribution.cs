@@ -83,7 +83,7 @@ namespace Tasha.Scheduler
         {
             var zones = zoneArray.GetFlatData();
             string csvFileName = Path.GetTempFileName();
-            using ( StreamWriter writer = new StreamWriter( csvFileName ) )
+            using ( StreamWriter writer = new( csvFileName ) )
             {
                 writer.WriteLine( "Zone,Retail Level,Other Level,Work Level" );
                 for ( int i = 0; i < zones.Length; i++ )
@@ -97,7 +97,7 @@ namespace Tasha.Scheduler
                     writer.WriteLine( zones[i].WorkActivityLevel );
                 }
             }
-            SparseZoneCreator creator = new SparseZoneCreator( zones.Last().ZoneNumber + 1, 3 );
+            SparseZoneCreator creator = new( zones.Last().ZoneNumber + 1, 3 );
             creator.LoadCsv( csvFileName, true );
             creator.Save( fileName );
             File.Delete( csvFileName );

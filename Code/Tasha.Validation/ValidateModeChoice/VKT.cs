@@ -43,7 +43,7 @@ namespace Tasha.Validation.ValidateModeChoice
         private int PassengerIndex;
         private int RideShareIndex;
 
-        private ConcurrentDictionary<int, float[]> VKT = new ConcurrentDictionary<int, float[]>();
+        private ConcurrentDictionary<int, float[]> VKT = new();
 
         public string Name
         {
@@ -70,7 +70,7 @@ namespace Tasha.Validation.ValidateModeChoice
                 lock ( this )
                 {
                     var writeHeader = !File.Exists( OutputFile );
-                    using StreamWriter writer = new StreamWriter(OutputFile, true);
+                    using StreamWriter writer = new(OutputFile, true);
                     if (writeHeader)
                     {
                         writer.WriteLine("HouseholdID, Iteration, VKT, Number of Vehicles, Average VKT");

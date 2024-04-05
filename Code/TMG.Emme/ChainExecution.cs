@@ -31,7 +31,7 @@ The goal of this module was for testing multiple executions of the EMME/3 Modell
         [SubModelInformation( Required = true, Description = "The modules to execute" )]
         public List<ISelfContainedModule> ToExecute;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
 
         [RunParameter( "Input Directory", "../../Input", "The input directory for the Model System" )]
         public string InputBaseDirectory

@@ -120,7 +120,7 @@ namespace Tasha.PopulationSynthesis
             internal List<KeyValuePair<int, int>> Process(int randomSeed, IZone[] zones, float householdExpansion)
             {
                 bool any;
-                Random random = new Random(randomSeed);
+                Random random = new(randomSeed);
                 var rPerZone = zones.Select(z => new Random(random.Next())).ToArray();
                 var ret = new List<KeyValuePair<int, int>>();
                 var remaining = zones.Select(z => (int)Math.Round(z.Population * householdExpansion)).ToArray();
@@ -305,7 +305,7 @@ namespace Tasha.PopulationSynthesis
             {
                 info.Create();
             }
-            StringBuilder buildFileName = new StringBuilder();
+            StringBuilder buildFileName = new();
             switch (occ)
             {
                 case Occupation.Professional:
@@ -335,7 +335,7 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerForceDirectory));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerForceDirectory));
             writer.WriteLine("Zone,Persons");
             for (int i = 0; i < workers.Length; i++)
             {
@@ -350,7 +350,7 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerCategoryData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[][] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
             writer.WriteLine("Zone,WorkerCategory,Persons");
             for (int i = 0; i < workers.Length; i++)
             {

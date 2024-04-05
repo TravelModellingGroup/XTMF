@@ -44,7 +44,7 @@ namespace Tasha.Validation.PoRPoW
         public float CoordinateFactor;
 
         private SparseTwinIndex<float> _ZoneDistances;
-        SpinLock WriteLock = new SpinLock(false);
+        SpinLock WriteLock = new(false);
         private float[][] _BinData;
 
         public string Name

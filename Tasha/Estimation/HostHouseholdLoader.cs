@@ -153,8 +153,8 @@ namespace Tasha.Estimation
             BaseLoader.LoadData();
             var households = BaseLoader.ToArray();
             Households = households;
-            using MemoryStream mem = new MemoryStream();
-            BinaryWriter writer = new BinaryWriter(mem);
+            using MemoryStream mem = new();
+            BinaryWriter writer = new(mem);
             writer.Write(households.Length);
             var numberOfVehicleTypes = Root.VehicleTypes.Count;
             writer.Write(numberOfVehicleTypes);
@@ -232,7 +232,7 @@ namespace Tasha.Estimation
             writer.Flush();
             // rewind to the beginning
             mem.Seek(0, SeekOrigin.Begin);
-            MemoryStream encryptedMemory = new MemoryStream();
+            MemoryStream encryptedMemory = new();
             using Aes aes = Aes.Create();
             aes.Key = GetKey();
             aes.IV = GetIV();

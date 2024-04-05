@@ -92,9 +92,9 @@ namespace Tasha.Validation.ModeChoice
                 return true;
             }
 
-            private ConcurrentDictionary<ITashaPerson, float[]> OperatingOn = new ConcurrentDictionary<ITashaPerson, float[]>();
+            private ConcurrentDictionary<ITashaPerson, float[]> OperatingOn = new();
 
-            private ConcurrentStack<float[]> ModePool = new ConcurrentStack<float[]>();
+            private ConcurrentStack<float[]> ModePool = new();
             private const int MaxModePoolSize = 100;
 
             public void HouseholdComplete(ITashaHousehold household, bool success)

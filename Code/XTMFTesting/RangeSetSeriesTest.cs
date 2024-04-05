@@ -70,7 +70,7 @@ namespace XTMF.Testing
         public void RangeSetSeriesConstructorTest()
         {
             List<RangeSet> tempRange = GenerateTempRange();
-            RangeSetSeries target = new RangeSetSeries( tempRange );
+            RangeSetSeries target = new( tempRange );
             Assert.AreEqual( target.Count, 2 );
         }
 
@@ -81,7 +81,7 @@ namespace XTMF.Testing
         public void ToStringTest()
         {
             List<RangeSet> tempRange = GenerateTempRange();
-            RangeSetSeries target = new RangeSetSeries( tempRange ); // TODO: Initialize to an appropriate value
+            RangeSetSeries target = new( tempRange ); // TODO: Initialize to an appropriate value
             string expected = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
             var actual = target.ToString();
             Assert.AreEqual( expected, actual );
@@ -110,7 +110,7 @@ namespace XTMF.Testing
         {
             string rangeString = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
                                                             // TODO: Initialize to an appropriate value
-            RangeSetSeries outputExpected = new RangeSetSeries(GenerateTempRange()); // TODO: Initialize to an appropriate value
+            RangeSetSeries outputExpected = new(GenerateTempRange()); // TODO: Initialize to an appropriate value
             var actual = RangeSetSeries.TryParse( rangeString, out RangeSetSeries output );
             Assert.AreEqual( outputExpected, output );
             Assert.AreEqual( true, actual );
@@ -125,7 +125,7 @@ namespace XTMF.Testing
             string error = null; // TODO: Initialize to an appropriate value
             string rangeString = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
                                                             // TODO: Initialize to an appropriate value
-            RangeSetSeries outputExpected = new RangeSetSeries(GenerateTempRange()); // TODO: Initialize to an appropriate value
+            RangeSetSeries outputExpected = new(GenerateTempRange()); // TODO: Initialize to an appropriate value
             var actual = RangeSetSeries.TryParse( ref error, rangeString, out RangeSetSeries output );
             Assert.AreEqual( null, error );
             Assert.AreEqual( outputExpected, output );
@@ -138,13 +138,13 @@ namespace XTMF.Testing
             [
                 new RangeSet(new List<Range>()
                 {
-                    new Range(1, 2),
-                    new Range(4, 5)
+                    new(1, 2),
+                    new(4, 5)
                 }),
                 new RangeSet(new List<Range>()
                 {
-                    new Range(11, 12),
-                    new Range(14, 15)
+                    new(11, 12),
+                    new(14, 15)
                 })
             ];
             return tempRange;

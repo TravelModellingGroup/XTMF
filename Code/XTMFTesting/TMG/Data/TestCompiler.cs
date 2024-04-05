@@ -38,7 +38,7 @@ namespace XTMF.Testing.TMG.Data
         /// <returns></returns>
         private static IDataSource<SparseTwinIndex<float>> CreateMatrixData(string name, float m11, float m12, float m21, float m22)
         {
-            SparseIndexing indexes = new SparseIndexing()
+            SparseIndexing indexes = new()
             {
                 Indexes = new[]
                 {
@@ -68,7 +68,7 @@ namespace XTMF.Testing.TMG.Data
         /// <returns></returns>
         private static IDataSource<SparseArray<float>> CreateVectorData(string name, float m1, float m2, float m3, float m4)
         {
-            SparseIndexing indexes = new SparseIndexing()
+            SparseIndexing indexes = new()
             {
                 Indexes = new[]
                 {
@@ -106,7 +106,7 @@ namespace XTMF.Testing.TMG.Data
         /// <returns></returns>
         private IDataSource<SparseArray<float>> CreateData(string name, float m1, float m2)
         {
-            SparseIndexing indexes = new SparseIndexing()
+            SparseIndexing indexes = new()
             {
                 Indexes = new[]
             {
@@ -1444,7 +1444,7 @@ namespace XTMF.Testing.TMG.Data
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
             private float _value;
 

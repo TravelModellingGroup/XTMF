@@ -110,7 +110,7 @@ namespace TMG.GTAModel.Input
         {
             try
             {
-                using CommentedCsvReader reader = new CommentedCsvReader(GetFileLocation(FileName));
+                using CommentedCsvReader reader = new(GetFileLocation(FileName));
                 var numberOfDataColumns = DataColumnToSparseSpace.Count;
                 var dataSpace = DataColumnToSparseSpace.ToArray();
                 int max = dataSpace.Max();

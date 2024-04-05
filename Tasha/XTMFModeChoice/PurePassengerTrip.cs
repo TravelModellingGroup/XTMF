@@ -108,7 +108,7 @@ namespace Tasha.XTMFModeChoice
 
         public static PurePassengerTrip MakeDriverTrip(IZone homeZone, ITashaMode mode, Time startTime, Time endTime)
         {
-            PurePassengerTrip driverTrip = new PurePassengerTrip();
+            PurePassengerTrip driverTrip = new();
             driverTrip.Purpose = Activity.FacilitatePassenger;
             driverTrip.OriginalZone = driverTrip.DestinationZone = homeZone;
             driverTrip.Mode = mode;

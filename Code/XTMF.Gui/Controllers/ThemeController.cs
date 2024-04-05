@@ -32,9 +32,9 @@ namespace XTMF.Gui.Controllers
     {
         private static readonly Uri[] RequiredResources =
         {
-            new Uri("Resources/ControlStyles.xaml", UriKind.RelativeOrAbsolute),
-            new Uri("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
-            new Uri("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
+            new("Resources/ControlStyles.xaml", UriKind.RelativeOrAbsolute),
+            new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
+            new("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
          
         };
 
@@ -60,7 +60,7 @@ namespace XTMF.Gui.Controllers
         {
 
             Application.Current.Resources.MergedDictionaries.Clear();
-            Uri NewTheme = new Uri(theme + ".thm", UriKind.Relative);
+            Uri NewTheme = new(theme + ".thm", UriKind.Relative);
             ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
             Application.Current.Resources.MergedDictionaries.Add(dictionary);
         }
@@ -155,7 +155,7 @@ namespace XTMF.Gui.Controllers
                     {
                         var themeDictionary = XamlReader.Load(new FileStream(file, FileMode.Open)) as ResourceDictionary;
                         //ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(themeUri);
-                        Theme theme = new Theme(themeDictionary["ThemeName"].ToString(), file, themeDictionary);
+                        Theme theme = new(themeDictionary["ThemeName"].ToString(), file, themeDictionary);
                         Themes.Add(theme);
                     }
                     catch (Exception e)

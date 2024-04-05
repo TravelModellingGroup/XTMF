@@ -42,7 +42,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         [RunParameter("External PDs", "0", typeof(RangeSet), "The set of planning districts that are considered external.")]
         public RangeSet ExternalPDs;
@@ -210,7 +210,7 @@ namespace Tasha.PopulationSynthesis
 
         private void EnsureDirectory(string path)
         {
-            DirectoryInfo dir = new DirectoryInfo(path);
+            DirectoryInfo dir = new(path);
             if (!dir.Exists)
             {
                 dir.Create();

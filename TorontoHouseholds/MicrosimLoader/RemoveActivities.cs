@@ -88,7 +88,7 @@ namespace TMG.Tasha
 
         public float Progress => MainLoader.Progress;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         public void CopyTo(ITashaHousehold[] array, int index) => MainLoader.CopyTo(array, index);
 
@@ -119,7 +119,7 @@ namespace TMG.Tasha
         /// <returns>An enumerable stream of processed households.</returns>
         private IEnumerator<ITashaHousehold> ProcessHouseholds()
         {
-            Random random = new Random(RandomSeed);
+            Random random = new(RandomSeed);
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             LoadRates();
             foreach (var household in MainLoader)

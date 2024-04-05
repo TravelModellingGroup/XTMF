@@ -150,7 +150,7 @@ namespace TMG.GTAModel.Input
                 *  3: Fare
                 *  4: Bording Times
                 */
-            OdcCreator2<IZone> creator = new OdcCreator2<IZone>(Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 1);
+            OdcCreator2<IZone> creator = new(Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 1);
             creator.LoadEmme2(FailIfNotExist(AlreadyLoaded ? UpdatedIvtt : BaseIvtt), 0, (int)DataTypes.TravelTime);
             creator.LoadEmme2(FailIfNotExist(AlreadyLoaded ? UpdatedWait : BaseWait), 0, (int)DataTypes.WaitTime);
             creator.LoadEmme2(FailIfNotExist(AlreadyLoaded ? UpdatedWalk : BaseWalk), 0, (int)DataTypes.WalkTime);

@@ -72,9 +72,9 @@ namespace TMG.GTAModel.Input
             {
                 throw new XTMFRuntimeException(this, "The file '" + f + "' does not contain enough data to be used as a flat OD matrix!");
             }
-            ODData<float> ret = new ODData<float>();
+            ODData<float> ret = new();
             // this will close the file at the end of reading it
-            using BinaryReader reader = new BinaryReader(s);
+            using BinaryReader reader = new(s);
             for (int i = 0; i < numberOfZones; i++)
             {
                 ret.O = zones[i].ZoneNumber;

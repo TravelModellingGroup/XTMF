@@ -52,7 +52,7 @@ namespace Tasha.Validation.ModeChoice
 
         ITashaMode[] Modes;
         float[] Counts;
-        SpinLock WriteLock = new SpinLock(false);
+        SpinLock WriteLock = new(false);
 
         public void Execute(ITashaHousehold household, int iteration)
         {

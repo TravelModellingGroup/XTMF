@@ -42,7 +42,7 @@ namespace Tasha.Validation.ValidateModeChoice
         [RootModule]
         public ITashaRuntime Root;
 
-        private ConcurrentDictionary<float, List<float>> Data = new ConcurrentDictionary<float, List<float>>();
+        private ConcurrentDictionary<float, List<float>> Data = new();
 
         private int PassengerIndex;
 
@@ -85,7 +85,7 @@ namespace Tasha.Validation.ValidateModeChoice
 
                         if ( trip.Mode == Root.AllModes[PassengerIndex] )
                         {
-                            using StreamWriter writer = new StreamWriter(OutputFile, true);
+                            using StreamWriter writer = new(OutputFile, true);
                             var originalTrip = (ITrip)trip["Driver"];
                             var passengerDistance = Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
                             var firstLeg = originalTrip.OriginalZone == trip.OriginalZone ? 0 : Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, trip.OriginalZone.ZoneNumber];

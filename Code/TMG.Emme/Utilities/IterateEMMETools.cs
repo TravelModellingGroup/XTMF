@@ -29,7 +29,7 @@ executing them and then once finished the list will start again for the number o
 
         public float Progress { get; private set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
         [SubModelInformation(Required = false, Description = "The tools to iterate")]
         public IEmmeTool[] ToExecute;

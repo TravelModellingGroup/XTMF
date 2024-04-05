@@ -77,7 +77,7 @@ namespace TMG.GTAModel.Input
             LoadData();
             var flatData = Data.GetFlatData();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            ODData<float> point = new ODData<float>();
+            ODData<float> point = new();
             for ( int i = 0; i < zones.Length; i++ )
             {
                 point.O = zones[i].ZoneNumber;
@@ -121,7 +121,7 @@ namespace TMG.GTAModel.Input
             }
             var fileName = fileNameWithIndexing.Insert( indexOfInsert, index.ToString() ).Replace( "%X", "" );
             var toProcess = new BlockingCollection<ProcessOrder>( 1 );
-            Task processingTask = new Task(
+            Task processingTask = new(
                 () =>
                 {
                     var floatTemp = new float[flatRet.Length];

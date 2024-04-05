@@ -41,7 +41,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         private IZone _roamingZone;
 
@@ -110,7 +110,7 @@ namespace Tasha.PopulationSynthesis
 
             public float Progress { get; set; }
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
             public EmploymentStatus FullTime;
             public EmploymentStatus PartTime;
@@ -154,7 +154,7 @@ namespace Tasha.PopulationSynthesis
 
                 public float Progress { get; set; }
 
-                public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+                public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
                 /// <summary>
                 /// [type, homeZone, choice]
@@ -241,7 +241,7 @@ namespace Tasha.PopulationSynthesis
                     }
                     unchecked
                     {
-                        Random r = new Random(RandomSeed * total * homeZoneIndex * type);
+                        Random r = new(RandomSeed * total * homeZoneIndex * type);
                         while (total > 0)
                         {
                             var pop = r.Next(total);

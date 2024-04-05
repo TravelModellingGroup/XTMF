@@ -60,12 +60,12 @@ namespace TMG.GTAModel.Input
                 throw new XTMFRuntimeException(this, $"Unable to read an EMME Binary Matrix located at {InputFile.GetFilePath()}");
             }
             using BinaryReader reader = TMG.Functions.BinaryHelpers.CreateReader(this, InputFile);
-            EmmeMatrix matrix = new EmmeMatrix(reader);
+            EmmeMatrix matrix = new(reader);
             if (!matrix.IsValidHeader())
             {
                 throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'");
             }
-            ODData<float> result = new ODData<float>();
+            ODData<float> result = new();
             int pos = 0;
             var indexes = matrix.Indexes;
             var originIndexes = indexes[0];

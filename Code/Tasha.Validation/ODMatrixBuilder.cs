@@ -278,7 +278,7 @@ namespace Tasha.Validation
             var zoneNumbers = data.ValidIndexArray();
             var flatData = data.GetFlatData();
             var numberOfZones = zoneNumbers.Length;
-            using StreamWriter writer = new StreamWriter(fileName);
+            using StreamWriter writer = new(fileName);
             // We need to know what the head should look like.
             writer.WriteLine("t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", matrixNumber);
             // Now that the header is in place we can start to generate all of the instructions

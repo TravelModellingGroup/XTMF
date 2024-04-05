@@ -23,7 +23,7 @@ namespace Datastructure
 {
     public class GatewayLock
     {
-        private object Gateway = new object();
+        private object Gateway = new();
         private long ThingsIn;
 
         /// <summary>

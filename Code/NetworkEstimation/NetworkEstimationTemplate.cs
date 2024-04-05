@@ -59,7 +59,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("TruthFile", @"../../Input/TransitLineTruth.csv", "The file that contains the boardings on transit lines.")]
         public string TruthFile;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(100, 200, 100);
+        private static Tuple<byte, byte, byte> Colour = new(100, 200, 100);
 
         private static char[] Comma = { ',' };
 
@@ -172,7 +172,7 @@ namespace TMG.NetworkEstimation
                    var results = o as float[];
                    if (results == null) return;
                    var length = results.Length;
-                   BinaryWriter writer = new BinaryWriter(s);
+                   BinaryWriter writer = new(s);
                    for (int i = 0; i < length; i++)
                    {
                        writer.Write(results[i]);
@@ -202,13 +202,13 @@ namespace TMG.NetworkEstimation
             // Get all of the initial ground truth data
             List<TransitLine> truthList = [];
             // On the first pass go through all of the data and store the records of the TTS boardings
-            using (StreamReader reader = new StreamReader(TruthFile))
+            using (StreamReader reader = new(TruthFile))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     var split = line.Split(Comma, StringSplitOptions.RemoveEmptyEntries);
-                    TransitLine current = new TransitLine();
+                    TransitLine current = new();
                     string currentName;
                     current.Id = new[] { (currentName = split[1]) };
                     current.Bordings = float.Parse(split[0]);
@@ -236,7 +236,7 @@ namespace TMG.NetworkEstimation
             // now on the second pass go through and find all of the EMME Links that connect to the TTS data
             var truthEntries = truthList.Count;
             List<string>[] nameLinks = new List<string>[truthEntries];
-            using (StreamReader reader = new StreamReader(EmmetoTtsFile))
+            using (StreamReader reader = new(EmmetoTtsFile))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -277,7 +277,7 @@ namespace TMG.NetworkEstimation
 
         private void LoadParameterInstructions()
         {
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load(ParameterInstructions);
             List<ParameterSetting> parameters = [];
             var children = doc["Root"]?.ChildNodes;
@@ -290,7 +290,7 @@ namespace TMG.NetworkEstimation
                         var attributes = child.Attributes;
                         if (attributes != null)
                         {
-                            ParameterSetting current = new ParameterSetting
+                            ParameterSetting current = new()
                             {
                                 ParameterName = attributes["Name"].InnerText,
                                 MsNumber = int.Parse(attributes["MS"].InnerText),
@@ -308,7 +308,7 @@ namespace TMG.NetworkEstimation
 
         private void PrintSummery(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
         {
-            using StreamWriter writer = new StreamWriter("LineSummery" + (SummeryNumber++) + ".csv");
+            using StreamWriter writer = new("LineSummery" + (SummeryNumber++) + ".csv");
             writer.WriteLine("Truth,Predicted,Error,Error^2,EmmeLines");
             for (int i = 0; i < aggToTruth.Length; i++)
             {
@@ -340,7 +340,7 @@ namespace TMG.NetworkEstimation
 
         private float ProcessResults(ParameterSetting[] param)
         {
-            TransitLines currentLines = new TransitLines(MacroOutputFile);
+            TransitLines currentLines = new(MacroOutputFile);
             var predicted = currentLines.Lines;
             var numberOfLines = predicted.Length;
             double rmse = 0;
@@ -415,7 +415,7 @@ namespace TMG.NetworkEstimation
                 Client.SendCustomMessage(results, ResultPort);
             }
             bool exists = File.Exists(EvaluationFile);
-            using StreamWriter writer = new StreamWriter(EvaluationFile, true);
+            using StreamWriter writer = new(EvaluationFile, true);
             if (!exists)
             {
                 writer.Write(param[0].ParameterName);
@@ -461,7 +461,7 @@ namespace TMG.NetworkEstimation
              * m ms[MS:##] [NAME]
              *  all all: [VALUE]
              */
-            using StreamWriter writer = new StreamWriter(MacroInputFile);
+            using StreamWriter writer = new(MacroInputFile);
             writer.WriteLine("t matrices");
             foreach (var p in param)
             {

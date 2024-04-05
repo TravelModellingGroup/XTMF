@@ -66,7 +66,7 @@ namespace Tasha.Validation.ModeChoice
         {
             var modes = Root.AllModes.ToArray();
             var regionNumbers = regions.ValidIndexArray();
-            using StreamWriter writer = new StreamWriter(PDModeSplitFile);
+            using StreamWriter writer = new(PDModeSplitFile);
             writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
             for (int m = 0; m < data.Length; m++)
             {
@@ -109,7 +109,7 @@ namespace Tasha.Validation.ModeChoice
                     row[j] = new float[numberOfRegions];
                 }
             }
-            using (CsvReader reader = new CsvReader(ZonalModeSplitFile))
+            using (CsvReader reader = new(ZonalModeSplitFile))
             {
                 // burn header
                 reader.LoadLine();

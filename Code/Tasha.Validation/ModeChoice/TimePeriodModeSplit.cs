@@ -64,7 +64,7 @@ namespace Tasha.Validation.ModeChoice
             public Time EndTime;
 
             internal Dictionary<Activity, float[]> Counts = [];
-            SpinLock WriteLock = new SpinLock(false);
+            SpinLock WriteLock = new(false);
 
             public bool Execute(Time tripStart, int modeIndex, float expansionFactor, Activity activity)
             {

@@ -95,7 +95,7 @@ namespace TMG.GTAModel.NetworkAssignment
             " road links to reduce capacity for the buses and streetcars in mixed traffic.")]
         public RangeSet OnRoadTTFs;
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
         private const string ToolName = "tmg.assignment.road.tolled.toll_attribute";
         private const string ToolNameWithBgTraffic = "tmg.assignment.road.tolled.toll_attribute_transit_background";
 
@@ -200,7 +200,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 Directory.CreateDirectory(dir);
             }
-            using (StreamWriter writer = new StreamWriter(outputFileName))
+            using (StreamWriter writer = new(outputFileName))
             {
                 writer.WriteLine("t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=from_xtmf", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];

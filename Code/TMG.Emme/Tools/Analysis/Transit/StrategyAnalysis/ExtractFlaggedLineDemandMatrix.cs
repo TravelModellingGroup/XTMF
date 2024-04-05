@@ -32,7 +32,7 @@ namespace TMG.Emme.Tools.Analysis.Transit.StrategyAnalysis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         [RunParameter("Scenario Number", 0, "The number of the scenario to analyze.")]
         public int ScenarioNumber;
@@ -68,11 +68,11 @@ namespace TMG.Emme.Tools.Analysis.Transit.StrategyAnalysis
         {
             return new ModellerControllerParameter[]
             {
-                new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
-                new ModellerControllerParameter("xtmf_MatrixResultNumber", StoreResultsTo.ToString()),
-                new ModellerControllerParameter("xtmf_DemandMatrixNumber", DemandMatrixNumber.ToString()),
-                new ModellerControllerParameter("xtmf_ClassName", ClassName),
-                new ModellerControllerParameter("xtmf_Attribute", FlagAttribute)
+                new("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+                new("xtmf_MatrixResultNumber", StoreResultsTo.ToString()),
+                new("xtmf_DemandMatrixNumber", DemandMatrixNumber.ToString()),
+                new("xtmf_ClassName", ClassName),
+                new("xtmf_Attribute", FlagAttribute)
               
             };
         }

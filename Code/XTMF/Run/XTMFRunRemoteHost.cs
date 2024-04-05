@@ -42,7 +42,7 @@ namespace XTMF.Run
         /// Bound to in order to do a wait.
         /// This is triggered when the client has exited.
         /// </summary>
-        private SemaphoreSlim ClientExiting = new SemaphoreSlim(0);
+        private SemaphoreSlim ClientExiting = new(0);
 
         public override bool RunsRemotely => true;
 
@@ -57,7 +57,7 @@ namespace XTMF.Run
             ModelSystemStructureModelRoot = root;
             _deleteDirectory = deleteDirectory;
             _LinkedParameters = linkedParameters;
-            using MemoryStream memStream = new MemoryStream();
+            using MemoryStream memStream = new();
             WriteModelSystemToStream(memStream);
             _modelSystemAsString = Encoding.Unicode.GetString(memStream.ToArray());
         }
@@ -113,7 +113,7 @@ namespace XTMF.Run
         {
             lock (this)
             {
-                BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
+                BinaryWriter writer = new(_Pipe, System.Text.Encoding.Unicode, true);
                 try
                 {
                     writer.Write((Int32)signal);
@@ -131,7 +131,7 @@ namespace XTMF.Run
         {
             lock (this)
             {
-                BinaryWriter writer = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
+                BinaryWriter writer = new(_Pipe, System.Text.Encoding.Unicode, true);
                 writer.Write((Configuration as Configuration)?.ConfigurationFileName ?? "");
             }
             WriteModelSystemStringToPipe();
@@ -143,7 +143,7 @@ namespace XTMF.Run
             {
                 try
                 {
-                    BinaryReader reader = new BinaryReader(_Pipe, System.Text.Encoding.Unicode, true);
+                    BinaryReader reader = new(_Pipe, System.Text.Encoding.Unicode, true);
                     while (_Pipe?.IsConnected == true)
                     {
                         try
@@ -294,7 +294,7 @@ namespace XTMF.Run
         private static List<ErrorWithPath> ReadErrors(BinaryReader reader)
         {
             int numberOfErrors = reader.ReadInt32();
-            List<ErrorWithPath> errors = new List<ErrorWithPath>(numberOfErrors);
+            List<ErrorWithPath> errors = new(numberOfErrors);
             for (int i = 0; i < numberOfErrors; i++)
             {
                 errors.Add(ReadError(reader));
@@ -357,7 +357,7 @@ namespace XTMF.Run
             lock (this)
             {
                 using var memStream = new MemoryStream();
-                BinaryWriter pipeWriter = new BinaryWriter(_Pipe, System.Text.Encoding.Unicode, true);
+                BinaryWriter pipeWriter = new(_Pipe, System.Text.Encoding.Unicode, true);
                 WriteModelSystemToStream(memStream);
                 pipeWriter.Write((UInt32)ToClient.RunModelSystem);
                 pipeWriter.Write(RunName);
@@ -407,7 +407,7 @@ namespace XTMF.Run
             return true;
         }
 
-        public override Tuple<byte, byte, byte> PollColour() => new Tuple<byte, byte, byte>(50, 150, 50);
+        public override Tuple<byte, byte, byte> PollColour() => new(50, 150, 50);
 
         public override float PollProgress()
         {

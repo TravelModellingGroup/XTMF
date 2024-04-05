@@ -27,7 +27,7 @@ namespace TMG.Tasha.MicrosimLoader
 {
     internal sealed class ActivityPurposeTrip : Attachable, ITrip
     {
-        private static ConcurrentQueue<ActivityPurposeTrip> Trips = new ConcurrentQueue<ActivityPurposeTrip>();
+        private static ConcurrentQueue<ActivityPurposeTrip> Trips = new();
 
         #region ITrip Members
 

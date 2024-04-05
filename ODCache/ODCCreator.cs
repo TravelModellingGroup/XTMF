@@ -149,14 +149,14 @@ namespace Datastructure
 
         public static void CreateOdc(string fileName, string xmlTemplate, string dataDirectory)
         {
-            XmlSerializer deserializer = new XmlSerializer(typeof(CacheGenerationInfo));
+            XmlSerializer deserializer = new(typeof(CacheGenerationInfo));
 
             TextReader textReader = new StreamReader(xmlTemplate);
 
             CacheGenerationInfo info = (CacheGenerationInfo)deserializer.Deserialize(textReader);
             textReader.Close();
 
-            OdcCreator odcCreator = new OdcCreator(info.HighestZone, info.Types, info.Times, info.Gap);
+            OdcCreator odcCreator = new(info.HighestZone, info.Types, info.Times, info.Gap);
 
             foreach (var dimensionInfo in info.CacheInfo)
             {
@@ -192,7 +192,7 @@ namespace Datastructure
         public void LoadCsvTimes(string csv, bool header, int offsetTimes, int offsetType)
         {
             // Gain access to the files
-            StreamReader reader = new StreamReader(new
+            StreamReader reader = new(new
                 FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan));
 
@@ -271,7 +271,7 @@ namespace Datastructure
         public void LoadCsvTypes(string csv, bool header, int offsetTimes, int offsetType)
         {
             // Gain access to the files
-            StreamReader reader = new StreamReader(new
+            StreamReader reader = new(new
                 FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan));
 
@@ -339,7 +339,7 @@ namespace Datastructure
 
             // do this because highest zone isn't high enough for array indexes
             HighestZone += 1;
-            using StreamReader reader = new StreamReader(new
+            using StreamReader reader = new(new
                 FileStream(emme2File, FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan));
             FilesLoaded.Add(new DimensionInfo(emme2File, offsetType, offsetTimes, true, false, false));
@@ -389,7 +389,7 @@ namespace Datastructure
 
         public void LoadFile(string odcFile)
         {
-            OdCache cache = new OdCache(odcFile);
+            OdCache cache = new(odcFile);
             FilesLoaded = new CacheGenerationInfo(cache.Times, cache.Types, cache.HighestZone, 5);
             Times = cache.Times;
             Types = cache.Types;
@@ -413,7 +413,7 @@ namespace Datastructure
                 SaveXmlInfo(fileName);
             }
 
-            BinaryWriter writer = new BinaryWriter(new
+            BinaryWriter writer = new(new
             FileStream(fileName, FileMode.Create, FileAccess.Write,
             FileShare.None, 0x10000, FileOptions.RandomAccess),
             Encoding.Default);
@@ -495,7 +495,7 @@ namespace Datastructure
         private Index[] CreateIndexes(float[][][] data)
         {
             int start = 0, numberOfZones = data.Length;
-            List<Index> sections = new List<Index>(40);
+            List<Index> sections = new(40);
             for (int i = 0; i < numberOfZones; i++)
             {
                 if (data[i] == null)
@@ -533,7 +533,7 @@ namespace Datastructure
             NumberOfSubs = 0;
             Parallel.For(0, index.Length, delegate (int segment)
            {
-               List<Index> subIndex = new List<Index>(50);
+               List<Index> subIndex = new(50);
                int start = 0;
                for (int i = 0; i < numberOfZones; i++)
                {

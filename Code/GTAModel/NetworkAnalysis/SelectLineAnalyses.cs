@@ -69,7 +69,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter( "Walk Time Cutoff", 40.0f, "Walk time cutoff value for feasibility." )]
         public float WalkTimeCutoff;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.select_line_analyses";
         private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractSelectLineMatrices";
 

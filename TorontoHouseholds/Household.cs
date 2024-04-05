@@ -133,7 +133,7 @@ namespace Tasha.Common
 
         public List<ITashaPerson> GetJointTourMembers(int tourID)
         {
-            List<ITashaPerson> persons = new List<ITashaPerson>(Persons.Length);
+            List<ITashaPerson> persons = new(Persons.Length);
             foreach (var person in Persons)
             {
                 foreach (var tripchain in person.TripChains)

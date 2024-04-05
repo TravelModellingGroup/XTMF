@@ -62,11 +62,11 @@ namespace TMG.Emme.Tools.NetworkEditing
             //def __call__(self, baseScen, nodeFilter, stopFilter, connFilter, attAgg):
             return new ModellerControllerParameter[]
             {
-                new ModellerControllerParameter("baseScen",ScenarioNumber.ToString()),
-                new ModellerControllerParameter("NodeFilterAttributeId",NodeFilterAttribute),
-                new ModellerControllerParameter("StopFilterAttributeId",StopFilterAttribute),
-                new ModellerControllerParameter("ConnectorFilterAttributeId",ConnectorFilterAttribute),
-                new ModellerControllerParameter("AttributeAggregatorString",AttributeAggregationFunctions)
+                new("baseScen",ScenarioNumber.ToString()),
+                new("NodeFilterAttributeId",NodeFilterAttribute),
+                new("StopFilterAttributeId",StopFilterAttribute),
+                new("ConnectorFilterAttributeId",ConnectorFilterAttribute),
+                new("AttributeAggregatorString",AttributeAggregationFunctions)
             };
         }
 
@@ -74,7 +74,7 @@ namespace TMG.Emme.Tools.NetworkEditing
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
         public bool RuntimeValidation(ref string error)
         {

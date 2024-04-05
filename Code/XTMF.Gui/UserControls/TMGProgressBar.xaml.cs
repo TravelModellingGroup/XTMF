@@ -38,17 +38,17 @@ namespace XTMF.Gui
 
         private float _Value;
 
-        private LinearGradientBrush BottomBrush = new LinearGradientBrush();
+        private LinearGradientBrush BottomBrush = new();
 
         private SolidColorBrush ForgroundBrush;
 
-        private Pen OutlinePen = new Pen { Brush = Brushes.Gray };
+        private Pen OutlinePen = new() { Brush = Brushes.Gray };
 
         private LinearGradientBrush OverlayBrush;
 
         private DateTime StartTime = DateTime.Now;
 
-        private LinearGradientBrush TopBrush = new LinearGradientBrush();
+        private LinearGradientBrush TopBrush = new();
 
         public TMGProgressBar()
         {
@@ -93,9 +93,9 @@ namespace XTMF.Gui
 
         public void SetForgroundColor(Color colour) => ForgroundBrush.Color = colour;
 
-        RectangleGeometry RectGeo = new RectangleGeometry();
+        RectangleGeometry RectGeo = new();
 
-        RectangleGeometry ShadowGeo = new RectangleGeometry();
+        RectangleGeometry ShadowGeo = new();
 
         protected override void OnRender(DrawingContext drawingContext)
         {

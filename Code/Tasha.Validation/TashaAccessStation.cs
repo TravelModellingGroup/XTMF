@@ -64,8 +64,8 @@ namespace Tasha.Validation
         [RunParameter( "Walk Time", 0f, "The factor to apply to the general time of travel." )]
         public float WalkTime;
 
-        private Time AM = new Time( "7:00:00" );
-        private ConcurrentDictionary<int, EgressZoneChoice> EgressUtils = new ConcurrentDictionary<int, EgressZoneChoice>();
+        private Time AM = new( "7:00:00" );
+        private ConcurrentDictionary<int, EgressZoneChoice> EgressUtils = new();
         private IList<Station> Stations = new List<Station>();
 
         public string Name
@@ -92,7 +92,7 @@ namespace Tasha.Validation
             var flatData = zones.GetFlatData();
             foreach ( var record in StationInformationReader.Read() )
             {
-                Station currentStation = new Station();
+                Station currentStation = new();
                 currentStation.ZoneNumber = record.O;
                 currentStation.ParkingSpots = record.D;
                 currentStation.NumberOfTrains = record.Data;

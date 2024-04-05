@@ -142,7 +142,7 @@ namespace TMG.GTAModel.V2.Modes
 
         private SparseTwinIndex<CacheData> Cache;
 
-        private Time CacheTime = new Time { Hours = -1 };
+        private Time CacheTime = new() { Hours = -1 };
 
         /// <summary>
         /// [Origin][StationChildIndex]
@@ -568,7 +568,7 @@ namespace TMG.GTAModel.V2.Modes
 
         private void CreateChild(int stationZone, int parkingSpots, SparseTwinIndex<float> numberOfTrains, int lineNumber)
         {
-            GoAccessStation station = new GoAccessStation
+            GoAccessStation station = new()
             {
                 //Setup the parameters
                 Root = Root,

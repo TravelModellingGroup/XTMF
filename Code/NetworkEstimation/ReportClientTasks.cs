@@ -36,7 +36,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("Report File", "", typeof(FileFromOutputDirectory), "A report file to save/append to. Saved in the Output directory.")]
         public FileFromOutputDirectory ReportFile;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         public void Start()
         {

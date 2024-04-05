@@ -56,7 +56,7 @@ namespace TMG.GTAModel.Input
             var matrix = zones.CreateSquareTwinArray<float>().GetFlatData();
             CombineData( zones, matrix );
             var zoneIndexes = zones.ValidIndexArray();
-            ODData<float> currentData = new ODData<float>();
+            ODData<float> currentData = new();
             for ( int i = 0; i < matrix.Length; i++ )
             {
                 currentData.O = zoneIndexes[i];

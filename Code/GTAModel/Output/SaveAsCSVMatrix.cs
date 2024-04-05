@@ -110,7 +110,7 @@ namespace TMG.GTAModel.Output
                         }
                     } );
                 } );
-            using StreamWriter writer = new StreamWriter(fileName);
+            using StreamWriter writer = new(fileName);
             writer.WriteLine(header);
             for (int i = 0; i < zoneLines.Length; i++)
             {

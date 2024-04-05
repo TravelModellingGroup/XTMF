@@ -39,7 +39,7 @@ namespace TMG.GTAModel
         [RunParameter("Unemployed Status", 0, "The index of the unemployed Employment Status")]
         public int UnemployedOccupation;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(100, 200, 100);
+        private static Tuple<byte, byte, byte> Colour = new(100, 200, 100);
 
         private int[] ValidAges;
 
@@ -172,7 +172,7 @@ namespace TMG.GTAModel
             BuildPeople(zoneIndex, pop, numberOfCarCategories, households, numberOfAgeCategories,
                 driversLicenceCatrogies, numberOfEmploymentCategories, numberOfOccupations,
                 employmentData, numberOfStudentCategories, people);
-            List<Person> nonZeroPeople = new List<Person>(numberOfCategories);
+            List<Person> nonZeroPeople = new(numberOfCategories);
             for (int i = 0; i < people.Length; i++)
             {
                 if (people[i].ExpansionFactor > 0)
@@ -197,8 +197,8 @@ namespace TMG.GTAModel
 
         private void ProducePopulation()
         {
-            using StreamWriter performance = new StreamWriter("Performance.txt");
-            Stopwatch watch = new Stopwatch();
+            using StreamWriter performance = new("Performance.txt");
+            Stopwatch watch = new();
             watch.Start();
             ZoneSystem.LoadData();
             watch.Stop();

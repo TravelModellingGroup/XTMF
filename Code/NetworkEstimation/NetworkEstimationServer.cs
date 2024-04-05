@@ -48,7 +48,7 @@ namespace TMG.NetworkEstimation
         [RunParameter( "ResultPort", 12345, "The Custom Port to use for sending back the results" )]
         public int ResultPort;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
 
         private volatile bool Canceled;
 
@@ -128,7 +128,7 @@ namespace TMG.NetworkEstimation
             Host.RegisterCustomReceiver( ResultPort, delegate(Stream s, IRemoteXTMF r)
             {
                 var length = s.Length / 4;
-                BinaryReader reader = new BinaryReader( s );
+                BinaryReader reader = new( s );
                 float[] res = new float[length];
                 for ( int i = 0; i < length; i++ )
                 {
@@ -143,7 +143,7 @@ namespace TMG.NetworkEstimation
                 var length = set.Length;
                 lock ( this )
                 {
-                    using StreamWriter writer = new StreamWriter(ParameterEvaluationFile, true);
+                    using StreamWriter writer = new(ParameterEvaluationFile, true);
                     writer.Write(set[0]);
                     for (int i = 0; i < length; i++)
                     {

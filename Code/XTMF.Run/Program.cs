@@ -93,7 +93,7 @@ namespace XTMF.Run
             Task.Factory.StartNew(() =>
             {
                 var reader = new BinaryReader(clientStream, Encoding.Unicode, true);
-                Configuration config = new Configuration(reader.ReadString())
+                Configuration config = new(reader.ReadString())
                 {
                     DivertSaveRequests = true
                 };
@@ -274,7 +274,7 @@ namespace XTMF.Run
         private static void WriteMessageToStream(BlockingCollection<byte[]> messagesToSend, Action<BinaryWriter> action)
         {
             using var backend = new MemoryStream();
-            BinaryWriter writer = new BinaryWriter(backend, System.Text.Encoding.Unicode, true);
+            BinaryWriter writer = new(backend, System.Text.Encoding.Unicode, true);
             action(writer);
             writer.Flush();
             messagesToSend.Add(backend.ToArray());

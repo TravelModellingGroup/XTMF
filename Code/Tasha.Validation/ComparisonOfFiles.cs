@@ -133,13 +133,13 @@ namespace Tasha.Validation
 
         private void GenerateChart(string fileName, float[] values, float[] otherValues, string xAxisName, string yAxisName)
         {
-            using Chart chart = new Chart();
+            using Chart chart = new();
             chart.Width = CharWidth;
             chart.Height = CharHeight;
 
-            using ChartArea area = new ChartArea("Start Times");
-            using Series firstSeries = new Series();
-            using Series secondSeries = new Series();
+            using ChartArea area = new("Start Times");
+            using Series firstSeries = new();
+            using Series secondSeries = new();
             AddData(values, chart, firstSeries);
             AddData(otherValues, chart, secondSeries);
             firstSeries.ChartType = secondSeries.ChartType = SeriesChartType.Column;
@@ -156,7 +156,7 @@ namespace Tasha.Validation
             secondSeries.Color = System.Drawing.Color.Red;
             secondSeries.BorderColor = System.Drawing.Color.Black;
             secondSeries.BorderWidth = 1;
-            using Legend legend = new Legend();
+            using Legend legend = new();
             chart.Legends.Add(legend);
             chart.SaveImage(fileName, ChartImageFormat.Png);
         }
@@ -164,7 +164,7 @@ namespace Tasha.Validation
         private float[] ReadFile(string fileName)
         {
             float[] ret = new float[29];
-            using ( CsvReader reader = new CsvReader( System.IO.Path.Combine( InputBaseDirectory, fileName ) ) )
+            using ( CsvReader reader = new( System.IO.Path.Combine( InputBaseDirectory, fileName ) ) )
             {
                 if ( FirstHeader )
                 {

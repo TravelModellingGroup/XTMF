@@ -46,9 +46,9 @@ namespace XTMF.Gui.CustomProperties
             var element = sender as PopupBox;
             if (element.IsVisible == true)
             {
-                ScaleTransform scaleTransform = new ScaleTransform(1.0, 1.0, element.Width / 2, element.Height / 2);
+                ScaleTransform scaleTransform = new(1.0, 1.0, element.Width / 2, element.Height / 2);
                 element.RenderTransform = scaleTransform;
-                DoubleAnimation animation = new DoubleAnimation();
+                DoubleAnimation animation = new();
                 animation.From = 1.4;
                 animation.To = 1.0;
                 animation.Duration = new Duration(TimeSpan.FromSeconds(0.3));

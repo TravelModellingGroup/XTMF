@@ -52,7 +52,7 @@ namespace Tasha.Estimation
             get { return null; }
         }
 
-        private SpinLock FitnessUpdateLock = new SpinLock(false);
+        private SpinLock FitnessUpdateLock = new(false);
 
         public void Execute(ITashaHousehold household, int iteration)
         {

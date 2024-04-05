@@ -82,12 +82,12 @@ namespace TMG.GTAModel.V2.Generation
                 AgeCategoryRange = CreateRangeSet(age),
                 EmploymentStatusCategory = CreateRangeSet(employmentStatus),
                 ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex,
-                Mobility = new RangeSet(new List<Range> { new Range(0, 0) }),
+                Mobility = new RangeSet(new List<Range> { new(0, 0) }),
                 ExternalJobs = ExternalJobs,
                 ExternalRates = WorkExternal,
                 WorkIntrazonal = WorkIntraZonal,
                 WorkAtHomeRates = WorkAtHomeRates,
-                AllAges = new RangeSet(new List<Range> { new Range(2, 5) }),
+                AllAges = new RangeSet(new List<Range> { new(2, 5) }),
                 GenerationOutputFileName = GenerationOutputFileName
             };
             gen.Name = Name + " - " + gen;
@@ -95,9 +95,9 @@ namespace TMG.GTAModel.V2.Generation
             list.Add(gen);
         }
 
-        private RangeSet CreateRangeSet(int occ) => new RangeSet(new List<Range> { new Range(occ, occ) });
+        private RangeSet CreateRangeSet(int occ) => new(new List<Range> { new(occ, occ) });
 
-        private RangeSet CreateRangeSet(Range range) => new RangeSet(new List<Range> { range });
+        private RangeSet CreateRangeSet(Range range) => new(new List<Range> { range });
 
         private void GenerateChildren()
         {

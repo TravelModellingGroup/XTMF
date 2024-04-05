@@ -88,7 +88,7 @@ namespace TMG.NetworkEstimation
         private void DirectoryCopy(string sourceDirectory, string destinationDirectory)
         {
             // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new DirectoryInfo(sourceDirectory);
+            DirectoryInfo dir = new(sourceDirectory);
             DirectoryInfo[] dirs = dir.GetDirectories();
             if (!dir.Exists)
             {

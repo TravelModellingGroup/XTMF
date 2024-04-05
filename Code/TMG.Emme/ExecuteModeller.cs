@@ -48,7 +48,7 @@ path to where the Emme project is located. It also has another parameter called 
         [RunParameter( "Performance Testing", false, "Test the performance of the tool, results are saved in the logbook." )]
         public bool PerformanceTesting;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
 
         [RunParameter( "Input Directory", "../../Input", "The input directory for the Model System" )]
         public string InputBaseDirectory
@@ -92,7 +92,7 @@ path to where the Emme project is located. It also has another parameter called 
 
         public void Start()
         {
-            using ModellerController controller = new ModellerController(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceTesting);
+            using ModellerController controller = new(this, EmmeProjectFile, EmmeDatabank, String.IsNullOrWhiteSpace(EmmePath) ? null : EmmePath, PerformanceTesting);
             if (CleanLogbook)
             {
                 controller.CleanLogbook(this);

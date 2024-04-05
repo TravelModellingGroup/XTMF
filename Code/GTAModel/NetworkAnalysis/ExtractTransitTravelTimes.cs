@@ -47,7 +47,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter( "Walk Matrix Number", 2, "The number of the FULL matrix to store average total walk (auxilliary transit) times." )]
         public int WalkMatrixNumber;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_LOS_matrices";
         private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractTravelTimeMatrices";
 

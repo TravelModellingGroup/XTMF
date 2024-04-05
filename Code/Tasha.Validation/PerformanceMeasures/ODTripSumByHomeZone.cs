@@ -51,7 +51,7 @@ namespace Tasha.Validation.PerformanceMeasures
         public ITashaRuntime Root;
 
 
-        private ConcurrentDictionary<int, ConcurrentQueue<ODData<float>>> RecordedTrips = new ConcurrentDictionary<int, ConcurrentQueue<ODData<float>>>();
+        private ConcurrentDictionary<int, ConcurrentQueue<ODData<float>>> RecordedTrips = new();
 
         
         public string Name
@@ -130,7 +130,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 lock (this)
                 {
                     var writeHeader = !File.Exists(VKT_Output);
-                    using StreamWriter writer = new StreamWriter(VKT_Output, true);
+                    using StreamWriter writer = new(VKT_Output, true);
                     if (writeHeader)
                     {
                         writer.WriteLine("Home Zone,Origin,Destination,Trips");

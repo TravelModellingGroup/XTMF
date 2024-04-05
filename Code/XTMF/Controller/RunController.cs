@@ -32,7 +32,7 @@ namespace XTMF.Controller
     /// </summary>
     public sealed class RunController
     {
-        private object _Lock = new object();
+        private object _Lock = new();
 
         private ObservableCollection<XTMFRun> _Backlog = [];
 

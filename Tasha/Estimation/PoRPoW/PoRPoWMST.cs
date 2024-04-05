@@ -401,7 +401,7 @@ namespace Tasha.Estimation.PoRPoW
                 Console.WriteLine("Exported PoRPoW histogram to " + SaveFile.GetFilePath());
             }
 
-            private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
+            private static Tuple<byte, byte, byte> _ProgressColour = new(50, 150, 50);
 
             public string Name
             {

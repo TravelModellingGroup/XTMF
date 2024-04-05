@@ -139,7 +139,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private Model InternalModel = new Model();
+        private Model InternalModel = new();
 
         public OpenWindow()
         {

@@ -130,7 +130,7 @@ namespace Tasha.Validation
 
         private void SaveData(FileLocation file, float[] data)
         {
-            using StreamWriter writer = new StreamWriter(file);
+            using StreamWriter writer = new(file);
             writer.WriteLine("Bin,Data");
             for (int i = 0; i < data.Length; i++)
             {
@@ -207,11 +207,11 @@ namespace Tasha.Validation
 
         private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
         {
-            using Chart chart = new Chart();
+            using Chart chart = new();
             chart.Width = Width;
             chart.Height = Height;
-            using ChartArea area = new ChartArea("Start Times");
-            using Series series = new Series();
+            using ChartArea area = new("Start Times");
+            using Series series = new();
             using (series.Points)
             {
                 series.ChartType = SeriesChartType.Column;

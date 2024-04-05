@@ -31,7 +31,7 @@ namespace XtmfSDK
     public class MyHostModule : IModelSystemTemplate
     {
         public IHost Host;
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 50, 150, 50 );
 
         private volatile bool exit = false;
 

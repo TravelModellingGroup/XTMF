@@ -177,7 +177,7 @@ namespace TMG.Estimation
                     {
                         throw new XTMFRuntimeException(this, $"In {Name} we were given a task that was not a job!");
                     }
-                    BinaryWriter writer = new BinaryWriter( stream );
+                    BinaryWriter writer = new( stream );
                     writer.Write( job.Generation );
                     writer.Write( job.Index );
                     writer.Write( job.Result );
@@ -186,8 +186,8 @@ namespace TMG.Estimation
             //The logic to receive data
             ToHost.RegisterCustomReceiver( RequestJobChannel, (stream) =>
                 {
-                    BinaryReader reader = new BinaryReader( stream );
-                    ClientTask newTask = new ClientTask()
+                    BinaryReader reader = new( stream );
+                    ClientTask newTask = new()
                     {
                         Generation = reader.ReadInt32(),
                         Index = reader.ReadInt32(),
@@ -203,7 +203,7 @@ namespace TMG.Estimation
             ToHost.RegisterCustomReceiver( SendParameterDefinitions, (stream) =>
                 {
                     var parameters = new List<ParameterSetting>();
-                    BinaryReader reader = new BinaryReader( stream );
+                    BinaryReader reader = new( stream );
                     var numberOfParameters = reader.ReadInt32();
                     for ( int i = 0; i < numberOfParameters; i++ )
                     {

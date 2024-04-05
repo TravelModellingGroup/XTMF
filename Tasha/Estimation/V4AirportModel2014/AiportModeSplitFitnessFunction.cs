@@ -111,7 +111,7 @@ namespace Tasha.Estimation.V4AirportModel2014
             AutoProbabilities = new float[zones.Length];
             TransitProbabilities = new float[zones.Length];
             TotalTrips = new float[zones.Length];
-            using CsvReader reader = new CsvReader(ModeSplitTruthData);
+            using CsvReader reader = new(ModeSplitTruthData);
             // burn header
             reader.LoadLine();
             // read in the rest of the data

@@ -205,7 +205,7 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             try
             {
-                using StreamReader reader = new StreamReader(GetInputFileName(DemographicDatabaseFile));
+                using StreamReader reader = new(GetInputFileName(DemographicDatabaseFile));
                 string line;
                 // burn header
                 reader.ReadLine();
@@ -230,7 +230,7 @@ namespace TMG.GTAModel.ParameterDatabase
             string[] headers;
             try
             {
-                using StreamReader reader = new StreamReader(GetInputFileName(DatabaseFile));
+                using StreamReader reader = new(GetInputFileName(DatabaseFile));
                 string line = reader.ReadLine();
                 headers = ParseHeader(line);
                 SetupParameterObjects(headers);
@@ -255,7 +255,7 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             try
             {
-                using StreamReader reader = new StreamReader(GetInputFileName(DemographicSwitchFile));
+                using StreamReader reader = new(GetInputFileName(DemographicSwitchFile));
                 int lineNumber = 1;
                 string line;
                 // burn header

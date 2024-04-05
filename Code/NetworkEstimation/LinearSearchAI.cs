@@ -40,7 +40,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("TotalError Weight", 1f, "The weight applied to the total error in the evaluation function")]
         public float ErrorWeight;
 
-        private Tuple<byte, byte, byte> _Colour = new Tuple<byte, byte, byte>(50, 150, 50);
+        private Tuple<byte, byte, byte> _Colour = new(50, 150, 50);
 
         private bool Exit;
 

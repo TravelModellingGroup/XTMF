@@ -36,7 +36,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter("Scenario Number", 0, "The number of the scenario with FBTA results to analyze.")]
         public int ScenarioNumber;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_cost_matrix";
         private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractCostMatrix";
 

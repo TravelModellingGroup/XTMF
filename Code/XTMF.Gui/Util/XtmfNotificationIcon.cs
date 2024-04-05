@@ -36,7 +36,7 @@ namespace XTMF.Gui.Util
             try
             {
                 ushort uicon;
-                StringBuilder strB = new StringBuilder(260);
+                StringBuilder strB = new(260);
                 strB.Append(Application.ExecutablePath);
                 IntPtr handle = ExtractAssociatedIcon(IntPtr.Zero, strB, out uicon);
                 Icon ico = Icon.FromHandle(handle);

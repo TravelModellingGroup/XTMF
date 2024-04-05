@@ -167,7 +167,7 @@ namespace TMG.GTAModel.Analysis
             ComputeData( zones, demandMatrix, distanceMatrix, regionNumbers, regionProductionDistances,
                 regionAttractionDistances, regionAttractionSum, regionProductionSum, productionZoneDistances,
                 attractionZoneDistances, zoneProductionSum, zoneAttractionSum );
-            using StreamWriter writer = new StreamWriter(DistanceTravelledFileName);
+            using StreamWriter writer = new(DistanceTravelledFileName);
             writer.WriteLine("Region Data");
             writer.WriteLine("Region Number,Production Distance Average,Attraction Distance Average");
             for (int i = 0; i < regionProductionDistances.Length; i++)

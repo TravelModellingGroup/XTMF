@@ -50,7 +50,7 @@ namespace Tasha.EMME
         [RunParameter("End Time", "9:00AM", typeof(Time), "The end of the time to record (non inclusive).")]
         public Time EndTime;
 
-        private SpinLock WriteLock = new SpinLock(false);
+        private SpinLock WriteLock = new(false);
 
         [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
         public int MinimumAge;

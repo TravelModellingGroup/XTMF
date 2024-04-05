@@ -160,7 +160,7 @@ namespace TMG.GTAModel.Modes
 
         private SparseTwinIndex<CacheData> Cache;
 
-        private Time CacheTime = new Time { Hours = -1 };
+        private Time CacheTime = new() { Hours = -1 };
 
         private int LastIteration = -1;
 
@@ -463,7 +463,7 @@ namespace TMG.GTAModel.Modes
 
         private void CreateChild(int stationZone, int parkingSpots, float numberOfTrains)
         {
-            AccessStation station = new AccessStation
+            AccessStation station = new()
             {
                 Root = Root,
                 Parent = this,

@@ -449,7 +449,7 @@ namespace Tasha.PopulationSynthesis
                 return WorkerCategories;
             }
             var ret = new float[zones.Length * NumberOfWorkerCategories];
-            using (CsvReader reader = new CsvReader(WorkerCategorySplits))
+            using (CsvReader reader = new(WorkerCategorySplits))
             {
                 //burn header
                 reader.LoadLine(out int columns);

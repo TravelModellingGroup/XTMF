@@ -117,7 +117,7 @@ namespace Tasha.XTMFModeChoice
             {
                 Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains};
             }
-            List<ITripChain> activeTours = new List<ITripChain>(numberOfVehicles);
+            List<ITripChain> activeTours = new(numberOfVehicles);
             var endOfDay = new Time() { Hours = 28 };
             Time previousAllocationTime = Time.StartOfDay;
             while(true)
@@ -351,7 +351,7 @@ namespace Tasha.XTMFModeChoice
             {
                 Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains};
             }
-            List<ITripChain> activeTours = new List<ITripChain>(vehicles.Length);
+            List<ITripChain> activeTours = new(vehicles.Length);
             var endOfDay = new Time() { Hours = 28 };
             while(true)
             {
@@ -423,7 +423,7 @@ namespace Tasha.XTMFModeChoice
 
         private List<ITripChain> Clone(List<ITripChain> activeTours)
         {
-            List<ITripChain> problems = new List<ITripChain>(activeTours.Count);
+            List<ITripChain> problems = new(activeTours.Count);
             for(int i = 0; i < activeTours.Count; i++)
             {
                 problems.Add(activeTours[i]);

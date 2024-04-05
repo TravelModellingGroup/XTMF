@@ -316,7 +316,7 @@ namespace TMG.GTAModel.V2.Generation
             var flatAttractions = attractions.GetFlatData();
             var flatProduction = productions.GetFlatData();
             bool first = !File.Exists(AttractionFileName.GetFileName());
-            StringBuilder buildInside = new StringBuilder();
+            StringBuilder buildInside = new();
             buildInside.Append(',');
             buildInside.Append(AgeCategoryRange);
             buildInside.Append(',');
@@ -325,7 +325,7 @@ namespace TMG.GTAModel.V2.Generation
             buildInside.Append(OccupationCategory);
             buildInside.Append(',');
             string categoryData = buildInside.ToString();
-            using StreamWriter writer = new StreamWriter(AttractionFileName.GetFileName(), true);
+            using StreamWriter writer = new(AttractionFileName.GetFileName(), true);
             if (first)
             {
                 // if we are the first thing to generate, then write the header as well
@@ -346,14 +346,14 @@ namespace TMG.GTAModel.V2.Generation
             if (!String.IsNullOrEmpty(GenerationOutputFileName))
             {
                 var dir = Path.GetDirectoryName(GenerationOutputFileName);
-                DirectoryInfo info = new DirectoryInfo(dir);
+                DirectoryInfo info = new(dir);
                 if (!info.Exists)
                 {
                     info.Create();
                 }
                 bool first = !File.Exists(GenerationOutputFileName);
                 // if the file name exists try to write to it, appending
-                using StreamWriter writer = new StreamWriter(GenerationOutputFileName, true);
+                using StreamWriter writer = new(GenerationOutputFileName, true);
                 if (first)
                 {
                     writer.WriteLine("Age,Employment,Occupation,Production,Attraction,WAH,IntraZonal");

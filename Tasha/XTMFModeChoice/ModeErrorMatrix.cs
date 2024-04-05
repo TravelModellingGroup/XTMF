@@ -38,7 +38,7 @@ namespace Tasha.XTMFModeChoice
         [RunParameter("Household Iterations", 100, "The number of household iterations that we are expecting.")]
         public int HouseholdIterations;
 
-        SpinLock ObservationsLock = new SpinLock(false);
+        SpinLock ObservationsLock = new(false);
         public float[][] Observations;
 
         [RunParameter("ObservedMode", "ObservedMode", "The name of the observed mode's attribute.")]
@@ -69,7 +69,7 @@ namespace Tasha.XTMFModeChoice
 
         private float ZeroParamFitness;
 
-        private SpinLock FitnessUpdateLock = new SpinLock(false);
+        private SpinLock FitnessUpdateLock = new(false);
 
         public string Name
         {
@@ -238,7 +238,7 @@ namespace Tasha.XTMFModeChoice
             var correctTotal = 0.0f;
             var columnTotals = new float[numModes];
             var total = 0.0f;
-            using(StreamWriter writer = new StreamWriter(FileName))
+            using(StreamWriter writer = new(FileName))
             {
                 // print the header
                 writer.Write("Pred\\Real");

@@ -192,7 +192,7 @@ namespace TMG.GTAModel.V2.Distribution
                     tempMobility[i] = new float[zones.Length];
                 }
                 SumProductionAndAttraction(production, attraction, productions, attractions);
-                BlockingCollection<MemoryStream[]> toWrite = new BlockingCollection<MemoryStream[]>(1);
+                BlockingCollection<MemoryStream[]> toWrite = new(1);
                 var writingTask = Task.Factory.StartNew(() => WriteMemoryStream(toWrite, mobilityStream), TaskCreationOptions.LongRunning);
                 for(int subset = 0; subset < cats.Length; subset++)
                 {
@@ -389,7 +389,7 @@ namespace TMG.GTAModel.V2.Distribution
         {
             // this.CurrentMultiSet == Occupation [0,3] * NumberOfMobilityCategories + mobility Category
             WCatParameters.SetDemographicCategory(CurrentMultiSetIndex * 5 + mobilityCategory);
-            cats[subset][0].Mobility = new RangeSet(new List<Range> { new Range(mobilityCategory, mobilityCategory)});
+            cats[subset][0].Mobility = new RangeSet(new List<Range> { new(mobilityCategory, mobilityCategory)});
             cats[subset][0].InitializeDemographicCategory();
         }
 
@@ -493,7 +493,7 @@ namespace TMG.GTAModel.V2.Distribution
                     temp[i] = [];
                 }
                 var numberOfModes = 4;
-                using (CsvReader reader = new CsvReader(InputFile.GetFileName(Root.InputBaseDirectory)))
+                using (CsvReader reader = new(InputFile.GetFileName(Root.InputBaseDirectory)))
                 {
                     // burn header
                     reader.LoadLine();

@@ -34,7 +34,7 @@ namespace TMG.Emme
         private const string ToolName = "tmg.XTMF_internal.import_matrix_batch_file";
         private const string OldToolName = "TMG2.XTMF.ImportMatrix";
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         public bool Execute(Controller controller)
         {

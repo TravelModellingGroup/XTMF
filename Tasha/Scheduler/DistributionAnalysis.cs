@@ -153,11 +153,11 @@ namespace Tasha.Scheduler
 
         private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
         {
-            using Chart chart = new Chart();
+            using Chart chart = new();
             chart.Width = 1024;
             chart.Height = 728;
-            using ChartArea area = new ChartArea("Start Times");
-            using Series series = new Series();
+            using ChartArea area = new("Start Times");
+            using Series series = new();
             series.ChartType = SeriesChartType.Bar;
             for (int i = 0; i < values.Length; i++)
             {
@@ -183,8 +183,8 @@ namespace Tasha.Scheduler
 
         private void GraphTripPurpose(Distribution.DistributionInformation[] distributionData)
         {
-            TashaHousehold household = new TashaHousehold();
-            TashaPerson person = new TashaPerson();
+            TashaHousehold household = new();
+            TashaPerson person = new();
             List<int> primaryWork = [];
             person.Licence = false;
             person.Male = GenderLocal;

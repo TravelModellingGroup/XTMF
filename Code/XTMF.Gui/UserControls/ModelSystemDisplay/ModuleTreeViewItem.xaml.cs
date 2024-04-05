@@ -341,7 +341,7 @@ namespace XTMF.Gui.UserControls
             var layer = AdornerLayer.GetAdornerLayer(this);
             if (layer != null)
             {
-                DragDropAdorner moveAdorner = new DragDropAdorner(this);
+                DragDropAdorner moveAdorner = new(this);
                 layer.Add(moveAdorner);
             }
         }

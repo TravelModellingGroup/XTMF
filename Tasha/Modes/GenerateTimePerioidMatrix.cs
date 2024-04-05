@@ -50,7 +50,7 @@ namespace Tasha.Modes
         [RootModule]
         public ITashaRuntime Root;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         private Dictionary<string, float[,]> WorkMatrices;
 
         public string Name
@@ -162,7 +162,7 @@ namespace Tasha.Modes
         {
             var path = ResultsFile;
 
-            using StreamWriter sw = new StreamWriter(path);
+            using StreamWriter sw = new(path);
             sw.WriteLine("Time Period Matrices");
             sw.WriteLine();
             sw.WriteLine("Morning Period [0]: " + MorningTimePeriod);

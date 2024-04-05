@@ -78,7 +78,7 @@ namespace Tasha.Validation
 
         public void Start()
         {
-            Random r = new Random( RandomSeed );
+            Random r = new( RandomSeed );
             for ( int i = 0; i < Iterations; i++ )
             {
                 CurrentIteration = i;

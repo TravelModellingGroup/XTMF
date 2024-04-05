@@ -41,7 +41,7 @@ namespace XTMF.RemoteClient
                 Console.WriteLine( "Using alternative configuration file '" + args[2] + "'" );
                 config = new Configuration( args[2] );
             }
-            XTMFRuntime xtmf = new XTMFRuntime(config);
+            XTMFRuntime xtmf = new(config);
             // fire up the remote client engine
             if ( xtmf.InitializeRemoteClient( args[0], port ) == null )
             {

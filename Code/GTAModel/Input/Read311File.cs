@@ -56,9 +56,9 @@ namespace TMG.GTAModel.Input
             {
                 throw new XTMFRuntimeException(this, $"File not found at '{path}'!");
             }
-            ODData<float> data = new ODData<float>();
+            ODData<float> data = new();
             // do this because highest zone isn't high enough for array indexes
-            using StreamReader reader = new StreamReader(new
+            using StreamReader reader = new(new
                 FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan));
             BurnHeader(reader);

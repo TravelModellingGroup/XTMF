@@ -60,7 +60,7 @@ namespace TMG.GTAModel
         [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
         public string EmmePath;
 
-        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(255, 173, 28);
+        private Tuple<byte, byte, byte> _progressColour = new(255, 173, 28);
         private ModellerController Controller;
 
         private float CurrentProgress;

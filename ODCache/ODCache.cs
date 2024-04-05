@@ -144,14 +144,14 @@ namespace Datastructure
             }
             string xmlFile = Path.Combine(path, fileName + ".xml");
 
-            XmlSerializer deserializer = new XmlSerializer(typeof(CacheGenerationInfo));
+            XmlSerializer deserializer = new(typeof(CacheGenerationInfo));
 
             TextReader textReader = new StreamReader(xmlFile);
 
             CacheGenerationInfo info = (CacheGenerationInfo)deserializer.Deserialize(textReader);
             textReader.Close();
 
-            OdcCreator odcCreator = new OdcCreator(HighestZone, Types, Times, Indexes.Length);
+            OdcCreator odcCreator = new(HighestZone, Types, Times, Indexes.Length);
 
             foreach (var dimensionInfo in info.CacheInfo)
             {
@@ -194,13 +194,13 @@ namespace Datastructure
                 return null;
             }
             int types = Types * Times;
-            SparseIndexing index = new SparseIndexing();
+            SparseIndexing index = new();
             int firstLength = Indexes.Length;
             int iTotal = 0;
             index.Indexes = new SparseSet[Indexes.Length];
             float[][][] data = null;
             byte[] tempReader = new byte[(int)(Reader.BaseStream.Length - Reader.BaseStream.Position)];
-            BlockingCollection<LoadRequest> requests = new BlockingCollection<LoadRequest>(50);
+            BlockingCollection<LoadRequest> requests = new(50);
             // build all of the data / mallocs in a different thread
             Task.Factory.StartNew(() =>
            {
@@ -353,7 +353,7 @@ namespace Datastructure
         private float[] LoadAndStore(Pair<int, int> lookup)
         {
             float[] data = Load(lookup.First, lookup.Second);
-            Pair<int, int> storeMe = new Pair<int, int>(lookup.First, lookup.Second);
+            Pair<int, int> storeMe = new(lookup.First, lookup.Second);
             Cache.Add(storeMe, data);
             return data;
         }

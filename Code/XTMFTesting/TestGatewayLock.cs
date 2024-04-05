@@ -32,13 +32,13 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestListWriter()
         {
-            GatewayLock gate = new GatewayLock();
+            GatewayLock gate = new();
             for ( int iteration = 0; iteration < 100; iteration++ )
             {
                 var list = new List<Entry>();
                 Parallel.For( 0, 1000, i =>
                     {
-                        Random r = new Random();
+                        Random r = new();
                         for ( int j = 0; j < 100; j++ )
                         {
                             var num = r.Next( 10 );
@@ -83,8 +83,8 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestMultipleWriters()
         {
-            GatewayLock gate = new GatewayLock();
-            Stopwatch watch = new Stopwatch();
+            GatewayLock gate = new();
+            Stopwatch watch = new();
             watch.Start();
             long startLock1 = 0, startLock2 = 0;
             // ReSharper disable once NotAccessedVariable
@@ -126,8 +126,8 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestWriterHoldThenReaders()
         {
-            GatewayLock gate = new GatewayLock();
-            Stopwatch watch = new Stopwatch();
+            GatewayLock gate = new();
+            Stopwatch watch = new();
             watch.Start();
             bool writerDone = false;
             bool anyFails = false;
@@ -165,8 +165,8 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestWriterLock()
         {
-            GatewayLock gate = new GatewayLock();
-            Stopwatch watch = new Stopwatch();
+            GatewayLock gate = new();
+            Stopwatch watch = new();
             watch.Start();
             long finishedPassThrough = 0;
             long inLock = 0;

@@ -297,7 +297,7 @@ namespace TMG.Tasha
             if (!LoadOnce || Households == null)
             {
 
-                List<ITashaHousehold> ourList = new List<ITashaHousehold>(100000);
+                List<ITashaHousehold> ourList = new(100000);
                 LoadAll(ourList);
                 Households = ourList.ToArray();
             }

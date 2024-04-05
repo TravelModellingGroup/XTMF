@@ -34,7 +34,7 @@ namespace XTMF.Testing.Modules.Editing
 
         public float Progress { get; } = 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         public bool RuntimeValidation(ref string? error)
         {

@@ -148,14 +148,14 @@ public class PersonScheduleAnalysis : IPostScheduler
             return;
         }
 
-        using Chart chart = new Chart()
+        using Chart chart = new()
         {
             Width = Width,
             Height = Height,
         };
 
-        using ChartArea area = new ChartArea("Start Times");
-        using Series series = new Series();
+        using ChartArea area = new("Start Times");
+        using Series series = new();
         series.ChartType = SeriesChartType.Column;
         for (int i = 0; i < values.Length; i++)
         {

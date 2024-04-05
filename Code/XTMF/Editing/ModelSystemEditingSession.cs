@@ -32,7 +32,7 @@ namespace XTMF
 {
     public sealed class ModelSystemEditingSession : IDisposable
     {
-        private static readonly object _RunningLock = new object();
+        private static readonly object _RunningLock = new();
 
         private List<XTMFCommand> _CombinedCommands;
 
@@ -45,7 +45,7 @@ namespace XTMF
         /// <summary>
         ///     The command stack that commands that have been undone will go on
         /// </summary>
-        private readonly EditingStack _RedoStack = new EditingStack(100);
+        private readonly EditingStack _RedoStack = new(100);
 
         /// <summary>
         ///     The runtime we are in
@@ -74,12 +74,12 @@ namespace XTMF
             return new Task<List<string>>(GetPreviousRunNames);
         }
 
-        private readonly object _SessionLock = new object();
+        private readonly object _SessionLock = new();
 
         /// <summary>
         ///     The command stack that contains commands that have been done will go on
         /// </summary>
-        private readonly EditingStack _UndoStack = new EditingStack(100);
+        private readonly EditingStack _UndoStack = new(100);
 
         /// <summary>
         ///     Create a new session to edit a model system

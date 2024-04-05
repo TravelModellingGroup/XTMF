@@ -99,7 +99,7 @@ namespace XTMF
 
         public IModuleParameter Clone()
         {
-            ModuleParameter copy = new ModuleParameter();
+            ModuleParameter copy = new();
             copy.Name = Name;
             copy.NameOnModule = NameOnModule;
             if (Value is ICloneable)

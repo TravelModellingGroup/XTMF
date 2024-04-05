@@ -137,7 +137,7 @@ namespace Tasha.Scheduler
             Distributions = new ZoneCache<DistributionInformation>(Scheduler.FrequencyDistributionsFile,
                 delegate (int number, float[] data)
                 {
-                    DistributionInformation f = new DistributionInformation();
+                    DistributionInformation f = new();
 
                     int current = 0;
                     f.Frequency = new float[NumberOfFrequencies];
@@ -181,7 +181,7 @@ namespace Tasha.Scheduler
 
         private static AdultDistributionInformation LoadAdultDistributionData(int n, float[] data)
         {
-            AdultDistributionInformation adultDistributionInformation = new AdultDistributionInformation();
+            AdultDistributionInformation adultDistributionInformation = new();
             adultDistributionInformation.Adults = new float[NumAdultFrequencies];
             // now we only load the frequency since we calculate the pdf anyways
             for (int i = 0; i < data.Length; i++)

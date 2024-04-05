@@ -162,13 +162,13 @@ namespace Tasha.Validation
                 var dir = Path.GetDirectoryName(FileName);
                 if(dir != null)
                 {
-                    DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                    DirectoryInfo dirInfo = new(dir);
                     if(!dirInfo.Exists)
                     {
                         dirInfo.Create();
                     }
                 }
-                using StreamWriter writer = new StreamWriter(FileName);
+                using StreamWriter writer = new(FileName);
                 if (SaveOD)
                 {
                     writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");

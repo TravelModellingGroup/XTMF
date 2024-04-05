@@ -114,7 +114,7 @@ namespace Tasha.Validation
                 {
                     fileName = OutputFile + "Tasha.csv";
                 }
-                using StreamWriter writer = new StreamWriter(fileName);
+                using StreamWriter writer = new(fileName);
                 writer.WriteLine("Start Time Hour, Average Distance, Number of Occurances");
 
                 foreach (var pair in Results)

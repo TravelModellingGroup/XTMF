@@ -113,7 +113,7 @@ namespace TMG.Emme
         /// <summary>
         /// This lock is used for ensuring that only one Modeller Controller can be initialized at the same time.
         /// </summary>
-        private static object _loadLock = new object();
+        private static object _loadLock = new();
 
         /// <summary>
         /// </summary>
@@ -216,7 +216,7 @@ namespace TMG.Emme
             {
                 try
                 {
-                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream, System.Text.Encoding.Unicode);
+                    BinaryWriter writer = new(ToEmme.BaseStream, System.Text.Encoding.Unicode);
                     writer.Write(SignalCleanLogbook);
                     writer.Flush();
                     // now that we have setup the macro, we can force the writer out of scope
@@ -242,7 +242,7 @@ namespace TMG.Emme
                 string toPrint;
                 while (true)
                 {
-                    BinaryReader reader = new BinaryReader(PipeFromEMME, System.Text.Encoding.Unicode);
+                    BinaryReader reader = new(PipeFromEMME, System.Text.Encoding.Unicode);
                     int result = reader.ReadInt32();
                     switch (result)
                     {
@@ -311,7 +311,7 @@ namespace TMG.Emme
                 try
                 {
                     EnsureWriteAvailable(module);
-                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream, System.Text.Encoding.Unicode);
+                    BinaryWriter writer = new(ToEmme.BaseStream, System.Text.Encoding.Unicode);
                     writer.Write(SignalCheckToolExists);
                     writer.Write(toolNamespace);
                     writer.Flush();
@@ -345,7 +345,7 @@ namespace TMG.Emme
                 {
                     EnsureWriteAvailable(module);
                     // clear out all of the old input before starting
-                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream, System.Text.Encoding.Unicode);
+                    BinaryWriter writer = new(ToEmme.BaseStream, System.Text.Encoding.Unicode);
                     writer.Write(SignalStartModule);
                     writer.Write(macroName);
                     writer.Write(arguments);
@@ -389,7 +389,7 @@ namespace TMG.Emme
                 {
                     EnsureWriteAvailable(module);
                     // clear out all of the old input before starting
-                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream, System.Text.Encoding.Unicode);
+                    BinaryWriter writer = new(ToEmme.BaseStream, System.Text.Encoding.Unicode);
                     writer.Write(SignalStartModuleBinaryParameters);
                     writer.Write(macroName);
                     if (arguments != null)
@@ -444,7 +444,7 @@ namespace TMG.Emme
                     // Send our termination message first
                     try
                     {
-                        BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream, System.Text.Encoding.Unicode);
+                        BinaryWriter writer = new(ToEmme.BaseStream, System.Text.Encoding.Unicode);
                         writer.Write(SignalTermination);
                         writer.Flush();
                         ToEmme.Flush();
@@ -495,7 +495,7 @@ namespace TMG.Emme
                 {
                     EnsureWriteAvailable(module);
                     // clear out all of the old input before starting
-                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream, System.Text.Encoding.Unicode);
+                    BinaryWriter writer = new(ToEmme.BaseStream, System.Text.Encoding.Unicode);
                     writer.Write(SignalCheckForMissingTools);
                     writer.Flush();
                 }

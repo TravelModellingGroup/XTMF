@@ -331,7 +331,7 @@ type ITravelDemandModel.")]
         {
             List<AgeDist> ageDistributions = [];
             var ageCategories = AgeCategories.Count;
-            using(CsvReader reader = new CsvReader(GetFullPath(AgeDistributionFile)))
+            using(CsvReader reader = new(GetFullPath(AgeDistributionFile)))
             {
                 int length;
                 if(AgeDistributionFileHeader)
@@ -393,7 +393,7 @@ type ITravelDemandModel.")]
         private void LoadDriversLicenseDistribution()
         {
             DriversLicenseRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            using CsvReader reader = new CsvReader(GetFullPath(DriversLicenseRateFile));
+            using CsvReader reader = new(GetFullPath(DriversLicenseRateFile));
             if (DriversLicenseRateFileHeader)
             {
                 reader.LoadLine();
@@ -428,7 +428,7 @@ type ITravelDemandModel.")]
         {
             List<int> zones;
             List<EmploymentDist> employment = [];
-            using(CsvReader reader = new CsvReader(GetFullPath(EmploymentDistributionFile)))
+            using(CsvReader reader = new(GetFullPath(EmploymentDistributionFile)))
             {
                 int length;
                 float[] data = new float[5];
@@ -536,7 +536,7 @@ type ITravelDemandModel.")]
         {
             JobOccupationRates = SparseTriIndex<float>.CreateSimilarArray(Root.ZoneSystem.ZoneArray, EmploymentStatus, OccupationCategories);
             var occupationIndexes = OccupationCategories.ValidIndexies().ToArray();
-            using CsvReader reader = new CsvReader(GetFullPath(JobOccupationRateFile));
+            using CsvReader reader = new(GetFullPath(JobOccupationRateFile));
             if (JobOccupationRateFileHeader)
             {
                 reader.LoadLine();
@@ -571,7 +571,7 @@ type ITravelDemandModel.")]
         {
             JobTypeRates = SparseTwinIndex<float>.CreateSimilarArray(Root.ZoneSystem.ZoneArray, EmploymentStatus);
             var employmentIndexes = EmploymentStatus.ValidIndexies().ToArray();
-            using CsvReader reader = new CsvReader(GetFullPath(JobEmploymentRateFile));
+            using CsvReader reader = new(GetFullPath(JobEmploymentRateFile));
             if (JobEmploymentRateFileHeader)
             {
                 reader.LoadLine();
@@ -600,10 +600,10 @@ type ITravelDemandModel.")]
         {
             NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
             SparseArray<float> driversLicense =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
-            using CsvReader reader = new CsvReader(GetFullPath(NonWorkerVehicleRateFile));
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
+            using CsvReader reader = new(GetFullPath(NonWorkerVehicleRateFile));
             if (NonWorkerVehicleRateFileHeader)
             {
                 reader.LoadLine();
@@ -659,7 +659,7 @@ type ITravelDemandModel.")]
                     z.WorkRetail = 0;
                 }
             }
-            using (CsvReader reader = new CsvReader(GetFullPath(OccupationDistributionFile)))
+            using (CsvReader reader = new(GetFullPath(OccupationDistributionFile)))
             {
                 int length;
                 float[] data = new float[7];
@@ -808,7 +808,7 @@ type ITravelDemandModel.")]
         {
             List<StudentDist> studentData = [];
             List<int> zones;
-            using (CsvReader reader = new CsvReader(GetFullPath(StudentDistributionFile)))
+            using (CsvReader reader = new(GetFullPath(StudentDistributionFile)))
             {
                 int length;
                 float[] data = new float[4];
@@ -919,10 +919,10 @@ type ITravelDemandModel.")]
         {
             WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
             SparseArray<float> driversLicense =
-                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } } );
-            using CsvReader reader = new CsvReader(GetFullPath(WorkerVehicleRateFile));
+                new(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } } );
+            using CsvReader reader = new(GetFullPath(WorkerVehicleRateFile));
             if (WorkerVehicleRateFileHeader)
             {
                 reader.LoadLine();

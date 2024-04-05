@@ -515,7 +515,7 @@ namespace TMG.GTAModel
         {
             var ret = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
             var flatRet = ret.GetFlatData();
-            using (BinaryReader reader = new BinaryReader(File.OpenRead(balanceFileName)))
+            using (BinaryReader reader = new(File.OpenRead(balanceFileName)))
             {
                 if (reader.BaseStream.Length < flatRet.Length * 4)
                 {
@@ -537,7 +537,7 @@ namespace TMG.GTAModel
                 try
                 {
                     file = File.OpenRead(GetFrictionFileName(LoadFrictionFileName, setNumber));
-                    using BinaryReader reader = new BinaryReader(file);
+                    using BinaryReader reader = new(file);
                     file = null;
                     for (int i = 0; i < ret.Length; i++)
                     {
@@ -588,7 +588,7 @@ namespace TMG.GTAModel
         private void SaveAttractionFile(float[] attraction)
         {
             bool first = !File.Exists(AttractionFile.GetFileName());
-            using StreamWriter writer = new StreamWriter(AttractionFile.GetFileName(), true);
+            using StreamWriter writer = new(AttractionFile.GetFileName(), true);
             if (first)
             {
                 writer.WriteLine("Generation,Category,Zone,Attraction");
@@ -607,7 +607,7 @@ namespace TMG.GTAModel
         private void SaveBalanceFactors(string balanceFileName, SparseArray<float> balanceFactors)
         {
             var flat = balanceFactors.GetFlatData();
-            using BinaryWriter writer = new BinaryWriter(File.OpenWrite(balanceFileName));
+            using BinaryWriter writer = new(File.OpenWrite(balanceFileName));
             for (int i = 0; i < flat.Length; i++)
             {
                 writer.Write(flat[i]);
@@ -632,7 +632,7 @@ namespace TMG.GTAModel
                 try
                 {
                     file = File.OpenWrite(fileName);
-                    using BinaryWriter writer = new BinaryWriter(file);
+                    using BinaryWriter writer = new(file);
                     file = null;
                     for (int i = 0; i < ret.Length; i++)
                     {

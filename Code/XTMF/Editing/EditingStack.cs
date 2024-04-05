@@ -48,7 +48,7 @@ namespace XTMF.Editing
 
         private int _Head = -1;
 
-        private object _DataLock = new object();
+        private object _DataLock = new();
 
         /// <summary>
         /// Add a new command onto the stack

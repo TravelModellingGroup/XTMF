@@ -81,7 +81,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [Parameter("Walk Perception", 2.0f, "Walking time perception factor.")]
         public float WalkPerception;
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         public string Name
         {
@@ -162,7 +162,7 @@ namespace TMG.GTAModel.NetworkAnalysis
             {
                 Directory.CreateDirectory(dir);
             }
-            using (StreamWriter writer = new StreamWriter(outputFileName))
+            using (StreamWriter writer = new(outputFileName))
             {
                 writer.WriteLine("t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];

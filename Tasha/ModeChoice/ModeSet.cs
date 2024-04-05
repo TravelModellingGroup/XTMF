@@ -30,7 +30,7 @@ namespace Tasha.ModeChoice
     {
         public double U;
         internal static ModeChoice ModeChoice;
-        private static ConcurrentDictionary<int, ConcurrentBag<ModeSet>> ModeSetPool = new ConcurrentDictionary<int, ConcurrentBag<ModeSet>>();
+        private static ConcurrentDictionary<int, ConcurrentBag<ModeSet>> ModeSetPool = new();
 
         /// <summary>
         /// Create a new Mode Set

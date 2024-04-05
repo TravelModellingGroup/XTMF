@@ -426,7 +426,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         }
                 }
             }
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             bool first = true;
             bool complete = false;
             // check for function calls

@@ -38,7 +38,7 @@ namespace XTMF
         /// <summary>
         /// The lock for editing what is inside of the repository.  This should be grabbed before getting the editing lock.
         /// </summary>
-        private readonly object RepositoryLock = new object();
+        private readonly object RepositoryLock = new();
         /// <summary>
         /// The current editing sessions
         /// </summary>
@@ -51,7 +51,7 @@ namespace XTMF
         /// <summary>
         /// The lock to get before using the editing sessions
         /// </summary>
-        private readonly object EditingLock = new object();
+        private readonly object EditingLock = new();
 
         /// <summary>
         /// Create a new model system
@@ -92,7 +92,7 @@ namespace XTMF
         /// <returns>True if the model system was loaded, false otherwise with a description of the failure in error.</returns>
         public bool LoadDetachedModelSystemFromString(string modelSystemAsText, out ModelSystem modelSystem, ref string error)
         {
-            using MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(modelSystemAsText));
+            using MemoryStream stream = new(Encoding.Unicode.GetBytes(modelSystemAsText));
             stream.Seek(0, SeekOrigin.Begin);
             modelSystem = ModelSystem.LoadDetachedModelSystem(stream, Runtime.Configuration, ref error);
             return modelSystem != null;
@@ -109,7 +109,7 @@ namespace XTMF
         {
             try
             {
-                FileInfo fileInfo = new FileInfo(fileName);
+                FileInfo fileInfo = new(fileName);
                 if (!fileInfo.Exists)
                 {
                     error = $"File does not exist '{fileName}'";
@@ -144,7 +144,7 @@ namespace XTMF
             }
             lock (RepositoryLock)
             {
-                FileInfo file = new FileInfo(fileLocation);
+                FileInfo file = new(fileLocation);
                 var msName = Path.GetFileNameWithoutExtension(file.Name);
                 if (!file.Exists)
                 {

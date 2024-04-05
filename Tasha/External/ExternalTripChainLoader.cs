@@ -42,7 +42,7 @@ namespace Tasha.External
 
         public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         [SubModelInformation(Required = true, Description = "The location of the trip chain file.")]
         public FileLocation TripChainFile;
@@ -228,7 +228,7 @@ namespace Tasha.External
             {
                 try
                 {
-                    using CsvReader reader = new CsvReader(TripChainFile);
+                    using CsvReader reader = new(TripChainFile);
                     var zoneSystem = Root.ZoneSystem.ZoneArray;
                     var zones = zoneSystem.GetFlatData();
                     var chains = new List<ITripChain>();
@@ -324,7 +324,7 @@ namespace Tasha.External
 
             public float Progress { get; set; }
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
             public bool RuntimeValidation(ref string error)
             {

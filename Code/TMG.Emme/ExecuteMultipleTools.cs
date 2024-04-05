@@ -45,7 +45,7 @@ For that list you will probably use EmmeTool as the module to fill in for that, 
         [RunParameter("EmmePath", "", "Optional: The path to an EMME installation directory to use.  This will default to the one in the system's EMMEPath")]
         public string EmmePath;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(50, 150, 50);
 
         private Func<float> CalculateProgress;
 

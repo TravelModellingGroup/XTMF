@@ -133,7 +133,7 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
 
         private Job Clone(Job job)
         {
-            Job ret = new Job();
+            Job ret = new();
             ret.Processed = false;
             ret.Processing = false;
             ret.ProcessedBy = null;

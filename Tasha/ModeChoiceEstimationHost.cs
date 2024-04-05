@@ -86,7 +86,7 @@ namespace Tasha
 
         protected Random RandomGenerator;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(50, 150, 50);
 
         private IConfiguration Configuration;
 
@@ -402,8 +402,8 @@ namespace Tasha
             HouseholdLoader.LoadData();
             var households = HouseholdLoader.ToArray();
             VehicleTypes.Add(AutoType);
-            using MemoryStream mem = new MemoryStream();
-            BinaryWriter writer = new BinaryWriter(mem);
+            using MemoryStream mem = new();
+            BinaryWriter writer = new(mem);
             writer.Write(households.Length);
             var numberOfVehicleTypes = VehicleTypes.Count;
             writer.Write(numberOfVehicleTypes);
@@ -535,7 +535,7 @@ namespace Tasha
         private void CreateDistributionThread()
         {
             StartGeneration = new MessageQueue<StartGenerationMessage>();
-            Thread distributionThread = new Thread(DistributionMain);
+            Thread distributionThread = new(DistributionMain);
             distributionThread.IsBackground = true;
             distributionThread.Start();
         }
@@ -699,7 +699,7 @@ namespace Tasha
                 throw new XTMFRuntimeException(this, "The previous evaluation file is not set to a file!");
             }
             var numberOfColumns = Parameters.Length + 2;
-            using (CsvReader reader = new CsvReader(PreviousRunFileName.GetFileName(InputBaseDirectory)))
+            using (CsvReader reader = new(PreviousRunFileName.GetFileName(InputBaseDirectory)))
             {
                 int length;
                 // process header
@@ -756,7 +756,7 @@ namespace Tasha
 
         private void LoadInstructions()
         {
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load(GetFileLocation(ParameterInstructions));
             List<ParameterSetting> parameters = [];
             var childNodes = doc["Root"]?.ChildNodes;
@@ -768,7 +768,7 @@ namespace Tasha
             {
                 if (child.Name == "Parameter")
                 {
-                    ParameterSetting current = new ParameterSetting();
+                    ParameterSetting current = new();
                     var childAttributes = child.Attributes;
                     if (childAttributes != null)
                     {
@@ -841,8 +841,8 @@ namespace Tasha
         /// <returns></returns>
         private object ReadEvaluation(Stream memory, IRemoteXTMF r)
         {
-            BinaryReader reader = new BinaryReader(memory);
-            ResultMessage ret = new ResultMessage();
+            BinaryReader reader = new(memory);
+            ResultMessage ret = new();
             var generation = reader.ReadInt32();
             ret.ProcessedIndex = reader.ReadInt32();
             if (ret.ProcessedIndex == -1)
@@ -865,7 +865,7 @@ namespace Tasha
                 {
                     try
                     {
-                        using StreamWriter writer = new StreamWriter(EvaluationFile, true);
+                        using StreamWriter writer = new(EvaluationFile, true);
                         if (writeHeader)
                         {
                             writer.Write("Generation");
@@ -937,7 +937,7 @@ namespace Tasha
 
         private void SendNextParameter(IRemoteXTMF client)
         {
-            ResultMessage msg = new ResultMessage();
+            ResultMessage msg = new();
             lock (this)
             {
                 // make sure we have the newest memory loaded up
@@ -972,7 +972,7 @@ namespace Tasha
                 var index = message.ProcessedIndex;
                 var toProcess = Population[index];
                 var parameters = toProcess.Parameters;
-                BinaryWriter writer = new BinaryWriter(s);
+                BinaryWriter writer = new(s);
                 writer.Write(CurrentIteration);
                 writer.Write(index);
                 int total = 0;

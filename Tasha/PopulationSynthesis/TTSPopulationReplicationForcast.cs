@@ -89,9 +89,9 @@ namespace Tasha.PopulationSynthesis
         private class PDData
         {
             private readonly int _pd;
-            internal readonly List<ExpandedHousehold> Households = new List<ExpandedHousehold>(10);
+            internal readonly List<ExpandedHousehold> Households = new(10);
             internal float TotalExpansionFactor;
-            private SpinLock _lock = new SpinLock(false);
+            private SpinLock _lock = new(false);
 
             public PDData(int pd)
             {
@@ -112,7 +112,7 @@ namespace Tasha.PopulationSynthesis
             internal List<KeyValuePair<int, int>> ProcessPD(int randomSeed, IZone[] zones, float householdExpansion, int[] zoneIndexes)
             {
                 bool any;
-                Random random = new Random(randomSeed * _pd);
+                Random random = new(randomSeed * _pd);
                 var rPerZone = zoneIndexes.Select(z => new Random(random.Next())).ToArray();
                 var ret = new List<KeyValuePair<int, int>>();
                 var remaining = zoneIndexes.Select((z) => (int)Math.Round(zones[z].Population * householdExpansion)).ToArray();
@@ -276,7 +276,7 @@ namespace Tasha.PopulationSynthesis
             {
                 info.Create();
             }
-            StringBuilder buildFileName = new StringBuilder();
+            StringBuilder buildFileName = new();
             switch (occ)
             {
                 case Occupation.Professional:
@@ -306,7 +306,7 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerForceDirectory));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerForceDirectory));
             writer.WriteLine("Zone,Persons");
             for (int i = 0; i < workers.Length; i++)
             {
@@ -321,7 +321,7 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerCategoryData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[][] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
             writer.WriteLine("Zone,WorkerCategory,Persons");
             for (int i = 0; i < workers.Length; i++)
             {

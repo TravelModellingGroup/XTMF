@@ -73,13 +73,13 @@ namespace Tasha.Validation.ModeChoice
         /// A working-set of data to calculate the travel times for DAT properly
         /// </summary>
         private ConcurrentDictionary<ITashaHousehold, Dictionary<PersonChain, DATIterationInformation>> _activeDATData
-            = new ConcurrentDictionary<ITashaHousehold, Dictionary<PersonChain, DATIterationInformation>>();
+            = new();
 
         private ConcurrentDictionary<ITashaHousehold, Dictionary<ITrip, PATIterationInformation>> _activePATData
-            = new ConcurrentDictionary<ITashaHousehold, Dictionary<ITrip, PATIterationInformation>>();
+            = new();
 
         private ConcurrentDictionary<ITashaHousehold, Dictionary<ITrip, PassengerIterationInformation>> _activePassengerData
-            = new ConcurrentDictionary<ITashaHousehold, Dictionary<ITrip, PassengerIterationInformation>>();
+            = new();
 
         [RootModule]
         public ITashaRuntime Root;
@@ -149,7 +149,7 @@ namespace Tasha.Validation.ModeChoice
 
         public float Progress => 0.0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         private struct HouseholdRecord
         {
@@ -1025,7 +1025,7 @@ namespace Tasha.Validation.ModeChoice
                 public DriverTrip(DriverTrip previous) : this(previous.DriverID, previous.DriverTripID, previous.Count + 1) { }
             }
 
-            private List<DriverTrip> _driverRecords = new List<DriverTrip>(1);
+            private List<DriverTrip> _driverRecords = new(1);
 
             public void Add(ITrip driverTrip, ExtractPersonalAndTripRecords module)
             {
@@ -1120,13 +1120,13 @@ namespace Tasha.Validation.ModeChoice
 
         private static void CompressAndRemove(string originalFileName)
         {
-            FileInfo fileToCompress = new FileInfo(originalFileName);
+            FileInfo fileToCompress = new(originalFileName);
             if (fileToCompress.Exists)
             {
                 using (FileStream originalFileStream = fileToCompress.OpenRead())
                 {
                     using FileStream compressedFileStream = File.Create(fileToCompress.FullName + ".gz");
-                    using GZipStream compressionStream = new GZipStream(compressedFileStream,
+                    using GZipStream compressionStream = new(compressedFileStream,
                        CompressionMode.Compress);
                     originalFileStream.CopyTo(compressionStream);
                 }

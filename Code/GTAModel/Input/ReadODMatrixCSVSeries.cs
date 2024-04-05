@@ -101,7 +101,7 @@ namespace TMG.GTAModel.Input
 
         private void ReadFile(string fileName, IZone[] zones, float[][] matrix)
         {
-            using CsvReader reader = new CsvReader(fileName);
+            using CsvReader reader = new(fileName);
             var rowCount = 0;
             int length;
             // burn header

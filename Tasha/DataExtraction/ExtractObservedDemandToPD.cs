@@ -73,7 +73,7 @@ namespace Tasha.DataExtraction
             /// <summary>
             /// This is the lock for accessing the demand matrix data, please acquire this before changing the values
             /// </summary>
-            private SpinLock WriteLock = new SpinLock(false);
+            private SpinLock WriteLock = new(false);
 
             /// <summary>
             /// Please have the write lock before editing these values
@@ -148,7 +148,7 @@ namespace Tasha.DataExtraction
             public void Save()
             {
                 var pdIndexes = Parent.PDArray.ValidIndexArray();
-                using StreamWriter writer = new StreamWriter(SaveTo);
+                using StreamWriter writer = new(SaveTo);
                 //write header
                 writer.Write("OriginPD\\DestinationPD");
                 for (int i = 0; i < pdIndexes.Length; i++)

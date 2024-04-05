@@ -57,7 +57,7 @@ namespace Tasha.Validation.ValidateModeChoice
                 lock (this)
                 {
                     var writeHeader = !File.Exists(OutputFile);
-                    using StreamWriter writer = new StreamWriter(OutputFile, true);
+                    using StreamWriter writer = new(OutputFile, true);
                     if (writeHeader)
                     {
                         writer.WriteLine("HouseholdID,HouseholdIteration,Household Utility");

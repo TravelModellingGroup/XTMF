@@ -43,7 +43,7 @@ namespace TMG.NetworkEstimation
         [RunParameter( "Scenario", 0, "The Emme scenario from which to extract results." )]
         public int ScenarioNumber;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new( 100, 100, 150 );
         private const string ToolName = "tmg.XTMF_internal.return_grouped_boardings";
 
         [SubModelInformation(Required = false, Description = "Save to this file instead of sending over the network.")]
@@ -59,7 +59,7 @@ namespace TMG.NetworkEstimation
             string result = "";
             mc.Run(this, ToolName, ScenarioNumber.ToString(), ( p => _Progress = p ), ref result );
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append(Root.CurrentTask.Generation);
             builder.Append(',');
             builder.Append(Root.CurrentTask.Index);
@@ -86,7 +86,7 @@ namespace TMG.NetworkEstimation
             }
             else
             {
-                using StreamWriter writer = new StreamWriter(SaveToFile);
+                using StreamWriter writer = new(SaveToFile);
                 writer.WriteLine(builder.ToString());
             }
             return true;

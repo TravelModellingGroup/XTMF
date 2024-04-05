@@ -59,7 +59,7 @@ namespace Tasha.XTMFScheduler
 
         public void Run(ITashaHousehold household)
         {
-            Random householdRandom = new Random( Seed * household.HouseholdId );
+            Random householdRandom = new( Seed * household.HouseholdId );
             var persons = household.Persons;
             List<IActivityEpisode>[] episodes = InitializeEpisodes( persons );
             GenerateEpisodes( household, householdRandom, persons, episodes );

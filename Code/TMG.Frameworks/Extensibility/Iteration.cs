@@ -68,7 +68,7 @@ namespace TMG.Frameworks.Extensibility
                 else
                 {
                     Thread[] threads = new Thread[IterationModules.Length];
-                    ConcurrentQueue<Exception> errorList = new ConcurrentQueue<Exception>();
+                    ConcurrentQueue<Exception> errorList = new();
                     for (int i = 0; i < threads.Length; i++)
                     {
                         var avoidSharingI = i;

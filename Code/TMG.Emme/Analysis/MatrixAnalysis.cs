@@ -48,7 +48,7 @@ namespace TMG.Emme.Analysis
         private void SaveData(float[][] aggData, string[] aggregationHeaders)
         {
 
-            using StreamWriter writer = new StreamWriter(OutputFile);
+            using StreamWriter writer = new(OutputFile);
             if (ThirdNormalizedForm)
             {
                 writer.WriteLine("From,To,Value");
@@ -99,7 +99,7 @@ namespace TMG.Emme.Analysis
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             List<string> headers = [];
             var map = new List<int>[zoneSystem.Count];
-            using (CsvReader reader = new CsvReader(AggregationFile))
+            using (CsvReader reader = new(AggregationFile))
             {
                 // burn header
                 reader.LoadLine(out int columns);

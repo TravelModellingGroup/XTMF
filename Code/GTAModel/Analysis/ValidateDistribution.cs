@@ -113,7 +113,7 @@ namespace TMG.GTAModel.Analysis
         private SparseArray<int> CreatePDArray()
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            List<int> pdNumbersFound = new List<int>(10);
+            List<int> pdNumbersFound = new(10);
             for (int i = 0; i < zones.Length; i++)
             {
                 var pdId = zones[i].PlanningDistrict;
@@ -129,7 +129,7 @@ namespace TMG.GTAModel.Analysis
         private SparseArray<int> CreateRegionArray()
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            List<int> regionNumbersFound = new List<int>(10);
+            List<int> regionNumbersFound = new(10);
             for (int i = 0; i < zones.Length; i++)
             {
                 var regionId = zones[i].RegionNumber;
@@ -324,7 +324,7 @@ namespace TMG.GTAModel.Analysis
         private void WriteOut<T>(SparseArray<T> aggregation, float[][] data, string fileName, Func<T, int> getValue)
         {
             var flatAggregation = aggregation.GetFlatData();
-            using StreamWriter writer = new StreamWriter(fileName);
+            using StreamWriter writer = new(fileName);
             // write the top hat
             writer.Write("Origin\\Destination");
             for (int i = 0; i < flatAggregation.Length; i++)

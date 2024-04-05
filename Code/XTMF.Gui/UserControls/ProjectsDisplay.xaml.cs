@@ -243,7 +243,7 @@ namespace XTMF.Gui.UserControls
             {
                 string error = null;
                 StringRequestDialog dialog = 
-                    new StringRequestDialog(RootDialogHost, "Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
+                    new(RootDialogHost, "Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
                 var result = await dialog.ShowAsync();
                 if (dialog.DidComplete)
                 {

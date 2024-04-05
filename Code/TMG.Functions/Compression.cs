@@ -87,7 +87,7 @@ namespace TMG.Functions
             try
             {
                 writer = new FileStream( outputFileName, FileMode.Create );
-                using GZipStream stream = new GZipStream(writer, CompressionMode.Compress);
+                using GZipStream stream = new(writer, CompressionMode.Compress);
                 writer = null;
                 inputStream.CopyTo(stream);
             }

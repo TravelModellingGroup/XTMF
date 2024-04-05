@@ -473,7 +473,7 @@ namespace Tasha.Scheduler
         {
             Status = "Writing Files...";
             Progress = 0;
-            using StreamWriter writer = new StreamWriter(OutputResults);
+            using StreamWriter writer = new(OutputResults);
             writer.WriteLine("DistID, StartTime, Duration, ExpPersons");
 
             for (int i = 0; i < ResultsArray.Length; i++)

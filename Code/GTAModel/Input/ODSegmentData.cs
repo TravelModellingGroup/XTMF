@@ -155,7 +155,7 @@ namespace TMG.GTAModel.Input
         private void LoadData()
         {
             // Load in the spatial data
-            List<SegmentData> data = new List<SegmentData>( 20 );
+            List<SegmentData> data = new( 20 );
             var segmentArray = LoadInSegmentData( data );
             // now load in the payloads
             IncludeSegmentPayload( segmentArray );

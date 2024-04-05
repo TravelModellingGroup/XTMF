@@ -97,7 +97,7 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iterationNumber)
         {
-            using StreamWriter writer = new StreamWriter(OutputFile);
+            using StreamWriter writer = new(OutputFile);
             foreach (var activityDictionary in ActivityStartTimeDictionaries)
             {
                 var activityStr = activityDictionary.Key.ToString();

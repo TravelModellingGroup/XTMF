@@ -144,7 +144,7 @@ namespace TMG.NetworkEstimation
         public void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction)
         {
             Progress = 0;
-            Random rand = new Random( ( ++NumberOfExplorations ) * ( RandomSeed ) );
+            Random rand = new( ( ++NumberOfExplorations ) * ( RandomSeed ) );
             var numberOfParameters = parameters.Length;
             Kernel = parameters.Clone() as ParameterSetting[];
             ParameterVolatility = new float[numberOfParameters];
@@ -249,7 +249,7 @@ namespace TMG.NetworkEstimation
                 absmeandiff += Math.Abs( explorationGradients[i, 3] - average );
                 ParameterVolatility[i] = absmeandiff;
             }
-            using StreamWriter writer = new StreamWriter("Volatility.csv", true);
+            using StreamWriter writer = new("Volatility.csv", true);
             writer.Write(ParameterVolatility[0]);
             for (int i = 1; i < dimensions; i++)
             {
@@ -343,7 +343,7 @@ namespace TMG.NetworkEstimation
             if ( RerunFromLastRunParameters && File.Exists( EvaluationFile ) )
             {
                 // store the best values in the kernel
-                using StreamReader reader = new StreamReader(EvaluationFile);
+                using StreamReader reader = new(EvaluationFile);
                 string line;
                 // Burn the header
                 reader.ReadLine();
@@ -379,7 +379,7 @@ namespace TMG.NetworkEstimation
             }
             else
             {
-                XmlDocument doc = new XmlDocument();
+                XmlDocument doc = new();
                 doc.Load( InitialParameterFile );
                 var childNodes = doc["Root"]?.ChildNodes;
                 if (childNodes != null)

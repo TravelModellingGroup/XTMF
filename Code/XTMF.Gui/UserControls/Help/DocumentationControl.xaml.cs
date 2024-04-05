@@ -206,7 +206,7 @@ namespace XTMF.Gui.UserControls
             {
                 return type.Name;
             }
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append(type.Name, 0, type.Name.IndexOf('`'));
             builder.Append('<');
             var inside = type.GetGenericArguments();

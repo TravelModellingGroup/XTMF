@@ -142,7 +142,7 @@ namespace Tasha.Common
             {
                 throw new XTMFRuntimeException(this, $"Unable to find a file with the path '{zoneFile}' to load zones from!");
             }
-            List<IZone> zones = new List<IZone>(2500);
+            List<IZone> zones = new(2500);
             var maxColumnSize = 0;
             using (var reader = new CsvReader(zoneFile, false))
             {
@@ -207,7 +207,7 @@ namespace Tasha.Common
                 var zones = zoneArray.GetFlatData();
                 try
                 {
-                    using CsvReader reader = new CsvReader(RegionFile);
+                    using CsvReader reader = new(RegionFile);
                     // burn header
                     reader.LoadLine(out int columns);
                     // read the rest

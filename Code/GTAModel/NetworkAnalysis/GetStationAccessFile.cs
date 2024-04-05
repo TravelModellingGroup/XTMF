@@ -52,7 +52,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter( "Search Radius", 1000.0f, "The radius around the centroid, in coordinate units (m), in which to search for subway and GO stations" )]
         public float SearchRadius;
 
-        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private Tuple<byte, byte, byte> _progressColour = new( 100, 100, 150 );
         private const string ToolName = "tmg.analysis.transit.create_station_access_file";
         private const string AlternateToolName = "TMG2.Analysis.Transit.GetStationAccessFile";
 

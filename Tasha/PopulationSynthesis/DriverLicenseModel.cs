@@ -40,7 +40,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         public void Load()
         {
@@ -60,7 +60,7 @@ namespace Tasha.PopulationSynthesis
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
             [RunParameter("Planning Districts", "0", typeof(RangeSet), "The planning districts to apply this constant to.")]
             public RangeSet PlanningDistricts;

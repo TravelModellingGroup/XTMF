@@ -34,7 +34,7 @@ namespace TMG.Emme.XTMF_Internal
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         [SubModelInformation(Required = true, Description = "The location of the transaction file to load.")]
         public FileLocation TransactionFile;
@@ -48,8 +48,8 @@ namespace TMG.Emme.XTMF_Internal
             {
                 return mc.Run(this, "tmg.XTMF_internal.import_function_batch_file", new ModellerControllerParameter[]
                 {
-                    new ModellerControllerParameter("batch_file", TransactionFile),
-                    new ModellerControllerParameter("scenario_number", ScenarioNumber.ToString()),
+                    new("batch_file", TransactionFile),
+                    new("scenario_number", ScenarioNumber.ToString()),
                 });
             }
             else

@@ -251,7 +251,7 @@ namespace TMG.GTAModel
         {
             // create the data if it doesn't already exist
             OdMatrixWriter<IZone> creator =
-                new OdMatrixWriter<IZone>(Root.ZoneSystem.ZoneArray, 2, 3)
+                new(Root.ZoneSystem.ZoneArray, 2, 3)
                 {
                     Year = Year,
                     AdditionalDescription = "Automatically Generated",

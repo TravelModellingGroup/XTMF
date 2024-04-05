@@ -25,7 +25,7 @@ namespace XTMF.Networking
         /// <summary>
         /// The message queue that we are going to be using
         /// </summary>
-        internal MessageQueue<Message> Messages = new MessageQueue<Message>();
+        internal MessageQueue<Message> Messages = new();
 
         public RemoteXTMF()
         {

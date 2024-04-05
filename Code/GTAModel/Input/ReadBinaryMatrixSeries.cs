@@ -106,7 +106,7 @@ namespace TMG.GTAModel.Input
             }
             var fileName = fileNameWithIndexing.Insert( indexOfInsert, index.ToString() ).Replace( "%X", "" );
             var toProcess = new BlockingCollection<ProcessOrder>( 1 );
-            Task processingTask = new Task(
+            Task processingTask = new(
                 () =>
                 {
                     var floatTemp = new float[flatRet.Length];

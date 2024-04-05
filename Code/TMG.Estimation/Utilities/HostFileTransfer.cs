@@ -114,7 +114,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
         {
             lock (this)
             {
-                using FileStream stream = new FileStream(path, Append ? FileMode.Append : FileMode.Create);
+                using FileStream stream = new(path, Append ? FileMode.Append : FileMode.Create);
                 stream.Write(data, 0, data.Length);
             }
         }

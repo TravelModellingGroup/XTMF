@@ -42,7 +42,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("Demand Matrix Number", 15, "The number of the demand matrix used in the transit assignment.")]
         public int DemandMatrixNumber;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         private const string ToolName = "tmg.XTMF_internal.return_matrix_results";
 
         public bool Execute(Controller controller)
@@ -58,7 +58,7 @@ namespace TMG.NetworkEstimation
             mc.Run(this, ToolName, args, (p => _Progress = p), ref result);
             var modelResults = _ParsePythonResults(result);
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             foreach (var line in modelResults)
             {
                 builder.Append(Root.CurrentTask.Generation);

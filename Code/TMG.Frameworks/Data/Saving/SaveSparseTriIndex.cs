@@ -33,7 +33,7 @@ namespace TMG.Frameworks.Data.Saving
         public string Name { get; set; }
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         [SubModelInformation(Required = true, Description = "The datasource to save")]
         public IDataSource<SparseTriIndex<float>> DataSource;
@@ -111,7 +111,7 @@ namespace TMG.Frameworks.Data.Saving
         {
             string buildRow(float[] data, int rowNumber)
             {
-                StringBuilder b = new StringBuilder();
+                StringBuilder b = new();
                 b.Append(rowNumber);
                 for (int i = 0; i < data.Length; i++)
                 {
@@ -175,7 +175,7 @@ namespace TMG.Frameworks.Data.Saving
                     throw new XTMFRuntimeException(this, "Unknown file format!");
             }
             // make sure the path exists
-            DirectoryInfo dir = new DirectoryInfo(Path.GetDirectoryName(ret));
+            DirectoryInfo dir = new(Path.GetDirectoryName(ret));
             if(!dir.Exists)
             {
                 dir.Create();

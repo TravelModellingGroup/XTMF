@@ -48,8 +48,8 @@ namespace Datastructure
         /// <param name="offset">How much other data comes before our new entries?</param>
         public static void CsvToZfc(string csv, int highestZone, int types, string zfc, bool header, int offset)
         {
-            StreamReader reader = new StreamReader(new FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.SequentialScan));
-            BinaryWriter writer = new BinaryWriter(new
+            StreamReader reader = new(new FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.SequentialScan));
+            BinaryWriter writer = new(new
                 FileStream(zfc, FileMode.OpenOrCreate, FileAccess.Write,
                 FileShare.None, 0x1000, FileOptions.RandomAccess),
                 Encoding.Default);

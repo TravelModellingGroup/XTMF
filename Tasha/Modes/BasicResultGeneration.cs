@@ -53,7 +53,7 @@ namespace Tasha.Modes
         [ThreadStatic]
         private static StringBuilder Builder;
 
-        private SpinLock WriteLock = new SpinLock(false);
+        private SpinLock WriteLock = new(false);
 
         public void Execute(ITashaHousehold household, int iteration)
         {

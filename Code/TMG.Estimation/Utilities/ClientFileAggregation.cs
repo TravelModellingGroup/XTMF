@@ -37,7 +37,7 @@ namespace TMG.Estimation.Utilities
             {
                 Client.RegisterCustomSender( DataChannel, (data, stream) =>
                     {
-                        BinaryWriter writer = new BinaryWriter( stream );
+                        BinaryWriter writer = new( stream );
                         var str = ( (string)data ).ToCharArray();
                         writer.Write( str, 0, str.Length );
                         writer.Flush();

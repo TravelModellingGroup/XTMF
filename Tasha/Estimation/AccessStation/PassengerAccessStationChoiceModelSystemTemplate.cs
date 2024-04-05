@@ -23,7 +23,7 @@ namespace Tasha.Estimation.AccessStation
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         public IList<INetworkData> NetworkData { get; set; }
 

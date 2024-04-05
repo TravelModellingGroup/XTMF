@@ -244,7 +244,7 @@ namespace Tasha.ModeChoice
                     //a Personal vehicle mode
                     if ( j > 0 )
                     {
-                        UnAssignedModeSet newUms = new UnAssignedModeSet( chains[position], set, set.ChosenMode[0].RequiresVehicle );
+                        UnAssignedModeSet newUms = new( chains[position], set, set.ChosenMode[0].RequiresVehicle );
                         List<UnAssignedModeSet> allChainsWithSameVehicle = currentChains.FindAll( n => n.VehicleType == newUms.VehicleType );
                         List<ITripChain> sameVehicleChains = [];
                         foreach ( var ums in allChainsWithSameVehicle )
@@ -484,7 +484,7 @@ namespace Tasha.ModeChoice
         /// <returns></returns>
         private static bool Conflict(List<ITripChain> tripChains, int numVehicles, int bestForVehicle)
         {
-            List<Pair<Time, int>> tripIntervals = new List<Pair<Time, int>>( tripChains.Count() * 2 );
+            List<Pair<Time, int>> tripIntervals = new( tripChains.Count() * 2 );
             foreach ( ITripChain tripChain in tripChains )
             {
                 //add start time to list

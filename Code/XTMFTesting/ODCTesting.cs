@@ -35,7 +35,7 @@ namespace XTMF.Testing
             try
             {
                 int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
-                SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
+                SparseArray<int> referenceArray = new( new SparseIndexing()
                 {
                     Indexes = new[]
                 {
@@ -66,7 +66,7 @@ namespace XTMF.Testing
             try
             {
                 int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
-                SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
+                SparseArray<int> referenceArray = new( new SparseIndexing()
                 {
                     Indexes = new[]
                 {
@@ -97,7 +97,7 @@ namespace XTMF.Testing
             try
             {
                 int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
-                SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
+                SparseArray<int> referenceArray = new( new SparseIndexing()
                 {
                     Indexes = new[]
                 {
@@ -138,7 +138,7 @@ namespace XTMF.Testing
             try
             {
                 int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
-                SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
+                SparseArray<int> referenceArray = new( new SparseIndexing()
                 {
                     Indexes = new[]
                 {
@@ -196,7 +196,7 @@ namespace XTMF.Testing
         {
             using var writer = new StreamWriter(fileName);
             var numberOfZones = zones.Length;
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.EnsureCapacity(100);
             char[] buff = new char[100];
             writer.WriteLine("c Emme Modeller - Matrix Transaction");
@@ -227,7 +227,7 @@ namespace XTMF.Testing
         {
             using var writer = new StreamWriter(fileName);
             var numberOfZones = zones.Length;
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.EnsureCapacity(100);
             char[] buff = new char[100];
             for (int i = 0; i < numberOfZones; i++)
@@ -253,7 +253,7 @@ namespace XTMF.Testing
 
         private float[][] CreateData(int numberOfZones)
         {
-            Random r = new Random();
+            Random r = new();
             var ret = new float[numberOfZones][];
             for ( int i = 0; i < numberOfZones; i++ )
             {
@@ -270,7 +270,7 @@ namespace XTMF.Testing
         {
             ArgumentNullException.ThrowIfNull(zones);
             ArgumentNullException.ThrowIfNull(data);
-            OdCache odc = new OdCache( odcFileName );
+            OdCache odc = new( odcFileName );
             var storedData = odc.StoreAll().GetFlatData();
             odc.Release();
             if ( storedData.Length != data.Length )

@@ -329,7 +329,7 @@ namespace TMG.GTAModel.ModeSplit
                 temp[i] = [];
             }
             var numberOfModes = Root.Modes.Count;
-            using (CsvReader reader = new CsvReader(InputFile.GetFileName(Root.InputBaseDirectory)))
+            using (CsvReader reader = new(InputFile.GetFileName(Root.InputBaseDirectory)))
             {
                 // burn header
                 reader.LoadLine();

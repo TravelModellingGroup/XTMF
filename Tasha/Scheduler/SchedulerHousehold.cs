@@ -110,8 +110,8 @@ namespace Tasha.Scheduler
         {
             SchedHouseholdData data;
             household.Attach("SData", data = new SchedHouseholdData());
-            ProjectSchedule jointOtherSchedule = new ProjectSchedule();
-            ProjectSchedule jointMarketSchedule = new ProjectSchedule();
+            ProjectSchedule jointOtherSchedule = new();
+            ProjectSchedule jointMarketSchedule = new();
             Project jointOtherProject = new HouseholdProject(household, jointOtherSchedule);
             Project jointMarketProject = new HouseholdProject(household, jointMarketSchedule);
             data.JointOtherProject = jointOtherProject;
@@ -763,7 +763,7 @@ namespace Tasha.Scheduler
             {
                 IZone homeZone = person.Household.HomeZone;
 
-                Time halfAnHour = new Time() { Minutes = 30 };
+                Time halfAnHour = new() { Minutes = 30 };
 
                 Time maxEndTime = ((episode.EndTime - halfAnHour) < Scheduler.ReturnHomeFromWorkMaxEndTime) ? (episode.EndTime - halfAnHour) : Scheduler.ReturnHomeFromWorkMaxEndTime;
 
@@ -775,7 +775,7 @@ namespace Tasha.Scheduler
                     return;
                 }
 
-                Time maxDuration = new Time(Math.Min((Scheduler.ReturnHomeFromWorkMaxEndTime - Time.OneHour).ToFloat(),
+                Time maxDuration = new(Math.Min((Scheduler.ReturnHomeFromWorkMaxEndTime - Time.OneHour).ToFloat(),
                     (episode.EndTime - halfAnHour - startTime).ToFloat()));
 
                 if (!TimeTable.GetDuration(person, Activity.ReturnFromWork, startTime, maxDuration, random, out Time duration))

@@ -43,7 +43,7 @@ namespace Datastructure
         /// <param name="offset">How much other data comes before our new entries?</param>
         public void LoadCsv(string csv, bool header, int offset = 0)
         {
-            using CsvReader reader = new CsvReader(csv);
+            using CsvReader reader = new(csv);
             var dataLength = Data.Length;
             if (header) reader.LoadLine();
             while (!reader.EndOfFile)
@@ -74,7 +74,7 @@ namespace Datastructure
 
         public void Save(string fileName)
         {
-            using BinaryWriter writer = new BinaryWriter(new
+            using BinaryWriter writer = new(new
                 FileStream(fileName, FileMode.Create, FileAccess.Write,
                 FileShare.None, 0x8000, FileOptions.SequentialScan),
                 Encoding.Default);

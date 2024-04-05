@@ -49,7 +49,7 @@ namespace XTMF.Editing
         /// <param name="error"></param>
         public bool CreateNewRegionDisplay(string name, ref string error)
         {
-            RegionDisplay regionDisplay = new RegionDisplay()
+            RegionDisplay regionDisplay = new()
             {
                 Name = name
             };
@@ -160,7 +160,7 @@ namespace XTMF.Editing
         /// <returns></returns>
         public bool CreateNewGroupDisplay(RegionDisplay region, string name, ref string error)
         {
-            RegionGroup regionGroup = new RegionGroup(region)
+            RegionGroup regionGroup = new(region)
             {
                 Name = name
             };

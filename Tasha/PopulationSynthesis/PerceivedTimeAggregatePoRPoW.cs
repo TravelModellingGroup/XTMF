@@ -458,7 +458,7 @@ namespace Tasha.PopulationSynthesis
             var ret = new float[zones.Length * NumberOfWorkerCategories];
             try
             {
-                using CsvReader reader = new CsvReader(WorkerCategorySplits);
+                using CsvReader reader = new(WorkerCategorySplits);
                 //burn header
                 reader.LoadLine(out int columns);
                 // read data

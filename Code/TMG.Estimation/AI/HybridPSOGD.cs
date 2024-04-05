@@ -194,7 +194,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
             internal Job UpdatePosition(HybridPSOGD us, Random rand)
             {
                 var temp = Job.Parameters;
-                Job job = new Job
+                Job job = new()
                 {
                     Processed = false,
                     ProcessedBy = null,
@@ -551,7 +551,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
 
         private Job Clone(Job job)
         {
-            Job ret = new Job
+            Job ret = new()
             {
                 Processed = false,
                 Processing = false,

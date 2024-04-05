@@ -493,16 +493,16 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     var start = i * zones.Length;
                     var end = start + zones.Length;
-                    Vector<float> vCost = new Vector<float>(Cost);
-                    Vector<float> vAutoTime = new Vector<float>(AutoTime);
-                    Vector<float> vTransitConstant = new Vector<float>(TransitConstant);
-                    Vector<float> vTransitTime = new Vector<float>(TransitTime);
-                    Vector<float> vTransitWalk = new Vector<float>(TransitWalk);
-                    Vector<float> vTransitWait = new Vector<float>(TransitWait);
-                    Vector<float> vTransitBoarding = new Vector<float>(TransitBoarding);
-                    Vector<float> vActiveConstant = new Vector<float>(ActiveConstant);
-                    Vector<float> vActiveDistance = new Vector<float>(ActiveDistance);
-                    Vector<float> vNegativeInfinity = new Vector<float>(float.NegativeInfinity);
+                    Vector<float> vCost = new(Cost);
+                    Vector<float> vAutoTime = new(AutoTime);
+                    Vector<float> vTransitConstant = new(TransitConstant);
+                    Vector<float> vTransitTime = new(TransitTime);
+                    Vector<float> vTransitWalk = new(TransitWalk);
+                    Vector<float> vTransitWait = new(TransitWait);
+                    Vector<float> vTransitBoarding = new(TransitBoarding);
+                    Vector<float> vActiveConstant = new(ActiveConstant);
+                    Vector<float> vActiveDistance = new(ActiveDistance);
+                    Vector<float> vNegativeInfinity = new(float.NegativeInfinity);
                     int index = start;
                     // copy everything we can do inside of a vector
                     for (; index <= end - Vector<float>.Count; index += Vector<float>.Count)
@@ -823,7 +823,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 float total = 0.0f;
                 if (Vector.IsHardwareAccelerated)
                 {
-                    Vector<float> availableTimeV = new Vector<float>(available);
+                    Vector<float> availableTimeV = new(available);
                     Vector<float> totalV = Vector<float>.Zero;
                     int i;
                     if (nIndex == pIndex)
@@ -859,7 +859,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         var timeFrom = new Vector<float>(columnTimes, nextIndexOffset + i);
                         var utilityTo = new Vector<float>(to, previousIndexOffset + i);
                         var utilityFrom = new Vector<float>(from, nextIndexOffset + i);
-                        Vector<float> calcV = new Vector<float>(calculationSpace, i);
+                        Vector<float> calcV = new(calculationSpace, i);
                         Vector<int> zeroMask = Vector.LessThanOrEqual(timeTo + timeFrom, availableTimeV);
                         calcV = Vector.AsVectorSingle(Vector.BitwiseAnd(Vector.AsVectorInt32(calcV), zeroMask))
                             * utilityTo * utilityFrom;

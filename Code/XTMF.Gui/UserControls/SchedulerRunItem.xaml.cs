@@ -129,7 +129,7 @@ namespace XTMF.Gui.UserControls
             base.OnMouseMove(e);
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                DataObject data = new DataObject();
+                DataObject data = new();
                 data.SetData("RunItem", this.DataContext);
                 data.SetData("Index",this._schedulerWindow.ScheduledRuns.Items.IndexOf(this.DataContext));
                 DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
@@ -250,7 +250,7 @@ namespace XTMF.Gui.UserControls
         {
             this._schedulerWindow = this.Tag as SchedulerWindow;
             var layer = AdornerLayer.GetAdornerLayer(this);
-            DragDropAdorner moveAdorner = new DragDropAdorner(this);
+            DragDropAdorner moveAdorner = new(this);
             layer.Add(moveAdorner);
         }
     }

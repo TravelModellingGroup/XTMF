@@ -18,7 +18,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("Scenario", 0, "The Emme scenario from which to extract results.")]
         public int ScenarioNumber;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         private const string ToolName = "tmg.XTMF_internal.return_boarding_types";
 
         public bool Execute(Controller controller)
@@ -32,7 +32,7 @@ namespace TMG.NetworkEstimation
             mc.Run(this, ToolName, ScenarioNumber.ToString(), (p => _Progress = p), ref result);
             var modelResults = _ParsePythonResults(result);
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append(Root.CurrentTask.Generation);
             builder.Append(',');
             builder.Append(Root.CurrentTask.Index);

@@ -32,7 +32,7 @@ namespace XTMF.Networking
     public class MessageQueue<T> : IDisposable
     {
         private ConcurrentQueue<T> Messages = new();
-        private SemaphoreSlim? Sem = new SemaphoreSlim(0);
+        private SemaphoreSlim? Sem = new(0);
 
         /// <summary>
         /// Add a new message to the queue

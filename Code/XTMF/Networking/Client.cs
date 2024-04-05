@@ -37,15 +37,15 @@ namespace XTMF.Networking
 
         private volatile IModelSystemTemplate _CurrentRunningModelSystem;
 
-        private ConcurrentDictionary<int, List<Action<object>>> _CustomHandlers = new ConcurrentDictionary<int, List<Action<object>>>();
+        private ConcurrentDictionary<int, List<Action<object>>> _CustomHandlers = new();
 
-        private ConcurrentDictionary<int, Func<Stream, object>> _CustomReceivers = new ConcurrentDictionary<int, Func<Stream, object>>();
+        private ConcurrentDictionary<int, Func<Stream, object>> _CustomReceivers = new();
 
-        private ConcurrentDictionary<int, Action<object, Stream>> _CustomSenders = new ConcurrentDictionary<int, Action<object, Stream>>();
+        private ConcurrentDictionary<int, Action<object, Stream>> _CustomSenders = new();
 
         private bool _Exit = false;
 
-        private MessageQueue<Message> _Messages = new MessageQueue<Message>();
+        private MessageQueue<Message> _Messages = new();
 
         private Thread _ModelSystemThread;
 
@@ -53,7 +53,7 @@ namespace XTMF.Networking
 
         private float _Progress = 0;
 
-        private LinkedList<DelayedResult> ResourceRequests = new LinkedList<DelayedResult>();
+        private LinkedList<DelayedResult> ResourceRequests = new();
 
         public Client(string address, int port, IConfiguration configuration)
         {
@@ -61,7 +61,7 @@ namespace XTMF.Networking
             _Address = address;
             _Port = port;
             new Thread(ClientMain).Start();
-            Thread progressThread = new Thread(delegate ()
+            Thread progressThread = new(delegate ()
            {
                while (!_Exit)
                {
@@ -94,7 +94,7 @@ namespace XTMF.Networking
                    {
                        try
                        {
-                           BinaryReader reader = new BinaryReader(networkStream);
+                           BinaryReader reader = new(networkStream);
                            // we need some connection every 60 minutes, the host should be trying to request progress
                            networkStream.ReadTimeout = Timeout.Infinite;
                            while (!done || _Exit)
@@ -117,7 +117,7 @@ namespace XTMF.Networking
                                            {
                                                data = Deserialize(reader);
                                            }
-                                           Result res = new Result() { Name = name, Data = data };
+                                           Result res = new() { Name = name, Data = data };
                                            msg.Data = res;
                                            _Messages.Add(msg);
                                        }
@@ -153,7 +153,7 @@ namespace XTMF.Networking
                                            var number = reader.ReadInt32();
                                            var length = reader.ReadInt32();
                                            var buff = new byte[length];
-                                           MemoryStream buffer = new MemoryStream(buff);
+                                           MemoryStream buffer = new(buff);
                                            int soFar = 0;
                                            while (soFar < length)
                                            {
@@ -208,7 +208,7 @@ namespace XTMF.Networking
                            Thread.MemoryBarrier();
                        }
                    }).Start();
-                BinaryWriter writer = new BinaryWriter(networkStream);
+                BinaryWriter writer = new(networkStream);
                 networkStream.WriteTimeout = 20000;
                 while (!done && !_Exit)
                 {
@@ -294,7 +294,7 @@ namespace XTMF.Networking
 
         public object RetriveResource(string name, Type t)
         {
-            DelayedResult result = new DelayedResult() { Name = name };
+            DelayedResult result = new() { Name = name };
             _Messages.Add(new Message(MessageType.RequestResource, result));
             result.Lock.Wait();
             result.Lock.Dispose();
@@ -309,7 +309,7 @@ namespace XTMF.Networking
 
         public bool SetResource(string name, object o)
         {
-            Result data = new Result() { Name = name, Data = o };
+            Result data = new() { Name = name, Data = o };
             _Messages.Add(new Message(MessageType.PostResource, data));
             return true;
         }
@@ -475,7 +475,7 @@ namespace XTMF.Networking
                     {
                         var mssBuff = message.Data as byte[];
                         IModelSystemStructure mss = null;
-                        using (MemoryStream memory = new MemoryStream())
+                        using (MemoryStream memory = new())
                         {
                             memory.Write(mssBuff, 0, mssBuff.Length);
                             memory.Position = 0;
@@ -516,7 +516,7 @@ namespace XTMF.Networking
                         }
                         if (getConverter)
                         {
-                            using MemoryStream mem = new MemoryStream(0x100);
+                            using MemoryStream mem = new(0x100);
                             try
                             {
                                 customConverter(msg.Data, mem);

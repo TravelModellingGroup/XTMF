@@ -58,7 +58,7 @@ namespace Tasha.Validation.PoRPoW
         [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
         public int MinimumAge;
 
-        SpinLock WriteLock = new SpinLock(false);
+        SpinLock WriteLock = new(false);
         Dictionary<int, Dictionary<StudentStatus, float[][]>> Data = [];
         public void Execute(ITashaHousehold household, int iteration)
         {
@@ -135,7 +135,7 @@ namespace Tasha.Validation.PoRPoW
             {
                 info.Create();
             }
-            StringBuilder buildFileName = new StringBuilder();
+            StringBuilder buildFileName = new();
             switch(gradeTeir)
             {
                 case 0:

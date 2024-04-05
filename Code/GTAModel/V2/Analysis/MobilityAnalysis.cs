@@ -76,7 +76,7 @@ namespace TMG.GTAModel.V2.Analysis
 
         public void Start()
         {
-            using StreamWriter writer = new StreamWriter(OutputFileName.GetFileName());
+            using StreamWriter writer = new(OutputFileName.GetFileName());
             writer.WriteLine("Occupation,Age,MobilityCategory,Total");
             for (int i = 0; i < NumberOfOccupations; i++)
             {
@@ -104,7 +104,7 @@ namespace TMG.GTAModel.V2.Analysis
 
         private void LoadMobilityData(int occupationIndex, IZone[] zones, double[][] ageTotals)
         {
-            using BinaryReader reader = new BinaryReader(GetMobilityFileName(occupationIndex));
+            using BinaryReader reader = new(GetMobilityFileName(occupationIndex));
             var expectedFileSize = sizeof(float) * AgeTags.Length * MobilityTags.Length * zones.Length * zones.Length;
             if (reader.BaseStream.Length < expectedFileSize)
             {

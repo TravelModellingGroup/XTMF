@@ -29,7 +29,7 @@ namespace XTMF.Testing
         public int[][] GeneratePositions(int dimensions, int length)
         {
             int[][] position = new int[dimensions][];
-            Random r = new Random();
+            Random r = new();
             // Setup the data initially
             for ( int dim = 0; dim < dimensions; dim++ )
             {
@@ -55,7 +55,7 @@ namespace XTMF.Testing
         public void SparseArrayTest()
         {
             var length = 1000000;
-            Random r = new Random();
+            Random r = new();
             int[] baseData = new int[length];
             int[][] position = GeneratePositions( 1, length );
             for ( int i = 0; i < length; i++ )
@@ -76,7 +76,7 @@ namespace XTMF.Testing
         public void SparseTriIndexFlatTest()
         {
             var length = 1000000;
-            Random r = new Random();
+            Random r = new();
             int[] baseData = new int[length];
             int[][] position = GeneratePositions( 3, length );
             for ( int i = 0; i < length; i++ )
@@ -99,7 +99,7 @@ namespace XTMF.Testing
         public void SparseTriIndexTest()
         {
             var length = 1000000;
-            Random r = new Random();
+            Random r = new();
             int[] baseData = new int[length];
             int[][] position = GeneratePositions( 3, length );
             for ( int i = 0; i < length; i++ )
@@ -120,7 +120,7 @@ namespace XTMF.Testing
         public void SparseTriIndexIndexingTest()
         {
             var length = 1000000;
-            Random r = new Random();
+            Random r = new();
             int[] baseData = new int[length];
             int[][] position = GeneratePositions( 3, length );
             for ( int i = 0; i < length; i++ )
@@ -144,7 +144,7 @@ namespace XTMF.Testing
         public void SparseTwinIndexTest()
         {
             var length = 1000000;
-            Random r = new Random();
+            Random r = new();
             int[] baseData = new int[length];
             int[][] position = GeneratePositions( 2, length );
             for ( int i = 0; i < length; i++ )
@@ -197,7 +197,7 @@ namespace XTMF.Testing
         public void CreateSquareTwinArrayTest()
         {
             var length = 1000;
-            Random r = new Random();
+            Random r = new();
             int[] baseData = new int[length * length];
             int[][] position = GeneratePositions( 1, length );
             for ( int i = 0; i < length; i++ )
@@ -229,7 +229,7 @@ namespace XTMF.Testing
         public void LookupPerformanceTwinArray()
         {
             var length = 1000;
-            Random r = new Random();
+            Random r = new();
             int[] baseData = new int[length * length];
             int[][] position = GeneratePositions( 1, length );
             for ( int i = 0; i < length; i++ )

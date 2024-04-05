@@ -152,7 +152,7 @@ namespace TMG.Emme
         /// <returns>A limited precision non scientific number in a string</returns>
         public static string ToEmmeFloat(float number)
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append((int)number);
             number = (float)Math.Round(number, 6);
             number = number - (int)number;
@@ -220,7 +220,7 @@ namespace TMG.Emme
                 {
                     File.Create(externFile).Close();
                 }
-                StringBuilder builder = new StringBuilder();
+                StringBuilder builder = new();
                 builder.Append("~<" + macroName);
                 if (!string.IsNullOrEmpty(arguments))
                 {

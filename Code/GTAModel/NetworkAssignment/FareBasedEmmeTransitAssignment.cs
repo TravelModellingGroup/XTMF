@@ -88,7 +88,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("V3 Boardings Switch", true, "The switch for using 'Version 3' boardings (different values by agency and mode).")]
         public bool UseV3Boardings;
         */
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         public string Name
         {
@@ -149,7 +149,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 Tallies[i].IncludeTally(tally);
             }
-            using (StreamWriter writer = new StreamWriter(outputFileName))
+            using (StreamWriter writer = new(outputFileName))
             {
                 writer.WriteLine("t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=0 descr=generated", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];

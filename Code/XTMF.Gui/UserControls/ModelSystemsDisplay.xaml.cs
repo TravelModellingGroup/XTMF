@@ -83,7 +83,7 @@ namespace XTMF.Gui.UserControls
             if (modelSystem != null)
             {
                 ModelSystemEditingSession session = null;
-                OperationProgressing progressing = new OperationProgressing
+                OperationProgressing progressing = new()
                 {
                     Owner = GetWindow()
                 };

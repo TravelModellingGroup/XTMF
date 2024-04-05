@@ -91,7 +91,7 @@ namespace Tasha.Validation.PerformanceMeasures
             var normalDenominator = 1.0f / (analyzedpopulationSum * employmentSum);
             var niaDenominator = 1.0f / (niAsum * employmentSum);
 
-            using StreamWriter writer = new StreamWriter(ResultsFile);
+            using StreamWriter writer = new(ResultsFile);
             CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, zonePopulation, false);
             writer.WriteLine("Analyzed Population Accessibility");
             WriteToFile(normalDenominator, writer);

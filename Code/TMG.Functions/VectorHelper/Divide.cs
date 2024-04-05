@@ -223,7 +223,7 @@ namespace TMG.Functions
             {
                 Parallel.For(0, destination.Length, row =>
                 {
-                    Vector<float> n = new Vector<float>(numerator);
+                    Vector<float> n = new(numerator);
                     var dest = destination[row];
                     var length = dest.Length;
                     var denom = denominator[row];
@@ -282,7 +282,7 @@ namespace TMG.Functions
             {
                 Parallel.For(0, destination.Length, row =>
                 {
-                    Vector<float> d = new Vector<float>(denominator);
+                    Vector<float> d = new(denominator);
                     var dest = destination[row];
                     var length = dest.Length;
                     var num = numerator[row];
@@ -395,7 +395,7 @@ namespace TMG.Functions
             }
             else if (Vector.IsHardwareAccelerated)
             {
-                Vector<float> rhsV = new Vector<float>(rhs);
+                Vector<float> rhsV = new(rhs);
 
                 // copy everything we can do inside of a vector
                 int i = 0;
@@ -441,7 +441,7 @@ namespace TMG.Functions
             }
             else if (Vector.IsHardwareAccelerated)
             {
-                Vector<float> lhsV = new Vector<float>(lhs);
+                Vector<float> lhsV = new(lhs);
 
                 // copy everything we can do inside of a vector
                 int i = 0;

@@ -30,7 +30,7 @@ namespace Tasha.Validation.ValidateModeChoice
         [RunParameter( "Output File", "NumberOfConflicts.csv", "The file where we can store the household utilities." )]
         public string OutputFile;
 
-        private ConcurrentDictionary<int, int[]> Conflicts = new ConcurrentDictionary<int, int[]>();
+        private ConcurrentDictionary<int, int[]> Conflicts = new();
 
         public string Name
         {
@@ -57,7 +57,7 @@ namespace Tasha.Validation.ValidateModeChoice
                 lock ( this )
                 {
                     var writeHeader = !File.Exists( OutputFile );
-                    using StreamWriter writer = new StreamWriter(OutputFile, true);
+                    using StreamWriter writer = new(OutputFile, true);
                     if (writeHeader)
                     {
                         writer.WriteLine("HouseholdID, Iteration, Number of Conflicts");

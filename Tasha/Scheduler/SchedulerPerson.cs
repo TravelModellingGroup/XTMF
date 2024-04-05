@@ -39,10 +39,10 @@ namespace Tasha.Scheduler
             //Work | School | IndividualOther | IndividualMarket
             SchedulerPersonData data;
             person.Attach("SData", data = new SchedulerPersonData());
-            ProjectSchedule workSchedule = new ProjectSchedule();
-            ProjectSchedule schoolSchedule = new ProjectSchedule();
-            ProjectSchedule otherSchedule = new ProjectSchedule();
-            ProjectSchedule marketSchedule = new ProjectSchedule();
+            ProjectSchedule workSchedule = new();
+            ProjectSchedule schoolSchedule = new();
+            ProjectSchedule otherSchedule = new();
+            ProjectSchedule marketSchedule = new();
             // We could just call the other methods, but this will run much faster
             data.WorkSchedule = new PersonalProject(workSchedule, person);
             data.SchoolSchedule = new PersonalProject(schoolSchedule, person);

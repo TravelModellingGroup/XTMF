@@ -278,7 +278,7 @@ namespace Tasha.Scheduler
         }
 
         public static float SkippedWorkEpisodes = -1;
-        private static SpinLock SkippedWorkLock = new SpinLock(false);
+        private static SpinLock SkippedWorkLock = new(false);
 
         internal void InsertWorkSchedule(Schedule schedule, Random random)
         {            

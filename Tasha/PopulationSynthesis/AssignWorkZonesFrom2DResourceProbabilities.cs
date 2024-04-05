@@ -41,7 +41,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         public SparseArray<IZone> _zones;
 
@@ -55,7 +55,7 @@ namespace Tasha.PopulationSynthesis
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
             private float[][] _workCDF;
 
@@ -97,7 +97,7 @@ namespace Tasha.PopulationSynthesis
             {
                 var pop = (float)r.NextDouble();
                 var row = _workCDF[homeZone];
-                Vector<float> vPop = new Vector<float>(pop);
+                Vector<float> vPop = new(pop);
                 int i = 0;
                 // find the first entry with a cdf that is greater than or equal to our pop.
                 for (; i < row.Length - Vector<float>.Count; i += Vector<float>.Count)

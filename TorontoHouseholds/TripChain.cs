@@ -42,7 +42,7 @@ namespace Tasha.Common
         public static int TripPurposeDestination;
         public static int TripPurposeOrigin;
         public static int TripStartTime;
-        private static ConcurrentQueue<TripChain> TripChains = new ConcurrentQueue<TripChain>();
+        private static ConcurrentQueue<TripChain> TripChains = new();
 
         /// <summary>
         /// The person that this trip chain belongs to
@@ -190,7 +190,7 @@ namespace Tasha.Common
 
         public static void Save(string fileName, IEnumerable<ITashaHousehold> households)
         {
-            using StreamWriter writer = new StreamWriter(fileName);
+            using StreamWriter writer = new(fileName);
             //write header
             if (TripHeader)
                 writer.WriteLine("hhld_num,pers_num,trip_num,start_time,mode_prime,purp_orig,pd_orig,gta96_orig,gta01_orig,purp_dest,pd_dest,gta96_dest,gta01_dest,trip_km,jointTourID,jointTourRep");

@@ -33,15 +33,15 @@ namespace XTMF.Gui.UserControls
     {
         private static readonly Brush Background;
 
-        private readonly Border Border = new Border();
+        private readonly Border Border = new();
 
         private readonly Action<string> _giveResult;
 
-        private readonly Grid Grid = new Grid();
+        private readonly Grid Grid = new();
 
-        private readonly TextBlock TextBlock = new TextBlock();
+        private readonly TextBlock TextBlock = new();
 
-        private readonly TextBox _textbox = new TextBox
+        private readonly TextBox _textbox = new()
         {
             Width = 400,
             Height = 25

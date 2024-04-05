@@ -44,7 +44,7 @@ namespace TMG.Emme.NetworkAssignment
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         public bool Execute(Controller controller)
         {
@@ -52,10 +52,10 @@ namespace TMG.Emme.NetworkAssignment
             {
                 return mc.Run(this, ToolName, new ModellerControllerParameter[]
                     {
-                        new ModellerControllerParameter("xtmf_AssignmentModes", Modes),
-                        new ModellerControllerParameter("DistanceSkimMatrixID", DistanceMatrix.ToString()),
-                        new ModellerControllerParameter("xtmf_ScenarioId", ScenarioNumber.ToString()),
-                        new ModellerControllerParameter("ClassName", "aux_transit_distance")
+                        new("xtmf_AssignmentModes", Modes),
+                        new("DistanceSkimMatrixID", DistanceMatrix.ToString()),
+                        new("xtmf_ScenarioId", ScenarioNumber.ToString()),
+                        new("ClassName", "aux_transit_distance")
                     });
             }
             throw new XTMFRuntimeException(this, "The runtime controller for EMME was not a modeller controller!");

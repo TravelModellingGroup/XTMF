@@ -106,7 +106,7 @@ public class LoadODDataFromCSV : IReadODData<float>
                 if (columns >= destinations.Length + 1)
                 {
                     anyLinesRead = true;
-                    ODData<float> data = new ODData<float>();
+                    ODData<float> data = new();
                     reader.Get(out data.O, 0);
                     for (int i = 0; i < destinations.Length; i++)
                     {
@@ -141,7 +141,7 @@ public class LoadODDataFromCSV : IReadODData<float>
                 {
                     if (columns >= 2)
                     {
-                        ODData<float> data = new ODData<float>();
+                        ODData<float> data = new();
                         reader.Get(out data.O, 0);
                         if (columns >= 3)
                         {

@@ -49,7 +49,7 @@ namespace TMG.Emme
         [SubModelInformation(Required = true, Description = "Network Package File")]
         public FileLocation NetworkPackage;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
         private const string _ToolName = "tmg.input_output.import_network_package";
 
 

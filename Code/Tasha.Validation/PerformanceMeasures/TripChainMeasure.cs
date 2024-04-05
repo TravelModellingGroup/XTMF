@@ -40,7 +40,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("Max trip chain length", 5, "The maximum trip chain length to analyze (anything over this length will be aggregated under the same bin)")]
         public int MaxTripChainLength;
 
-        private ConcurrentDictionary<int,float> ResultsDictionary = new ConcurrentDictionary<int,float>();
+        private ConcurrentDictionary<int,float> ResultsDictionary = new();
 
         public void Execute(ITashaHousehold household, int iteration)
         {
@@ -97,7 +97,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void IterationFinished(int iteration)
         {
-            using (StreamWriter writer = new StreamWriter(TripChainResults))
+            using (StreamWriter writer = new(TripChainResults))
             {
                 writer.WriteLine("Trip Chain Length,Number of Trips");
                 

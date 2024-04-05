@@ -83,7 +83,7 @@ blended average between iteration to help converge.")]
             {
                 BinaryHelpers.ExecuteReader(this, (reader) =>
                 {
-                    EmmeMatrix matrix = new EmmeMatrix(reader);
+                    EmmeMatrix matrix = new(reader);
                     switch (matrix.Type)
                     {
                         case EmmeMatrix.DataType.Float:

@@ -43,7 +43,7 @@ namespace XTMF.Run
             using var memStream = new MemoryStream();
             try
             {
-                Project temp = new Project(Path.GetFileName(runDirectory), configuration, true);
+                Project temp = new(Path.GetFileName(runDirectory), configuration, true);
                 ((ProjectRepository)(configuration.ProjectRepository)).SetActiveProject(temp);
                 temp.ExternallySaved += (o, e) =>
                 {
@@ -96,7 +96,7 @@ namespace XTMF.Run
                                         }
                                     }
                                 }
-                                LinkedParameter lp = new LinkedParameter(linkedParameterName);
+                                LinkedParameter lp = new(linkedParameterName);
                                 lp.SetValue(valueRepresentation, ref error);
                                 ret.Add(lp);
                                 skipRead = true;
@@ -196,7 +196,7 @@ namespace XTMF.Run
             List<string> ret = [];
             bool escape = false;
             var length = variableLink.Length;
-            StringBuilder builder = new StringBuilder(length);
+            StringBuilder builder = new(length);
             for (int i = 0; i < length; i++)
             {
                 var c = variableLink[i];
@@ -386,7 +386,7 @@ namespace XTMF.Run
         {
             try
             {
-                ErrorWithPath error = new ErrorWithPath();
+                ErrorWithPath error = new();
                 if (!_Root.Validate(ref error, []))
                 {
                     InvokeValidationError(CreateFromSingleError(error));
@@ -439,7 +439,7 @@ namespace XTMF.Run
 
         private void SetupRunDirectory()
         {
-            DirectoryInfo runDir = new DirectoryInfo(RunDirectory);
+            DirectoryInfo runDir = new(RunDirectory);
             if (_Overwrite && runDir.Exists)
             {
                 runDir.Delete(true);

@@ -68,7 +68,7 @@ namespace TMG.NetworkEstimation
 
         protected ParameterSet[] Population;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(50, 150, 50);
 
         // We can start at 0 since we increment no matter what, to get the first one
         private int CurrentHighestNumber;
@@ -376,7 +376,7 @@ namespace TMG.NetworkEstimation
         private void CreateDistributionThread()
         {
             StartGeneration = new MessageQueue<StartGenerationMessage>();
-            Thread distributionThread = new Thread(DistributionMain);
+            Thread distributionThread = new(DistributionMain);
             distributionThread.IsBackground = true;
             distributionThread.Start();
         }
@@ -492,7 +492,7 @@ namespace TMG.NetworkEstimation
 
         private void LoadInstructions()
         {
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.Load(ParameterInstructions);
             List<ParameterSetting> parameters = [];
             var childNodes = doc["Root"]?.ChildNodes;
@@ -502,7 +502,7 @@ namespace TMG.NetworkEstimation
                 {
                     if (child.Name == "Parameter")
                     {
-                        ParameterSetting current = new ParameterSetting();
+                        ParameterSetting current = new();
                         var attributes = child.Attributes;
                         if (attributes != null)
                         {
@@ -567,8 +567,8 @@ namespace TMG.NetworkEstimation
         /// <returns></returns>
         private object ReadEvaluation(Stream memory, IRemoteXTMF remote)
         {
-            BinaryReader reader = new BinaryReader(memory);
-            ResultMessage ret = new ResultMessage();
+            BinaryReader reader = new(memory);
+            ResultMessage ret = new();
             var generation = reader.ReadInt32();
             ret.ProcessedIndex = reader.ReadInt32();
             if (ret.ProcessedIndex == -1)
@@ -592,7 +592,7 @@ namespace TMG.NetworkEstimation
                 {
                     try
                     {
-                        using StreamWriter writer = new StreamWriter(EvaluationFile, true);
+                        using StreamWriter writer = new(EvaluationFile, true);
                         if (writeHeader)
                         {
                             writer.Write("Generation");
@@ -635,7 +635,7 @@ namespace TMG.NetworkEstimation
 
         private void SendNextParameter(IRemoteXTMF client)
         {
-            ResultMessage msg = new ResultMessage();
+            ResultMessage msg = new();
             lock (this)
             {
                 // make sure we have the newest memory loaded up
@@ -670,7 +670,7 @@ namespace TMG.NetworkEstimation
                 var index = message.ProcessedIndex;
                 var toProcess = Population[index];
                 var length = toProcess.Parameters.Length;
-                BinaryWriter writer = new BinaryWriter(s);
+                BinaryWriter writer = new(s);
                 writer.Write(CurrentIteration);
                 writer.Write(index);
                 writer.Write(length);

@@ -65,7 +65,7 @@ namespace ViewCacheData
                     case ".zfc":
                         {
                             OdControlGrid.IsEnabled = false;
-                            Task t = new Task( delegate
+                            Task t = new( delegate
                             {
                                 PresentationGrid.DataContext = null;
                                 try
@@ -85,7 +85,7 @@ namespace ViewCacheData
                     case ".odc":
                         {
                             OdControlGrid.IsEnabled = true;
-                            Task t = new Task( delegate
+                            Task t = new( delegate
                             {
                                 try
                                 {

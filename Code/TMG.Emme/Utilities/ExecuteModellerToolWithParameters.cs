@@ -112,7 +112,7 @@ namespace TMG.Emme.Utilities
 
         public float Progress { get; private set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         public bool Execute(Controller controller)
         {

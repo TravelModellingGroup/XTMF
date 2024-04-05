@@ -62,7 +62,7 @@ namespace TMG.GTAModel.Input
             {
                 throw new XTMFRuntimeException(this, $"Unable to find a file named: {path}");
             }
-            using CsvReader reader = new CsvReader(path);
+            using CsvReader reader = new(path);
             ODData<float> point;
             int length;
             var anyLinesRead = false;

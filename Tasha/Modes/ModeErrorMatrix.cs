@@ -162,7 +162,7 @@ namespace Tasha.Modes
             var correctTotal = 0;
             var columnTotals = new int[numModes];
             var total = 0;
-            using ( StreamWriter writer = new StreamWriter( FileName ) )
+            using ( StreamWriter writer = new( FileName ) )
             {
                 // print the header
                 writer.Write( "Pred\\Real" );

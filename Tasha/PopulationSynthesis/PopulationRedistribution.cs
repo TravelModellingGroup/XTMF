@@ -265,7 +265,7 @@ where you still want the same demographics."
         {
             // First generate a random seed per region so this is deterministic
             var numberOfRegions = HouseholdsByRegion.Count;
-            Random randomSeedGenerator = new Random(RandomSeed);
+            Random randomSeedGenerator = new(RandomSeed);
             var seeds = new int[numberOfRegions];
             for (int i = 0; i < seeds.Length; i++)
             {
@@ -274,7 +274,7 @@ where you still want the same demographics."
             //now that we have our seeds shuffle each position once for each region
             Parallel.For(0, numberOfRegions, flatRegionIndex =>
             {
-                Random r = new Random(seeds[flatRegionIndex]);
+                Random r = new(seeds[flatRegionIndex]);
                 var list = HouseholdsByRegion.GetFlatData()[flatRegionIndex];
                 for (int i = 0; i < list.Count; i++)
                 {
@@ -331,7 +331,7 @@ where you still want the same demographics."
             {
                 info.Create();
             }
-            StringBuilder buildFileName = new StringBuilder();
+            StringBuilder buildFileName = new();
             switch (occ)
             {
                 case Occupation.Professional:
@@ -361,7 +361,7 @@ where you still want the same demographics."
 
         private void SaveWorkerData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerForceDirectory));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerForceDirectory));
             writer.WriteLine("Zone,Persons");
             for (int i = 0; i < workers.Length; i++)
             {
@@ -376,7 +376,7 @@ where you still want the same demographics."
 
         private void SaveWorkerCategoryData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[][] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
             writer.WriteLine("Zone,WorkerCategory,Persons");
             for (int i = 0; i < workers.Length; i++)
             {

@@ -91,7 +91,7 @@ namespace TMG.GTAModel.Modes
 
         private static CodeNamespace AddNamespaces(CodeCompileUnit unit)
         {
-            CodeNamespace namespaceXTMF = new CodeNamespace("TMG.Modes.Generated");
+            CodeNamespace namespaceXTMF = new("TMG.Modes.Generated");
             namespaceXTMF.Imports.Add(new CodeNamespaceImport("System"));
             namespaceXTMF.Imports.Add(new CodeNamespaceImport("XTMF"));
             namespaceXTMF.Imports.Add(new CodeNamespaceImport("TMG"));
@@ -177,7 +177,7 @@ namespace TMG.GTAModel.Modes
 
         private void AttachConstructor()
         {
-            CodeConstructor constructor = new CodeConstructor
+            CodeConstructor constructor = new()
             {
                 Attributes = MemberAttributes.Public
             };
@@ -185,7 +185,7 @@ namespace TMG.GTAModel.Modes
 
         private void AttachFeasible(CodeTypeDeclaration modeClass)
         {
-            CodeMemberMethod feasibleMethod = new CodeMemberMethod
+            CodeMemberMethod feasibleMethod = new()
             {
                 Name = "Feasible",
                 Attributes = MemberAttributes.Final | MemberAttributes.Public,
@@ -226,7 +226,7 @@ namespace TMG.GTAModel.Modes
 
         private void AttachRuntimeValidation(CodeTypeDeclaration modeClass)
         {
-            CodeMemberMethod runtimeValidation = new CodeMemberMethod
+            CodeMemberMethod runtimeValidation = new()
             {
                 Name = "RuntimeValidation",
                 Attributes = MemberAttributes.Public | MemberAttributes.Final,
@@ -239,7 +239,7 @@ namespace TMG.GTAModel.Modes
 
         private void AttachUtilityComponentInitializationMethod(CodeTypeDeclaration modeClass)
         {
-            CodeMemberMethod initializeUtilityComponents = new CodeMemberMethod
+            CodeMemberMethod initializeUtilityComponents = new()
             {
                 Name = "InitialzeUtilities",
                 Attributes = MemberAttributes.Public | MemberAttributes.Final
@@ -250,7 +250,7 @@ namespace TMG.GTAModel.Modes
             }
             initializeUtilityComponents.Parameters.Add(new CodeParameterDeclarationExpression(typeof(List<IUtilityComponent>), "utilityComponents"));
 
-            CodeMemberMethod calculateV = new CodeMemberMethod
+            CodeMemberMethod calculateV = new()
             {
                 Name = "CalculateV",
                 ReturnType = new CodeTypeReference(typeof(float)),
@@ -303,7 +303,7 @@ namespace TMG.GTAModel.Modes
             var results = compiler.CompileAssemblyFromDom(options, unit);
             if (IncludeCode)
             {
-                using StreamWriter writer = new StreamWriter(String.Format("TMG.Modes.Generated.OptimizedMode{0}.cs", ModeName));
+                using StreamWriter writer = new(String.Format("TMG.Modes.Generated.OptimizedMode{0}.cs", ModeName));
                 //var results = compiler.CompileAssemblyFromDom( options, writer, unit );
                 compiler.GenerateCodeFromCompileUnit(unit, writer, new CodeGeneratorOptions());
             }
@@ -322,10 +322,10 @@ namespace TMG.GTAModel.Modes
 
         private bool CreateOptimizedMode(out IUtilityComponentMode optimizedMode, ref string error)
         {
-            CodeCompileUnit unit = new CodeCompileUnit();
+            CodeCompileUnit unit = new();
             AddReferences(unit);
             CodeNamespace namespaceXTMF = AddNamespaces(unit);
-            CodeTypeDeclaration modeClass = new CodeTypeDeclaration(String.Format("OptimizedMode{0}", ModeName));
+            CodeTypeDeclaration modeClass = new(String.Format("OptimizedMode{0}", ModeName));
             modeClass.BaseTypes.Add(typeof(IUtilityComponentMode));
             modeClass.IsClass = true;
             modeClass.TypeAttributes = TypeAttributes.Public | TypeAttributes.Sealed;

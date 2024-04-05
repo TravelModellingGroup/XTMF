@@ -23,7 +23,7 @@ namespace Tasha.StationAccess
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         private SparseArray<IZone> _zones;
 
@@ -165,7 +165,7 @@ namespace Tasha.StationAccess
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
             private int[] _stationIndexes;
             private IZone[] _stationZones;

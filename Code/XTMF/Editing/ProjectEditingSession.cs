@@ -86,7 +86,7 @@ namespace XTMF
         /// </summary>
         private SessionData[] _EditingSessions;
 
-        private object _EditingSessionsLock = new object();
+        private object _EditingSessionsLock = new();
 
         public string Name { get { lock (_EditingSessionsLock) { return Project.Name; } } }
 
@@ -551,7 +551,7 @@ namespace XTMF
         public bool LoadPreviousRun(string path, ref string error, out ModelSystemEditingSession session)
         {
             session = null;
-            DirectoryInfo info = new DirectoryInfo(path);
+            DirectoryInfo info = new(path);
             if (!info.Exists)
             {
                 error = "There is no directory with the name '" + path + "'!";

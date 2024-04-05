@@ -40,7 +40,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]
         public FileLocation TripLengthResults;
 
-        private ConcurrentDictionary<Activity, float[]> ResultsDictionary = new ConcurrentDictionary<Activity, float[]>();
+        private ConcurrentDictionary<Activity, float[]> ResultsDictionary = new();
 
         [RootModule]
         public ITashaRuntime Root;
@@ -124,7 +124,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void IterationFinished(int iteration)
         {
-            using (StreamWriter writer = new StreamWriter(TripLengthResults))
+            using (StreamWriter writer = new(TripLengthResults))
             {
                 writer.WriteLine("Trip Purpose vs. Trip Distance (km) & Cells = Number Of Occurrences (expanded or not-expanded)");
 

@@ -44,7 +44,7 @@ namespace XTMF.Gui.Helpers
             if (isDarkTheme)
             {
                ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Dark." + schemeName);
-                PaletteHelper _paletteHelper = new PaletteHelper();
+                PaletteHelper _paletteHelper = new();
                 ITheme theme = _paletteHelper.GetTheme();
                 IBaseTheme baseTheme = new MaterialDesignDarkTheme();
                 theme.SetBaseTheme(baseTheme);
@@ -53,7 +53,7 @@ namespace XTMF.Gui.Helpers
             else
             {
                 ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, "Light." + schemeName);
-                PaletteHelper _paletteHelper = new PaletteHelper();
+                PaletteHelper _paletteHelper = new();
                 ITheme theme = _paletteHelper.GetTheme();
                 IBaseTheme baseTheme = new MaterialDesignLightTheme();
                 theme.SetBaseTheme(baseTheme);

@@ -120,7 +120,7 @@ namespace Tasha.Estimation.AccessStation
             var zones = Root.ZoneSystem.ZoneArray;
             List<AccessTourData> tours = [];
             // we only need to load the data once so lets do that now
-            using (CsvReader reader = new CsvReader(FileLocation))
+            using (CsvReader reader = new(FileLocation))
             {
                 //burn the header
                 reader.LoadLine();

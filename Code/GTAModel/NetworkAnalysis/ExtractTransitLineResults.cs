@@ -56,7 +56,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter("Scenario", 1, "The number of the Emme scenario with transit assignment results.")]
         public int ScenarioNumber;
 
-        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(255, 173, 28);
+        private Tuple<byte, byte, byte> _progressColour = new(255, 173, 28);
         private const string ToolName = "tmg.analysis.transit.export_boardings";
         private const string AlternateToolName = "TMG2.Analysis.Transit.ExportLineResults";
 

@@ -240,7 +240,7 @@ namespace Tasha.PopulationSynthesis
             {
                 info.Create();
             }
-            StringBuilder buildFileName = new StringBuilder();
+            StringBuilder buildFileName = new();
             switch (occ)
             {
                 case Occupation.Professional:
@@ -270,7 +270,7 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat));
             writer.WriteLine("Zone,Persons");
             for (int i = 0; i < workers.Length; i++)
             {
@@ -312,7 +312,7 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveWorkerCategoryData(IZone[] zones, Occupation occupation, TTSEmploymentStatus empStat, float[][] workers)
         {
-            using StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
+            using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
             writer.WriteLine("Zone,WorkerCategory,Persons");
             for (int i = 0; i < workers.Length; i++)
             {
@@ -347,7 +347,7 @@ namespace Tasha.PopulationSynthesis
             {
                 info.Create();
             }
-            StringBuilder buildFileName = new StringBuilder();
+            StringBuilder buildFileName = new();
             switch (occ)
             {
                 case Occupation.Professional:
@@ -438,7 +438,7 @@ namespace Tasha.PopulationSynthesis
             //HouseholdID	Zone	ExpansionFactor	DwellingType	NumberOfPersons	NumberOfVehicles
             Writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone,ExpansionFactor");
             // update the population forecasts by zone
-            using CsvReader reader = new CsvReader(FutureYearPopulationByZone);
+            using CsvReader reader = new(FutureYearPopulationByZone);
             reader.LoadLine();
             while (reader.LoadLine(out int columns))
             {

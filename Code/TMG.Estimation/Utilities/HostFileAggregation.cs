@@ -45,7 +45,7 @@ namespace TMG.Estimation.Utilities
 
         private bool Loaded;
 
-        private object WriteLock = new object();
+        private object WriteLock = new();
 
         public void Start()
         {

@@ -229,7 +229,7 @@ namespace Tasha.PopulationSynthesis
         {
             var pd = Zones[householdZone].PlanningDistrict;
             var zones = Zones.GetFlatData();
-            List<int> possibleZone = new List<int>(15);
+            List<int> possibleZone = new(15);
             for (int i = 0; i < zones.Length; i++)
             {
                 // if the zone belongs to the same planning district

@@ -25,7 +25,7 @@ namespace Tasha.Scheduler
 {
     internal sealed class SchedulerTripChain : Attachable, ITripChain
     {
-        private static ConcurrentQueue<SchedulerTripChain> Chains = new ConcurrentQueue<SchedulerTripChain>();
+        private static ConcurrentQueue<SchedulerTripChain> Chains = new();
 
         private SchedulerTripChain(ITashaPerson person)
         {

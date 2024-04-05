@@ -910,7 +910,7 @@ namespace TMG.Functions
             }
             else if (Vector.IsHardwareAccelerated)
             {
-                Vector<float> scalarV = new Vector<float>(scalar);
+                Vector<float> scalarV = new(scalar);
                 if ((destIndex | firstIndex | secondIndex | columnIndex) == 0)
                 {
                     // copy everything we can do inside of a vector
@@ -1008,7 +1008,7 @@ namespace TMG.Functions
             }
             else if (Vector.IsHardwareAccelerated)
             {
-                Vector<float> scalarV = new Vector<float>(scalar);
+                Vector<float> scalarV = new(scalar);
                 if ((destIndex | firstIndex | secondIndex | thirdIndex | columnIndex) == 0)
                 {
                     // copy everything we can do inside of a vector
@@ -1080,7 +1080,7 @@ namespace TMG.Functions
                 int i;
                 Vector<float> zero = Vector<float>.Zero;
                 Vector<float> one = Vector<float>.One;
-                Vector<float> vValue = new Vector<float>(lhs);
+                Vector<float> vValue = new(lhs);
                 for (i = 0; i < rhs.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var vData = new Vector<float>(rhs, i);
@@ -1131,7 +1131,7 @@ namespace TMG.Functions
                 int i;  
                 Vector<float> zero = Vector<float>.Zero;
                 Vector<float> one = Vector<float>.One;
-                Vector<float> vValue = new Vector<float>(rhs);
+                Vector<float> vValue = new(rhs);
                 for (i = 0; i < lhs.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var vData = new Vector<float>(lhs, i);
@@ -1201,7 +1201,7 @@ namespace TMG.Functions
             }
             else if (Vector.IsHardwareAccelerated)
             {
-                Vector<float> half = new Vector<float>(0.5f);
+                Vector<float> half = new(0.5f);
                 if ((destIndex | firstIndex | secondIndex) == 0)
                 {
                     int i = 0;

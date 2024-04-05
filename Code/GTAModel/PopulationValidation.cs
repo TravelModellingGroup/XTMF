@@ -60,9 +60,9 @@ against the percentage based data from the provided IDemographicsData module."
         [RunParameter("Unemployment Status", 0, "The number that co-responds with a person not being employed")]
         public int UnemployedEmploymentStatus;
 
-        private static Tuple<byte, byte, byte> LoadingColour = new Tuple<byte, byte, byte>(100, 200, 100);
+        private static Tuple<byte, byte, byte> LoadingColour = new(100, 200, 100);
 
-        private static Tuple<byte, byte, byte> ProcessingColour = new Tuple<byte, byte, byte>(50, 150, 250);
+        private static Tuple<byte, byte, byte> ProcessingColour = new(50, 150, 250);
 
         [RunParameter("Input Directory", "../../Input", "The directory that our input is located in.")]
         public string InputBaseDirectory
@@ -123,9 +123,9 @@ against the percentage based data from the provided IDemographicsData module."
             ZoneSystem.LoadData();
             Demographics.LoadData();
 
-            using (StreamWriter writer = new StreamWriter("Performance.txt"))
+            using (StreamWriter writer = new("Performance.txt"))
             {
-                Stopwatch watch = new Stopwatch();
+                Stopwatch watch = new();
                 watch.Start();
                 Population.Load();
                 watch.Stop();
@@ -176,7 +176,7 @@ against the percentage based data from the provided IDemographicsData module."
                    }
                    employmentStatusDist[zoneNumber] = dist;
                });
-            using StreamWriter writer = new StreamWriter(EmploymentStatusReportFile);
+            using StreamWriter writer = new(EmploymentStatusReportFile);
             writer.Write("Zone,AgeCat");
             foreach (var emp in Demographics.EmploymentStatus.ValidIndexies())
             {
@@ -299,7 +299,7 @@ against the percentage based data from the provided IDemographicsData module."
                    }
                    ageDistribution[zoneNumber] = dist;
                });
-            using StreamWriter writer = new StreamWriter(AgeReportFile);
+            using StreamWriter writer = new(AgeReportFile);
             writer.Write("Zone");
             foreach (var ageCat in Demographics.AgeCategories.ValidIndexies())
             {
@@ -337,7 +337,7 @@ against the percentage based data from the provided IDemographicsData module."
             var numberOfLicenses = new float[zones.Length];
             var expectedNumberOfLicenses = new float[zones.Length];
             GatherDLicData(zones, expectedNumberOfLicenses, numberOfLicenses);
-            using StreamWriter writer = new StreamWriter(DriversLicenseReportFile.GetFileName());
+            using StreamWriter writer = new(DriversLicenseReportFile.GetFileName());
             writer.WriteLine("Zones,ExpectedDLic,GeneratedDLic,Delta");
             for (int i = 0; i < zones.Length; i++)
             {
@@ -391,7 +391,7 @@ against the percentage based data from the provided IDemographicsData module."
                    }
                    occZoneDist[zoneNumber] = dist;
                });
-            using StreamWriter writer = new StreamWriter(OccupationReportFile);
+            using StreamWriter writer = new(OccupationReportFile);
             writer.Write("Zone,Age Category,Employment Status,");
             foreach (var ageCat in Demographics.OccupationCategories.ValidIndexies())
             {

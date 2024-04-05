@@ -56,7 +56,7 @@ namespace TMG.GTAModel.Generation
 
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, Range age, int employmentStatus, int mobility)
         {
-            HBOGeneration gen = new HBOGeneration();
+            HBOGeneration gen = new();
             gen.Root = Root;
             gen.LoadData = false;
             gen.UsesPlanningDistricts = UsePlanningDistricts;
@@ -90,7 +90,7 @@ namespace TMG.GTAModel.Generation
         {
             var set = new List<Range>
             {
-                new Range(occ, occ)
+                new(occ, occ)
             };
             return new RangeSet( set );
         }

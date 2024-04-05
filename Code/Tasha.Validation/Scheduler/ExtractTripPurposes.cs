@@ -113,7 +113,7 @@ namespace Tasha.Validation.Scheduler
             }
         }
 
-        SpinLock WriteLock = new SpinLock(false);
+        SpinLock WriteLock = new(false);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddToMatrix(ITrip trip, float expFactor)

@@ -75,7 +75,7 @@ namespace Tasha.Common
 
         #endregion ITrip Members
 
-        private static ConcurrentQueue<Trip> Trips = new ConcurrentQueue<Trip>();
+        private static ConcurrentQueue<Trip> Trips = new();
 
         public Trip(ITripChain chain, IZone origin, IZone destination, Activity purpose, Time startTime, int householdIterations)
         {

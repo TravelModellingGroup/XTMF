@@ -70,7 +70,7 @@ namespace TMG.GTAModel.Analysis
         public void Start()
         {
             if ( DataSources.Count == 0 ) return;
-            using StreamWriter writer = new StreamWriter(ReportFileName.GetFileName());
+            using StreamWriter writer = new(ReportFileName.GetFileName());
             double globalIntrazonals = 0.0;
             double globalSum = 0.0;
             double globalInternalExternal = 0.0;

@@ -123,7 +123,7 @@ namespace Tasha.ModeChoice
 
         private Dictionary<ITashaPerson, List<ITripChain>> ChooseOptimalSetForEachPerson(Dictionary<ITashaPerson, List<List<ITripChain>>> potentialModeChoices)
         {
-            Dictionary<ITashaPerson, List<ITripChain>> optimalTripChainsForPerson = new Dictionary<ITashaPerson, List<ITripChain>>(potentialModeChoices.Count);
+            Dictionary<ITashaPerson, List<ITripChain>> optimalTripChainsForPerson = new(potentialModeChoices.Count);
 
             //For each person find their optimal set of Aux trip chains
             foreach (var personset in potentialModeChoices)
@@ -211,7 +211,7 @@ namespace Tasha.ModeChoice
 
         private Dictionary<ITashaPerson, List<List<ITripChain>>> FindAllPotentialModesForTrips(ITashaHousehold household)
         {
-            Dictionary<ITashaPerson, List<List<ITripChain>>> possibleChains = new Dictionary<ITashaPerson, List<List<ITripChain>>>(household.Persons.Length);
+            Dictionary<ITashaPerson, List<List<ITripChain>>> possibleChains = new(household.Persons.Length);
             var people = household.Persons;
             var peopleLength = people.Length;
             for (int i = 0; i < peopleLength; i++)

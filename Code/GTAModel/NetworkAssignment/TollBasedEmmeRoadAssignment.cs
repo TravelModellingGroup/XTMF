@@ -100,7 +100,7 @@ namespace TMG.GTAModel.NetworkAssignment
         private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
         private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
 
-        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new(100, 100, 150);
 
         public string Name
         {
@@ -177,7 +177,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 Directory.CreateDirectory(dir);
             }
-            using (StreamWriter writer = new StreamWriter(outputFileName))
+            using (StreamWriter writer = new(outputFileName))
             {
                 writer.WriteLine("t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=from_xtmf", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];

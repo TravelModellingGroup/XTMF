@@ -103,7 +103,7 @@ namespace TMG.GTAModel.V2.Generation
             if ( SaveProduction.ContainsFileName() )
             {
                 var first = !File.Exists( SaveProduction.GetFileName() );
-                using StreamWriter writer = new StreamWriter(SaveProduction.GetFileName(), true);
+                using StreamWriter writer = new(SaveProduction.GetFileName(), true);
                 if (first)
                 {
                     writer.WriteLine("Age,Zone,Production");

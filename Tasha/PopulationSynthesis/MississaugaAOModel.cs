@@ -19,7 +19,7 @@ namespace Tasha.PopulationSynthesis
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
         [RunParameter("Zones To Process", "", typeof(RangeSet), "The zones to modify the auto ownership for.  Leave blank to apply to all zones.")]
         public RangeSet ZonesToProcess;
@@ -164,7 +164,7 @@ namespace Tasha.PopulationSynthesis
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
             public bool RuntimeValidation(ref string error)
             {

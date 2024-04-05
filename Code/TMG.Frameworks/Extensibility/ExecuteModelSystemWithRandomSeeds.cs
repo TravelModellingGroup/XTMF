@@ -37,7 +37,7 @@ namespace TMG.Frameworks.Extensibility
 
         public float Progress => _computeProgress?.Invoke() ?? 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         [SubModelInformation(Required = true, Description = "The model system to run the random seeds on.")]
         public IModelSystemTemplate ModelSystem;
@@ -109,7 +109,7 @@ namespace TMG.Frameworks.Extensibility
 
             public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+            public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
             private readonly IConfiguration _config;
 
@@ -150,7 +150,7 @@ namespace TMG.Frameworks.Extensibility
 
         private void AssignRandomSeeds(int randomSeedScenario)
         {
-            Random r = new Random(randomSeedScenario);
+            Random r = new(randomSeedScenario);
             for(int i = 0; i < ParametersToAssign.Length; i++)
             {
                 ParametersToAssign[i].AssignValue(r.Next());

@@ -37,7 +37,7 @@ namespace TMG.Emme
         [SubModelInformation(Description = "Binary File Path", Required = true)]
         public FileLocation Filepath;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
         private const string ToolName = "tmg.input_output.export_binary_matrix";
         private const string OldToolName = "TMG2.IO.ExportBinaryMatrix";

@@ -25,12 +25,12 @@ namespace XTMF.Gui
         UIElementCollection _children;
         ItemsControl _itemsControl;
         IItemContainerGenerator _generator;
-        private Point _offset = new Point(0, 0);
-        private Size _extent = new Size(0, 0);
-        private Size _viewport = new Size(0, 0);
+        private Point _offset = new(0, 0);
+        private Size _extent = new(0, 0);
+        private Size _viewport = new(0, 0);
         private int firstIndex;
         private Size childSize;
-        private Size _pixelMeasuredViewport = new Size(0, 0);
+        private Size _pixelMeasuredViewport = new(0, 0);
         Dictionary<UIElement, Rect> _realizedChildLayout = [];
         WrapPanelAbstraction _abstractPanel;
 
@@ -147,7 +147,7 @@ namespace XTMF.Gui
         {
             for (int i = _children.Count - 1; i >= 0; i--)
             {
-                GeneratorPosition childGeneratorPos = new GeneratorPosition(i, 0);
+                GeneratorPosition childGeneratorPos = new(i, 0);
                 int itemIndex = _generator.IndexFromGeneratorPosition(childGeneratorPos);
                 if (itemIndex < minDesiredGenerated || itemIndex > maxDesiredGenerated)
                 {
@@ -504,7 +504,7 @@ namespace XTMF.Gui
                         Debug.Assert(child == _children[childIndex], "Wrong child was generated");
                     }
                     childSize = child.DesiredSize;
-                    Rect childRect = new Rect(new Point(currentX, currentY), childSize);
+                    Rect childRect = new(new Point(currentX, currentY), childSize);
                     if (isHorizontal)
                     {
                         maxItemSize = Math.Max(maxItemSize, childRect.Height);
@@ -833,10 +833,10 @@ namespace XTMF.Gui
         {
             public WrapPanelAbstraction(int itemCount)
             {
-                List<ItemAbstraction> items = new List<ItemAbstraction>(itemCount);
+                List<ItemAbstraction> items = new(itemCount);
                 for (int i = 0; i < itemCount; i++)
                 {
-                    ItemAbstraction item = new ItemAbstraction(this, i);
+                    ItemAbstraction item = new(this, i);
                     items.Add(item);
                 }
 
@@ -850,7 +850,7 @@ namespace XTMF.Gui
             private int _currentSetSection = -1;
             private int _currentSetItemIndex = -1;
             private int _itemsInCurrentSecction;
-            private object _syncRoot = new object();
+            private object _syncRoot = new();
 
             public int SectionCount
             {

@@ -33,7 +33,7 @@ namespace TMG.GTAModel.NetworkAnalysis
 
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_rail_IVTT_matrix";
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _ProgressColour = new(100, 100, 150);
 
 
         public string Name

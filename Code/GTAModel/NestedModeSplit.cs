@@ -188,11 +188,11 @@ This module will also work for a regular Logit model as well."
 
         protected void WriteModeSplit(TreeData<float[]> split, IModeChoiceNode modeNode, string directoryName)
         {
-            Task writeTask = new Task( delegate
+            Task writeTask = new( delegate
             {
                 if ( split.Result != null )
                 {
-                    using StreamWriter writer = new StreamWriter(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
+                    using StreamWriter writer = new(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
                     var header = true;
                     var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                     var data = split.Result;
