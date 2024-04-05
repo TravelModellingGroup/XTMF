@@ -334,7 +334,7 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
         return (float)distance;
     }
 
-    private Color Lerp(Color lowColour, Color highColour, double distance)
+    private static Color Lerp(Color lowColour, Color highColour, double distance)
     {
         return Color.FromArgb(Lerp(lowColour.R, highColour.R, distance), Lerp(lowColour.G, highColour.G, distance), Lerp(lowColour.B, highColour.B, distance));
     }
