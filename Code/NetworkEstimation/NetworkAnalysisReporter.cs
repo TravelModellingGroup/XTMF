@@ -58,7 +58,7 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
     public int Width;
 
     [RunParameter("Remove Parameter Path Header", "", "Remove this string from headers")]
-    public string RemoveParamterPathHeader;
+    public string RemoveParameterPathHeader;
 
     private static Tuple<byte, byte, byte> ProgressColourT = new(50, 150, 50);
 
@@ -99,6 +99,11 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
 
     public bool RuntimeValidation(ref string error)
     {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            error = "This module requires Windows NT 6.1 or above!";
+            return false;
+        }
         return true;
     }
 
@@ -144,6 +149,10 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
             Parallel.For(start, end + 1,
             delegate (int i)
             {
+                if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                {
+                    return;
+                }
                 System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.BelowNormal;
                 for (int j = i; j <= end; j++)
                 {
@@ -168,6 +177,10 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
 
     private byte[] BuildChart(string[] headers, int i, int j, Pair<double[], double>[] data, int bestIndex)
     {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            return [];
+        }
         using Chart chart = new();
         chart.Width = Width;
         chart.Height = Height;
@@ -212,7 +225,7 @@ public class NetworkAnalysisReporter : IModelSystemTemplate
         for (int i = 0; i < headers.Length; i++)
         {
             sb.Clear();
-            sb.Append(headers[i].Replace(RemoveParamterPathHeader, ""));
+            sb.Append(headers[i].Replace(RemoveParameterPathHeader, ""));
             for (int j = 0; j < sb.Length; j++)
             {
                 if (invalidCharacters.Contains(sb[j]))

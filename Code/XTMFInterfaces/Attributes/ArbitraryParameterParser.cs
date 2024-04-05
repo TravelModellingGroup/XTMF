@@ -119,10 +119,9 @@ public static class ArbitraryParameterParser
 
     private static object? ParseFloat(string input, ref string? error)
     {
-        float ret;
-        if(!float.TryParse(input, out ret))
+        if (!float.TryParse(input, out float ret))
         {
-            if(!float.TryParse(input, NumberStyles.Any, _numberFormat, out ret))
+            if (!float.TryParse(input, NumberStyles.Any, _numberFormat, out ret))
             {
                 error = $"Unable to parse '{input}' as a floating point number!";
                 return null;
@@ -133,8 +132,7 @@ public static class ArbitraryParameterParser
 
     private static object? ParseDouble(string input, ref string? error)
     {
-        double ret;
-        if (!double.TryParse(input, out ret))
+        if (!double.TryParse(input, out double ret))
         {
             if (!double.TryParse(input, NumberStyles.Any, _numberFormat, out ret))
             {

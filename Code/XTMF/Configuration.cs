@@ -808,8 +808,7 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
                         var attribute = child.Attributes["Value"];
                         if (attribute != null)
                         {
-                            bool isDarkTheme = false;
-                            if (bool.TryParse(attribute.InnerText, out isDarkTheme))
+                            if (bool.TryParse(attribute.InnerText, out bool isDarkTheme))
                             {
                                 IsDarkTheme = isDarkTheme;
                             }
@@ -825,8 +824,7 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
                         var attribute = child.Attributes["Value"];
                         if (attribute != null)
                         {
-                            bool isDisableTransitionAnimations = false;
-                            if (bool.TryParse(attribute.InnerText, out isDisableTransitionAnimations))
+                            if (bool.TryParse(attribute.InnerText, out bool isDisableTransitionAnimations))
                             {
                                 this.IsDisableTransitionAnimations = isDisableTransitionAnimations;
                             }

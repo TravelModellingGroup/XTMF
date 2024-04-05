@@ -105,6 +105,11 @@ public class DistributionAnalysis : IModelSystemTemplate, IDisposable
 
     public bool RuntimeValidation(ref string error)
     {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            error = "This module requires Windows NT 6.1 or above!";
+            return false;
+        }
         return true;
     }
 
@@ -153,6 +158,10 @@ public class DistributionAnalysis : IModelSystemTemplate, IDisposable
 
     private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
     {
+        if(!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            return;
+        }
         using Chart chart = new();
         chart.Width = 1024;
         chart.Height = 728;

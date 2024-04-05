@@ -23,6 +23,7 @@ using Tasha.Common;
 using Tasha.Scheduler;
 using TMG.Input;
 using XTMF;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.Validation;
 
@@ -153,7 +154,12 @@ public class ProjectScheduleAnalysis : IPostScheduler
 
     public bool RuntimeValidation(ref string error)
     {
-        if(MinutesPerBucket <= 0)
+        if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            error = "This module requires Windows NT 6.1 or above!";
+            return false;
+        }
+        if (MinutesPerBucket <= 0)
         {
             error = "The bucket size must be greater than zero";
             return false;
@@ -207,6 +213,10 @@ public class ProjectScheduleAnalysis : IPostScheduler
 
     private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
     {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            return;
+        }
         using Chart chart = new();
         chart.Width = Width;
         chart.Height = Height;

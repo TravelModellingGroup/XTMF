@@ -35,10 +35,9 @@ public class XtmfNotificationIcon
     {
         try
         {
-            ushort uicon;
             StringBuilder strB = new(260);
             strB.Append(Application.ExecutablePath);
-            IntPtr handle = ExtractAssociatedIcon(IntPtr.Zero, strB, out uicon);
+            IntPtr handle = ExtractAssociatedIcon(IntPtr.Zero, strB, out ushort uicon);
             Icon ico = Icon.FromHandle(handle);
             _icon = new NotifyIcon
             {

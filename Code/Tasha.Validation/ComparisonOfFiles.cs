@@ -20,6 +20,7 @@ using System;
 using System.Windows.Forms.DataVisualization.Charting;
 using Datastructure;
 using XTMF;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tasha.Validation;
 
@@ -111,6 +112,11 @@ public class ComparisonOfFiles : IModelSystemTemplate
             error = "The chart's height must be greater than 0!";
             return false;
         }
+        if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            error = "This module requires Windows NT 6.1 or above!";
+            return false;
+        }
         return true;
     }
 
@@ -133,6 +139,10 @@ public class ComparisonOfFiles : IModelSystemTemplate
 
     private void GenerateChart(string fileName, float[] values, float[] otherValues, string xAxisName, string yAxisName)
     {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+        {
+            return;
+        }
         using Chart chart = new();
         chart.Width = CharWidth;
         chart.Height = CharHeight;
