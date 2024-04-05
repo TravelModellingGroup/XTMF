@@ -22,135 +22,136 @@ using System.Linq;
 using System.Text;
 using XTMF.Networking;
 
-namespace XTMF.Run
+namespace XTMF.Run;
+
+/// <summary>
+/// This class is used to proxy for the true configuration during a run.
+/// This is required to make sure that the active project during a run is correct in
+/// replicating the behaviour of XTMF 1.0.
+/// </summary>
+public class ConfigurationProxy : IConfiguration
 {
     /// <summary>
-    /// This class is used to proxy for the true configuration during a run.
-    /// This is required to make sure that the active project during a run is correct in
-    /// replicating the behaviour of XTMF 1.0.
+    /// The configuration we are proxying for
     /// </summary>
-    public class ConfigurationProxy : IConfiguration
+    private Configuration _realConfiguration;
+
+    private class ProgressReport : IProgressReport
     {
-        /// <summary>
-        /// The configuration we are proxying for
-        /// </summary>
-        private Configuration _RealConfiguration;
+        public Tuple<byte, byte, byte> Colour { get; set; }
 
-        private class ProgressReport : IProgressReport
-        {
-            public Tuple<byte, byte, byte> Colour { get; set; }
-
-            public Func<float> GetProgress { get; internal set; }
-            
-            public string Name { get; internal set; }
-        }
-
-        public ConfigurationProxy(Configuration realConfig, IProject activeProject)
-        {
-            _RealConfiguration = realConfig;
-            ProjectRepository = new ProjectRepositoryProxy(_RealConfiguration.ProjectRepository, activeProject);
-            ProgressReports = new BindingListWithRemoving<IProgressReport>();
-        }
-
-        public string ConfigurationDirectory => _RealConfiguration.ConfigurationDirectory;
-
-        public IModuleRepository ModelRepository => _RealConfiguration.ModelRepository;
-
-        public string ModelSystemDirectory => _RealConfiguration.ModelSystemDirectory;
-
-        public IModelSystemRepository ModelSystemRepository => _RealConfiguration.ModelSystemRepository;
-
-        public IModelSystemTemplateRepository ModelSystemTemplateRepository => _RealConfiguration.ModelSystemTemplateRepository;
-
-        public BindingListWithRemoving<IProgressReport> ProgressReports { get; private set; }
+        public Func<float> GetProgress { get; internal set; }
         
-        public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> Color = null)
-        {
-            lock (this)
-            {
-                foreach (var report in ProgressReports)
-                {
-                    if (report.Name == name)
-                    {
-                        report.Colour = Color;
-                        return;
-                    }
-                }
-                ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = Color });
-            }
-        }
+        public string Name { get; internal set; }
+    }
 
-        public void DeleteAllProgressReport()
-        {
-            lock (this)
-            {
-                ProgressReports.Clear();
-            }
-        }
+    public ConfigurationProxy(Configuration realConfig, IProject activeProject)
+    {
+        _realConfiguration = realConfig;
+        ProjectRepository = new ProjectRepositoryProxy(_realConfiguration.ProjectRepository, activeProject);
+        ProgressReports = new BindingListWithRemoving<IProgressReport>();
+    }
 
-        public void DeleteProgressReport(string name)
+    public string ConfigurationDirectory => _realConfiguration.ConfigurationDirectory;
+
+    public IModuleRepository ModelRepository => _realConfiguration.ModelRepository;
+
+    public string ModelSystemDirectory => _realConfiguration.ModelSystemDirectory;
+
+    public IModelSystemRepository ModelSystemRepository => _realConfiguration.ModelSystemRepository;
+
+    public IModelSystemTemplateRepository ModelSystemTemplateRepository => _realConfiguration.ModelSystemTemplateRepository;
+
+    public BindingListWithRemoving<IProgressReport> ProgressReports { get; private set; }
+    
+    public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> Color = null)
+    {
+        lock (this)
         {
-            lock (this)
+            foreach (var report in ProgressReports)
             {
-                for (int i = 0; i < ProgressReports.Count; i++)
+                if (report.Name == name)
                 {
-                    if (ProgressReports[i].Name == name)
-                    {
-                        ProgressReports.RemoveAt(i);
-                        break;
-                    }
+                    report.Colour = Color;
+                    return;
                 }
             }
+            ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = Color });
         }
+    }
 
-        public bool InstallModule(string moduleFileName)
+    public void DeleteAllProgressReport()
+    {
+        lock (this)
         {
-            throw new NotSupportedException("Installing modules is not supported from a model run!");
+            ProgressReports.Clear();
         }
+    }
 
-        public IClient RetriveCurrentNetworkingClient() => _RealConfiguration.RetriveCurrentNetworkingClient();
-
-        public void Save() => _RealConfiguration.Save();
-
-        public bool StartupNetworkingClient(out IClient networkingClient, ref string error)
+    public void DeleteProgressReport(string name)
+    {
+        lock (this)
         {
-            return _RealConfiguration.StartupNetworkingClient(out networkingClient, ref error);
-        }
-
-        public bool StartupNetworkingHost(out IHost networkingHost, ref string error)
-        {
-            return _RealConfiguration.StartupNetworkingHost(out networkingHost, ref error);
-        }
-
-        public void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> Color)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string ProjectDirectory => _RealConfiguration.ProjectDirectory;
-
-        public IProjectRepository ProjectRepository { get; private set; }
-
-        public event Action OnModelSystemExit;
-
-        internal void ModelSystemExited()
-        {
-            if (OnModelSystemExit != null)
+            for (int i = 0; i < ProgressReports.Count; i++)
             {
-                try
+                if (ProgressReports[i].Name == name)
                 {
-                    OnModelSystemExit();
+                    ProgressReports.RemoveAt(i);
+                    break;
                 }
-                catch
-                {
-                }
-                var dels = OnModelSystemExit.GetInvocationList();
-                foreach (Delegate d in dels)
-                {
-                    OnModelSystemExit -= (Action)d;
-                }
-                OnModelSystemExit = null;
             }
         }
     }
+
+    public bool InstallModule(string moduleFileName)
+    {
+        throw new NotSupportedException("Installing modules is not supported from a model run!");
+    }
+
+    public IClient RetriveCurrentNetworkingClient() => _realConfiguration.RetriveCurrentNetworkingClient();
+
+    public void Save() => _realConfiguration.Save();
+
+    public bool StartupNetworkingClient(out IClient networkingClient, ref string error)
+    {
+        return _realConfiguration.StartupNetworkingClient(out networkingClient, ref error);
+    }
+
+    public bool StartupNetworkingHost(out IHost networkingHost, ref string error)
+    {
+        return _realConfiguration.StartupNetworkingHost(out networkingHost, ref error);
+    }
+
+    public void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> Color)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string ProjectDirectory => _realConfiguration.ProjectDirectory;
+
+    public IProjectRepository ProjectRepository { get; private set; }
+
+    public event Action OnModelSystemExit;
+
+    internal void ModelSystemExited()
+    {
+        if (OnModelSystemExit != null)
+        {
+            try
+            {
+                OnModelSystemExit();
+            }
+            catch
+            {
+            }
+            var dels = OnModelSystemExit.GetInvocationList();
+            foreach (Delegate d in dels)
+            {
+                OnModelSystemExit -= (Action)d;
+            }
+            OnModelSystemExit = null;
+        }
+    }
+
+    public string GetVersionString() => _realConfiguration.GetVersionString();
 }

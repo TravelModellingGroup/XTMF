@@ -131,5 +131,11 @@ namespace XTMF
         /// <param name="name"></param>
         /// <param name="color"></param>
         void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> color);
+
+        /// <summary>
+        /// Get a string representation of the version of XTMF that is running.
+        /// </summary>
+        /// <returns>A string representation of the XTMF version.</returns>
+        string GetVersionString();
     }
 }
