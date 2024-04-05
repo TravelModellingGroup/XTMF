@@ -12,7 +12,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <Optimize>true</Optimize>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
@@ -23,19 +22,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <Optimize>true</Optimize>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug Remote Host|AnyCPU'">
     <OutputPath>bin\Development Debug Remote Host\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
