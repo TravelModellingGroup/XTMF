@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -33,7 +33,12 @@ public sealed class Exponent : BinaryExpression
         // see if we have two values, in this case we can skip doing the matrix operation
         if (lhs.IsValue && rhs.IsValue)
         {
-            return new ComputationResult((float)Math.Pow(lhs.LiteralValue, rhs.LiteralValue));
+            return new ComputationResult(
+                lhs.LiteralValue == MathF.E ?
+                  MathF.Exp(rhs.LiteralValue)
+                : MathF.Pow(lhs.LiteralValue, rhs.LiteralValue)
+                );
+
         }
         // float / matrix
         if (lhs.IsValue)
@@ -42,13 +47,29 @@ public sealed class Exponent : BinaryExpression
             {
                 var retVector = rhs.Accumulator ? rhs.VectorData : rhs.VectorData.CreateSimilarArray<float>();
                 var flat = retVector.GetFlatData();
-                VectorHelper.Pow(flat, lhs.LiteralValue, rhs.VectorData.GetFlatData());
+                // Do a quick check to see if we can run exp instead
+                if (lhs.LiteralValue == MathF.E)
+                {
+                    VectorHelper.Exp(flat, rhs.VectorData.GetFlatData());
+                }
+                else
+                {
+                    VectorHelper.Pow(flat, lhs.LiteralValue, rhs.VectorData.GetFlatData());
+                }
                 return new ComputationResult(retVector, true, rhs.Direction);
             }
             else
             {
                 var retMatrix = rhs.Accumulator ? rhs.OdData : rhs.OdData.CreateSimilarArray<float>();
-                VectorHelper.Pow(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.OdData.GetFlatData());
+                // Do a quick check to see if we can run exp instead
+                if (lhs.LiteralValue == MathF.E)
+                {
+                    VectorHelper.Exp(retMatrix.GetFlatData(), rhs.OdData.GetFlatData());
+                }
+                else
+                {
+                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.OdData.GetFlatData());
+                }
                 return new ComputationResult(retMatrix, true);
             }
         }

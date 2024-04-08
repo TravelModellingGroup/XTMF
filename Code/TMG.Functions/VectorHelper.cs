@@ -1867,44 +1867,6 @@ public static partial class VectorHelper
         }
         return true;
     }
-    /// <summary>
-    /// Applies exp(x) for each element in the array
-    /// </summary>
-    /// <param name="destination">Where to save the results.</param>
-    /// <param name="destIndex">An offset into the array to start saving.</param>
-    /// <param name="x">The vector to use as the exponent.</param>
-    /// <param name="xIndex">The offset into the exponent vector to start from.</param>
-    /// <param name="length">The number of elements to convert.</param>
-    /// <remarks>The series is unrolled 30 times which approximates the .Net implementation from System.Math.Exp</remarks>
-    public static void Exp(float[] destination, int destIndex, float[] x, int xIndex, int length)
-    {
-        // This is still using scalar operations until we have an accurate replacement that runs faster when vectorized
-        if (Vector.IsHardwareAccelerated)
-        {
-            if ((destIndex | xIndex) == 0)
-            {
-                int i = 0;
-                for (; i < length; i++)
-                {
-                    destination[i] = (float)Math.Exp(x[i]);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    destination[i + destIndex] = (float)Math.Exp(x[i + xIndex]);
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < length; i++)
-            {
-                destination[i + destIndex] = (float)Math.Exp(x[i + xIndex]);
-            }
-        }
-    }
 
     /// <summary>
     /// Computes the Arithmetic Geometric mean for the given values.
