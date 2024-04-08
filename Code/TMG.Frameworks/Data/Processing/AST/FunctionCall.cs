@@ -333,9 +333,9 @@ public sealed class FunctionCall : Value
                 }
                 return Avg(values[0]);
             case FunctionType.E:
-                return new ComputationResult((float)Math.E);
+                return new ComputationResult(MathF.E);
             case FunctionType.Pi:
-                return new ComputationResult((float)Math.PI);
+                return new ComputationResult(MathF.PI);
             case FunctionType.Length:
                 if (values.Length != 1)
                 {
