@@ -55,6 +55,7 @@ public static partial class VectorHelper
             for (; i < destination.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 Vector512<float> x = Vector512.LoadUnsafe(ref src[i]);
+                Vector512<float> original_x = x;
                 x = Vector512.Min(x, exp_hi);
                 x = Vector512.Max(x, exp_lo);
                 Vector512<float> fx = Avx512F.FusedMultiplyAdd(x, LOG2EF, half);
@@ -77,6 +78,13 @@ public static partial class VectorHelper
                 var imm0 = Vector512.ConvertToInt32(fx);
                 imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
                 y = imm0.AsSingle() * y;
+
+                // Check for NaN / +inf / -inf
+                var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+                y = Blend(y, original_x, shouldRemainTheSame);
+                y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
+
+                // Store
                 Vector512.StoreUnsafe(y, ref destination[i]);
             }
         }
@@ -99,9 +107,10 @@ public static partial class VectorHelper
             for (; i < destination.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 Vector512<float> x = Vector512.LoadUnsafe(ref src[i]);
+                Vector512<float> original_x = x;
                 x = Vector512.Min(x, exp_hi);
                 x = Vector512.Max(x, exp_lo);
-                Vector512<float> fx = Avx512F.FusedMultiplyAdd(x, LOG2EF, half);
+                Vector512<float> fx = x * LOG2EF + half;
                 var tmp = Vector512.Floor(fx);
                 Vector512<float> mask = Vector512.GreaterThan(tmp, fx);
                 mask = Vector512.BitwiseAnd(tmp, mask);
@@ -121,6 +130,11 @@ public static partial class VectorHelper
                 var imm0 = Vector512.ConvertToInt32(fx);
                 imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
                 y = imm0.AsSingle() * y;
+
+                var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+                y = Blend(y, original_x, shouldRemainTheSame);
+                y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
+
                 Vector512.StoreUnsafe(y, ref destination[i]);
             }
         }
@@ -143,6 +157,7 @@ public static partial class VectorHelper
             for (; i < destination.Length - Vector256<float>.Count; i += Vector256<float>.Count)
             {
                 Vector256<float> x = Vector256.LoadUnsafe(ref src[i]);
+                var original_x = x;
                 x = Vector256.Min(x, exp_hi);
                 x = Vector256.Max(x, exp_lo);
                 Vector256<float> fx = Fma.MultiplyAdd(x, LOG2EF, half);
@@ -165,6 +180,11 @@ public static partial class VectorHelper
                 var imm0 = Vector256.ConvertToInt32(fx);
                 imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
                 y = imm0.AsSingle() * y;
+
+                var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+                y = Blend(y, original_x, shouldRemainTheSame);
+                y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
+
                 Vector256.StoreUnsafe(y, ref destination[i]);
             }
         }
@@ -187,6 +207,7 @@ public static partial class VectorHelper
             for (; i < destination.Length - Vector256<float>.Count; i += Vector256<float>.Count)
             {
                 Vector256<float> x = Vector256.LoadUnsafe(ref src[i]);
+                var original_x = x;
                 x = Vector256.Min(x, exp_hi);
                 x = Vector256.Max(x, exp_lo);
                 Vector256<float> fx = Fma.MultiplyAdd(x, LOG2EF, half);
@@ -209,6 +230,11 @@ public static partial class VectorHelper
                 var imm0 = Vector256.ConvertToInt32(fx);
                 imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
                 y = imm0.AsSingle() * y;
+
+                var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+                y = Blend(y, original_x, shouldRemainTheSame);
+                y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
+
                 Vector256.StoreUnsafe(y, ref destination[i]);
             }
         }
@@ -228,6 +254,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static Vector512<float> Exp(Vector512<float> x)
     {
+        var original_x = x;
         if (Avx512F.IsSupported)
         {
             Vector512<float> c_one = Vector512<float>.One;
@@ -266,6 +293,10 @@ public static partial class VectorHelper
             var imm0 = Vector512.ConvertToInt32(fx);
             imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
             y = imm0.AsSingle() * y;
+
+            var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+            y = Blend(y, original_x, shouldRemainTheSame);
+            y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
             return y;
         }
         else
@@ -286,7 +317,7 @@ public static partial class VectorHelper
             Vector512<int> c0x7f = Vector512.Create(0x7F);
             x = Vector512.Min(x, exp_hi);
             x = Vector512.Max(x, exp_lo);
-            Vector512<float> fx = Avx512F.FusedMultiplyAdd(x, LOG2EF, half);
+            Vector512<float> fx = x * LOG2EF + half;
             var tmp = Vector512.Floor(fx);
             Vector512<float> mask = Vector512.GreaterThan(tmp, fx);
             mask = Vector512.BitwiseAnd(tmp, mask);
@@ -306,6 +337,10 @@ public static partial class VectorHelper
             var imm0 = Vector512.ConvertToInt32(fx);
             imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
             y = imm0.AsSingle() * y;
+
+            var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+            y = Blend(y, original_x, shouldRemainTheSame);
+            y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
             return y;
         }
     }
@@ -319,6 +354,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static Vector256<float> Exp(Vector256<float> x)
     {
+        var original_x = x;
         if (Fma.IsSupported)
         {
             Vector256<float> c_one = Vector256<float>.One;
@@ -357,6 +393,9 @@ public static partial class VectorHelper
             var imm0 = Vector256.ConvertToInt32(fx);
             imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
             y = imm0.AsSingle() * y;
+            var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+            y = Blend(y, original_x, shouldRemainTheSame);
+            y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
             return y;
         }
         else
@@ -397,6 +436,9 @@ public static partial class VectorHelper
             var imm0 = Vector256.ConvertToInt32(fx);
             imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
             y = imm0.AsSingle() * y;
+            var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+            y = Blend(y, original_x, shouldRemainTheSame);
+            y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
             return y;
         }
     }
@@ -411,6 +453,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static Vector<float> Exp(Vector<float> x)
     {
+        var original_x = x;
         Vector<float> c_one = Vector<float>.One;
         Vector<float> half = new Vector<float>(0.5f);
         Vector<float> exp_hi = new(88.3762626647949f);
@@ -447,6 +490,9 @@ public static partial class VectorHelper
         var imm0 = Vector.ConvertToInt32(fx);
         imm0 = Vector.ShiftLeft(imm0 + c0x7f, 23);
         y = Vector.As<int, float>(imm0) * y;
+        var shouldRemainTheSame = Vector.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
+        y = Blend(y, original_x, shouldRemainTheSame);
+        y = Blend(y, Vector<float>.Zero, CreateNegativeInfMask(original_x));
         return y;
 
     }
