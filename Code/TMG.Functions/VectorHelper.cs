@@ -1918,40 +1918,6 @@ public static partial class VectorHelper
     }
 
     /// <summary>
-    /// Computes the natural logarithm for each element in x
-    /// </summary>
-    /// <param name="x">The values to compute the logarithms of</param>
-    /// <returns>The vector of logarithms</returns>
-    /// <see>
-    ///     <cref>https://en.wikipedia.org/wiki/Natural_logarithm</cref>
-    /// </see>
-    public static Vector<float> Log(Vector<float> x)
-    {
-        var two = new Vector<float>(2.0f);
-        var pi = new Vector<float>(MathF.PI);
-        var mTimesln2 = new Vector<float>(0.693147181f * 16.0f);
-        var denom = new Vector<float>(4.0f) / (x * new Vector<float>(65536.0f));
-        return (pi / (two * ArithmeticGeometricMean(Vector<float>.One, denom))) - mTimesln2;
-    }
-
-    /// <summary>
-    /// Computes the natural logarithm for each element in x
-    /// </summary>
-    /// <param name="x">The values to compute the logarithms of</param>
-    /// <returns>The vector of logarithms</returns>
-    /// <see>
-    ///     <cref>https://en.wikipedia.org/wiki/Natural_logarithm</cref>
-    /// </see>
-    public static Vector512<float> Log(Vector512<float> x)
-    {
-        var two = Vector512.Create(2.0f);
-        var pi = Vector512.Create(MathF.PI);
-        var mTimesln2 = Vector512.Create(0.693147181f * 16.0f);
-        var denom = Vector512.Create(4.0f) / (x * Vector512.Create(65536.0f));
-        return (pi / (two * ArithmeticGeometricMean(Vector512<float>.One, denom))) - mTimesln2;
-    }
-
-    /// <summary>
     /// Applies log(x) for each element in the array and saves it into the destination.
     /// </summary>
     /// <param name="destination">Where to save the results.</param>
@@ -1961,9 +1927,17 @@ public static partial class VectorHelper
     /// <param name="length">The number of elements to convert.</param>
     public static void Log(float[] destination, int destIndex, float[] x, int xIndex, int length)
     {
-        for (int i = 0; i < length; i++)
+        // If we want to operate on the whole array use the accelerated function.
+        if ((destIndex | xIndex) == 0 && destination.Length == length)
         {
-            destination[i + destIndex] = MathF.Log(x[i + xIndex]);
+            Log(destination, x);
+        }
+        else
+        {
+            for (int i = 0; i < length; i++)
+            {
+                destination[i + destIndex] = MathF.Log(x[i + xIndex]);
+            }
         }
     }
 
