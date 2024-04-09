@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -22,6 +22,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
 namespace TMG.Functions;
 
@@ -1057,7 +1058,7 @@ public static partial class VectorHelper
         {
             throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
         }
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             int i;
             var zero = Vector512<float>.Zero;
@@ -1127,7 +1128,7 @@ public static partial class VectorHelper
         }
         else if (Vector.IsHardwareAccelerated)
         {
-            int i;  
+            int i;
             Vector<float> zero = Vector<float>.Zero;
             Vector<float> one = Vector<float>.One;
             Vector<float> vValue = new(rhs);
@@ -1163,7 +1164,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Average(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
     {
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             Vector512<float> half = Vector512.Create(0.5f);
             if ((destIndex | firstIndex | secondIndex) == 0)
@@ -1321,14 +1322,14 @@ public static partial class VectorHelper
     public static void ReplaceIfNaN(float[] dest, float[] baseValue, float[] replacementValue)
     {
         int i = 0;
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             for (; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var b = Vector512.LoadUnsafe(ref baseValue[i]);
                 var r = Vector512.LoadUnsafe(ref replacementValue[i]);
                 Vector512.StoreUnsafe(
-                    Vector512.ConditionalSelect(Vector512.GreaterThanOrEqual(b, b), b, r), 
+                    Vector512.ConditionalSelect(Vector512.GreaterThanOrEqual(b, b), b, r),
                     ref dest[i]);
             }
         }
@@ -1356,7 +1357,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ReplaceIfNotFinite(float[] destination, int destIndex, float alternateValue, int length)
     {
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             var altV = Vector512.Create(alternateValue);
             if (destIndex == 0)
@@ -1446,7 +1447,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ReplaceIfNotFinite(float[] destination, int destIndex, float[] source, int sourceIndex, float alternateValue, int length)
     {
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             var altV = Vector512.Create(alternateValue);
             if (destIndex == 0 && sourceIndex == 0)
@@ -1521,7 +1522,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ReplaceIfNotFinite(float[] destination, int destIndex, float[] source, int sourceIndex, float[] alternateValue, int altIndex, int length)
     {
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             if (destIndex == 0 && sourceIndex == 0 && altIndex == 0)
             {
@@ -1590,7 +1591,7 @@ public static partial class VectorHelper
 
     public static void ReplaceIfLessThanOrNotFinite(float[] destination, int destIndex, float alternateValue, float minimum, int length)
     {
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             var altV = Vector512.Create(alternateValue);
             var minimumV = Vector512.Create(minimum);
@@ -1677,7 +1678,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool AnyGreaterThan(float[] data, int dataIndex, float rhs, int length)
     {
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             var rhsV = Vector512.Create(rhs);
             if (dataIndex == 0)
@@ -1773,7 +1774,7 @@ public static partial class VectorHelper
 
     public static bool AreBoundedBy(float[] data, int dataIndex, float baseNumber, float maxVarriation, int length)
     {
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             var baseV = Vector512.Create(baseNumber);
             var maxmumVariationV = Vector512.Create(maxVarriation);
@@ -1969,7 +1970,7 @@ public static partial class VectorHelper
     public static void Negate(float[] dest, float[] source)
     {
         int i = 0;
-        if(Vector512.IsHardwareAccelerated)
+        if (Vector512.IsHardwareAccelerated)
         {
             for (; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
@@ -1977,7 +1978,7 @@ public static partial class VectorHelper
                 Vector512.StoreUnsafe(local, ref dest[i]);
             }
         }
-        if(Vector.IsHardwareAccelerated)
+        if (Vector.IsHardwareAccelerated)
         {
             for (; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
@@ -1989,4 +1990,244 @@ public static partial class VectorHelper
             dest[i] = -source[i];
         }
     }
+
+    /// <summary>
+    /// Get a mask of values that are NaN
+    /// </summary>
+    /// <param name="x">The values to check for.</param>
+    /// <returns>A mask where the values are NaN</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector512<float> CreateNaNMask(Vector512<float> x)
+    {
+        var compare = Vector512.Equals(x, x);
+        return Vector512.OnesComplement(compare);
+    }
+
+    /// <summary>
+    /// Get a mask of values that are NaN
+    /// </summary>
+    /// <param name="x">The values to check for.</param>
+    /// <returns>A mask where the values are NaN</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector256<float> CreateNaNMask(Vector256<float> x)
+    {
+        var compare = Vector256.Equals(x, x);
+        return Vector256.OnesComplement(compare);
+    }
+
+    /// <summary>
+    /// Get a mask of values that are NaN
+    /// </summary>
+    /// <param name="x">The values to check for.</param>
+    /// <returns>A mask where the values are NaN</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector<float> CreateNaNMask(Vector<float> x)
+    {
+        var compare = Vector.Equals(x, x);
+        return Vector.OnesComplement(compare).As<int, float>();
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector512<float> CreatePositiveInfMask(Vector512<float> x)
+    {
+        return Vector512.Equals(x, Vector512.Create(float.PositiveInfinity));
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector256<float> CreatePositiveInfMask(Vector256<float> x)
+    {
+        return Vector256.Equals(x, Vector256.Create(float.PositiveInfinity));
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector<float> CreatePositiveInfMask(Vector<float> x)
+    {
+        return Vector.GreaterThanOrEqual(x, new Vector<float>(float.PositiveInfinity)).As<int, float>();
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector512<float> CreateNegativeInfMask(Vector512<float> x)
+    {
+        return Vector512.Equals(x, Vector512.Create(float.NegativeInfinity));
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector256<float> CreateNegativeInfMask(Vector256<float> x)
+    {
+        return Vector256.Equals(x, Vector256.Create(float.NegativeInfinity));
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector<float> CreateNegativeInfMask(Vector<float> x)
+    {
+        return Vector.LessThanOrEqual(x, new Vector<float>(float.NegativeInfinity)).As<int, float>();
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector512<float> CreateInfMask(Vector512<float> x)
+    {
+        return
+            Vector512.BitwiseOr(
+            Vector512.Equals(x, Vector512.Create(float.PositiveInfinity)),
+            Vector512.Equals(x, Vector512.Create(float.NegativeInfinity))
+        );
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector256<float> CreateInfMask(Vector256<float> x)
+    {
+        return
+            Vector256.BitwiseOr(
+            Vector256.Equals(x, Vector256.Create(float.PositiveInfinity)),
+            Vector256.Equals(x, Vector256.Create(float.NegativeInfinity))
+        );
+    }
+
+    /// <summary>
+    /// Create a mask for elements that are positive infinity.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static Vector<int> CreateInfMask(Vector<float> x)
+    {
+        return
+            Vector.BitwiseOr(
+            Vector.Equals(x, new Vector<float>(float.PositiveInfinity)),
+            Vector.Equals(x, new Vector<float>(float.NegativeInfinity))
+        );
+    }
+
+    /// <summary>
+    /// Returns a mask of the numbers that are finite
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector512<float> CreateFiniteMask(Vector512<float> x)
+    {
+        // The first bit is for sign, the next are for the exponent.  If the exponent is 1111_1111 then the number is inf, -inf, or NaN
+        uint mask = 0b01111111100000000000000000000000;
+        var maskV = Vector512.Create(mask).AsSingle();
+        return Vector512.OnesComplement(Vector512.Equals(Vector512.BitwiseAnd(x, maskV), maskV));
+    }
+
+    /// <summary>
+    /// Returns a mask of the numbers that are finite
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector256<float> CreateFiniteMask(Vector256<float> x)
+    {
+        // The first bit is for sign, the next are for the exponent.  If the exponent is 1111_1111 then the number is inf, -inf, or NaN
+        uint mask = 0b01111111100000000000000000000000;
+        var maskV = Vector256.Create(mask).AsSingle();
+        return Vector256.OnesComplement(Vector256.Equals(Vector256.BitwiseAnd(x, maskV), maskV));
+    }
+
+    /// <summary>
+    /// Returns a mask of the numbers that are finite
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector<float> CreateFiniteMask(Vector<float> x)
+    {
+        // The first bit is for sign, the next are for the exponent.  If the exponent is 1111_1111 then the number is inf, -inf, or NaN
+        uint mask = 0b01111111100000000000000000000000;
+        var maskV = new Vector<uint>(mask).As<uint, float>();
+        return Vector.OnesComplement(Vector.Equals(Vector.BitwiseAnd(x, maskV), maskV).As<int, float>());
+    }
+
+    /// <summary>
+    /// Is the mask is 1, then the RHS is selected LHS if 0.
+    /// </summary>
+    /// <param name="lhs">The values to select if the LHS was selected.</param>
+    /// <param name="rhs">The values to select if the RHS was selected.</param>
+    /// <param name="mask">0 to select the LHS, 1 to select the RHS.</param>
+    /// <returns>A new vector with the selected elements.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector512<float> Blend(Vector512<float> lhs, Vector512<float> rhs, Vector512<float> mask)
+    {
+        if (Avx512F.IsSupported)
+        {
+            return Avx512F.BlendVariable(lhs, rhs, mask);
+        }
+        else
+        {
+            var invMask = Vector512.OnesComplement(mask);
+            return Vector512.BitwiseOr(Vector512.BitwiseAnd(lhs, invMask),
+                Vector512.BitwiseAnd(rhs, mask));
+        }
+    }
+
+    /// <summary>
+    /// Is the mask is 1, then the RHS is selected LHS if 0.
+    /// </summary>
+    /// <param name="lhs">The values to select if the LHS was selected.</param>
+    /// <param name="rhs">The values to select if the RHS was selected.</param>
+    /// <param name="mask">0 to select the LHS, 1 to select the RHS.</param>
+    /// <returns>A new vector with the selected elements.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector256<float> Blend(Vector256<float> lhs, Vector256<float> rhs, Vector256<float> mask)
+    {
+        if (Avx.IsSupported)
+        {
+            return Avx.BlendVariable(lhs, rhs, mask);
+        }
+        else
+        {
+            var invMask = Vector256.OnesComplement(mask);
+            return Vector256.BitwiseOr(Vector256.BitwiseAnd(lhs, invMask),
+                Vector256.BitwiseAnd(rhs, mask));
+        }
+    }
+
+    /// <summary>
+    /// Is the mask is 1, then the RHS is selected LHS if 0.
+    /// </summary>
+    /// <param name="lhs">The values to select if the LHS was selected.</param>
+    /// <param name="rhs">The values to select if the RHS was selected.</param>
+    /// <param name="mask">0 to select the LHS, 1 to select the RHS.</param>
+    /// <returns>A new vector with the selected elements.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector<float> Blend(Vector<float> lhs, Vector<float> rhs, Vector<float> mask)
+    {
+        var invMask = Vector.OnesComplement(mask);
+        return Vector.BitwiseOr(Vector.BitwiseAnd(lhs, invMask),
+            Vector.BitwiseAnd(rhs, mask));
+    }
+
 }
