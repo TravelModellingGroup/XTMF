@@ -494,7 +494,6 @@ public static partial class VectorHelper
         y = Blend(y, original_x, shouldRemainTheSame);
         y = Blend(y, Vector<float>.Zero, CreateNegativeInfMask(original_x));
         return y;
-
     }
 
     /// <summary>

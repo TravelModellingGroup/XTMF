@@ -220,6 +220,73 @@ public static partial class VectorHelper
         return x;
     }
 
+
+    /// <summary>
+    /// Provides a 256-bit accelerated implementation of Log based on MathIsFun
+    /// Based on MathIsFun https://github.com/reyoung/avx_mathfun/blob/master/avx_mathfun.h
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    static Vector<float> Log(Vector<float> x)
+    {
+        var cephes_SQRTHF = new Vector<float>(0.707106781186547524f);
+        var cephes_log_p0 = new Vector<float>(7.0376836292E-2f);
+        var cephes_log_p1 = new Vector<float>(-1.1514610310E-1f);
+        var cephes_log_p2 = new Vector<float>(1.1676998740E-1f);
+        var cephes_log_p3 = new Vector<float>(-1.2420140846E-1f);
+        var cephes_log_p4 = new Vector<float>(+1.4249322787E-1f);
+        var cephes_log_p5 = new Vector<float>(-1.6668057665E-1f);
+        var cephes_log_p6 = new Vector<float>(+2.0000714765E-1f);
+        var cephes_log_p7 = new Vector<float>(-2.4999993993E-1f);
+        var cephes_log_p8 = new Vector<float>(+3.3333331174E-1f);
+        var cephes_log_q1 = new Vector<float>(-2.12194440e-4f);
+        var cephes_log_q2 = new Vector<float>(0.693359375f);
+        var min_normalized = new Vector<int>(0x00800000).As<int, float>();
+        var invMantMask = new Vector<int>(~0x7f800000).As<int, float>();
+        var half = new Vector<float>(0.5f);
+        var c0x7f = new Vector<int>(0x7F);
+        var one = Vector<float>.One;
+        // Generate the error masks before we start processing
+        var invalidMask = Vector.BitwiseOr<float>(Vector.LessThan(x, Vector<float>.Zero).As<int, float>(), CreateNaNMask(x));
+        var zeroMask = Vector.Equals(x, Vector<float>.Zero).As<int, float>();
+        var posInf = new Vector<float>(float.PositiveInfinity);
+        var negInfV = new Vector<float>(float.NegativeInfinity);
+        var posInfMask = Vector.GreaterThanOrEqual(x, posInf).As<int, float>();
+
+        // Ignore denomalized values
+        x = Vector.Max(x, min_normalized);
+        var imm0 = Vector.ShiftRightLogical(x.As<float, int>(), 23);
+        x = Vector.BitwiseAnd(x, invMantMask);
+        x = Vector.BitwiseOr(x, half);
+        imm0 = imm0 - c0x7f;
+        var e = Vector.ConvertToSingle(imm0) + one;
+        var mask = Vector.LessThan(x, cephes_SQRTHF).As<int, float>();
+        var temp = Vector.BitwiseAnd(x, mask);
+        x = x - one;
+        e = e - Vector.BitwiseAnd(one, mask);
+        x = x + temp;
+        var z = x * x;
+        var y = cephes_log_p0;
+        y = y * x + cephes_log_p1;
+        y = y * x + cephes_log_p2;
+        y = y * x + cephes_log_p3;
+        y = y * x + cephes_log_p4;
+        y = y * x + cephes_log_p5;
+        y = y * x + cephes_log_p6;
+        y = y * x + cephes_log_p7;
+        y = y * x + cephes_log_p8;
+        y = y * x * z;
+        y = y + e * cephes_log_q1;
+        y = y - (z * half);
+        x = (x + y) + (e * cephes_log_q2);
+        // Apply error masks
+        x = Vector.BitwiseOr<float>(x, invalidMask); // negative arg will be NAN
+        x = Blend(x, negInfV, zeroMask);
+        x = Blend(x, posInf, posInfMask);
+        return x;
+    }
+
     /// <summary>
     /// Provides a 512-bit with a 256-bit fallback accelerated implementation of Log based on MathIsFun
     /// Based on MathIsFun https://github.com/reyoung/avx_mathfun/blob/master/avx_mathfun.h

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,6 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Numerics;
+using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 
 namespace TMG.Functions;
@@ -25,34 +27,94 @@ public static partial class VectorHelper
 {
     public static void Pow(float[] flat, float[] lhs, float rhs)
     {
-        // Vectorize this when possible
-        for (int i = 0; i < flat.Length; i++)
+        int i = 0;
+        if(Vector512.IsHardwareAccelerated)
         {
-            flat[i] = (float)Math.Pow(lhs[i], rhs);
+            var vy = Vector512.Create(rhs);
+            for (; i < flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            {
+                var vx = Vector512.LoadUnsafe(ref lhs[i]);
+                var res = Pow(vx, vy);
+                Vector512.StoreUnsafe(res, ref flat[i]);
+            }
+        }
+        else if(Vector256.IsHardwareAccelerated)
+        {
+            var vy = Vector256.Create(rhs);
+            for (; i < flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
+            {
+                var vx = Vector256.LoadUnsafe(ref lhs[i]);
+                var res = Pow(vx, vy);
+                Vector256.StoreUnsafe(res, ref flat[i]);
+            }
+        }
+        for (; i < flat.Length; i++)
+        {
+            flat[i] = MathF.Pow(lhs[i], rhs);
         }
     }
 
     public static void Pow(float[] flat, float lhs, float[] rhs)
     {
-        // Vectorize this when possible
-        for (int i = 0; i < flat.Length; i++)
+        int i = 0;
+        if (Vector512.IsHardwareAccelerated)
         {
-            flat[i] = (float)Math.Pow(lhs, rhs[i]);
+            var vx = Vector512.Create(lhs);
+            for (; i < flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            {
+                var vy = Vector512.LoadUnsafe(ref rhs[i]);
+                var res = Pow(vx, vy);
+                Vector512.StoreUnsafe(res, ref flat[i]);
+            }
+        }
+        else if (Vector256.IsHardwareAccelerated)
+        {
+            var vx = Vector256.Create(lhs);
+            for (; i < flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
+            {
+                var vy = Vector256.LoadUnsafe(ref rhs[i]);
+                var res = Pow(vx, vy);
+                Vector256.StoreUnsafe(res, ref flat[i]);
+            }
+        }
+        for (; i < flat.Length; i++)
+        {
+            flat[i] = MathF.Pow(lhs, rhs[i]);
         }
     }
 
     public static void Pow(float[] flat, float[] lhs, float[] rhs)
     {
-        // Vectorize this when possible
-        for (int i = 0; i < flat.Length; i++)
+        int i = 0;
+        if (Vector512.IsHardwareAccelerated)
         {
-            flat[i] = (float)Math.Pow(lhs[i], rhs[i]);
+            
+            for (; i < flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            {
+                var vx = Vector512.LoadUnsafe(ref lhs[i]);
+                var vy = Vector512.LoadUnsafe(ref rhs[i]);
+                var res = Pow(vx, vy);
+                Vector512.StoreUnsafe(res, ref flat[i]);
+            }
+        }
+        else if (Vector256.IsHardwareAccelerated)
+        {
+            for (; i < flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
+            {
+                var vx = Vector256.LoadUnsafe(ref lhs[i]);
+                var vy = Vector256.LoadUnsafe(ref rhs[i]);
+                var res = Pow(vx, vy);
+                Vector256.StoreUnsafe(res, ref flat[i]);
+            }
+        }
+        for (; i < flat.Length; i++)
+        {
+            flat[i] = MathF.Pow(lhs[i], rhs[i]);
         }
     }
 
     public static void Pow(float[][] flat, float[][] lhs, float[][] rhs)
     {
-        // Vectorize this when possible
         Parallel.For(0, flat.Length, i =>
         {
             Pow(flat[i], lhs[i], rhs[i]);
@@ -61,7 +123,6 @@ public static partial class VectorHelper
 
     public static void Pow(float[][] flat, float[][] lhs, float rhs)
     {
-        // Vectorize this when possible
         Parallel.For(0, flat.Length, i =>
         {
             Pow(flat[i], lhs[i], rhs);
@@ -70,10 +131,112 @@ public static partial class VectorHelper
 
     public static void Pow(float[][] flat, float lhs, float[][] rhs)
     {
-        // Vectorize this when possible
         Parallel.For(0, flat.Length, i =>
         {
             Pow(flat[i], lhs, rhs[i]);
         });
     }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector512<float> Pow(Vector512<float> x, float y)
+    {
+        return Exp(y * Log(x));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector512<float> Pow(float x, Vector512<float> y) 
+    {
+        var vx = Vector512.Create(x);
+        return Exp(y * Log(vx));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector512<float> Pow(Vector512<float> x, Vector512<float> y)
+    {
+        return Exp(y * Log(x));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector256<float> Pow(Vector256<float> x, float y)
+    {
+        return Exp(y * Log(x));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector256<float> Pow(float x, Vector256<float> y)
+    {
+        var vx = Vector256.Create(x);
+        return Exp(y * Log(vx));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector256<float> Pow(Vector256<float> x, Vector256<float> y)
+    {
+        return Exp(y * Log(x));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector<float> Pow(Vector<float> x, float y)
+    {
+        return Exp(y * Log(x));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector<float> Pow(float x, Vector<float> y)
+    {
+        var vx = new Vector<float>(x);
+        return Exp(y * Log(vx));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector<float> Pow(Vector<float> x, Vector<float> y)
+    {
+        return Exp(y * Log(x));
+    }
+
 }
