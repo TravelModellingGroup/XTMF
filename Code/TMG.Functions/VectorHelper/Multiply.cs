@@ -21,6 +21,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 
 namespace TMG.Functions;
@@ -539,9 +540,41 @@ public static partial class VectorHelper
     public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex,
         float[] third, int thirdIndex, float[] fourth, int fourthIndex, int length)
     {
-        if (Vector.IsHardwareAccelerated)
+        int i = 0;
+        if(Vector512.IsHardwareAccelerated)
         {
-            int i = 0;
+            if ((destIndex | firstIndex | secondIndex | thirdIndex | fourthIndex) == 0)
+            {
+                // copy everything we can do inside of a vector
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var f = Vector512.LoadUnsafe(ref first[i]);
+                    var s = Vector512.LoadUnsafe(ref second[i]);
+                    var t = Vector512.LoadUnsafe(ref third[i]);
+                    var f4 = Vector512.LoadUnsafe(ref fourth[i]);
+                    Vector512.StoreUnsafe((f * s) * (t * f4), ref destination[i]);
+                }
+                // copy the remainder
+                for (; i < length; i++)
+                {
+                    destination[i] = first[i] * second[i] * third[i] * fourth[i];
+                }
+            }
+            else
+            {
+                // copy everything we can do inside of a vector
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                    var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                    var t = Vector512.LoadUnsafe(ref third[i + thirdIndex]);
+                    var f4 = Vector512.LoadUnsafe(ref fourth[i + fourthIndex]);
+                    Vector512.StoreUnsafe((f * s) * (t * f4), ref destination[i + destIndex]);
+                }
+            }
+        }
+        else if (Vector.IsHardwareAccelerated)
+        {
             if ((destIndex | firstIndex | secondIndex | thirdIndex | fourthIndex) == 0)
             {
                 // copy everything we can do inside of a vector
@@ -551,7 +584,7 @@ public static partial class VectorHelper
                     var s = new Vector<float>(second, i);
                     var t = new Vector<float>(third, i);
                     var f4 = new Vector<float>(fourth, i);
-                    (f * s * t * f4).CopyTo(destination, i);
+                    ((f * s) * (t * f4)).CopyTo(destination, i);
                 }
                 // copy the remainder
                 for (; i < length; i++)
@@ -568,21 +601,14 @@ public static partial class VectorHelper
                     var s = new Vector<float>(second, i + secondIndex);
                     var t = new Vector<float>(third, i + thirdIndex);
                     var f4 = new Vector<float>(fourth, i + fourthIndex);
-                    (f * s * t * f4).CopyTo(destination, i + destIndex);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex] * fourth[i + fourthIndex];
+                    ((f * s) * (t * f4)).CopyTo(destination, i + destIndex);
                 }
             }
         }
-        else
+        // copy the remainder
+        for (; i < length; i++)
         {
-            for (int i = 0; i < length; i++)
-            {
-                destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex] * fourth[i + fourthIndex];
-            }
+            destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex] * fourth[i + fourthIndex];
         }
     }
 
