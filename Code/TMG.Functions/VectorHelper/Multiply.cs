@@ -541,9 +541,9 @@ public static partial class VectorHelper
         float[] third, int thirdIndex, float[] fourth, int fourthIndex, int length)
     {
         int i = 0;
-        if(Vector512.IsHardwareAccelerated)
+        if ((destIndex | firstIndex | secondIndex | thirdIndex | fourthIndex) == 0)
         {
-            if ((destIndex | firstIndex | secondIndex | thirdIndex | fourthIndex) == 0)
+            if (Vector512.IsHardwareAccelerated)
             {
                 // copy everything we can do inside of a vector
                 for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
@@ -554,13 +554,28 @@ public static partial class VectorHelper
                     var f4 = Vector512.LoadUnsafe(ref fourth[i]);
                     Vector512.StoreUnsafe((f * s) * (t * f4), ref destination[i]);
                 }
-                // copy the remainder
-                for (; i < length; i++)
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                // copy everything we can do inside of a vector
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    destination[i] = first[i] * second[i] * third[i] * fourth[i];
+                    var f = new Vector<float>(first, i);
+                    var s = new Vector<float>(second, i);
+                    var t = new Vector<float>(third, i);
+                    var f4 = new Vector<float>(fourth, i);
+                    ((f * s) * (t * f4)).CopyTo(destination, i);
                 }
             }
-            else
+            // copy the remainder
+            for (; i < length; i++)
+            {
+                destination[i] = first[i] * second[i] * third[i] * fourth[i];
+            }
+        }
+        else
+        {
+            if(Vector512.IsHardwareAccelerated)
             {
                 // copy everything we can do inside of a vector
                 for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
@@ -572,27 +587,7 @@ public static partial class VectorHelper
                     Vector512.StoreUnsafe((f * s) * (t * f4), ref destination[i + destIndex]);
                 }
             }
-        }
-        else if (Vector.IsHardwareAccelerated)
-        {
-            if ((destIndex | firstIndex | secondIndex | thirdIndex | fourthIndex) == 0)
-            {
-                // copy everything we can do inside of a vector
-                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var f = new Vector<float>(first, i);
-                    var s = new Vector<float>(second, i);
-                    var t = new Vector<float>(third, i);
-                    var f4 = new Vector<float>(fourth, i);
-                    ((f * s) * (t * f4)).CopyTo(destination, i);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    destination[i] = first[i] * second[i] * third[i] * fourth[i];
-                }
-            }
-            else
+            else if (Vector.IsHardwareAccelerated)
             {
                 // copy everything we can do inside of a vector
                 for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
@@ -604,12 +599,12 @@ public static partial class VectorHelper
                     ((f * s) * (t * f4)).CopyTo(destination, i + destIndex);
                 }
             }
-        }
-        // copy the remainder
-        for (; i < length; i++)
-        {
-            destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex] * fourth[i + fourthIndex];
-        }
+            // copy the remainder
+            for (; i < length; i++)
+            {
+                destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex] * fourth[i + fourthIndex];
+            }
+        }       
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
