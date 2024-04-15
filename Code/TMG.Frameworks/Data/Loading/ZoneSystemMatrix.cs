@@ -27,7 +27,7 @@ using XTMF;
 namespace TMG.Frameworks.Data.Loading;
 
 
-[ModuleInformation(Description = "This module provides some simple")]
+[ModuleInformation(Description = "This module provides some common matrix types to support calculations on a zone system.")]
 public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
 {
 
