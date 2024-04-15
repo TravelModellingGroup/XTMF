@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -583,27 +583,87 @@ public sealed class FunctionCall : Value
         var condition = values[0];
         var replacement = values[1];
         // both must be the same size
-        if (condition.IsValue && replacement.IsValue)
+        if (condition.IsValue)
         {
-            return new ComputationResult(!float.IsNaN(condition.LiteralValue) ? condition.LiteralValue : replacement.LiteralValue);
-        }
-        else if (condition.IsVectorResult && replacement.IsVectorResult)
-        {
-            var saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
-            VectorHelper.ReplaceIfNotFinite(saveTo.GetFlatData(), 0, condition.VectorData.GetFlatData(), 0, replacement.VectorData.GetFlatData(), 0, condition.VectorData.GetFlatData().Length);
-            return new ComputationResult(saveTo, true, condition.Direction);
-        }
-        else if (condition.IsOdResult && replacement.IsOdResult)
-        {
-            var saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
-            var flatSave = saveTo.GetFlatData();
-            var flatCond = condition.OdData.GetFlatData();
-            var flatRep = replacement.OdData.GetFlatData();
-            System.Threading.Tasks.Parallel.For(0, flatCond.Length, (int i) =>
+            if (replacement.IsValue)
             {
-                VectorHelper.ReplaceIfNotFinite(flatSave[i], 0, flatCond[i], 0, flatRep[i], 0, flatRep[i].Length);
-            });
-            return new ComputationResult(saveTo, true);
+                return new ComputationResult(!float.IsNaN(condition.LiteralValue) ? condition.LiteralValue : replacement.LiteralValue);
+            }
+            return new ComputationResult($"{Start + 1}: The replacement value for a value must also be a value.");
+        }
+        else if (condition.IsVectorResult)
+        {
+            if (replacement.IsValue)
+            {
+                var saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                VectorHelper.ReplaceIfNotFinite(saveTo.GetFlatData(), 0, condition.VectorData.GetFlatData(), 0, replacement.LiteralValue, condition.VectorData.GetFlatData().Length);
+                return new ComputationResult(saveTo, true, condition.Direction);
+            }
+            else if (replacement.IsVectorResult)
+            {
+                var saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                VectorHelper.ReplaceIfNotFinite(saveTo.GetFlatData(), 0, condition.VectorData.GetFlatData(), 0, replacement.VectorData.GetFlatData(), 0, condition.VectorData.GetFlatData().Length);
+                return new ComputationResult(saveTo, true, condition.Direction);
+            }
+            return new ComputationResult($"{Start + 1}:The replacement value can not be a matrix for a vector condition.");
+        }
+        else if (condition.IsOdResult)
+        {
+            if(replacement.IsValue)
+            {
+                var saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                var flatSave = saveTo.GetFlatData();
+                var flatCond = condition.OdData.GetFlatData();
+                System.Threading.Tasks.Parallel.For(0, flatCond.Length, (int i) =>
+                {
+                    VectorHelper.ReplaceIfNotFinite(flatSave[i], 0, flatCond[i], 0, replacement.LiteralValue, flatCond[i].Length);
+                });
+                return new ComputationResult(saveTo, true);
+            }
+            else if(replacement.IsVectorResult)
+            {
+                switch (replacement.Direction)
+                {
+                    case ComputationResult.VectorDirection.Horizontal:
+                        {
+                            var saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                            var flatSave = saveTo.GetFlatData();
+                            var flatCond = condition.OdData.GetFlatData();
+                            var flatRep = replacement.VectorData.GetFlatData();
+                            System.Threading.Tasks.Parallel.For(0, flatCond.Length, (int i) =>
+                            {
+                                VectorHelper.ReplaceIfNotFinite(flatSave[i], 0, flatCond[i], 0, flatRep, 0, flatCond[i].Length);
+                            });
+                            return new ComputationResult(saveTo, true);
+                        }
+                    case ComputationResult.VectorDirection.Vertical:
+                        {
+                            var saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                            var flatSave = saveTo.GetFlatData();
+                            var flatCond = condition.OdData.GetFlatData();
+                            var flatRep = replacement.VectorData.GetFlatData();
+                            System.Threading.Tasks.Parallel.For(0, flatCond.Length, (int i) =>
+                            {
+                                VectorHelper.ReplaceIfNotFinite(flatSave[i], 0, flatCond[i], 0, flatRep[i], flatCond[i].Length);
+                            });
+                            return new ComputationResult(saveTo, true);
+                        }
+                    default:
+                        return new ComputationResult($"{Start + 1}:The vector replacement value must have a directionality!");
+                }
+            }
+            else if (replacement.IsOdResult)
+            {
+                var saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
+                var flatSave = saveTo.GetFlatData();
+                var flatCond = condition.OdData.GetFlatData();
+                var flatRep = replacement.OdData.GetFlatData();
+                System.Threading.Tasks.Parallel.For(0, flatCond.Length, (int i) =>
+                {
+                    VectorHelper.ReplaceIfNotFinite(flatSave[i], 0, flatCond[i], 0, flatRep[i], 0, flatRep[i].Length);
+                });
+                return new ComputationResult(saveTo, true);
+            }
         }
         return new ComputationResult($"{Start + 1}:The Condition and Replacement case of an IfNaN expression must be of the same dimensionality.");
     }
