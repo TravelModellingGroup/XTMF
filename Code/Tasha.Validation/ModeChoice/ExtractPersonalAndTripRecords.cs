@@ -29,7 +29,6 @@ using TMG.Input;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
-using System.Xml.Schema;
 
 namespace Tasha.Validation.ModeChoice;
 
