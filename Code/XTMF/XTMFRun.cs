@@ -257,14 +257,8 @@ public abstract class XTMFRun : IDisposable
     /// 
     /// </summary>
     /// <param name="error"></param>
-    protected static void SaveErrorMessage(ErrorWithPath error)
-    {
-        using var writer = new StreamWriter("XTMF.ErrorLog.txt", true);
-        writer.WriteLine(error.Message);
-        writer.WriteLine();
-        writer.WriteLine(error.StackTrace);
-    }
-
+    protected abstract void SaveErrorMessage(ErrorWithPath error);
+    
     /// <summary>
     /// 
     /// </summary>

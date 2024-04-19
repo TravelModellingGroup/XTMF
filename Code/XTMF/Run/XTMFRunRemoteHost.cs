@@ -467,4 +467,10 @@ sealed class XTMFRunRemoteHost : XTMFRun
         _Pipe?.Dispose();
         ClientExiting?.Dispose();
     }
+
+    protected override void SaveErrorMessage(ErrorWithPath error)
+    {
+        // We don't save the error messages on the host, the clients will.
+    }
+
 }
