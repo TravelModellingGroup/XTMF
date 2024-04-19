@@ -453,4 +453,18 @@ sealed class XTMFRunRemoteClient : XTMFRun
     }
 
     public override void Wait() => _RunThread?.Join();
+
+    protected override void SaveErrorMessage(ErrorWithPath error)
+    {
+        try
+        {
+            using var writer = new StreamWriter("XTMF.ErrorLog.txt", true);
+            writer.WriteLine(error.Message);
+            writer.WriteLine();
+            writer.WriteLine(error.StackTrace);
+        }
+        catch
+        {
+        }
+    }
 }
