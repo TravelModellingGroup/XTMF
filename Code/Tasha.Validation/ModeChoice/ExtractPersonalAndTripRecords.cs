@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2018-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2018-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -29,6 +29,7 @@ using TMG.Input;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
+using System.Xml.Schema;
 
 namespace Tasha.Validation.ModeChoice;
 
@@ -235,9 +236,11 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
         internal readonly int DestinationZone;
         internal readonly string DestinationActivity;
         internal readonly float ExpFactor;
+        internal readonly int JointTourRep;
+        internal readonly int JointTourRepTripId;
 
         public TripRecord(int householdID, int personID, int tripID, int originZone, string originActivity,
-            int destinationZone, string destinationActivity, float expFactor)
+            int destinationZone, string destinationActivity, float expFactor, int jointTourRep, int jointTourRepTripId)
         {
             HouseholdID = householdID;
             PersonID = personID;
@@ -247,6 +250,8 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
             DestinationZone = destinationZone;
             DestinationActivity = destinationActivity;
             ExpFactor = expFactor;
+            JointTourRep = jointTourRep;
+            JointTourRepTripId = jointTourRepTripId;
         }
     }
 
@@ -394,7 +399,8 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
             {
                 StorePassengerTrips(hhldID, passData);
             }
-            foreach (var person in household.Persons)
+            var persons = household.Persons;
+            foreach (var person in persons)
             {
                 var expFactor = person.ExpansionFactor;
                 StorePersonRecord(hhldID, person, expFactor);
@@ -403,9 +409,10 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
                 {
                     var previousActivity = Activity.Home;
                     int tripIndex = 0;
+                    (int jointTourRep, int jointTourRepTripId) = GetJointTourData(persons, tc);
                     foreach (var trip in tc.Trips)
                     {
-                        StoreTripRecord(hhldID, person, expFactor, tripID, previousActivity, trip);
+                        StoreTripRecord(hhldID, person, expFactor, tripID, previousActivity, trip, jointTourRep, jointTourRepTripId + (jointTourRepTripId < 0 ? tripIndex : 0));
                         StoreTripModeRecords(hhldID, datdata, patData, person, expFactor, tripID, tc, trip, tripIndex);
                         previousActivity = trip.Purpose;
                         ++tripID;
@@ -414,6 +421,33 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Gets the joint tour information from the trip chain.
+    /// </summary>
+    /// <param name="tc">The trip chain to analyze.</param>
+    /// <returns>(-1,-1) if it is not a joint trip, the rep's id and trip number for the first trip in the tour for the representative.</returns>
+    private (int jointTourRep, int jointTourRepTripId) GetJointTourData(ITashaPerson[] persons, ITripChain tc)
+    {
+        if (!tc.JointTrip)
+        {
+            return (-1, -1);
+        }
+        var repTC = tc.GetRepTripChain ?? tc;
+        var rep = repTC.Person;
+        var repTripChains = rep.TripChains;
+        var tripOffset = 0;
+        for (var i = 0; i < repTripChains.Count; ++i)
+        {
+            if(repTripChains[i] == repTripChains)
+            {
+                break;
+            }
+            tripOffset += repTripChains[i].Trips.Count;
+        }
+        // The first trip in the Microsim files starts with 1.
+        return (rep.Id, tripOffset + 1);
     }
 
     private void StorePassengerTrips(int hhldID, Dictionary<ITrip, PassengerIterationInformation> passData)
@@ -573,11 +607,13 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void StoreTripRecord(int hhldID, ITashaPerson person, float expFactor, int tripID, Activity previousActivity, ITrip trip)
+    private void StoreTripRecord(int hhldID, ITashaPerson person, float expFactor, int tripID, Activity previousActivity, ITrip trip, int jointTripRep, int jointTripRepTripId)
     {
         _tripRecordQueue.Add(new TripRecord(hhldID, person.Id, tripID,
                                         trip.OriginalZone.ZoneNumber, GetActivityChar(previousActivity),
-                                        trip.DestinationZone.ZoneNumber, GetActivityChar(trip.Purpose), expFactor));
+                                        trip.DestinationZone.ZoneNumber, GetActivityChar(trip.Purpose), expFactor,
+                                        jointTripRep, jointTripRepTripId
+                                        ));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1222,7 +1258,7 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
     {
         using (var writer = new StreamWriter(TripRecords))
         {
-            writer.WriteLine("household_id,person_id,trip_id,o_act,o_zone,d_act,d_zone,weight");
+            writer.WriteLine("household_id,person_id,trip_id,o_act,o_zone,d_act,d_zone,weight,JointTourRep,JointTourRepTripId");
             foreach (var trip in _tripRecordQueue.GetConsumingEnumerable())
             {
                 writer.Write(trip.HouseholdID);
@@ -1239,7 +1275,11 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
                 writer.Write(',');
                 writer.Write(trip.DestinationZone);
                 writer.Write(',');
-                writer.WriteLine(trip.ExpFactor);
+                writer.Write(trip.ExpFactor);
+                writer.Write(',');
+                writer.Write(trip.JointTourRep);
+                writer.Write(',');
+                writer.WriteLine(trip.JointTourRepTripId);
             }
         }
         if (CompressResults)
