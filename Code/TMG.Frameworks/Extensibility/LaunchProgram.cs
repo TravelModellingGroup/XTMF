@@ -58,8 +58,14 @@ public class LaunchProgram : ISelfContainedModule
     [RunParameter("Working Directory", ".", "The directory for the program to use as the starting point for relative paths.")]
     public string WorkingDirectory;
 
+    [RunParameter("Working Directory Relative To Input", true, "Is the working directory relative to the input directory?")]
+    public bool WorkingDirectoryRelativeToInput;
+
     [RunParameter("Route Console Outputs", true, "Should we pass along the console outputs to XTMF Console?")]
     public bool RouteConsoleOutputs;
+
+    [RootModule]
+    public IModelSystemTemplate Root;
 
     public LaunchProgram(IConfiguration config)
     {
@@ -81,7 +87,7 @@ public class LaunchProgram : ISelfContainedModule
             var process = RunningProcess = Process.Start(new ProcessStartInfo(Program)
             {
                 Arguments = arguments,
-                WorkingDirectory = WorkingDirectory,
+                WorkingDirectory = CreateWorkingDirectory(),
                 CreateNoWindow = !RouteConsoleOutputs,
             });
 
@@ -104,6 +110,28 @@ public class LaunchProgram : ISelfContainedModule
             throw new XTMFRuntimeException(this,
                 "In '" + Name + "' we were to find the program '" + Program.GetFilePath() + "'!");
         }
+    }
+
+    private string CreateWorkingDirectory()
+    {
+        string ret;
+        if (string.IsNullOrEmpty(WorkingDirectory))
+        {
+            ret = WorkingDirectoryRelativeToInput ? Root.InputBaseDirectory : Environment.CurrentDirectory;
+        }
+        else if(Path.IsPathFullyQualified(WorkingDirectory))
+        {
+            ret = WorkingDirectory;
+        }
+        else if (WorkingDirectoryRelativeToInput)
+        {
+            ret = Path.Combine(Root.InputBaseDirectory, WorkingDirectory);
+        }
+        else
+        {
+            ret = Path.Combine(Environment.CurrentDirectory, WorkingDirectory);
+        }
+        return Path.GetFullPath(ret);
     }
 
     private string CreateArguments()
