@@ -29,6 +29,7 @@ using TMG.Input;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
+using System.Xml.Schema;
 
 namespace Tasha.Validation.ModeChoice;
 
@@ -294,7 +295,7 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
     /// <summary>
     /// Contains the data that will need to be stored to disk for Station Choice information
     /// </summary>
-    private struct StationRecord
+    private readonly struct StationRecord
     {
         public readonly int HouseholdID;
         public readonly int PersonID;
@@ -951,8 +952,9 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
             for (i = 0; i < _stationChoices.Count; i++)
             {
                 var record = _stationChoices[i];
-                if (record.StationZone == stationZone & record.Access == access)
+                if ((record.StationZone == stationZone) & (record.Access == access))
                 {
+                    var initial = record.Count;
                     record.Count++;
                     if (access)
                     {
@@ -1009,18 +1011,9 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
         internal void CreateStationRecords(BlockingCollection<StationRecord> stationRecordQueue, int hhldID, int personID, int tripID, string pat, string pet)
         {
-            foreach (var stn in from rec in _stationChoices
-                                group rec by rec.StationZone into g
-                                select ( StationIndex : g.Key, Accesses : g.Count(r => r.Access == true), Egresses : g.Count(r => r.Access == false) ))
+            foreach (var record in _stationChoices)
             {
-                if (stn.Accesses > 0)
-                {
-                    stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, true, stn.Accesses, pat));
-                }
-                if (stn.Egresses > 0)
-                {
-                    stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, stn.StationIndex, false, stn.Egresses, pet));
-                }
+                stationRecordQueue.Add(new StationRecord(hhldID, personID, tripID, record.StationZone, record.Access, record.Count, record.Access ? pat : pet));
             }
         }
 
