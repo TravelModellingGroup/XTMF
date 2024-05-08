@@ -303,9 +303,16 @@ public class Scheduler : ITashaScheduler
     /// <returns>True if the person is WfH today, false otherwise.</returns>
     internal static bool GetTelecommuter(ITashaPerson person)
     {
-        if (!string.IsNullOrWhiteSpace(Scheduler._telecommuterAttribute_s))
+        try
         {
-            return (bool)person[Scheduler._telecommuterAttribute_s];
+            if (!string.IsNullOrWhiteSpace(Scheduler._telecommuterAttribute_s))
+            {
+                return (bool)person[Scheduler._telecommuterAttribute_s];
+            }
+        }
+        catch
+        {
+            throw new XTMFRuntimeException(null, $"No attribute '{Scheduler._telecommuterAttribute_s}' has not been attached for telecommuting for the person.");
         }
         return false;
     }
