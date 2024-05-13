@@ -81,8 +81,12 @@ internal sealed class MicrosimPerson
     /// The expansion factor of the record
     /// </summary>
     internal readonly float Weight;
+    /// <summary>
+    /// True if the worker chose to work this day.
+    /// </summary>
+    internal readonly bool Telecommuter;
 
-    private MicrosimPerson(int householdID, int personID, int age, char sex, bool license, bool transitPass, char employmentStatus, char occupation, bool freeParking, char studentStatus, int workZone, int schoolZone, float weight)
+    private MicrosimPerson(int householdID, int personID, int age, char sex, bool license, bool transitPass, char employmentStatus, char occupation, bool freeParking, char studentStatus, int workZone, int schoolZone, float weight, bool telecommuter)
     {
         HouseholdID = householdID;
         PersonID = personID;
@@ -97,6 +101,7 @@ internal sealed class MicrosimPerson
         WorkZone = workZone;
         SchoolZone = schoolZone;
         Weight = weight;
+        Telecommuter = telecommuter;
     }
 
     /// <summary>
@@ -134,12 +139,17 @@ internal sealed class MicrosimPerson
                     reader.Get(out int workZone, 10);
                     reader.Get(out int schoolZone, 11);
                     reader.Get(out float weight, 12);
+                    bool telecommuter = false;
+                    if(columns >= 14)
+                    {
+                        reader.Get(out telecommuter, 13);
+                    }
                     if (!ret.TryGetValue(householdID, out var persons))
                     {
                         ret[householdID] = persons = new List<MicrosimPerson>(4);
                     }
                     persons.Add(new MicrosimPerson(householdID, personID, age, sex, license, transitPass, employmentStatus, occupation,
-                        freeParking, studentStatus, workZone, schoolZone, weight));
+                        freeParking, studentStatus, workZone, schoolZone, weight, telecommuter));
                 }
             }
         }
