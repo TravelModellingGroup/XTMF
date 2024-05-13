@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2021-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,6 +26,7 @@ using TMG.Input;
 using System.Collections;
 using Datastructure;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace TMG.Tasha.MicrosimLoader;
 
@@ -61,7 +62,7 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
 
     public void Dispose()
     {
-
+        GC.SuppressFinalize(this);
     }
 
     public IEnumerator<ITashaHousehold> GetEnumerator()
@@ -101,12 +102,33 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
 
     [SubModelInformation(Required = true, Description = "The location of the Microsim households file.")]
     public FileLocation HouseholdFile;
+
     [SubModelInformation(Required = true, Description = "The location of the Microsim Persons file.")]
     public FileLocation PersonFile;
+
     [SubModelInformation(Required = false, Description = "The location of the Microsim Trips file.")]
     public FileLocation TripFile;
+
     [SubModelInformation(Required = false, Description = "The location of the Microsim Modes file.")]
     public FileLocation ModeFile;
+
+    [SubModelInformation(Required = false, Description = "An optional module to load in the number of auto vehicles for the household.")]
+    public ICalculation<ITashaHousehold, int> AutoOwnership;
+
+    [SubModelInformation(Required = false, Description = "A model alternative to compute if the person should use a driver's license.")]
+    public ICalculation<ITashaPerson, bool> DriverLicenseModel;
+
+    [SubModelInformation(Required = false, Description = "Provides a linkage between home zone and school zone.")]
+    public ICalculation<ITashaPerson, IZone> PlaceOfResidencePlaceOfSchool;
+
+    [SubModelInformation(Required = false, Description = "Provides a linkage between home zone and work zone.")]
+    public ICalculation<ITashaPerson, IZone> PlaceOfResidencePlaceOfWork;
+
+    [RunParameter("Telecommuter Attribute", "", "If you are using a telecommuter model set this to be the name of the attribute to lookup to see if the person will be telecommuting today.")]
+    public string TelecommuterAttribute;
+
+    [SubModelInformation(Required = false, Description = "A model to assign if a person is going to telecommute today.")]
+    public ICalculation<ITashaPerson, bool> TelecommutingModel;
 
     private IEnumerator<ITashaHousehold> LoadMicrosim()
     {
@@ -132,7 +154,13 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             {
                 modeRecords = MicrosimTripMode.LoadModes(this, ModeFile);
             }
-        });
+        },
+        () => AutoOwnership?.Load(),
+        () => PlaceOfResidencePlaceOfSchool?.Load(),
+        () => PlaceOfResidencePlaceOfWork?.Load(),
+        () => DriverLicenseModel?.Load(),
+        () => TelecommutingModel?.Load()
+        );
 
         // Load in the households, in order, and send them off for processing
         foreach (var household in householdRecords.OrderBy(h => h.HouseholdID))
@@ -146,50 +174,49 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             {
                 var person = ConstructPerson(persons[i], ret, zoneSystem);
                 ret.Persons[i] = person;
-                if (tripRecords != null)
+                if (tripRecords is not null)
                 {
                     // if there are trip records for this person, process them
                     if (tripRecords.TryGetValue((persons[i].HouseholdID, persons[i].PersonID), out var trips))
                     {
                         TripChain tc = null;
-                        foreach(var trip in trips.OrderBy(t => t.TripID))
+                        foreach (var trip in trips.OrderBy(t => t.TripID))
                         {
                             // If there is another trip and we don't have an active trip chain, create a new one.
-                            if(tc == null)
+                            if (tc == null)
                             {
                                 person.TripChains.Add(tc = TripChain.MakeChain(person));
                             }
-                            if(!modeRecords.TryGetValue((trip.HouseholdID, trip.PersonID, trip.TripID), out var tripModeData))
+                            if (!modeRecords.TryGetValue((trip.HouseholdID, trip.PersonID, trip.TripID), out var tripModeData))
                             {
                                 throw new XTMFRuntimeException(this, $"Unable to find mode data for the trip record {trip.HouseholdID}:{trip.PersonID}:{trip.TripID}!");
                             }
                             tc.Trips.Add(ConstructTrip(trip, tc, zoneSystem, tripModeData));
                             // If we are going back to the house then terminate the trip chain.
-                            if(IsHouseholdActivityPurpose(trip.DestinationPurpose))
+                            if (IsHouseholdActivityPurpose(trip.DestinationPurpose))
                             {
                                 tc = null;
                             }
                         }
                     }
-                    else
-                    {
-
-                    }
                 }
             }
-            RebuildJointTours(ret);
-            ValdiateJointTours(ret);
+            if (tripRecords is not null)
+            {
+                RebuildJointTours(ret);
+                ValdiateJointTours(ret);
+            }
             yield return ret;
         }
     }
 
     private void ValdiateJointTours(Household ret)
     {
-        foreach(var p in ret.Persons)
+        foreach (var p in ret.Persons)
         {
-            foreach(var tc in p.TripChains)
+            foreach (var tc in p.TripChains)
             {
-                if(tc.JointTrip && !tc.JointTripRep && tc.GetRepTripChain == null)
+                if (tc.JointTrip && !tc.JointTripRep && tc.GetRepTripChain == null)
                 {
                     throw new XTMFRuntimeException(this, "Found an invalid joint trip chain!");
                 }
@@ -214,7 +241,7 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
         IZone origin = GetZone(zoneSystem, trip.OriginZone, "origin");
         IZone destination = GetZone(zoneSystem, trip.DestinationZone, "destination");
         Activity purpose = GetTripPurpose(trip.DestinationPurpose);
-        if(IsHouseholdActivityPurpose(trip.DestinationPurpose))
+        if (IsHouseholdActivityPurpose(trip.DestinationPurpose))
         {
             Time startTime = Time.FromMinutes(modeData.DepartureTime);
             var ret = HouseholdPurposeTrip.GetTrip(HouseholdIterations);
@@ -242,7 +269,7 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
 
     private Activity GetTripPurpose(string purpose)
     {
-        switch(purpose)
+        switch (purpose)
         {
             case "Home":
                 return Activity.Home;
@@ -273,7 +300,7 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
     private IZone GetZone(SparseArray<IZone> zoneSystem, int zoneNumber, string zoneType)
     {
         var flatIndex = zoneSystem.GetFlatIndex(zoneNumber);
-        if(flatIndex < 0)
+        if (flatIndex < 0)
         {
             Throw();
         }
@@ -301,12 +328,20 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
         {
             if (person.WorkZone != _roamingZoneNumber)
             {
-                var index = zoneSystem.GetFlatIndex(person.WorkZone);
-                if (index < 0)
+                int index;
+                if (PlaceOfResidencePlaceOfWork is null)
                 {
-                    throw new XTMFRuntimeException(this, $"Unable to find a work zone of {person.WorkZone} in the zone system for the household {household.HouseholdId}'s person number {person.PersonID}!");
+                    index = zoneSystem.GetFlatIndex(person.WorkZone);
+                    if (index < 0)
+                    {
+                        throw new XTMFRuntimeException(this, $"Unable to find a work zone of {person.WorkZone} in the zone system for the household {household.HouseholdId}'s person number {person.PersonID}!");
+                    }
+                    ret.EmploymentZone = zoneSystem.GetFlatData()[index];
                 }
-                ret.EmploymentZone = zoneSystem.GetFlatData()[index];
+                else
+                {
+                    ret.EmploymentZone = IsWorkAtHome(ret) ? household.HomeZone : PlaceOfResidencePlaceOfWork.ProduceResult(ret);
+                }
             }
             else
             {
@@ -315,14 +350,32 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
         }
         if (person.SchoolZone != 0)
         {
-            var index = zoneSystem.GetFlatIndex(person.SchoolZone);
-            if (index < 0)
+            if (PlaceOfResidencePlaceOfSchool is null)
             {
-                throw new XTMFRuntimeException(this, $"Unable to find a school zone of {person.SchoolZone} in the zone system for the household {household.HouseholdId}'s person number {person.PersonID}!");
+                var index = zoneSystem.GetFlatIndex(person.SchoolZone);
+                if (index < 0)
+                {
+                    throw new XTMFRuntimeException(this, $"Unable to find a school zone of {person.SchoolZone} in the zone system for the household {household.HouseholdId}'s person number {person.PersonID}!");
+                }
+                ret.SchoolZone = zoneSystem.GetFlatData()[index];
             }
-            ret.SchoolZone = zoneSystem.GetFlatData()[index];
+            else
+            {
+                ret.SchoolZone = PlaceOfResidencePlaceOfSchool.ProduceResult(ret);
+            }
+        }
+        if (!String.IsNullOrWhiteSpace(TelecommuterAttribute))
+        {
+            bool telecommuter = TelecommutingModel?.ProduceResult(ret) ?? false;
+            ret.Attach(TelecommuterAttribute, telecommuter);
         }
         return ret;
+    }
+
+    private static bool IsWorkAtHome(Person ret)
+    {
+        return (ret.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_FullTime)
+            | (ret.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_PartTime);
     }
 
     private Occupation ConvertOccupation(char occupation)
@@ -391,20 +444,25 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
     private Household ConstructHousehold(MicrosimHousehold household, int numberOfPersons, SparseArray<IZone> zoneSystem)
     {
         var homeZoneIndex = zoneSystem.GetFlatIndex(household.HomeZone);
-        if(homeZoneIndex < 0)
+        if (homeZoneIndex < 0)
         {
             throw new XTMFRuntimeException(this, $"Unable to find a home zone of {household.HomeZone} in the zone system while reading in household record {household.HouseholdID}!");
         }
-        var vehicles = new IVehicle[household.Vehicles];
+
+        var ret = new Household(household.HouseholdID, new ITashaPerson[numberOfPersons], null, household.Weight, zoneSystem.GetFlatData()[homeZoneIndex])
+        {
+            DwellingType = (DwellingType)(household.DwellingType),
+            IncomeClass = household.IncomeClass,
+
+        };
+        var numberOfVehicles = AutoOwnership?.ProduceResult(ret) ?? household.Vehicles;
+        var vehicles = new IVehicle[numberOfVehicles];
         for (int i = 0; i < vehicles.Length; i++)
         {
             vehicles[i] = Vehicle.MakeVehicle(Root.AutoType);
         }
-        return new Household(household.HouseholdID, new ITashaPerson[numberOfPersons], vehicles, household.Weight, zoneSystem.GetFlatData()[homeZoneIndex])
-        {
-            DwellingType = (DwellingType)(household.DwellingType),
-            IncomeClass = household.IncomeClass
-        };
+        ret.Vehicles = vehicles;
+        return ret;
     }
 
     private static bool IsHouseholdActivityPurpose(string purpose)
@@ -418,10 +476,10 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
         int jointTourNumber = 1;
         for (int personIndex = 0; personIndex < persons.Length - 1; personIndex++)
         {
-            for(int tcIndex = 0; tcIndex < persons[personIndex].TripChains.Count; tcIndex++)
+            for (int tcIndex = 0; tcIndex < persons[personIndex].TripChains.Count; tcIndex++)
             {
                 var chain = persons[personIndex].TripChains[tcIndex];
-                if(chain.JointTrip)
+                if (chain.JointTrip)
                 {
                     continue;
                 }
@@ -430,10 +488,10 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
                     for (int otherTcIndex = 0; otherTcIndex < persons[otherIndex].TripChains.Count; otherTcIndex++)
                     {
                         var otherChain = persons[otherIndex].TripChains[otherTcIndex];
-                        if(AreTogether(chain, otherChain))
+                        if (AreTogether(chain, otherChain))
                         {
                             var tourNum = jointTourNumber;
-                            if(!chain.JointTrip)
+                            if (!chain.JointTrip)
                             {
                                 ((TripChain)chain).JointTripID = ((TripChain)otherChain).JointTripID = tourNum;
                                 ((TripChain)chain).JointTripRep = true;
@@ -475,9 +533,14 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
 
     public bool RuntimeValidation(ref string error)
     {
-        if((TripFile == null) != (ModeFile == null))
+        if ((TripFile == null) != (ModeFile == null))
         {
             error = $"In {Name} either both the Trip file and Mode file need to be selected for or not.";
+            return false;
+        }
+        if(TelecommutingModel is not null && String.IsNullOrWhiteSpace(TelecommuterAttribute))
+        {
+            error = $"In {Name} you must specify the attribute to store the telecommuter choice to when using the telecommuting model!";
             return false;
         }
         return true;
