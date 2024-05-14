@@ -24,7 +24,6 @@ using TMG.Functions;
 using System.Linq;
 using System.IO.Compression;
 using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 
 namespace TMG.Emme;
 
