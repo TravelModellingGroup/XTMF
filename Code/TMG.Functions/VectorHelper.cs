@@ -2204,4 +2204,37 @@ public static partial class VectorHelper
             Vector.BitwiseAnd(rhs, mask));
     }
 
+    /// <summary>
+    /// Tests if any of the floats contained are NaN
+    /// </summary>
+    /// <param name="v">The vector to test.</param>
+    /// <returns>True if any contain a NaN.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static bool AnyNaN(Vector512<float> v)
+    {
+        return Vector512.EqualsAny(Vector512.GreaterThanOrEqual(v, v), Vector512<float>.Zero);
+    }
+
+    /// <summary>
+    /// Tests if any of the floats contained are NaN
+    /// </summary>
+    /// <param name="v">The vector to test.</param>
+    /// <returns>True if any contain a NaN.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static bool AnyNaN(Vector256<float> v)
+    {
+        return Vector256.EqualsAny(Vector256.GreaterThanOrEqual(v, v), Vector256<float>.Zero);
+    }
+
+    /// <summary>
+    /// Tests if any of the floats contained are NaN
+    /// </summary>
+    /// <param name="v">The vector to test.</param>
+    /// <returns>True if any contain a NaN.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static bool AnyNaN(Vector<float> v)
+    {
+        return Vector.EqualsAny(Vector.GreaterThanOrEqual(v, v), Vector<int>.Zero);
+    }
+
 }
