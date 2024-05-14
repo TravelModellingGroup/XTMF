@@ -23,6 +23,7 @@ using XTMF;
 using TMG.Functions;
 using System.Linq;
 using System.IO.Compression;
+using System.Runtime.Intrinsics;
 
 namespace TMG.Emme;
 
@@ -112,12 +113,42 @@ public struct EmmeMatrix
             switch (Type)
             {
                 case DataType.Float:
-                    for (int i = 0; i < FloatData.Length; i++)
                     {
-                        if (float.IsNaN(FloatData[i]))
+                        int i = 0;
+                        if(Vector512.IsHardwareAccelerated)
                         {
-                            any = true;
-                            break;
+                            for(; i < FloatData.Length; i+= Vector512<float>.Count)
+                            {
+                                Vector512<float> v = Vector512.LoadUnsafe(ref FloatData[i]);
+                                if (VectorHelper.AnyNaN(v))
+                                {
+                                    any = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else if(Vector256.IsHardwareAccelerated)
+                        {
+                            for (; i < FloatData.Length; i += Vector256<float>.Count)
+                            {
+                                Vector256<float> v = Vector256.LoadUnsafe(ref FloatData[i]);
+                                if (VectorHelper.AnyNaN(v))
+                                {
+                                    any = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!any)
+                        {
+                            for (; i < FloatData.Length; i++)
+                            {
+                                if (float.IsNaN(FloatData[i]))
+                                {
+                                    any = true;
+                                    break;
+                                }
+                            }
                         }
                     }
                     break;
