@@ -32,6 +32,9 @@ public sealed class V4AutoNetwork : INetworkCompleteData
     [RunParameter("No Unload", false, "Don't unload the data between iterations.")]
     public bool NoUnload;
 
+    [RunParameter("Average LoS", true, "Should we average the LoS between iterations?")]
+    public bool AverageLoS;
+
     [RootModule]
     public ITravelDemandModel Root;
 
@@ -61,7 +64,7 @@ public sealed class V4AutoNetwork : INetworkCompleteData
         /// </summary>
         int TimesLoaded;
 
-        internal void LoadData(SparseArray<IZone> zoneArray)
+        internal void LoadData(SparseArray<IZone> zoneArray, bool averageLoS)
         {
             var zones = zoneArray.GetFlatData();
             NumberOfZones = zones.Length;
@@ -70,14 +73,14 @@ public sealed class V4AutoNetwork : INetworkCompleteData
             var data = Data == null || dataSize != Data.Length ? new float[dataSize] : Data;
             //now we need to load in each type
             Parallel.Invoke(
-                () => LoadData(data, TravelTimeReader, TravelTimeIndex, zoneArray, TimesLoaded),
-                () => LoadData(data, CostReader, CostIndex, zoneArray, TimesLoaded));
+                () => LoadData(data, TravelTimeReader, TravelTimeIndex, zoneArray, TimesLoaded, averageLoS),
+                () => LoadData(data, CostReader, CostIndex, zoneArray, TimesLoaded, averageLoS));
             TimesLoaded++;
             // now store it
             Data = data;
         }
 
-        private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset, SparseArray<IZone> zoneArray, int timesLoaded)
+        private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset, SparseArray<IZone> zoneArray, int timesLoaded, bool averageLoS)
         {
             if (readODData == null)
             {
@@ -87,7 +90,7 @@ public sealed class V4AutoNetwork : INetworkCompleteData
             var numberOfZones = zones.Length;
             int previousPointO = -1;
             int previousFlatO = -1;
-            if (timesLoaded == 0)
+            if (!averageLoS || timesLoaded == 0)
             {
                 foreach (var point in readODData.Read())
                 {
@@ -240,7 +243,7 @@ public sealed class V4AutoNetwork : INetworkCompleteData
             }
             Parallel.For(0, TimePeriods.Length, i =>
             {
-                TimePeriods[i].LoadData(zoneArray);
+                TimePeriods[i].LoadData(zoneArray, AverageLoS);
             });
             Loaded = true;
         }

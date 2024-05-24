@@ -117,7 +117,7 @@ public struct EmmeMatrix
                         int i = 0;
                         if(Vector512.IsHardwareAccelerated)
                         {
-                            for(; i < FloatData.Length; i+= Vector512<float>.Count)
+                            for(; i <= FloatData.Length - Vector512<float>.Count; i+= Vector512<float>.Count)
                             {
                                 Vector512<float> v = Vector512.LoadUnsafe(ref FloatData[i]);
                                 if (VectorHelper.AnyNaN(v))
@@ -129,7 +129,7 @@ public struct EmmeMatrix
                         }
                         else if(Vector256.IsHardwareAccelerated)
                         {
-                            for (; i < FloatData.Length; i += Vector256<float>.Count)
+                            for (; i <= FloatData.Length - Vector256<float>.Count; i += Vector256<float>.Count)
                             {
                                 Vector256<float> v = Vector256.LoadUnsafe(ref FloatData[i]);
                                 if (VectorHelper.AnyNaN(v))
