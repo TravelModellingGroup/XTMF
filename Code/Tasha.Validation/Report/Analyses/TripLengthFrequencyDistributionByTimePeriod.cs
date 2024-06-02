@@ -33,10 +33,8 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
 
-    /// <summary>
-    /// The number of hours in a day.
-    /// </summary>
-    private const int HOURS = 24;
+    [RunParameter("Normalize Results", true, "Should the results be normalized (true) or raw counts (false)?")]
+    public bool NormalizeResults;
 
     /// <summary>
     /// The number of time bins we will consider
@@ -72,7 +70,7 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
     /// <returns>An array of floats representing the observed results.</returns>
     private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod period)
     {
-        object lockObject = new object();
+        object lockObject = new();
         float[] ret = new float[TIME_BINS];
         Parallel.ForEach(surveyHouseholdsWithTrips,
             () => new float[TIME_BINS],
@@ -104,6 +102,13 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
                     VectorHelper.Add(ret, 0, ret, 0, local, 0, ret.Length);
                 }
             });
+
+        if (NormalizeResults)
+        {
+            // Normalize the resulting vector
+            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+        }
         return ret;
     }
 
@@ -115,7 +120,7 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
     /// <returns>An array of floats representing the model results.</returns>
     private float[] GetModelResults(MicrosimData microsimData, TimePeriod period)
     {
-        object lockObject = new object();
+        object lockObject = new();
         float[] ret = new float[TIME_BINS];
         Parallel.ForEach(microsimData.Households,
             () => new float[TIME_BINS],
@@ -151,6 +156,13 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
                     VectorHelper.Add(ret, 0, ret, 0, local, 0, ret.Length);
                 }
             });
+
+        if (NormalizeResults)
+        {
+            // Normalize the resulting vector
+            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+        }
         return ret;
     }
 

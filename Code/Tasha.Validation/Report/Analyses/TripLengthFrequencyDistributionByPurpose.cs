@@ -21,10 +21,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Tasha.Common;
-using TMG.AgentBased.Tours;
-using TMG;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
@@ -37,6 +34,9 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
 
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
+
+    [RunParameter("Normalize Results", true, "Should the results be normalized (true) or raw counts (false)?")]
+    public bool NormalizeResults;
 
     /// <summary>
     /// The number of time bins we will consider
@@ -122,6 +122,13 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
                     VectorHelper.Add(ret, 0, ret, 0, local, 0, ret.Length);
                 }
             });
+
+        if (NormalizeResults)
+        {
+            // Normalize the resulting vector
+            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+        }
         return ret;
     }
 
@@ -169,6 +176,13 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
                     VectorHelper.Add(ret, 0, ret, 0, local, 0, ret.Length);
                 }
             });
+
+        if (NormalizeResults)
+        {
+            // Normalize the resulting vector
+            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+        }
         return ret;
     }
 

@@ -33,6 +33,9 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
 
+    [RunParameter("Normalize Results", true, "Should the results be normalized (true) or raw counts (false)?")]
+    public bool NormalizeResults;
+
     /// <summary>
     /// The number of hours in a day.
     /// </summary>
@@ -99,6 +102,13 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
                     VectorHelper.Add(ret, 0, ret, 0, local, 0, ret.Length);
                 }
             });
+
+        if (NormalizeResults)
+        {
+            // Normalize the resulting vector
+            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+        }
         return ret;
     }
 
@@ -141,6 +151,13 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
                     VectorHelper.Add(ret, 0, ret, 0, local, 0, ret.Length);
                 }
             });
+
+        if (NormalizeResults)
+        {
+            // Normalize the resulting vector
+            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+        }
         return ret;
     }
 
