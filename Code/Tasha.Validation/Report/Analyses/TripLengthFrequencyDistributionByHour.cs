@@ -53,7 +53,7 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
         float[] model = GetModelResults(microsimData);
         float[] observed = GetObservedResults(surveyHouseholdsWithTrips);
         using var writer = new StreamWriter(SaveTo);
-        writer.WriteLine("Hour,Duration,Observed,Model,Model-Observed");
+        writer.WriteLine("Hour,Duration(minutes),Observed,Model,Model-Observed");
         for (int i = 0; i < HOURS; i++)
         {
             for (int j = 0; j < TIME_BINS; j++)

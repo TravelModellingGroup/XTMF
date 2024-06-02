@@ -17,26 +17,26 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Tasha.Common;
+using TMG.AgentBased.Tours;
+using TMG;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
 namespace Tasha.Validation.Report.Analyses;
 
-[ModuleInformation(Description = "Creates a CSV file containing a trip length frequency distribution of all trips by given time periods.")]
-public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
+[ModuleInformation(Description = "Creates a CSV file containing a trip length frequency distribution of all trips by activity purpose.")]
+public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
 {
 
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
-
-    /// <summary>
-    /// The number of hours in a day.
-    /// </summary>
-    private const int HOURS = 24;
 
     /// <summary>
     /// The number of time bins we will consider
@@ -48,18 +48,36 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
     /// </summary>
     private const int TIME_BIN_SIZE = 15;
 
+    private static readonly (string Name, string[] Purposes)[] s_PurposeBundlesModel =
+    [
+        ("Home", ["Home", "ReturnHomeFromWork"]),
+                                ("Work", ["PriamryWork", "SecondaryWork", "WorkBasedBusiness"]),
+                                ("School", ["School"]),
+                                ("Other", ["IndividualOther", "JointOther"]),
+                                ("Market", ["Market", "JointOther"])
+    ];
+
+    private static readonly (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
+    [
+        ("Home", [Activity.Home, Activity.ReturnFromWork]),
+                            ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+                            ("School", [Activity.School]),
+                            ("Other", [Activity.IndividualOther, Activity.JointOther]),
+                            ("Market", [Activity.Market, Activity.JointMarket])
+    ];
+
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
         using var writer = new StreamWriter(SaveTo);
-        writer.WriteLine("TimePeriod,Duration(minutes),Observed,Model,Model-Observed");
-        for (int i = 0; i < timePeriods.Length; i++)
+        writer.WriteLine("Purpose,Duration(minutes),Observed,Model,Model-Observed");
+        // There are 48 30-minute time intervals from 4:00 AM to 4:00 AM the next day
+        for (int j = 0; j < s_PurposeBundlesModel.Length; j++)
         {
-            var name = timePeriods[i].Name;
-            float[] model = GetModelResults(microsimData, timePeriods[i]);
-            float[] observed = GetObservedResults(surveyHouseholdsWithTrips, timePeriods[i]);
-            for (int j = 0; j < TIME_BINS; j++)
+            var observed = GetObservedResults(surveyHouseholdsWithTrips, s_PurposeBundlesObserved[j].Purposes);
+            var model = GetModelResults(microsimData, s_PurposeBundlesModel[j].Purposes);
+            for (int i = 0; i < TIME_BINS; i++)
             {
-                writer.WriteLine($"{name},{j * TIME_BIN_SIZE},{observed[i]},{model[i]},{model[i] - observed[i]}");
+                writer.WriteLine($"{s_PurposeBundlesModel[j].Name},{i * TIME_BIN_SIZE},{observed[i]},{model[i]},{model[i] - observed[i]}");
             }
         }
     }
@@ -70,7 +88,7 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
     /// <param name="surveyHouseholdsWithTrips">The array of households with trips.</param>
     /// /// <param name="period">The time period to get the data for.</param>
     /// <returns>An array of floats representing the observed results.</returns>
-    private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod period)
+    private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, Activity[] purposes)
     {
         object lockObject = new object();
         float[] ret = new float[TIME_BINS];
@@ -85,7 +103,7 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
                     {
                         foreach (var trip in tripChain.Trips)
                         {
-                            if (!period.Contains(trip.TripStartTime))
+                            if (!purposes.Contains(trip.Purpose))
                             {
                                 continue;
                             }
@@ -113,7 +131,7 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
     /// <param name="microsimData">The microsimulation data.</param>
     /// <param name="period">The time period to get the data for.</param>
     /// <returns>An array of floats representing the model results.</returns>
-    private float[] GetModelResults(MicrosimData microsimData, TimePeriod period)
+    private float[] GetModelResults(MicrosimData microsimData, string[] purposes)
     {
         object lockObject = new object();
         float[] ret = new float[TIME_BINS];
@@ -130,12 +148,12 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
                     var expFactor = person.Weight / microsimData.ModeChoiceIterations;
                     foreach (var trip in trips)
                     {
+                        if(!purposes.Contains(trip.DestinationPurpose))
+                        {
+                            continue;
+                        }
                         foreach (var mode in microsimData.Modes[(household.HouseholdID, person.PersonID, trip.TripID)])
                         {
-                            if (!period.Contains(mode.DepartureTime))
-                            {
-                                continue;
-                            }
                             var tripTime = mode.DepartureTime - mode.ArrivalTime;
                             var tripBin = GetBin(tripTime);
                             local[tripBin] += expFactor;
@@ -188,5 +206,4 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
     {
         return ((numerator %= denominator) < 0) ? numerator + denominator : numerator;
     }
-
 }

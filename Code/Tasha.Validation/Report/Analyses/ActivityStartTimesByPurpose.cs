@@ -35,7 +35,7 @@ public class ActivityStartTimesByPurpose : Analysis
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
 
-    private static (string Name, string[] Purposes)[] PurposeBundlesModel =
+    private readonly static (string Name, string[] Purposes)[] s_PurposeBundlesModel =
     [
         ("Home", ["Home", "ReturnHomeFromWork"]),
                             ("Work", ["PriamryWork", "SecondaryWork", "WorkBasedBusiness"]),
@@ -44,7 +44,7 @@ public class ActivityStartTimesByPurpose : Analysis
                             ("Market", ["Market", "JointOther"])
     ];
 
-    private static (string Name, Activity[] Purposes)[] PurposeBundlesObserved =
+    private readonly static (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
     [
         ("Home", [Activity.Home, Activity.ReturnFromWork]),
                             ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
@@ -64,14 +64,14 @@ public class ActivityStartTimesByPurpose : Analysis
         using var streamWriter = new StreamWriter(SaveTo);
         streamWriter.WriteLine("Time,Purpose,Observed,Model,Model-Observed");
         // There are 48 30-minute time intervals from 4:00 AM to 4:00 AM the next day
-        for (int j = 0; j < PurposeBundlesModel.Length; j++)
+        for (int j = 0; j < s_PurposeBundlesModel.Length; j++)
         {
             for (int i = 0; i < 48; i++)
             {
                 var time = $"{(i + 8) >> 1}:{((i & 1) == 0 ? "00" : "30")}";
-                var observed = ComputeObserved(surveyHouseholdsWithTrips, i, PurposeBundlesObserved[j].Purposes);
-                var model = ComputeModel(microsimData, i, PurposeBundlesModel[j].Purposes);
-                streamWriter.WriteLine($"{time},{PurposeBundlesModel[j].Name},{observed},{model},{model - observed}");
+                var observed = ComputeObserved(surveyHouseholdsWithTrips, i, s_PurposeBundlesObserved[j].Purposes);
+                var model = ComputeModel(microsimData, i, s_PurposeBundlesModel[j].Purposes);
+                streamWriter.WriteLine($"{time},{s_PurposeBundlesModel[j].Name},{observed},{model},{model - observed}");
             }
         }
 

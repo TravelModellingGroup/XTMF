@@ -37,9 +37,34 @@ public sealed class TimePeriod : IModule
 
     public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
+    private float _startTime;
+    private float _endTime;
+
     public bool RuntimeValidation(ref string error)
     {
+        _startTime = StartTime.ToMinutes();
+        _endTime = EndTime.ToMinutes();
         return true;
+    }
+
+    /// <summary>
+    /// Checks if the start time is within the time period. 
+    /// </summary>
+    /// <param name="tripStartTime">The start time of the trip to test.</param>
+    /// <returns>True if the start time of the trip </returns>
+    internal bool Contains(Time tripStartTime)
+    {
+        return (tripStartTime >= StartTime) & (tripStartTime < EndTime);
+    }
+
+    /// <summary>
+    /// Checks if the start time is within the time period. 
+    /// </summary>
+    /// <param name="minutesFromMidnight">The start time of the trip to test.</param>
+    /// <returns>True if the start time of the trip </returns>
+    internal bool Contains(float minutesFromMidnight)
+    {
+        return (minutesFromMidnight >= _startTime) & (minutesFromMidnight < _endTime);
     }
 
     /// <summary>
@@ -51,4 +76,5 @@ public sealed class TimePeriod : IModule
     {
         return tripStartTime >= StartTime && tripStartTime < EndTime ? 1 : 0;
     }
+
 }
