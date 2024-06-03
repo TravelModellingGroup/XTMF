@@ -35,24 +35,24 @@ public sealed class ActivityDurationByPurpose : Analysis
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
 
-    private static (string Name, string[] Purposes)[] PurposeBundlesModel =
+    private static readonly (string Name, string[] Purposes)[] s_PurposeBundlesModel =
     [
         // We don't compute the duration for home activities
         //("Home", ["Home", "ReturnHomeFromWork"]),
-                            ("Work", ["PriamryWork", "SecondaryWork", "WorkBasedBusiness"]),
-                            ("School", ["School"]),
-                            ("Other", ["IndividualOther", "JointOther"]),
-                            ("Market", ["Market", "JointOther"])
+        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", ]),
+        ("School", ["School"]),
+        ("Other", ["IndividualOther", "JointOther"]),
+        ("Market", ["Market", "JointOther"])
     ];
 
-    private static (string Name, Activity[] Purposes)[] PurposeBundlesObserved =
+    private static readonly (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
     [
         // We don't compute the duration for home activities
         //("Home", [Activity.Home, Activity.ReturnFromWork]),
-                            ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
-                            ("School", [Activity.School]),
-                            ("Other", [Activity.IndividualOther, Activity.JointOther]),
-                            ("Market", [Activity.Market, Activity.JointMarket])
+        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+        ("School", [Activity.School]),
+        ("Other", [Activity.IndividualOther, Activity.JointOther]),
+        ("Market", [Activity.Market, Activity.JointMarket])
     ];
 
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
@@ -70,19 +70,19 @@ public sealed class ActivityDurationByPurpose : Analysis
                 _ => "00"
             };
 
-        for (int j = 0; j < PurposeBundlesModel.Length; j++)
+        for (int j = 0; j < s_PurposeBundlesModel.Length; j++)
         {
             for (int i = 1; i < 96; i++)
             {
                 var time = $"{i >> 2}:{GetMinutes(i)}";
-                var observed = ComputeObserved(surveyHouseholdsWithTrips, i, PurposeBundlesObserved[j].Purposes);
-                var model = ComputeModel(microsimData, i * 15.0f, PurposeBundlesModel[j].Purposes);
-                streamWriter.WriteLine($"{time},{PurposeBundlesModel[j].Name},{observed},{model},{model - observed}");
+                var observed = ComputeObserved(surveyHouseholdsWithTrips, i, s_PurposeBundlesObserved[j].Purposes);
+                var model = ComputeModel(microsimData, i * 15.0f, s_PurposeBundlesModel[j].Purposes);
+                streamWriter.WriteLine($"{time},{s_PurposeBundlesModel[j].Name},{observed},{model},{model - observed}");
             }
         }
     }
 
-    private float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int duration, Activity[] purposes)
+    private static float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int duration, Activity[] purposes)
     {
         double accumulated = 0;
         object lockObject = new();
@@ -119,7 +119,7 @@ public sealed class ActivityDurationByPurpose : Analysis
         return (float)accumulated;
     }
 
-    private float ComputeModel(MicrosimData microsimData, float durationInMinutes, string[] purposes)
+    private static float ComputeModel(MicrosimData microsimData, float durationInMinutes, string[] purposes)
     {
         double accumulated = microsimData.Households.AsParallel()
             .Sum(household =>

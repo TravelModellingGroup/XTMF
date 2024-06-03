@@ -50,20 +50,22 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
 
     private static readonly (string Name, string[] Purposes)[] s_PurposeBundlesModel =
     [
+        // We don't compute the duration for home activities
         ("Home", ["Home", "ReturnHomeFromWork"]),
-                                ("Work", ["PriamryWork", "SecondaryWork", "WorkBasedBusiness"]),
-                                ("School", ["School"]),
-                                ("Other", ["IndividualOther", "JointOther"]),
-                                ("Market", ["Market", "JointOther"])
+        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", ]),
+        ("School", ["School"]),
+        ("Other", ["IndividualOther", "JointOther"]),
+        ("Market", ["Market", "JointOther"])
     ];
 
     private static readonly (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
     [
+        // We don't compute the duration for home activities
         ("Home", [Activity.Home, Activity.ReturnFromWork]),
-                            ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
-                            ("School", [Activity.School]),
-                            ("Other", [Activity.IndividualOther, Activity.JointOther]),
-                            ("Market", [Activity.Market, Activity.JointMarket])
+        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+        ("School", [Activity.School]),
+        ("Other", [Activity.IndividualOther, Activity.JointOther]),
+        ("Market", [Activity.Market, Activity.JointMarket])
     ];
 
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
@@ -90,7 +92,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     /// <returns>An array of floats representing the observed results.</returns>
     private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, Activity[] purposes)
     {
-        object lockObject = new object();
+        object lockObject = new();
         float[] ret = new float[TIME_BINS];
         Parallel.ForEach(surveyHouseholdsWithTrips,
             () => new float[TIME_BINS],
@@ -126,8 +128,8 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }
@@ -140,7 +142,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     /// <returns>An array of floats representing the model results.</returns>
     private float[] GetModelResults(MicrosimData microsimData, string[] purposes)
     {
-        object lockObject = new object();
+        object lockObject = new();
         float[] ret = new float[TIME_BINS];
         Parallel.ForEach(microsimData.Households,
             () => new float[TIME_BINS],
@@ -180,8 +182,8 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }

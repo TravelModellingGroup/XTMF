@@ -35,22 +35,24 @@ public class ActivityStartTimesByPurpose : Analysis
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
 
-    private readonly static (string Name, string[] Purposes)[] s_PurposeBundlesModel =
+    private static readonly (string Name, string[] Purposes)[] s_PurposeBundlesModel =
     [
+        // We don't compute the duration for home activities
         ("Home", ["Home", "ReturnHomeFromWork"]),
-                            ("Work", ["PriamryWork", "SecondaryWork", "WorkBasedBusiness"]),
-                            ("School", ["School"]),
-                            ("Other", ["IndividualOther", "JointOther"]),
-                            ("Market", ["Market", "JointOther"])
+        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", ]),
+        ("School", ["School"]),
+        ("Other", ["IndividualOther", "JointOther"]),
+        ("Market", ["Market", "JointOther"])
     ];
 
-    private readonly static (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
+    private static readonly (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
     [
+        // We don't compute the duration for home activities
         ("Home", [Activity.Home, Activity.ReturnFromWork]),
-                            ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
-                            ("School", [Activity.School]),
-                            ("Other", [Activity.IndividualOther, Activity.JointOther]),
-                            ("Market", [Activity.Market, Activity.JointMarket])
+        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+        ("School", [Activity.School]),
+        ("Other", [Activity.IndividualOther, Activity.JointOther]),
+        ("Market", [Activity.Market, Activity.JointMarket])
     ];
 
     /// <summary>
@@ -128,7 +130,7 @@ public class ActivityStartTimesByPurpose : Analysis
     /// <param name="startTimeInterval">The start time interval.</param>
     /// <param name="purposes">The purposes to consider.</param>
     /// <returns>The model number of activities.</returns>
-    private float ComputeModel(MicrosimData microsimData, int startTimeInterval, string[] purposes)
+    private static float ComputeModel(MicrosimData microsimData, int startTimeInterval, string[] purposes)
     {
         // Offset to start at 4:00 AM and run until 28:00
         startTimeInterval += 8;

@@ -55,7 +55,7 @@ public sealed class TourLengthDistribution : Analysis
     private float[] LoadObservedTours(ITashaHousehold[] surveyHouseholdsWithTrips)
     {
         float[] ret = new float[MaxTourLength + 1];
-        object lockObject = new object();
+        object lockObject = new();
         Parallel.ForEach(surveyHouseholdsWithTrips,
             () => new float[MaxTourLength + 1],
             (household, _, local) =>
@@ -81,8 +81,8 @@ public sealed class TourLengthDistribution : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }
@@ -129,8 +129,8 @@ public sealed class TourLengthDistribution : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }

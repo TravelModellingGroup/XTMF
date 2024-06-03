@@ -46,10 +46,10 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
         }
     }
 
-    private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods)
+    private static float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods)
     {
         float[] ret = new float[timePeriods.Length];
-        object lockObject = new object();
+        object lockObject = new();
         Parallel.ForEach(surveyHouseholdsWithTrips,
             () => new float[timePeriods.Length],
             (household, _, local) =>
@@ -81,10 +81,10 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
         return ret;
     }
 
-    private float[] GetModelResults(MicrosimData microsimData, TimePeriod[] timePeriods)
+    private static float[] GetModelResults(MicrosimData microsimData, TimePeriod[] timePeriods)
     {
         float[] ret = new float[timePeriods.Length];
-        object lockObject = new object();
+        object lockObject = new();
         Parallel.ForEach(microsimData.Households,
             () => new float[timePeriods.Length],
             (household, _, local) =>

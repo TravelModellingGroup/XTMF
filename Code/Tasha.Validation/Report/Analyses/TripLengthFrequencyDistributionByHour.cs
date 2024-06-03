@@ -73,7 +73,7 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
     /// <returns>An array of floats representing the observed results.</returns>
     private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips)
     {
-        object lockObject = new object();
+        object lockObject = new();
         float[] ret = new float[HOURS * TIME_BINS];
         Parallel.ForEach(surveyHouseholdsWithTrips,
             () => new float[HOURS * TIME_BINS],
@@ -106,8 +106,8 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }
@@ -119,7 +119,7 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
     /// <returns>An array of floats representing the model results.</returns>
     private float[] GetModelResults(MicrosimData microsimData)
     {
-        object lockObject = new object();
+        object lockObject = new();
         float[] ret = new float[HOURS * TIME_BINS];
         Parallel.ForEach(microsimData.Households,
             () => new float[HOURS * TIME_BINS],
@@ -155,8 +155,8 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }

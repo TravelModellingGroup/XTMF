@@ -75,7 +75,7 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
     /// <returns>An array of floats representing the observed results.</returns>
     private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, ModeGroup group)
     {
-        object lockObject = new object();
+        object lockObject = new();
         float[] ret = new float[TIME_BINS];
         Parallel.ForEach(surveyHouseholdsWithTrips,
             () => new float[TIME_BINS],
@@ -110,8 +110,8 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }
@@ -163,8 +163,8 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }

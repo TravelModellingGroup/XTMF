@@ -106,8 +106,8 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }
@@ -160,8 +160,8 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
         if (NormalizeResults)
         {
             // Normalize the resulting vector
-            var reciprical = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
-            VectorHelper.Multiply(ret, 0, ret, 0, reciprical, ret.Length);
+            var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
     }
