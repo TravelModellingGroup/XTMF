@@ -93,7 +93,10 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
                 foreach (var person in persons)
                 {
                     var expFactor = person.Weight;
-                    microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips);
+                    if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
+                    {
+                        continue;
+                    }
                     foreach (var trip in trips)
                     {
                         var modes = microsimData.Modes[(household.HouseholdID, person.PersonID, trip.TripID)];
@@ -146,7 +149,7 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
     /// <returns>The index of the time period that the departure time falls into, -1 of none.</returns>
     private static int GetTimePeriod(float departureTime, TimePeriod[] timePeriods)
     {
-        for(int i = 0; i < timePeriods.Length; i++)
+        for (int i = 0; i < timePeriods.Length; i++)
         {
             if (timePeriods[i].Contains(departureTime))
             {

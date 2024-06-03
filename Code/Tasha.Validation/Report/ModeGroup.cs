@@ -48,7 +48,7 @@ public sealed class ModeGroup : IModule
 
         public bool RuntimeValidation(ref string error)
         {
-            if ((LinkedMode = Root.AllModes.FirstOrDefault(mode => mode.Name == ModeName)) is null)
+            if ((LinkedMode = Root.AllModes.FirstOrDefault(mode => mode.ModeName == ModeName)) is null)
             {
                 error = $"Mode {ModeName} not found.";
                 return false;

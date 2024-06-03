@@ -46,9 +46,9 @@ public sealed class TourLengthDistribution : Analysis
         writer.WriteLine("TourLength,Observed,Model,Model-Observed");
         var observedTours = LoadObservedTours(surveyHouseholdsWithTrips);
         var modelTours = LoadModelledTours(microsimData);
-        for (int i = 0; i < observedTours.Length + 1; i++)
+        for (int i = 0; i < observedTours.Length; i++)
         {
-            writer.WriteLine($"{i + 1},{observedTours[i]},{modelTours[i]},{modelTours[i] - observedTours[i]}");
+            writer.WriteLine($"{i},{observedTours[i]},{modelTours[i]},{modelTours[i] - observedTours[i]}");
         }
     }
 
@@ -102,13 +102,13 @@ public sealed class TourLengthDistribution : Analysis
                         continue;
                     }
                     var expFactor = person.Weight / microsimData.ModeChoiceIterations;
-                    int count = 0;
+                    int count = 1;
                     foreach (var trip in trips)
                     {
                         if (IsGoingHomeActivity(trip))
                         {
                             local[Math.Min(count, MaxTourLength)] += expFactor;
-                            count = 0;
+                            count = 1;
                         }
                         else
                         {
