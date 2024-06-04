@@ -39,7 +39,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
     [
         // We don't compute the duration for home activities
         ("Home", ["Home", "ReturnHomeFromWork"]),
-        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness"]),
+        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", "WorkAAtHomeBusiness" ]),
         ("School", ["School"]),
         ("Other", ["IndividualOther", "JointOther"]),
         ("Market", ["Market", "JointOther"])
@@ -49,7 +49,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
     [
         // We don't compute the duration for home activities
         ("Home", [Activity.Home, Activity.ReturnFromWork]),
-        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.WorkAtHomeBusiness]),
         ("School", [Activity.School]),
         ("Other", [Activity.IndividualOther, Activity.JointOther]),
         ("Market", [Activity.Market, Activity.JointMarket])
@@ -59,12 +59,15 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
     public FileLocation SaveTo;
 
     [RootModule]
-    public ITravelDemandModel TravelDemandModel;
+    public ITravelDemandModel Root;
+
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
 
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
         // Process the zone system to get the planning districts and create indexes for them.
-        var zones = TravelDemandModel.ZoneSystem.ZoneArray;
+        var zones = Root.ZoneSystem.ZoneArray;
         var zoneToPD = zones.GetFlatData().Select(z => z.PlanningDistrict).ToArray();
         var pds = zoneToPD.Distinct().Order().ToArray();
         // Change the zoneToPD from the sparse PD to the index of the PD
@@ -117,7 +120,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
         }
     }
 
-    private static float[] GetObservedResult(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods, int[] zoneToPD, int pds, SparseArray<IZone> zones)
+    private float[] GetObservedResult(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods, int[] zoneToPD, int pds, SparseArray<IZone> zones)
     {
         object lockObject = new();
         var size = timePeriods.Length * s_PurposeBundlesObserved.Length * pds;
@@ -128,6 +131,10 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
             {
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -161,7 +168,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
         return ret;
     }
 
-    private static float[] GetModelResults(MicrosimData microsimData, TimePeriod[] timePeriods, int[] zoneToPD, int pds, SparseArray<IZone> zones)
+    private float[] GetModelResults(MicrosimData microsimData, TimePeriod[] timePeriods, int[] zoneToPD, int pds, SparseArray<IZone> zones)
     {
         object lockObject = new();
         var size = timePeriods.Length * s_PurposeBundlesModel.Length * pds;
@@ -173,7 +180,8 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
                 var persons = microsimData.Persons[household.HouseholdID];
                 foreach (var person in persons)
                 {
-                    if (!microsimData.Trips.TryGetValue((person.HouseholdID, person.PersonID), out var trips))
+                    if (person.Age < MinimumAge ||
+                    !microsimData.Trips.TryGetValue((person.HouseholdID, person.PersonID), out var trips))
                     {
                         continue;
                     }

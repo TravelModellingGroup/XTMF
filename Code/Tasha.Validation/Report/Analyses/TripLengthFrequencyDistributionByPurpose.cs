@@ -38,6 +38,9 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     [RunParameter("Normalize Results", true, "Should the results be normalized (true) or raw counts (false)?")]
     public bool NormalizeResults;
 
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
+
     /// <summary>
     /// The number of time bins we will consider
     /// </summary>
@@ -52,7 +55,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     [
         // We don't compute the duration for home activities
         ("Home", ["Home", "ReturnHomeFromWork"]),
-        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", ]),
+        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", "WorkAAtHomeBusiness" ]),
         ("School", ["School"]),
         ("Other", ["IndividualOther", "JointOther"]),
         ("Market", ["Market", "JointOther"])
@@ -62,7 +65,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     [
         // We don't compute the duration for home activities
         ("Home", [Activity.Home, Activity.ReturnFromWork]),
-        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.WorkAtHomeBusiness]),
         ("School", [Activity.School]),
         ("Other", [Activity.IndividualOther, Activity.JointOther]),
         ("Market", [Activity.Market, Activity.JointMarket])
@@ -100,6 +103,10 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
             {
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -150,6 +157,10 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
             {
                 foreach (var person in microsimData.Persons[household.HouseholdID])
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
                     {
                         continue;

@@ -33,6 +33,9 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
 
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
+
     [RunParameter("Normalize Results", true, "Should the results be normalized (true) or raw counts (false)?")]
     public bool NormalizeResults;
 
@@ -81,6 +84,10 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
             {
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -127,6 +134,10 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
             {
                 foreach (var person in microsimData.Persons[household.HouseholdID])
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
                     {
                         continue;

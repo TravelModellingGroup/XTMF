@@ -29,6 +29,8 @@ namespace Tasha.Validation.Report.Analyses;
 [ModuleInformation(Description = "Writes a CSV containing the number of activity episodes for each time period.")]
 public sealed class ActivityEpisodesByTimeOfDay : Analysis
 {
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
 
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
@@ -46,7 +48,7 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
         }
     }
 
-    private static float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods)
+    private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods)
     {
         float[] ret = new float[timePeriods.Length];
         object lockObject = new();
@@ -56,6 +58,10 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
             {
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -81,7 +87,7 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
         return ret;
     }
 
-    private static float[] GetModelResults(MicrosimData microsimData, TimePeriod[] timePeriods)
+    private float[] GetModelResults(MicrosimData microsimData, TimePeriod[] timePeriods)
     {
         float[] ret = new float[timePeriods.Length];
         object lockObject = new();
@@ -92,6 +98,10 @@ public sealed class ActivityEpisodesByTimeOfDay : Analysis
                 var persons = microsimData.Persons[household.HouseholdID];
                 foreach (var person in persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.Weight;
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
                     {

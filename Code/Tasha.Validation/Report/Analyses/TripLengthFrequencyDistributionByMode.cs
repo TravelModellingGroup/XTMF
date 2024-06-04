@@ -38,6 +38,9 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
     [RunParameter("Observed Mode Attachment Name", "ObservedMode", "The name of the attachment for the observed mode.")]
     public string ObservedModeAttachment;
 
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
+
     /// <summary>
     /// The number of time bins we will consider
     /// </summary>
@@ -83,6 +86,10 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
             {
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -132,6 +139,10 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
             {
                 foreach (var person in microsimData.Persons[household.HouseholdID])
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
                     {
                         continue;

@@ -39,7 +39,7 @@ public sealed class ActivityDurationByPurpose : Analysis
     [
         // We don't compute the duration for home activities
         //("Home", ["Home", "ReturnHomeFromWork"]),
-        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", ]),
+        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", "WorkAAtHomeBusiness" ]),
         ("School", ["School"]),
         ("Other", ["IndividualOther", "JointOther"]),
         ("Market", ["Market", "JointOther"])
@@ -49,11 +49,14 @@ public sealed class ActivityDurationByPurpose : Analysis
     [
         // We don't compute the duration for home activities
         //("Home", [Activity.Home, Activity.ReturnFromWork]),
-        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.WorkAtHomeBusiness]),
         ("School", [Activity.School]),
         ("Other", [Activity.IndividualOther, Activity.JointOther]),
         ("Market", [Activity.Market, Activity.JointMarket])
     ];
+
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
 
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
@@ -82,7 +85,7 @@ public sealed class ActivityDurationByPurpose : Analysis
         }
     }
 
-    private static float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int duration, Activity[] purposes)
+    private float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int duration, Activity[] purposes)
     {
         double accumulated = 0;
         object lockObject = new();
@@ -93,6 +96,10 @@ public sealed class ActivityDurationByPurpose : Analysis
                 var localAccumulated = 0.0;
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     int count = 0;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -119,7 +126,7 @@ public sealed class ActivityDurationByPurpose : Analysis
         return (float)accumulated;
     }
 
-    private static float ComputeModel(MicrosimData microsimData, float durationInMinutes, string[] purposes)
+    private float ComputeModel(MicrosimData microsimData, float durationInMinutes, string[] purposes)
     {
         double accumulated = microsimData.Households.AsParallel()
             .Sum(household =>
@@ -128,6 +135,10 @@ public sealed class ActivityDurationByPurpose : Analysis
 
                 foreach (var person in microsimData.Persons[household.HouseholdID])
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     int count = 0;
 
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))

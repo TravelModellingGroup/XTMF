@@ -27,7 +27,7 @@ using XTMF;
 namespace Tasha.Validation.Report.Analyses;
 
 [ModuleInformation(Description = "Creates a CSV file containing a trip length frequency distribution of all trips by given time periods.")]
-public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
+public sealed class TripLengthFrequencyDistributionByTimeOfDay : Analysis
 {
 
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
@@ -35,6 +35,9 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
 
     [RunParameter("Normalize Results", true, "Should the results be normalized (true) or raw counts (false)?")]
     public bool NormalizeResults;
+
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
 
     /// <summary>
     /// The number of time bins we will consider
@@ -78,6 +81,10 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
             {
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -128,6 +135,10 @@ public sealed class TripLengthFrequencyDistributionByTimePeriod : Analysis
             {
                 foreach (var person in microsimData.Persons[household.HouseholdID])
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
                     {
                         continue;

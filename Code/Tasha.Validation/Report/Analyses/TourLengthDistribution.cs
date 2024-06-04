@@ -40,6 +40,9 @@ public sealed class TourLengthDistribution : Analysis
     [RunParameter("Max Tour Length", 10, "The maximum tour length to report.")]
     public int MaxTourLength;
 
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
+
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
         using var writer = new StreamWriter(SaveTo);
@@ -62,6 +65,10 @@ public sealed class TourLengthDistribution : Analysis
             {
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     var expFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -97,6 +104,10 @@ public sealed class TourLengthDistribution : Analysis
             {
                 foreach (var person in microsimData.Persons[household.HouseholdID])
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
                     {
                         continue;

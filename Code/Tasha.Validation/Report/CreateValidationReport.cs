@@ -42,21 +42,50 @@ public sealed class CreateValidationReport : ISelfContainedModule
     [SubModelInformation(Required = true, Description = "The different analyses to execute.")]
     public Analysis[] Analyses;
 
+    [RunParameter("Observed Mode Attachment Name", "ObservedMode", "The name of the attachment for the observed mode.")]
+    public string ObservedModeAttachment;
+
     public void Start()
     {
-        var surveyData = LoadSurveyData();
-        MicrosimData.Load();
-
-        Parallel.ForEach(Analyses, analysis =>
+        try
         {
-            analysis.Execute(TimePeriods, MicrosimData, surveyData);
-        });
+            var surveyData = LoadSurveyData();
+            MicrosimData.Load();
+
+            Parallel.ForEach(Analyses, analysis =>
+            {
+                analysis.Execute(TimePeriods, MicrosimData, surveyData);
+            });
+        }
+        catch (XTMFRuntimeException)
+        {
+            // Do nothing
+            throw;
+        }
+        catch(Exception e)
+        {
+            throw new XTMFRuntimeException(this, e);
+        }
     }
 
     private ITashaHousehold[] LoadSurveyData()
     {
         SurveyHouseholdsWithTrips.LoadData();
         var ret = SurveyHouseholdsWithTrips.ToArray();
+        // Setup the Mode to be the observed mode
+        Parallel.ForEach(ret, household =>
+        {
+            foreach (var person in household.Persons)
+            {
+                foreach(var tripChain in person.TripChains)
+                {
+                    foreach(var trip in tripChain.Trips)
+                    {
+                        trip.Mode = trip[ObservedModeAttachment] as ITashaMode;
+                    }
+                }
+            }
+        });
         return ret;
     }
 

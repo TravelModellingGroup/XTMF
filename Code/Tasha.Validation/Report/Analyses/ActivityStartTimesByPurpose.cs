@@ -29,6 +29,9 @@ namespace Tasha.Validation.Report.Analyses;
 [ModuleInformation(Description = "Produces a CSV containing the number of activities by type binned in 30-minute increments. The CSV is in the format Time,Purpose,Observed,")]
 public class ActivityStartTimesByPurpose : Analysis
 {
+    [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
+    public int MinimumAge;
+
     /// <summary>
     /// The location to save the report to.
     /// </summary>
@@ -39,7 +42,7 @@ public class ActivityStartTimesByPurpose : Analysis
     [
         // We don't compute the duration for home activities
         ("Home", ["Home", "ReturnHomeFromWork"]),
-        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", ]),
+        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", "WorkAAtHomeBusiness" ]),
         ("School", ["School"]),
         ("Other", ["IndividualOther", "JointOther"]),
         ("Market", ["Market", "JointOther"])
@@ -49,7 +52,7 @@ public class ActivityStartTimesByPurpose : Analysis
     [
         // We don't compute the duration for home activities
         ("Home", [Activity.Home, Activity.ReturnFromWork]),
-        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkAtHomeBusiness]),
+        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.WorkAtHomeBusiness]),
         ("School", [Activity.School]),
         ("Other", [Activity.IndividualOther, Activity.JointOther]),
         ("Market", [Activity.Market, Activity.JointMarket])
@@ -86,7 +89,7 @@ public class ActivityStartTimesByPurpose : Analysis
     /// <param name="startTimeInterval">The start time interval.</param>
     /// <param name="purposes">The purposes to consider.</param>
     /// <returns>The observed number of activities.</returns>
-    private static float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int startTimeInterval, Activity[] purposes)
+    private float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int startTimeInterval, Activity[] purposes)
     {
         // Offset to start at 4:00 AM and run until 28:00
         startTimeInterval += 8;
@@ -100,6 +103,10 @@ public class ActivityStartTimesByPurpose : Analysis
                 var localAccumulated = 0.0;
                 foreach (var person in household.Persons)
                 {
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     int count = 0;
                     foreach (var tripChain in person.TripChains)
                     {
@@ -130,7 +137,7 @@ public class ActivityStartTimesByPurpose : Analysis
     /// <param name="startTimeInterval">The start time interval.</param>
     /// <param name="purposes">The purposes to consider.</param>
     /// <returns>The model number of activities.</returns>
-    private static float ComputeModel(MicrosimData microsimData, int startTimeInterval, string[] purposes)
+    private float ComputeModel(MicrosimData microsimData, int startTimeInterval, string[] purposes)
     {
         // Offset to start at 4:00 AM and run until 28:00
         startTimeInterval += 8;
@@ -143,7 +150,10 @@ public class ActivityStartTimesByPurpose : Analysis
                 foreach (var person in microsimData.Persons[household.HouseholdID])
                 {
                     int count = 0;
-
+                    if (person.Age < MinimumAge)
+                    {
+                        continue;
+                    }
                     if (!microsimData.Trips.TryGetValue((household.HouseholdID, person.PersonID), out var trips))
                     {
                         continue;
