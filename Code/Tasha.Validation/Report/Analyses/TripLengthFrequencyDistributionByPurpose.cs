@@ -116,7 +116,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
                             {
                                 continue;
                             }
-                            var tripTime = trip.TripStartTime - trip.ActivityStartTime;
+                            var tripTime = trip.ActivityStartTime - trip.TripStartTime;
                             var tripBin = GetBin(tripTime);
                             local[tripBin] += expFactor;
                         }
@@ -174,7 +174,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
                         }
                         foreach (var mode in microsimData.Modes[(household.HouseholdID, person.PersonID, trip.TripID)])
                         {
-                            var tripTime = mode.DepartureTime - mode.ArrivalTime;
+                            var tripTime = mode.ArrivalTime - mode.DepartureTime;
                             var tripBin = GetBin(tripTime);
                             local[tripBin] += expFactor;
                         }

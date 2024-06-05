@@ -64,7 +64,8 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
         {
             for (int j = 0; j < TIME_BINS; j++)
             {
-                writer.WriteLine($"{i},{j * TIME_BIN_SIZE},{observed[i]},{model[i]},{model[i] - observed[i]}");
+                writer.WriteLine($"{i},{j * TIME_BIN_SIZE},{observed[i * TIME_BINS + j]},{
+                    model[i * TIME_BINS + j]},{model[i * TIME_BINS + j] - observed[i * TIME_BINS + j]}");
             }
         }
     }
@@ -93,7 +94,7 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
                     {
                         foreach (var trip in tripChain.Trips)
                         {
-                            var tripTime = trip.TripStartTime - trip.ActivityStartTime;
+                            var tripTime = trip.ActivityStartTime - trip.TripStartTime;
                             var tripBin = GetBin(trip.TripStartTime, tripTime);
                             local[tripBin] += expFactor;
                         }
@@ -114,6 +115,7 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
         {
             // Normalize the resulting vector
             var reciprocal = 1.0f / VectorHelper.Sum(ret, 0, ret.Length);
+            reciprocal = float.IsFinite(reciprocal) ? reciprocal : 0;
             VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
@@ -147,7 +149,7 @@ public sealed class TripLengthFrequencyDistributionByHour : Analysis
                     {
                         foreach (var mode in microsimData.Modes[(household.HouseholdID, person.PersonID, trip.TripID)])
                         {
-                            var tripTime = mode.DepartureTime - mode.ArrivalTime;
+                            var tripTime = mode.ArrivalTime - mode.DepartureTime;
                             var tripBin = GetBin(mode.DepartureTime, tripTime);
                             local[tripBin] += expFactor;
                         }

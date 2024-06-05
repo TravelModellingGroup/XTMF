@@ -97,7 +97,7 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
                         {
                             if (group.Contains((trip[ObservedModeAttachment] as ITashaMode)))
                             {
-                                var tripTime = trip.TripStartTime - trip.ActivityStartTime;
+                                var tripTime = trip.ActivityStartTime - trip.TripStartTime;
                                 var tripBin = GetBin(tripTime);
                                 local[tripBin] += expFactor;
                             }
@@ -154,7 +154,7 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
                         {
                             if (group.Contains(mode.Mode))
                             {
-                                var tripTime = mode.DepartureTime - mode.ArrivalTime;
+                                var tripTime = mode.ArrivalTime - mode.DepartureTime;
                                 var tripBin = GetBin(tripTime);
                                 local[tripBin] += expFactor;
                             }
