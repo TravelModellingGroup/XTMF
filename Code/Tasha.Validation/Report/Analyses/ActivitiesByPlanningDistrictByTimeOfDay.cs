@@ -35,25 +35,8 @@ namespace Tasha.Validation.Report.Analyses;
 public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
 {
 
-    private static (string Name, string[] Purposes)[] s_PurposeBundlesModel =
-    [
-        // We don't compute the duration for home activities
-        ("Home", ["Home", "ReturnHomeFromWork"]),
-        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", "WorkAAtHomeBusiness" ]),
-        ("School", ["School"]),
-        ("Other", ["IndividualOther", "JointOther"]),
-        ("Market", ["Market", "JointOther"])
-    ];
-
-    private static (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
-    [
-        // We don't compute the duration for home activities
-        ("Home", [Activity.Home, Activity.ReturnFromWork]),
-        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.WorkAtHomeBusiness]),
-        ("School", [Activity.School]),
-        ("Other", [Activity.IndividualOther, Activity.JointOther]),
-        ("Market", [Activity.Market, Activity.JointMarket])
-    ];
+    [SubModelInformation(Required = true, Description = "The groups of purposes to analyze.")]
+    public ActivityGroup[] PurposeGroup;
 
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
@@ -82,17 +65,17 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
         using var writer = new StreamWriter(SaveTo);
         // Emit the header
         writer.Write("TimeOfDay,PD");
-        for (var i = 0; i < s_PurposeBundlesModel.Length; i++)
+        for (var i = 0; i < PurposeGroup.Length; i++)
         {
-            writer.Write($",Observed{s_PurposeBundlesModel[i].Name}");
+            writer.Write($",Observed{PurposeGroup[i].Name}");
         }
-        for (var i = 0; i < s_PurposeBundlesModel.Length; i++)
+        for (var i = 0; i < PurposeGroup.Length; i++)
         {
-            writer.Write($",Modelled{s_PurposeBundlesModel[i].Name}");
+            writer.Write($",Modelled{PurposeGroup[i].Name}");
         }
-        for (var i = 0; i < s_PurposeBundlesModel.Length; i++)
+        for (var i = 0; i < PurposeGroup.Length; i++)
         {
-            writer.Write($",Modeled-Observed{s_PurposeBundlesModel[i].Name}");
+            writer.Write($",Modeled-Observed{PurposeGroup[i].Activities}");
         }
         writer.WriteLine();
 
@@ -102,18 +85,18 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
             for (var j = 0; j < pds.Length; j++)
             {
                 writer.Write($"{timePeriod.Name},{pds[j]}");
-                for (var k = 0; k < s_PurposeBundlesModel.Length; k++)
+                for (var k = 0; k < PurposeGroup.Length; k++)
                 {
-                    writer.Write($",{observed[(i * s_PurposeBundlesModel.Length * pds.Length) + (k * pds.Length) + j]}");
+                    writer.Write($",{observed[(i * PurposeGroup.Length * pds.Length) + (k * pds.Length) + j]}");
                 }
-                for (var k = 0; k < s_PurposeBundlesModel.Length; k++)
+                for (var k = 0; k < PurposeGroup.Length; k++)
                 {
-                    writer.Write($",{model[(i * s_PurposeBundlesModel.Length * pds.Length) + (k * pds.Length) + j]}");
+                    writer.Write($",{model[(i * PurposeGroup.Length * pds.Length) + (k * pds.Length) + j]}");
                 }
-                for (var k = 0; k < s_PurposeBundlesModel.Length; k++)
+                for (var k = 0; k < PurposeGroup.Length; k++)
                 {
-                    writer.Write($",{model[(i * s_PurposeBundlesModel.Length * pds.Length) + (k * pds.Length) + j] 
-                        - observed[(i * s_PurposeBundlesModel.Length * pds.Length) + (k * pds.Length) + j]}");
+                    writer.Write($",{model[(i * PurposeGroup.Length * pds.Length) + (k * pds.Length) + j] 
+                        - observed[(i * PurposeGroup.Length * pds.Length) + (k * pds.Length) + j]}");
                 }
                 writer.WriteLine();
             }
@@ -123,7 +106,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
     private float[] GetObservedResult(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods, int[] zoneToPD, int pds, SparseArray<IZone> zones)
     {
         object lockObject = new();
-        var size = timePeriods.Length * s_PurposeBundlesObserved.Length * pds;
+        var size = timePeriods.Length * PurposeGroup.Length * pds;
         var ret = new float[size];
         Parallel.ForEach(surveyHouseholdsWithTrips,
             () => new float[size],
@@ -141,15 +124,15 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
                         foreach (var trip in tripChain.Trips)
                         {
                             var pdIndex = zoneToPD[zones.GetFlatIndex(trip.DestinationZone.ZoneNumber)];
-                            var purposeIndex = GetPurposeIndex(trip.Purpose, s_PurposeBundlesObserved);
+                            var purposeIndex = PurposeGroup.GetIndex(trip.Purpose);
                             if (purposeIndex < 0)
                             {
                                 continue;
                             }
-                            int timePeriod = GetTimePeriodIndex(trip.TripStartTime, timePeriods);
+                            int timePeriod = timePeriods.GetIndex(trip.TripStartTime);
                             if (timePeriod >= 0)
                             {
-                                local[(timePeriod * s_PurposeBundlesModel.Length * pds)
+                                local[(timePeriod * PurposeGroup.Length * pds)
                                     + (purposeIndex * pds)
                                     + pdIndex] += expFactor;
                             }
@@ -171,7 +154,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
     private float[] GetModelResults(MicrosimData microsimData, TimePeriod[] timePeriods, int[] zoneToPD, int pds, SparseArray<IZone> zones)
     {
         object lockObject = new();
-        var size = timePeriods.Length * s_PurposeBundlesModel.Length * pds;
+        var size = timePeriods.Length * PurposeGroup.Length * pds;
         var ret = new float[size];
         Parallel.ForEach(microsimData.Households,
             () => new float[size],
@@ -190,7 +173,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
                     foreach (var trip in trips)
                     {
                         var pdIndex = zoneToPD[zones.GetFlatIndex(trip.DestinationZone)];
-                        var purposeIndex = GetPurposeIndex(trip.DestinationPurpose, s_PurposeBundlesModel);
+                        var purposeIndex = PurposeGroup.GetIndex(trip.DestinationPurpose);
                         if (purposeIndex < 0)
                         {
                             continue;
@@ -198,10 +181,10 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
                         var modes = microsimData.Modes[(trip.HouseholdID, trip.PersonID, trip.TripID)];
                         foreach (var mode in modes)
                         {
-                            int timePeriod = GetTimePeriodIndex(mode.DepartureTime, timePeriods);
+                            int timePeriod = timePeriods.GetIndex(mode.DepartureTime);
                             if (timePeriod >= 0)
                             {
-                                local[(timePeriod * s_PurposeBundlesModel.Length * pds)
+                                local[(timePeriod * PurposeGroup.Length * pds)
                                     + (purposeIndex * pds)
                                     + pdIndex] += expFactor * mode.Weight;
                             }
@@ -219,60 +202,6 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
             });
 
         return ret;
-    }
-
-    private static int GetTimePeriodIndex(float departureTime, TimePeriod[] timePeriods)
-    {
-        for (int i = 0; i < timePeriods.Length; i++)
-        {
-            if (timePeriods[i].Contains(departureTime))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static int GetTimePeriodIndex(Time tripStartTime, TimePeriod[] timePeriods)
-    {
-        for (int i = 0; i < timePeriods.Length; i++)
-        {
-            if (timePeriods[i].Contains(tripStartTime))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static int GetPurposeIndex(string destinationPurpose, (string Name, string[] Purposes)[] purposeGroup)
-    {
-        for (int i = 0; i < purposeGroup.Length; i++)
-        {
-            for (int j = 0; j < purposeGroup[i].Purposes.Length; j++)
-            {
-                if (destinationPurpose == purposeGroup[i].Purposes[j])
-                {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    private static int GetPurposeIndex(Activity purpose, (string Name, Activity[] Purposes)[] purposeGroup)
-    {
-        for (int i = 0; i < purposeGroup.Length; i++)
-        {
-            for (int j = 0; j < purposeGroup[i].Purposes.Length; j++)
-            {
-                if (purpose == purposeGroup[i].Purposes[j])
-                {
-                    return i;
-                }
-            }
-        }
-        return -1;
     }
 
 }

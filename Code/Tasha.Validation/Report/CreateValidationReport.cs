@@ -22,6 +22,7 @@
 using System;
 using System.Threading.Tasks;
 using Tasha.Common;
+using TMG;
 using XTMF;
 
 namespace Tasha.Validation.Report;
@@ -29,6 +30,8 @@ namespace Tasha.Validation.Report;
 [ModuleInformation(Description = "This module will produce a calibration report of the current model system.")]
 public sealed class CreateValidationReport : ISelfContainedModule
 {
+    [RootModule]
+    public ITravelDemandModel Root;
 
     [SubModelInformation(Required = true, Description = "The data-set that we are going to compare against.")]
     public IDataLoader<ITashaHousehold> SurveyHouseholdsWithTrips;
@@ -49,6 +52,7 @@ public sealed class CreateValidationReport : ISelfContainedModule
     {
         try
         {
+            EnsureNetworkDataLoaded();
             var surveyData = LoadSurveyData();
             MicrosimData.Load();
 
@@ -66,6 +70,18 @@ public sealed class CreateValidationReport : ISelfContainedModule
         {
             throw new XTMFRuntimeException(this, e);
         }
+    }
+
+    private void EnsureNetworkDataLoaded()
+    {
+        Parallel.ForEach(Root.NetworkData,
+            networkData =>
+        {
+            if (!networkData.Loaded)
+            {
+                networkData.LoadData();
+            }
+        });
     }
 
     private ITashaHousehold[] LoadSurveyData()
@@ -99,4 +115,5 @@ public sealed class CreateValidationReport : ISelfContainedModule
     {
         return true;
     }
+
 }

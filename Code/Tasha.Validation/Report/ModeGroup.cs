@@ -42,7 +42,7 @@ public sealed class ModeGroup : IModule
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
         internal IMode LinkedMode;
 
@@ -103,6 +103,46 @@ public sealed class ModeGroup : IModule
             .Select(m => m.ModeName)
             .ToArray();
         return true;
+    }
+
+}
+
+public static class ModeGroupExtensions
+{
+    /// <summary>
+    /// Gets the index of the specified mode within the array of mode groups.
+    /// </summary>
+    /// <param name="modeGroups">The array of mode groups.</param>
+    /// <param name="mode">The mode to search for.</param>
+    /// <returns>The index of the mode group containing the specified mode, or -1 if the mode is not found.</returns>
+    public static int GetIndex(this ModeGroup[] modeGroups, IMode mode)
+    {
+        for (int i = 0; i < modeGroups.Length; i++)
+        {
+            if (modeGroups[i].Contains(mode))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// Gets the index of the specified mode within the array of mode groups.
+    /// </summary>
+    /// <param name="modeGroups">The array of mode groups.</param>
+    /// <param name="mode">The mode to search for.</param>
+    /// <returns>The index of the mode group containing the specified mode, or -1 if the mode is not found.</returns>
+    internal static int GetIndex(this ModeGroup[] modeGroups, MicrosimTripMode mode)
+    {
+        for (int i = 0; i < modeGroups.Length; i++)
+        {
+            if (modeGroups[i].Contains(mode.Mode))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
 }

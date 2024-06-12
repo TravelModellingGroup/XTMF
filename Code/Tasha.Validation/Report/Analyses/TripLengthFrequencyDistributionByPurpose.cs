@@ -51,38 +51,21 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     /// </summary>
     private const int TIME_BIN_SIZE = 15;
 
-    private static readonly (string Name, string[] Purposes)[] s_PurposeBundlesModel =
-    [
-        // We don't compute the duration for home activities
-        ("Home", ["Home", "ReturnHomeFromWork"]),
-        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", "WorkAAtHomeBusiness" ]),
-        ("School", ["School"]),
-        ("Other", ["IndividualOther", "JointOther"]),
-        ("Market", ["Market", "JointOther"])
-    ];
-
-    private static readonly (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
-    [
-        // We don't compute the duration for home activities
-        ("Home", [Activity.Home, Activity.ReturnFromWork]),
-        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.WorkAtHomeBusiness]),
-        ("School", [Activity.School]),
-        ("Other", [Activity.IndividualOther, Activity.JointOther]),
-        ("Market", [Activity.Market, Activity.JointMarket])
-    ];
+    [SubModelInformation(Required = true, Description = "The groups of purposes to analyze.")]
+    public ActivityGroup[] PurposeGroup;
 
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
         using var writer = new StreamWriter(SaveTo);
         writer.WriteLine("Purpose,Duration(minutes),Observed,Model,Model-Observed");
         // There are 48 30-minute time intervals from 4:00 AM to 4:00 AM the next day
-        for (int j = 0; j < s_PurposeBundlesModel.Length; j++)
+        for (int j = 0; j < PurposeGroup.Length; j++)
         {
-            var observed = GetObservedResults(surveyHouseholdsWithTrips, s_PurposeBundlesObserved[j].Purposes);
-            var model = GetModelResults(microsimData, s_PurposeBundlesModel[j].Purposes);
+            var observed = GetObservedResults(surveyHouseholdsWithTrips, PurposeGroup[j]);
+            var model = GetModelResults(microsimData, PurposeGroup[j]);
             for (int i = 0; i < TIME_BINS; i++)
             {
-                writer.WriteLine($"{s_PurposeBundlesModel[j].Name},{i * TIME_BIN_SIZE},{observed[i]},{model[i]},{model[i] - observed[i]}");
+                writer.WriteLine($"{PurposeGroup[j].Name},{i * TIME_BIN_SIZE},{observed[i]},{model[i]},{model[i] - observed[i]}");
             }
         }
     }
@@ -93,7 +76,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     /// <param name="surveyHouseholdsWithTrips">The array of households with trips.</param>
     /// /// <param name="period">The time period to get the data for.</param>
     /// <returns>An array of floats representing the observed results.</returns>
-    private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, Activity[] purposes)
+    private float[] GetObservedResults(ITashaHousehold[] surveyHouseholdsWithTrips, ActivityGroup purposes)
     {
         object lockObject = new();
         float[] ret = new float[TIME_BINS];
@@ -147,7 +130,7 @@ public sealed class TripLengthFrequencyDistributionByPurpose : Analysis
     /// <param name="microsimData">The microsimulation data.</param>
     /// <param name="period">The time period to get the data for.</param>
     /// <returns>An array of floats representing the model results.</returns>
-    private float[] GetModelResults(MicrosimData microsimData, string[] purposes)
+    private float[] GetModelResults(MicrosimData microsimData, ActivityGroup purposes)
     {
         object lockObject = new();
         float[] ret = new float[TIME_BINS];

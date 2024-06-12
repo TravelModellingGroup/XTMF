@@ -124,7 +124,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                         {
                             var time = trip.TripStartTime;
                             var mode = trip[ObservedModeAttachment] as ITashaMode;
-                            var timeIndex = GetTimeIndex(time.ToMinutes(), timePeriods);
+                            var timeIndex = timePeriods.GetIndex(time);
                             if (timeIndex < 0)
                             {
                                 continue;
@@ -135,7 +135,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                                 throw new XTMFRuntimeException(this, $"We found an invalid zone {trip.OriginalZone.ZoneNumber}!");
                             }
                             var pdIndex = zoneToPd[zoneIndex];
-                            var modeIndex = GetModeIndex(mode, ModeGroups);
+                            var modeIndex = ModeGroups.GetIndex(mode);
                             if (modeIndex < 0)
                             {
                                 continue;
@@ -162,8 +162,6 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
         }
         return ret;
     }
-
-    
 
     private float[] GetModel(MicrosimData microsimData, TimePeriod[] timePeriods, int[] pds, int[] zoneToPd, SparseArray<IZone> zones)
     {
@@ -194,7 +192,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                         foreach(var mode in modes)
                         {
                             var time = mode.DepartureTime;
-                            var timeIndex = GetTimeIndex(time, timePeriods);
+                            var timeIndex = timePeriods.GetIndex(time);
                             if (timeIndex < 0)
                             {
                                 continue;
@@ -205,7 +203,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                                 throw new XTMFRuntimeException(this, $"We found an invalid zone {trip.OriginZone}!");
                             }
                             var pdIndex = zoneToPd[zoneIndex];
-                            var modeIndex = GetModeIndex(mode, ModeGroups);
+                            var modeIndex = ModeGroups.GetIndex(mode);
                             if (modeIndex < 0)
                             {
                                 continue;
@@ -229,43 +227,6 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
             NormalizeModes(ret, timePeriods, pds, ModeGroups);
         }
         return ret;
-    }
-
-    private static int GetModeIndex(ITashaMode mode, ModeGroup[] modeGroups)
-    {
-        for (int i = 0; i < modeGroups.Length; i++)
-        {
-            if (modeGroups[i].Contains(mode))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static int GetModeIndex(MicrosimTripMode mode, ModeGroup[] modeGroups)
-    {
-        var modeName = mode.Mode;
-        for (int i = 0; i < modeGroups.Length; i++)
-        {
-            if (modeGroups[i].Contains(modeName))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static int GetTimeIndex(float time, TimePeriod[] timePeriods)
-    {
-        for (int i = 0; i < timePeriods.Length; i++)
-        {
-            if (timePeriods[i].Contains(time))
-            {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private static void NormalizeModes(float[] ret, TimePeriod[] timePeriods, int[] pds, ModeGroup[] modeGroups)
@@ -296,4 +257,5 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
             }
         }
     }
+
 }

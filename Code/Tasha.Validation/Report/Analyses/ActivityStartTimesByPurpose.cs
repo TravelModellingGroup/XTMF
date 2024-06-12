@@ -38,25 +38,8 @@ public class ActivityStartTimesByPurpose : Analysis
     [SubModelInformation(Required = true, Description = "The location to save the report to.")]
     public FileLocation SaveTo;
 
-    private static readonly (string Name, string[] Purposes)[] s_PurposeBundlesModel =
-    [
-        // We don't compute the duration for home activities
-        ("Home", ["Home", "ReturnHomeFromWork"]),
-        ("Work", ["PrimaryWork", "SecondaryWork", "WorkBasedBusiness", "WorkAAtHomeBusiness" ]),
-        ("School", ["School"]),
-        ("Other", ["IndividualOther", "JointOther"]),
-        ("Market", ["Market", "JointOther"])
-    ];
-
-    private static readonly (string Name, Activity[] Purposes)[] s_PurposeBundlesObserved =
-    [
-        // We don't compute the duration for home activities
-        ("Home", [Activity.Home, Activity.ReturnFromWork]),
-        ("Work", [Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.WorkAtHomeBusiness]),
-        ("School", [Activity.School]),
-        ("Other", [Activity.IndividualOther, Activity.JointOther]),
-        ("Market", [Activity.Market, Activity.JointMarket])
-    ];
+    [SubModelInformation(Required = true, Description = "The groups of purposes to analyze.")]
+    public ActivityGroup[] PurposeGroup;
 
     /// <summary>
     /// Executes the analysis to produce a CSV containing the number of activities by type binned in 30-minute increments.
@@ -69,14 +52,14 @@ public class ActivityStartTimesByPurpose : Analysis
         using var streamWriter = new StreamWriter(SaveTo);
         streamWriter.WriteLine("Time,Purpose,Observed,Model,Model-Observed");
         // There are 48 30-minute time intervals from 4:00 AM to 4:00 AM the next day
-        for (int j = 0; j < s_PurposeBundlesModel.Length; j++)
+        for (int j = 0; j < PurposeGroup.Length; j++)
         {
             for (int i = 0; i < 48; i++)
             {
                 var time = $"{(i + 8) >> 1}:{((i & 1) == 0 ? "00" : "30")}";
-                var observed = ComputeObserved(surveyHouseholdsWithTrips, i, s_PurposeBundlesObserved[j].Purposes);
-                var model = ComputeModel(microsimData, i, s_PurposeBundlesModel[j].Purposes);
-                streamWriter.WriteLine($"{time},{s_PurposeBundlesModel[j].Name},{observed},{model},{model - observed}");
+                var observed = ComputeObserved(surveyHouseholdsWithTrips, i, PurposeGroup[j]);
+                var model = ComputeModel(microsimData, i, PurposeGroup[j]);
+                streamWriter.WriteLine($"{time},{PurposeGroup[j].Name},{observed},{model},{model - observed}");
             }
         }
 
@@ -89,7 +72,7 @@ public class ActivityStartTimesByPurpose : Analysis
     /// <param name="startTimeInterval">The start time interval.</param>
     /// <param name="purposes">The purposes to consider.</param>
     /// <returns>The observed number of activities.</returns>
-    private float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int startTimeInterval, Activity[] purposes)
+    private float ComputeObserved(ITashaHousehold[] surveyHouseholdsWithTrips, int startTimeInterval, ActivityGroup purposes)
     {
         // Offset to start at 4:00 AM and run until 28:00
         startTimeInterval += 8;
@@ -137,7 +120,7 @@ public class ActivityStartTimesByPurpose : Analysis
     /// <param name="startTimeInterval">The start time interval.</param>
     /// <param name="purposes">The purposes to consider.</param>
     /// <returns>The model number of activities.</returns>
-    private float ComputeModel(MicrosimData microsimData, int startTimeInterval, string[] purposes)
+    private float ComputeModel(MicrosimData microsimData, int startTimeInterval, ActivityGroup purposes)
     {
         // Offset to start at 4:00 AM and run until 28:00
         startTimeInterval += 8;

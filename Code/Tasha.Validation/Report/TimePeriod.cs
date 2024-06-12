@@ -78,3 +78,47 @@ public sealed class TimePeriod : IModule
     }
 
 }
+
+/// <summary>
+/// Provides extension methods for interacting with
+/// arrays of TimePeriod.
+/// </summary>
+public static class TimePeriodExtensions
+{
+
+    /// <summary>
+    /// Gets the index of the time period that contains the specified trip start time.
+    /// </summary>
+    /// <param name="periods">The array of time periods to search.</param>
+    /// <param name="tripStartTime">The start time of the trip to check.</param>
+    /// <returns>The index of the time period that contains the trip start time, or -1 if no time period contains the trip start time.</returns>
+    public static int GetIndex(this TimePeriod[] periods, Time tripStartTime)
+    {
+        for (int i = 0; i < periods.Length; i++)
+        {
+            if (periods[i].Contains(tripStartTime))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// Gets the index of the time period that contains the specified start time in minutes from midnight.
+    /// </summary>
+    /// <param name="periods">The array of time periods to search.</param>
+    /// <param name="minutesFromMidnight">The start time of the trip to check in minutes from midnight.</param>
+    /// <returns>The index of the time period that contains the start time, or -1 if no time period contains the start time.</returns>
+    public static int GetIndex(this TimePeriod[] periods, float minutesFromMidnight)
+    {
+        for (int i = 0; i < periods.Length; i++)
+        {
+            if (periods[i].Contains(minutesFromMidnight))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+}

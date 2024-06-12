@@ -185,8 +185,8 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     /// <returns>The school zone for the person.</returns>
     private IZone GenerateFromOriginalDistribution(ITashaPerson person, Random random, int householdZone, bool deapSearch = true)
     {
-        var originalData = GetOriginalDataForAge(person.Age);
-        (var data, var total) = GetHouseholdRow(householdZone, originalData);
+        (var probabilities, var totals, var source) = GetOriginalDataForAge(person.Age);
+        (var data, var total) = GetHouseholdRow(householdZone, (probabilities, totals));
         if (data == null)
         {
             return null;
@@ -194,7 +194,7 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
         if (total <= 0)
         {
             // If there still isn't anything for this zone
-            return deapSearch ? GetProbabilitiesFromAnotherZoneInPD(person, random, householdZone) : null;
+            return deapSearch ? GetProbabilitiesFromAnotherZoneInPD(person, random, householdZone, source) : null;
         }
         var count = random.NextDouble() * total;
         for (int i = 0; i < data.Length; i++)
@@ -225,7 +225,7 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     /// <param name="random">The random number generator</param>
     /// <param name="householdZone">The household zone number for the person</param>
     /// <returns>The zone to use, it will throw an exception if no zone is possible.</returns>
-    private IZone GetProbabilitiesFromAnotherZoneInPD(ITashaPerson person, Random random, int householdZone)
+    private IZone GetProbabilitiesFromAnotherZoneInPD(ITashaPerson person, Random random, int householdZone, IModule source)
     {
         var pd = Zones[householdZone].PlanningDistrict;
         var zones = Zones.GetFlatData();
@@ -250,7 +250,7 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
             possibleZone.RemoveAt(index);
         }
         // if we have exhausted all options fail with an exception.
-        throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to generate a school zone because there are no zones in the planning district " + pd + " that have school data!");
+        throw new XTMFRuntimeException(source, "In '" + Name + "' we were unable to generate a school zone because there are no zones in the planning district " + pd + " that have school data!");
     }
 
     /// <summary>
@@ -353,17 +353,17 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     /// </summary>
     /// <param name="age">The age of the person to lookup for.</param>
     /// <returns>The probability distribution for the age.</returns>
-    private (SparseTwinIndex<float> Probabilities, float[] Totals) GetOriginalDataForAge(int age)
+    private (SparseTwinIndex<float> Probabilities, float[] Totals, IModule probabilitySource) GetOriginalDataForAge(int age)
     {
         if (ElementryRange.Contains(age))
         {
-            return (ElementarySchoolProbabilities, _elementryProbabilities);
+            return (ElementarySchoolProbabilities, _elementryProbabilities, ElementarySchoolProbabilitiesResource);
         }
         if (HighschoolRange.Contains(age))
         {
-            return (HighSchoolProbabilities, _highschoolProbabilities);
+            return (HighSchoolProbabilities, _highschoolProbabilities, HighschoolProbabilitiesResource);
         }
-        return (UniversityProbabilities, _universityProperties);
+        return (UniversityProbabilities, _universityProperties, UniversityProbabilitiesResource);
     }
 
 
