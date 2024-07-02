@@ -75,7 +75,7 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
         }
         for (var i = 0; i < PurposeGroup.Length; i++)
         {
-            writer.Write($",Modeled-Observed{PurposeGroup[i].Activities}");
+            writer.Write($",Modelled-Observed{PurposeGroup[i].Name}");
         }
         writer.WriteLine();
 
