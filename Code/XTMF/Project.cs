@@ -385,7 +385,20 @@ public sealed partial class Project : IProject
             return false;
         }
 
-        ProjectModelSystems.Add(new ProjectModelSystem
+        ProjectModelSystems.Add(CreateNewModelSystem(modelSystemName));
+        return Save(ref error);
+    }
+
+    /// <summary>
+    /// Generate a new project model system object.
+    /// <b>This will need to be added to the project list or copied into the project list.</b>
+    /// </summary>
+    /// <param name="modelSystemName">The name to assign to the model system.</param>
+    /// <param name="guid">The optional GUID to set for this model system.</param>
+    /// <returns>A blank Project model system object to insert into the project model system list.</returns>
+    private ProjectModelSystem CreateNewModelSystem(string modelSystemName, string guid = null)
+    {
+        return new ProjectModelSystem
         {
             Root = new ModelSystemStructure(_Configuration)
             {
@@ -396,10 +409,9 @@ public sealed partial class Project : IProject
             },
             LinkedParameters = [],
             Description = string.Empty,
-            GUID = Guid.NewGuid().ToString(),
+            GUID = guid ?? Guid.NewGuid().ToString(),
             LastModified = DateTime.Now
-        });
-        return Save(ref error);
+        };
     }
 
     /// <summary>
@@ -1653,7 +1665,14 @@ public sealed partial class Project : IProject
     {
         if (!ProjectModelSystems[modelSystemIndex].IsLoaded)
         {
-            LoadDetachedModelSystem(_DirectoryLocation, ProjectModelSystems[modelSystemIndex]);
+            bool loaded = LoadDetachedModelSystem(_DirectoryLocation, ProjectModelSystems[modelSystemIndex]);
+            if (!loaded)
+            {
+                var name = ProjectModelSystems[modelSystemIndex].Name;
+                var guid = ProjectModelSystems[modelSystemIndex].GUID;
+                var projectModelSystem = CreateNewModelSystem(name, guid);
+                ProjectModelSystems[modelSystemIndex] = projectModelSystem;
+            }
         }
     }
 
