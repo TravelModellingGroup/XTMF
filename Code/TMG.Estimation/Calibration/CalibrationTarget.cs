@@ -38,7 +38,7 @@ public abstract class CalibrationTarget : IModule
     [RunParameter("Minimum Value", float.NegativeInfinity, "The lowest value allowed for this parameter.")]
     public float MinimumValue;
 
-    [RunParameter("Maximum Value", float.PositiveInfinity, "The lowest value allowed for this parameter.")]
+    [RunParameter("Maximum Value", float.PositiveInfinity, "The highest value allowed for this parameter.")]
     public float MaximumValue;
 
     public string Name { get; set; }

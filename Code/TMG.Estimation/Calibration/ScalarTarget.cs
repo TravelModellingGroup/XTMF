@@ -40,6 +40,9 @@ public sealed class ScalarTarget : CalibrationTarget
     [RunParameter("Minimum Absolute Derivative", 0.00001f, "The minimum derivative a cell can have and still have an effect on the result.")]
     public float MinimumAbsoluteDerivative;
 
+    [RunParameter("Maximum Change", float.PositiveInfinity, "The most a value is allowed to change in a single step.")]
+    public float MaximumChange;
+
     private float _targetValue;
 
     private float _value1;
@@ -62,8 +65,11 @@ public sealed class ScalarTarget : CalibrationTarget
         // Step * derivative + value1 = target
         // <=> Step = (target - value1) / derivative
         var step = (_targetValue - _value1) / derivative;
+        var delta = (step * (step < ExploreSize ? 1.0f : LearningRate));
 
-        return ClampValue(step * (step < ExploreSize ? 1.0f : LearningRate), MinimumValue, MaximumValue);
+        currentValue += ClampValue(delta, -MaximumChange, MaximumChange);
+
+        return ClampValue(currentValue, MinimumValue, MaximumValue);
     }
 
     internal override void StoreRun(bool baseRun)
