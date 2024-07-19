@@ -36,7 +36,16 @@ public static class ModelSystemReflection
         return null;
     }
 
-
+    public static IModuleParameter FindParameter(IConfiguration config, IModule callingModule, IModule relativeFrom, string parameterPath)
+    {
+        var chain = BuildModelStructureChain(config, relativeFrom);
+        if (chain != null)
+        {
+            var path = SplitNameToParts(parameterPath);
+            return FindParameter(chain[^1], 0, path, parameterPath);
+        }
+        return null;
+    }
 
     /// <summary>
     /// Find the closest ancestor of the given module that implements
@@ -52,7 +61,7 @@ public static class ModelSystemReflection
         var chain = BuildModelStructureChain(config, currentModule);
         for (int i = chain.Count - 1; i >= 0; i--)
         {
-            if(chain[i].Type?.IsAssignableTo(type) == true)
+            if (chain[i].Type?.IsAssignableTo(type) == true)
             {
                 result = chain[i];
                 return true;
@@ -131,7 +140,7 @@ public static class ModelSystemReflection
     {
         string[] parts = SplitNameToParts(parameterName);
         var parameter = FindParameter(root, 0, parts, parameterName);
-        if(parameter == null)
+        if (parameter == null)
         {
             error = $"Unable to find parameter {parameterName}";
             return false;
@@ -388,7 +397,7 @@ public static class ModelSystemReflection
     /// <returns>True if we found the module, false otherwise</returns>
     public static bool BuildModelStructureChain(IModelSystemStructure root, IModule toFind, List<IModelSystemStructure> chain)
     {
-        if(root is null)
+        if (root is null)
         {
             return false;
         }
