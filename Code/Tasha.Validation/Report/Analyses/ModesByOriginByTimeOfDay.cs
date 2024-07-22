@@ -118,6 +118,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                     {
                         continue;
                     }
+                    var expansionFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
                         foreach (var trip in tripChain.Trips)
@@ -141,7 +142,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                                 continue;
                             }
                             var index = timeIndex * pds.Length * ModeGroups.Length + pdIndex * ModeGroups.Length + modeIndex;
-                            local[index]++;
+                            local[index] += person.ExpansionFactor;
                         }
                     }
                 }

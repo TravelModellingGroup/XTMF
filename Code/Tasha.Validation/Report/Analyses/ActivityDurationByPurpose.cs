@@ -44,23 +44,13 @@ public sealed class ActivityDurationByPurpose : Analysis
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
         using var streamWriter = new StreamWriter(SaveTo);
-        streamWriter.WriteLine("Duration,Purpose,Observed,Model,Model-Observed");
-
-        static string GetMinutes(int i) =>
-            (i & 0x3) switch
-            {
-                0 => "00",
-                1 => "15",
-                2 => "30",
-                3 => "45",
-                _ => "00"
-            };
+        streamWriter.WriteLine("Duration(Minutes),Purpose,Observed,Model,Model-Observed");
 
         for (int j = 0; j < PurposeGroup.Length; j++)
         {
             for (int i = 1; i < 96; i++)
             {
-                var time = $"{i >> 2}:{GetMinutes(i)}";
+                var time = i * 15;
                 var observed = ComputeObserved(surveyHouseholdsWithTrips, i, PurposeGroup[j]);
                 var model = ComputeModel(microsimData, i * 15.0f, PurposeGroup[j]);
                 streamWriter.WriteLine($"{time},{PurposeGroup[j].Name},{observed},{model},{model - observed}");
