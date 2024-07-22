@@ -23,7 +23,6 @@ using System.IO;
 using System.Threading;
 using TMG.Input;
 using XTMF;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TMG.Estimation.Calibration;
 
@@ -55,6 +54,10 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
 
     [SubModelInformation(Required = true, Description = "The targets to calibrate to.")]
     public CalibrationTarget[] Targets;
+
+    [RunParameter("Compute Each Derivative Separately", true, "If you are calibrating many parameters at the same time flip this to false " +
+        " so we approximate the derivative all at the same time.")]
+    public bool ComputeEachDerivativeSeparately;
 
     public string OutputBaseDirectory { get; set; }
 
@@ -199,21 +202,37 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
 
     private Job[] ComputeJobsForIteration(ParameterSetting[] currentPosition, int iteration)
     {
-        var jobs = new Job[Targets.Length + 1];
-        for (int i = 0; i < Targets.Length; i++)
+        Job[] jobs;
+        if (ComputeEachDerivativeSeparately)
         {
-            Job job = new()
+            jobs = new Job[Targets.Length + 1];
+            for (int i = 0; i < Targets.Length; i++)
             {
-                Parameters = CreateCopy(currentPosition, i),
+                Job job = new()
+                {
+                    Parameters = CreateCopy(currentPosition, i),
+                    Processed = false,
+                    ProcessedBy = null,
+                    Processing = false,
+                    Value = 0
+                };
+                jobs[i] = job;
+            }
+        }
+        else
+        {
+            jobs = new Job[2];
+            jobs[0] = new Job()
+            {
+                Parameters = CreateCopyAll(currentPosition),
                 Processed = false,
                 ProcessedBy = null,
                 Processing = false,
                 Value = 0
             };
-            jobs[i] = job;
         }
         // The last index is our base
-        jobs[Targets.Length] = new Job()
+        jobs[^1] = new Job()
         {
             Parameters = currentPosition,
             Processed = false,
@@ -242,8 +261,26 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
         return copy;
     }
 
+    private ParameterSetting[] CreateCopyAll(ParameterSetting[] currentPosition)
+    {
+        var copy = new ParameterSetting[currentPosition.Length];
+        for (int j = 0; j < currentPosition.Length; j++)
+        {
+            copy[j] = new ParameterSetting()
+            {
+                Current = currentPosition[j].Current + Targets[j].ExploreSize,
+                Minimum = currentPosition[j].Minimum,
+                Maximum = currentPosition[j].Maximum,
+                Names = currentPosition[j].Names,
+                NullHypothesis = currentPosition[j].NullHypothesis,
+            };
+        }
+        return copy;
+    }
+
     private void ComputeNewPosition(ParameterSetting[] position)
     {
+
         for (int i = 0; i < Targets.Length; i++)
         {
             var updatedValue = Targets[i].UpdateParameter(position[i].Current);
@@ -252,6 +289,18 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
     }
 
     private void RunJobs(Job[] jobs, int iteration)
+    {
+        if (ComputeEachDerivativeSeparately)
+        {
+            RunJobsSeparately(jobs, iteration);
+        }
+        else
+        {
+            RunJobsTogether(jobs, iteration);
+        }
+    }
+
+    private void RunJobsSeparately(Job[] jobs, int iteration)
     {
         // Run the jobs
         int i = 0;
@@ -277,6 +326,32 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
                 }
             }
         }
+    }
+
+    private void RunJobsTogether(Job[] jobs, int iteration)
+    {
+        void Run(int jobNumber, bool baseRun)
+        {
+            var jobParameters = jobs[jobNumber].Parameters;
+            for (int j = 0; j < jobParameters.Length; j++)
+            {
+                Targets[j].SetParameterValue(jobParameters[j].Current);
+            }
+            Client.Start();
+            for (int j = 0; j < Targets.Length; j++)
+            {
+                Targets[j].StoreRun(baseRun);
+            }
+        }
+
+        int i = 0;
+        _progress = () => ((float)iteration / MaxIterations) + (float)i / (MaxIterations * jobs.Length);
+        // Run the step
+        Run(0, false);
+        i = 1;
+        // Run the base
+        Run(1, true);
+        i = 2;
     }
 
     public string Name { get; set; } = string.Empty;
