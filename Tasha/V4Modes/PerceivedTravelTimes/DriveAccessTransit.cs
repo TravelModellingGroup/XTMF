@@ -54,6 +54,12 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
     [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
     public float OtherFlag;
 
+    [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
+    public float SchoolFlag;
+
+    [RunParameter("WorkFlag", 0f, "Added to the utility if the trip's purpose is a type of work.")]
+    public float WorkFlag;
+
     [RootModule]
     public ITashaRuntime Root;
 
@@ -211,6 +217,14 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
                 break;
             case Activity.Home:
                 v += ZonalDensityForHomeArray[d];
+                break;
+            case Activity.School:
+                v += SchoolFlag + ZonalDensityForActivitiesArray[d];
+                break;
+            case Activity.PrimaryWork:
+            case Activity.SecondaryWork:
+            case Activity.WorkBasedBusiness:
+                v += WorkFlag + ZonalDensityForActivitiesArray[d];
                 break;
             default:
                 v += ZonalDensityForActivitiesArray[d];
@@ -561,9 +575,18 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
 
     private int[] CreateStationIndexLookup(SparseArray<IZone> zoneSystem, IZone[] zones)
     {
-        var lookup = zones.Select(z => zoneSystem.GetFlatIndex(z.ZoneNumber)).ToArray();
-        StationIndexLookup = lookup;
-        return lookup;
+        lock (this)
+        {
+            // Do a second check just in case the
+            // StationIndexLookup was created while we were waiting for the lock
+            if (StationIndexLookup is not null)
+            {
+                return StationIndexLookup;
+            }
+            var lookup = zones.Select(z => zoneSystem.GetFlatIndex(z.ZoneNumber)).ToArray();
+            StationIndexLookup = lookup;
+            return lookup;
+        }
     }
 
     private void GetPersonVariables(ITashaPerson person, out float constant, out float time, out float cost)

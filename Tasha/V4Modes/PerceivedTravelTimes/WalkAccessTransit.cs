@@ -37,6 +37,12 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
     [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
     public float OtherFlag;
 
+    [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
+    public float SchoolFlag;
+
+    [RunParameter("WorkFlag", 0f, "Added to the utility if the trip's purpose is a type of work.")]
+    public float WorkFlag;
+
     private float ProfessionalCost;
     private float GeneralCost;
     private float SalesCost;
@@ -159,6 +165,14 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
                 break;
             case Activity.IndividualOther:
                 v += OtherFlag + ZonalDensityForActivitiesArray[d];
+                break;
+            case Activity.School:
+                v += SchoolFlag + ZonalDensityForActivitiesArray[d];
+                break;
+            case Activity.PrimaryWork:
+            case Activity.SecondaryWork:
+            case Activity.WorkBasedBusiness:
+                v += WorkFlag + ZonalDensityForActivitiesArray[d];
                 break;
             case Activity.Home:
                 v += ZonalDensityForHomeArray[d];
