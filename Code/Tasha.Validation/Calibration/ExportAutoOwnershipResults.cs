@@ -27,7 +27,8 @@ using XTMF;
 
 namespace Tasha.Validation.Calibration;
 
-[ModuleInformation(Description = "Generates a CSV with the column ZoneNumber followed by Auto-(Ground/Apartment)-X which contains the expanded households with that many vehicles.")]
+[ModuleInformation(Description = "Generates a CSV with the column ZoneNumber followed by Auto-(Ground/Apartment)-X which contains the expanded households with that many vehicles." +
+    " The final column contains the number of households that have more cars than driver licenses.")]
 public sealed class ExportAutoOwnershipResults : IPostHousehold
 {
     [RootModule]
@@ -42,6 +43,7 @@ public sealed class ExportAutoOwnershipResults : IPostHousehold
     public int MaxVehicles;
 
     private float[] _autoCounts;
+    private float[] _householdsWithAdditionalCars;
 
     private int _targetIteration;
 
@@ -56,10 +58,12 @@ public sealed class ExportAutoOwnershipResults : IPostHousehold
         if (_autoCounts is null)
         {
             _autoCounts = new float[_zones.Count * (MaxVehicles + 1) * 2];
+            _householdsWithAdditionalCars = new float[_zones.Count];
         }
         else
         {
             Array.Clear(_autoCounts, 0, _autoCounts.Length);
+            Array.Clear(_householdsWithAdditionalCars, 0, _householdsWithAdditionalCars.Length);
         }
     }
 
@@ -75,10 +79,12 @@ public sealed class ExportAutoOwnershipResults : IPostHousehold
         var expansionFactor = household.ExpansionFactor;
         var dwellingOffset = household.DwellingType == DwellingType.Apartment ? 1 : 0;
         autos = Math.Min(autos, MaxVehicles);
-        var index = (householdZone * (MaxVehicles + 1) + autos) * 2 + dwellingOffset;
+        var autoCountIndex = (householdZone * (MaxVehicles + 1) + autos) * 2 + dwellingOffset;
+        var additionalCar = autos > household.Persons.Count(p => p.Licence) ? expansionFactor : 0.0f;
         lock (_autoCounts)
         {
-            _autoCounts[index] += expansionFactor;
+            _autoCounts[autoCountIndex] += expansionFactor;
+            _householdsWithAdditionalCars[householdZone] += additionalCar;
         }
     }
 
@@ -90,16 +96,18 @@ public sealed class ExportAutoOwnershipResults : IPostHousehold
             return;
         }
         using var writer = new StreamWriter(SaveTo);
-        writer.WriteLine("ZoneNumber," + string.Join(',', Enumerable.Range(0, (MaxVehicles + 1) * 2).Select(i => $"Auto-{((i & 1) == 0 ? "Ground" : "Apartment")}-{i >> 1}")));
+        writer.WriteLine("ZoneNumber," + string.Join(',', Enumerable.Range(0, (MaxVehicles + 1) * 2).Select(i => $"Auto-{((i & 1) == 0 ? "Ground" : "Apartment")}-{i >> 1}")) + ",AdditionalCars");
         var flatZones = _zones.GetFlatData();
         for (var i = 0; i < flatZones.Length; i++)
         {
             writer.Write(flatZones[i].ZoneNumber);
             for (var j = 0; j < (MaxVehicles + 1) * 2; j++)
             {
-                writer.Write($",{_autoCounts[(i * (MaxVehicles + 1) * 2) + j]}");
+                writer.Write(',');
+                writer.Write(_autoCounts[(i * (MaxVehicles + 1) * 2) + j]);
             }
-            writer.WriteLine();
+            writer.Write(',');
+            writer.WriteLine(_householdsWithAdditionalCars[i]);
         }
     }
 

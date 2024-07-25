@@ -155,7 +155,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             }
             for (int i = 0; i < Targets.Length; i++)
             {
-                writer.Write($",{Targets[i].ParameterPath}");
+                writer.Write($",Value-{Targets[i].Name}");
             }
             writer.WriteLine();
         }

@@ -26,7 +26,7 @@ namespace TMG.Estimation.Calibration;
 [ModuleInformation(Description = "Provides targets for calibration.")]
 public abstract class CalibrationTarget : IModule
 {
-    [RunParameter("Parameter Path", "", "The path separated by '.'s to the parameter relative to the client model system's root.")]
+    [RunParameter("Parameter Path", "", "The path separated by '.'s to the parameter relative to the client model system's root, commas allows for additional parameters.")]
     public string ParameterPath;
 
     [RunParameter("Explore Size", 0.01f, "The different in the value of the parameter to explore to compute the derivative.")]
@@ -51,9 +51,9 @@ public abstract class CalibrationTarget : IModule
     private IConfiguration _configuration;
 
     /// <summary>
-    /// The parameter that this target is going to use for calibration.
+    /// The parameters that this target is going to use for calibration.
     /// </summary>
-    private IModuleParameter _parameter;
+    private IModuleParameter[] _parameters;
 
     protected CalibrationTarget(IConfiguration configuration)
     {
@@ -72,10 +72,15 @@ public abstract class CalibrationTarget : IModule
 
     internal void Intialize(IModelSystemTemplate clientModelSystem)
     {
-        _parameter = ModelSystemReflection.FindParameter(_configuration, this, clientModelSystem, ParameterPath);
-        if (_parameter is null)
+        var parts = ParameterPath.Split(',');
+        _parameters = new IModuleParameter[parts.Length];
+        for(int i = 0; i < _parameters.Length; i++)
         {
-            throw new XTMFRuntimeException(this, $"Unable to find the parameter {ParameterPath}!");
+            _parameters[i] = ModelSystemReflection.FindParameter(_configuration, this, clientModelSystem, parts[i]);
+            if (_parameters[i] is null)
+            {
+                throw new XTMFRuntimeException(this, $"Unable to find the parameter {parts[i]}!");
+            }
         }
         LoadTarget();
     }
@@ -87,7 +92,7 @@ public abstract class CalibrationTarget : IModule
 
     internal float GetParameterValue()
     {
-        object value = _parameter.Value;
+        object value = _parameters[0].Value;
         try
         {
             return (float)value;
@@ -104,7 +109,10 @@ public abstract class CalibrationTarget : IModule
     /// <param name="value">The value to set.</param>
     internal void SetParameterValue(float value)
     {
-        ModelSystemReflection.AssignValueRunOnly(_configuration, _parameter, value);
+        foreach (var parameter in _parameters)
+        {
+            ModelSystemReflection.AssignValueRunOnly(_configuration, parameter, value);
+        }
     }
 
     /// <summary>
@@ -113,7 +121,10 @@ public abstract class CalibrationTarget : IModule
     /// <param name="value"></param>
     internal void SetParameterAndSave(float value)
     {
-        ModelSystemReflection.AssignValue(_configuration, _parameter, value);
+        foreach (var parameter in _parameters)
+        {
+            ModelSystemReflection.AssignValue(_configuration, parameter, value);
+        }
     }
 
     /// <summary>
