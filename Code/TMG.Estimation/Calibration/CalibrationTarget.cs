@@ -29,17 +29,8 @@ public abstract class CalibrationTarget : IModule
     [RunParameter("Parameter Path", "", "The path separated by '.'s to the parameter relative to the client model system's root.")]
     public string ParameterPath;
 
-    [RunParameter("Learning Rate", 0.75f, "The distance to move towards hitting the target.")]
-    public float LearningRate;
-
     [RunParameter("Explore Size", 0.01f, "The different in the value of the parameter to explore to compute the derivative.")]
     public float ExploreSize;
-
-    [RunParameter("Minimum Value", float.NegativeInfinity, "The lowest value allowed for this parameter.")]
-    public float MinimumValue;
-
-    [RunParameter("Maximum Value", float.PositiveInfinity, "The highest value allowed for this parameter.")]
-    public float MaximumValue;
 
     public string Name { get; set; }
 

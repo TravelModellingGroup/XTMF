@@ -25,6 +25,14 @@ namespace TMG.Estimation.Calibration;
 [ModuleInformation(Description = "A scalar target to try to calibrate to.")]
 public sealed class ScalarTarget : CalibrationTarget
 {
+    [RunParameter("Learning Rate", 0.75f, "The distance to move towards hitting the target.")]
+    public float LearningRate;
+
+    [RunParameter("Minimum Value", float.NegativeInfinity, "The lowest value allowed for this parameter.")]
+    public float MinimumValue;
+
+    [RunParameter("Maximum Value", float.PositiveInfinity, "The highest value allowed for this parameter.")]
+    public float MaximumValue;
 
     public ScalarTarget(IConfiguration configuration)
         : base(configuration)
