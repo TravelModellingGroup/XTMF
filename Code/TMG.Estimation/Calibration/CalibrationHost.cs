@@ -55,6 +55,9 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
     [SubModelInformation(Required = true, Description = "The targets to calibrate to.")]
     public CalibrationTarget[] Targets;
 
+    [RunParameter("Just Compute Against Targets", false, "Instead of doing a full run instead just run the parameters as they are and compare against the targets.")]
+    public bool JustComputeAgainstTargets;
+
     [RunParameter("Compute Each Derivative Separately", true, "If you are calibrating many parameters at the same time flip this to false " +
         " so we approximate the derivative all at the same time.")]
     public bool ComputeEachDerivativeSeparately;
@@ -98,7 +101,6 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             PreRun[i].Start();
             Thread.MemoryBarrier();
         }
-        StoreResults(position, -1);
         int iteration = 0;
         _status = () => $"Running calibration iteration {iteration + 1} of {MaxIterations}";
         for (; iteration < MaxIterations && !_exit; iteration++)
@@ -145,7 +147,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
         if (CalibrationReport is null) return;
 
         using var writer = new StreamWriter(CalibrationReport, true);
-        if (iteration < 0)
+        if (iteration == 0)
         {
             // Write the header
             writer.Write("Iteration");
@@ -162,14 +164,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
         writer.Write(iteration);
         for (int i = 0; i < Targets.Length; i++)
         {
-            if (iteration < 0)
-            {
-                writer.Write(",N/A");
-            }
-            else
-            {
-                writer.Write($",{Targets[i].ReportTargetDistance()}");
-            }
+            writer.Write($",{Targets[i].ReportTargetDistance()}");
         }
         for (int i = 0; i < Targets.Length; i++)
         {
@@ -203,6 +198,19 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
     private Job[] ComputeJobsForIteration(ParameterSetting[] currentPosition, int iteration)
     {
         Job[] jobs;
+        if (JustComputeAgainstTargets)
+        {
+            jobs = new Job[1];
+            jobs[0] = new Job()
+            {
+                Parameters = currentPosition,
+                Processed = false,
+                ProcessedBy = null,
+                Processing = false,
+                Value = 0
+            };
+            return jobs;
+        }
         if (ComputeEachDerivativeSeparately)
         {
             jobs = new Job[Targets.Length + 1];
@@ -280,11 +288,13 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
 
     private void ComputeNewPosition(ParameterSetting[] position)
     {
-
         for (int i = 0; i < Targets.Length; i++)
         {
             var updatedValue = Targets[i].UpdateParameter(position[i].Current);
-            position[i].Current = updatedValue;
+            if (!JustComputeAgainstTargets)
+            {
+                position[i].Current = updatedValue;
+            }
         }
     }
 
