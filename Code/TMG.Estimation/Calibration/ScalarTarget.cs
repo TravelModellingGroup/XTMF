@@ -106,4 +106,14 @@ public sealed class ScalarTarget : CalibrationTarget
         Target.UnloadData();
     }
 
+    public override bool RuntimeValidation(ref string error)
+    {
+        if (MinimumValue > MaximumValue)
+        {
+            error = "Minimum value is greater than maximum value.";
+            return false;
+        }
+        return base.RuntimeValidation(ref error);
+    }
+
 }

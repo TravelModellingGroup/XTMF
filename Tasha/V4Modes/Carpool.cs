@@ -43,6 +43,12 @@ public sealed class Carpool : ITashaMode, IIterationSensitive
     [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
     public float OtherFlag;
 
+    [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
+    public float SchoolFlag;
+
+    [RunParameter("WorkFlag", 0f, "Added to the utility if the trip's purpose is a type of work.")]
+    public float WorkFlag;
+
     [RootModule]
     public ITashaRuntime Root;
 
@@ -166,13 +172,21 @@ public sealed class Carpool : ITashaMode, IIterationSensitive
             }
         }
         //Apply trip purpose factors
-        switch(trip.Purpose)
+        switch (trip.Purpose)
         {
             case Activity.Market:
                 v += MarketFlag;
                 break;
             case Activity.IndividualOther:
                 v += OtherFlag;
+                break;
+            case Activity.School:
+                v += SchoolFlag;
+                break;
+            case Activity.PrimaryWork:
+            case Activity.SecondaryWork:
+            case Activity.WorkBasedBusiness:
+                v += WorkFlag;
                 break;
         }
         return v + GetPlanningDistrictConstant(trip.ActivityStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);

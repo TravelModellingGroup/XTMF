@@ -85,4 +85,14 @@ public sealed class ProbabilityTarget : CalibrationTarget
     {
         return _baseRunProbability - _targetProbability;
     }
+
+    public override bool RuntimeValidation(ref string error)
+    {
+        if (MinimumValue > MaximumValue)
+        {
+            error = "Minimum value is greater than maximum value.";
+            return false;
+        }
+        return base.RuntimeValidation(ref error);
+    }
 }

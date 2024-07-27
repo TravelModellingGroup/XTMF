@@ -92,6 +92,10 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
 
     public void Start()
     {
+        if(JustComputeAgainstTargets)
+        {
+            MaxIterations = 1;
+        }
         // Get the initial position from the model system.
         LoadTargets();
         _status = () => "Initializing the calibration run.";
@@ -127,7 +131,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
 
     private void RunSaveParameters(ParameterSetting[] position)
     {
-        if (!SaveParameters)
+        if (!SaveParameters || JustComputeAgainstTargets)
         {
             return;
         }
