@@ -42,7 +42,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
     [RunParameter("Age Ranges", "0-200", typeof(RangeSet), "The valid ages to get.", Index = 3)]
     public RangeSet AgeRanges;
 
-    [SubModelInformation(Required = true, Description = "The activities to add to the matrix.")]
+    [SubModelInformation(Required = false, Description = "The activities to add to the matrix.")]
     public SelectedActivity[] Activities;
     private Activity[] _activities;
 
@@ -200,7 +200,8 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
                         continue;
                     }
                     Time startTime = GetStartTime(trip);
-                    if (Array.IndexOf(_containedActivities, trip.Purpose) >= 0
+                    if ((_containedActivities.Length == 0 ||
+                        Array.IndexOf(_containedActivities, trip.Purpose) >= 0)
                         && startTime >= StartTime && startTime < EndTime)
                     {
                         AddEntry(entries, trip.OriginalZone, trip.DestinationZone, expansionFactor);
