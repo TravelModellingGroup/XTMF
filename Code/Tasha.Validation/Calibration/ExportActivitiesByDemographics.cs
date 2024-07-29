@@ -26,11 +26,13 @@ using TMG.Emme;
 using TMG.Input;
 using XTMF;
 
+using static Tasha.Validation.Calibration.Utilities;
+
 namespace Tasha.Validation.Calibration;
 
 [ModuleInformation(Description = "This module allows you to get a matrix of activities conducted" +
     " by people with the given demographics.")]
-public sealed class ExtractActivitiesByDemographics : IPostHousehold
+public sealed class ExportActivitiesByDemographics : IPostHousehold
 {
 
     [RunParameter("Start Time", "6:00", typeof(Time), "The start time of the activity to capture, inclusive.", Index = 0)]
@@ -41,79 +43,6 @@ public sealed class ExtractActivitiesByDemographics : IPostHousehold
 
     [RunParameter("Age Ranges", "0-200", typeof(RangeSet), "The valid ages to get.", Index = 3)]
     public RangeSet AgeRanges;
-
-    [ModuleInformation(Description = "Specify which activities will be recorded.")]
-    public sealed class SelectedActivity : IModule
-    {
-        [RunParameter("Activity", Activity.PrimaryWork, "An activity type to include.")]
-        public Activity Activity;
-
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-    }
-
-    [ModuleInformation(Description = "Specify which occupations will be selected.")]
-    public sealed class SelectedOccupation : IModule
-    {
-        [RunParameter("Occupation", Occupation.Professional, "An occupation to include.")]
-        public Occupation Occupation;
-
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-    }
-
-    [ModuleInformation(Description = "Specify which employments statuses will be selected for.")]
-    public sealed class SelectedEmploymentStatus : IModule
-    {
-        [RunParameter("Employment Status", TTSEmploymentStatus.FullTime, "An employment status to include.")]
-        public TTSEmploymentStatus EmploymentStatus;
-
-        public string Name { get; set; }
-        public float Progress => 0f;
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-
-    }
-
-    [ModuleInformation(Description = "Specify which status statuses will be selected for.")]
-    public sealed class SelectedStudentStatuses : IModule
-    {
-        [RunParameter("Student Status", StudentStatus.FullTime, "A student status to include.")]
-        public StudentStatus StudentStatus;
-
-        public string Name { get; set; }
-
-        public float Progress => 0f;
-
-        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
-
-        public bool RuntimeValidation(ref string error)
-        {
-            return true;
-        }
-    }
 
     [SubModelInformation(Required = true, Description = "The activities to add to the matrix.")]
     public SelectedActivity[] Activities;
@@ -196,8 +125,6 @@ public sealed class ExtractActivitiesByDemographics : IPostHousehold
         }
     }
 
-    private readonly record struct Entry(int FlatOrigin, int FlatDestination, float ExpansionFactor);
-
     /// <summary>
     /// Executes the logic to extract activities by demographics for a given household and iteration.
     /// </summary>
@@ -271,27 +198,6 @@ public sealed class ExtractActivitiesByDemographics : IPostHousehold
         WriteEntries(entries);
     }
 
-    /// <summary>
-    /// Checks if a value is selected based on the provided selected and rejected arrays.
-    /// </summary>
-    /// <typeparam name="T">The type of the value.</typeparam>
-    /// <param name="selected">The array of selected values.</param>
-    /// <param name="rejected">The array of rejected values.</param>
-    /// <param name="value">The value to check.</param>
-    /// <returns>True if the value is selected, false otherwise.</returns>
-    private static bool IsSelected<T>(T[] selected, T[] rejected, T value)
-    {
-        if (selected is not null && selected.Length > 0)
-        {
-            return Array.IndexOf(selected, value) >= 0;
-        }
-        if (rejected is not null && rejected.Length > 0)
-        {
-            return Array.IndexOf(rejected, value) < 0;
-        }
-        return true;
-    }
-
     public void IterationFinished(int iteration)
     {
         if (_targetIteration != iteration)
@@ -300,14 +206,6 @@ public sealed class ExtractActivitiesByDemographics : IPostHousehold
         }
         new EmmeMatrix(_zones, _matrix.GetFlatData())
             .Save(SaveTo, false);
-    }
-    private static Time GetStartTime(ITrip trip)
-    {
-        return trip.Purpose switch
-        {
-            Activity.Home or Activity.StayAtHome or Activity.ReturnFromWork or Activity.ReturnFromSchool => trip.TripStartTime,
-            _ => trip.ActivityStartTime,
-        };
     }
 
     public string Name { get; set; }
