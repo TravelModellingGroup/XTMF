@@ -180,7 +180,7 @@ public sealed class AutoDrive : ITashaMode, IIterationSensitive
             {
                 var timeToNextTrip = TimeToNextTrip(trip);
                 var parkingCosts = _parkingModel == null ? zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
-                    : _parkingModel.ComputeParkingCost(trip.ActivityStartTime, trip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), d);
+                    : _parkingModel.ComputeParkingCost(trip.ActivityStartTime, trip.ActivityStartTime + Time.FromHours(timeToNextTrip), d);
                 v += costParameter * parkingCosts;
             }
         }
@@ -188,7 +188,7 @@ public sealed class AutoDrive : ITashaMode, IIterationSensitive
         {
             var timeToNextTrip = TimeToNextTrip(trip);
             var parkingCosts = _parkingModel == null ? zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
-                : _parkingModel.ComputeParkingCost(trip.ActivityStartTime, trip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), d);
+                : _parkingModel.ComputeParkingCost(trip.ActivityStartTime, trip.ActivityStartTime + Time.FromHours(timeToNextTrip), d);
             Network.GetAllData(o, d, tripStartTime, out float ivtt, out float cost);
             v += timeFactor * ivtt + costParameter * (cost + parkingCosts);
         }
