@@ -19,6 +19,7 @@
 
 using Datastructure;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMG.Functions;
 using XTMF;
@@ -110,10 +111,10 @@ public sealed class MatrixTarget : CalibrationTarget
         Target.UnloadData();
     }
 
-    internal override void StoreRun(bool baseRun)
+    internal override void StoreRun(int runIndex)
     {
         Result.LoadData();
-        if (baseRun)
+        if (runIndex < 0)
         {
             _baseResult = Result.GiveData();
         }
@@ -144,4 +145,22 @@ public sealed class MatrixTarget : CalibrationTarget
         return base.RuntimeValidation(ref error);
     }
 
+    public override IEnumerable<ParameterSetting[]> CreateAdditionalRuns(ParameterSetting[] baseParameters, int iteration, int targetIndex)
+    {
+        // We need an additional run in order to compute the derivative.
+        var copy = new ParameterSetting[baseParameters.Length];
+        for (int i = 0; i < copy.Length; i++)
+        {
+            copy[i] = new ParameterSetting()
+            {
+                Current = baseParameters[i].Current,
+                Names = baseParameters[i].Names,
+                Minimum = baseParameters[i].Minimum,
+                Maximum = baseParameters[i].Maximum,
+                NullHypothesis = baseParameters[i].NullHypothesis,
+            };
+        }
+        copy[targetIndex].Current += ExploreSize;
+        yield return copy;
+    }
 }

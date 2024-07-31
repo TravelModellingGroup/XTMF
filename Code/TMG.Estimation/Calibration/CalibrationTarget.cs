@@ -18,6 +18,8 @@
 */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using TMG.Functions;
 using XTMF;
 
@@ -130,8 +132,8 @@ public abstract class CalibrationTarget : IModule
     /// <summary>
     /// Called after the calibration client has finished running.
     /// </summary>
-    /// <param name="baseRun">True if this is the base position, False if the single parameter has changed.</param>
-    internal abstract void StoreRun(bool baseRun);
+    /// <param name="runIndex">The index of the run as requested by the target, -1 if it is the base run.</param>
+    internal abstract void StoreRun(int runIndex);
 
     /// <summary>
     /// Report the distance to the target
@@ -147,4 +149,14 @@ public abstract class CalibrationTarget : IModule
     {
         return MathF.Max(min, MathF.Min(max, value));
     }
+
+    /// <summary>
+    /// Requests the additional run required to compute the next step for this target.
+    /// </summary>
+    /// <param name="baseParameters">The current position for all of the parameters</param>
+    /// <param name="iteration">The current iteration into the estimation.</param>
+    /// <param name="targetIndex">The index of the parameter this target is computing.</param>
+    /// <returns>A list of runs in addition to the base run to execute.</returns>
+    public abstract IEnumerable<ParameterSetting[]> CreateAdditionalRuns(ParameterSetting[] baseParameters, int iteration, int targetIndex);
+
 }

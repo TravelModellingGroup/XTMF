@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using XTMF;
 
 namespace TMG.Estimation.Calibration;
@@ -53,13 +54,13 @@ public sealed class ScalarTarget : CalibrationTarget
 
     private float _targetValue;
 
-    private float _value1;
+    private float _baseValue;
 
-    private float _value2;
+    private float _stepValue;
 
     public override float UpdateParameter(float currentValue)
     {
-        var derivative = ((_value2 - _value1) / ExploreSize);
+        var derivative = ((_stepValue - _baseValue) / ExploreSize);
 
         // We need to detect if the derivative is flat
 
@@ -72,7 +73,7 @@ public sealed class ScalarTarget : CalibrationTarget
 
         // Step * derivative + value1 = target
         // <=> Step = (target - value1) / derivative
-        var step = (_targetValue - _value1) / derivative;
+        var step = (_targetValue - _baseValue) / derivative;
         var delta = (step * (step < ExploreSize ? 1.0f : LearningRate));
 
         currentValue += ClampValue(delta, -MaximumChange, MaximumChange);
@@ -80,23 +81,23 @@ public sealed class ScalarTarget : CalibrationTarget
         return ClampValue(currentValue, MinimumValue, MaximumValue);
     }
 
-    internal override void StoreRun(bool baseRun)
+    internal override void StoreRun(int runIndex)
     {
         ComputeCurrentValue.LoadData();
-        if (baseRun)
+        if (runIndex < 0)
         {
-            _value1 = ComputeCurrentValue.GiveData();
+            _baseValue = ComputeCurrentValue.GiveData();
         }
         else
         {
-            _value2 = ComputeCurrentValue.GiveData();
+            _stepValue = ComputeCurrentValue.GiveData();
         }
         ComputeCurrentValue.UnloadData();
     }
 
     internal override float ReportTargetDistance()
     {
-        return (_value1 - _targetValue);
+        return (_baseValue - _targetValue);
     }
 
     protected override void LoadTarget()
@@ -114,6 +115,25 @@ public sealed class ScalarTarget : CalibrationTarget
             return false;
         }
         return base.RuntimeValidation(ref error);
+    }
+
+    public override IEnumerable<ParameterSetting[]> CreateAdditionalRuns(ParameterSetting[] baseParameters, int iteration, int targetIndex)
+    {
+        // We need an additional run in order to compute the derivative.
+        var copy = new ParameterSetting[baseParameters.Length];
+        for (int i = 0; i < copy.Length; i++)
+        {
+            copy[i] = new ParameterSetting()
+            {
+                Current = baseParameters[i].Current,
+                Names = baseParameters[i].Names,
+                Minimum = baseParameters[i].Minimum,
+                Maximum = baseParameters[i].Maximum,
+                NullHypothesis = baseParameters[i].NullHypothesis,
+            };
+        }
+        copy[targetIndex].Current += ExploreSize;
+        yield return copy;
     }
 
 }

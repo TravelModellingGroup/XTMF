@@ -18,10 +18,13 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using TMG.Estimation.Calibration;
 using XTMF;
 
+namespace TMG.Estimation.Calibration;
+
+[RedirectModule("ProbabilityTarget, TMG.Estimation, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
 [ModuleInformation(Description = "Used when you want to hit a given target probability.")]
 public sealed class ProbabilityTarget : CalibrationTarget
 {
@@ -34,7 +37,6 @@ public sealed class ProbabilityTarget : CalibrationTarget
     private float _targetProbability;
 
     private float _baseRunProbability;
-    private float _stepProbability;
 
     [SubModelInformation(Required = true, Description = "The target probability")]
     public IDataSource<float> TargetProbability;
@@ -67,17 +69,14 @@ public sealed class ProbabilityTarget : CalibrationTarget
         TargetProbability.UnloadData();
     }
 
-    internal override void StoreRun(bool baseRun)
+    internal override void StoreRun(int runIndex)
     {
+        if(runIndex != -1)
+        {
+            throw new XTMFRuntimeException(this, "Somehow the run index was not equal to -1 even through we did not request any additional runs!");
+        }
         ResultProbability.LoadData();
-        if (baseRun)
-        {
-            _baseRunProbability = ResultProbability.GiveData();
-        }
-        else
-        {
-            _stepProbability = ResultProbability.GiveData();
-        }
+        _baseRunProbability = ResultProbability.GiveData();
         ResultProbability.UnloadData();
     }
 
@@ -94,5 +93,11 @@ public sealed class ProbabilityTarget : CalibrationTarget
             return false;
         }
         return base.RuntimeValidation(ref error);
+    }
+
+    public override IEnumerable<ParameterSetting[]> CreateAdditionalRuns(ParameterSetting[] baseParameters, int iteration, int targetIndex)
+    {
+        // We do not require any additional runs
+        return null;
     }
 }

@@ -90,9 +90,11 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
     private Func<float> _progress = null;
     private Func<string> _status = null;
 
+    private record struct JobTracker(Job Job, int TargetIndex, int RunForTarget);
+
     public void Start()
     {
-        if(JustComputeAgainstTargets)
+        if (JustComputeAgainstTargets)
         {
             MaxIterations = 1;
         }
@@ -110,7 +112,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
         for (; iteration < MaxIterations && !_exit; iteration++)
         {
             // Compute the jobs to run
-            Job[] toRun = ComputeJobsForIteration(position, iteration);
+            JobTracker[] toRun = ComputeJobsForIteration(position, iteration);
             // Execute the jobs and update the Targets
             RunJobs(toRun, iteration);
             // Evaluate the results
@@ -199,95 +201,56 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
         return position;
     }
 
-    private Job[] ComputeJobsForIteration(ParameterSetting[] currentPosition, int iteration)
+    private JobTracker[] ComputeJobsForIteration(ParameterSetting[] currentPosition, int iteration)
     {
-        Job[] jobs;
+
         if (JustComputeAgainstTargets)
         {
-            jobs = new Job[1];
-            jobs[0] = new Job()
+            var jobs = new JobTracker[1];
+            jobs[0] = new JobTracker(new Job()
             {
                 Parameters = currentPosition,
                 Processed = false,
                 ProcessedBy = null,
                 Processing = false,
                 Value = 0
-            };
+            }, -1, -1);
             return jobs;
         }
-        if (ComputeEachDerivativeSeparately)
+        var jobList = new List<JobTracker>();
+        for (int i = 0; i < Targets.Length; i++)
         {
-            jobs = new Job[Targets.Length + 1];
-            for (int i = 0; i < Targets.Length; i++)
+            var additionalJobs = Targets[i].CreateAdditionalRuns(currentPosition, iteration, i);
+            if (additionalJobs is not null)
             {
-                Job job = new()
+                var jobCount = 0;
+                foreach (var parameterSet in additionalJobs)
                 {
-                    Parameters = CreateCopy(currentPosition, i),
-                    Processed = false,
-                    ProcessedBy = null,
-                    Processing = false,
-                    Value = 0
-                };
-                jobs[i] = job;
+                    Job job = new()
+                    {
+                        Parameters = parameterSet,
+                        Processed = false,
+                        ProcessedBy = null,
+                        Processing = false,
+                        Value = 0
+                    };
+                    var jobTracker = new JobTracker(job, i, jobCount);
+                    jobList.Add(jobTracker);
+                    jobCount++;
+                }
             }
         }
-        else
-        {
-            jobs = new Job[2];
-            jobs[0] = new Job()
-            {
-                Parameters = CreateCopyAll(currentPosition),
-                Processed = false,
-                ProcessedBy = null,
-                Processing = false,
-                Value = 0
-            };
-        }
         // The last index is our base
-        jobs[^1] = new Job()
+        var baseJob = new JobTracker(new Job()
         {
             Parameters = currentPosition,
             Processed = false,
             ProcessedBy = null,
             Processing = false,
             Value = 0
-        };
-        return jobs;
-    }
-
-    private ParameterSetting[] CreateCopy(ParameterSetting[] currentPosition, int i)
-    {
-        var copy = new ParameterSetting[currentPosition.Length];
-        var increment = Targets[i].ExploreSize;
-        for (int j = 0; j < currentPosition.Length; j++)
-        {
-            copy[j] = new ParameterSetting()
-            {
-                Current = currentPosition[j].Current + (i == j ? increment : 0.0f),
-                Minimum = currentPosition[j].Minimum,
-                Maximum = currentPosition[j].Maximum,
-                Names = currentPosition[j].Names,
-                NullHypothesis = currentPosition[j].NullHypothesis,
-            };
-        }
-        return copy;
-    }
-
-    private ParameterSetting[] CreateCopyAll(ParameterSetting[] currentPosition)
-    {
-        var copy = new ParameterSetting[currentPosition.Length];
-        for (int j = 0; j < currentPosition.Length; j++)
-        {
-            copy[j] = new ParameterSetting()
-            {
-                Current = currentPosition[j].Current + Targets[j].ExploreSize,
-                Minimum = currentPosition[j].Minimum,
-                Maximum = currentPosition[j].Maximum,
-                Names = currentPosition[j].Names,
-                NullHypothesis = currentPosition[j].NullHypothesis,
-            };
-        }
-        return copy;
+        }, -1, -1);
+        jobList.Add(baseJob);
+        return [.. jobList];
     }
 
     private void ComputeNewPosition(ParameterSetting[] position)
@@ -302,70 +265,34 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
         }
     }
 
-    private void RunJobs(Job[] jobs, int iteration)
-    {
-        if (ComputeEachDerivativeSeparately)
-        {
-            RunJobsSeparately(jobs, iteration);
-        }
-        else
-        {
-            RunJobsTogether(jobs, iteration);
-        }
-    }
-
-    private void RunJobsSeparately(Job[] jobs, int iteration)
+    private void RunJobs(JobTracker[] jobs, int iteration)
     {
         // Run the jobs
         int i = 0;
         _progress = () => ((float)iteration / MaxIterations) + (float)i / (MaxIterations * jobs.Length);
         for (; i < jobs.Length; i++)
         {
-            var jobParameters = jobs[i].Parameters;
+            var targetIndex = jobs[i].TargetIndex;
+            var runForTarget = jobs[i].RunForTarget;
+            var jobParameters = jobs[i].Job.Parameters;
             for (int j = 0; j < jobParameters.Length; j++)
             {
                 Targets[j].SetParameterValue(jobParameters[j].Current);
             }
             Client.Start();
-            if (i < jobs.Length - 1)
+            if (targetIndex > 0)
             {
-                Targets[i].StoreRun(false);
+                Targets[targetIndex].StoreRun(runForTarget);
             }
             else
             {
                 // If this is the base job, store the results for all targets
                 for (int j = 0; j < Targets.Length; j++)
                 {
-                    Targets[j].StoreRun(true);
+                    Targets[j].StoreRun(-1);
                 }
             }
         }
-    }
-
-    private void RunJobsTogether(Job[] jobs, int iteration)
-    {
-        void Run(int jobNumber, bool baseRun)
-        {
-            var jobParameters = jobs[jobNumber].Parameters;
-            for (int j = 0; j < jobParameters.Length; j++)
-            {
-                Targets[j].SetParameterValue(jobParameters[j].Current);
-            }
-            Client.Start();
-            for (int j = 0; j < Targets.Length; j++)
-            {
-                Targets[j].StoreRun(baseRun);
-            }
-        }
-
-        int i = 0;
-        _progress = () => ((float)iteration / MaxIterations) + (float)i / (MaxIterations * jobs.Length);
-        // Run the step
-        Run(0, false);
-        i = 1;
-        // Run the base
-        Run(1, true);
-        i = 2;
     }
 
     public string Name { get; set; } = string.Empty;
