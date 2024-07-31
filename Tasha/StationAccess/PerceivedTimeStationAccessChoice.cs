@@ -495,7 +495,7 @@ public class PerceivedTimeStationAccessChoice : IAccessStationChoiceModel
                 var parkingEnd = second.ActivityStartTime;
                 for (int i = 0; i < utilities.Length; i++)
                 {
-                    utilities[i] *= (float)Math.Exp(firstTimePeriod.ParkingCost * _parkingModel.ComputeParkingCost(parkingStart, parkingEnd, AccessZoneIndexes[i]));
+                    utilities[i] *= MathF.Exp(firstTimePeriod.ParkingCost * _parkingModel.ComputeParkingCost(parkingStart, parkingEnd, AccessZoneIndexes[i]));
                 }
             }
             return new Pair<IZone[], float[]>(AccessZones, utilities);
