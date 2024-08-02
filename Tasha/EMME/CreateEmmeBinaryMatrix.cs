@@ -57,6 +57,8 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
 
     private int HouseholdIterations = 1;
 
+    private record struct Entry(float ExpansionFactor, int FlatOrigin, int FlatDestination);
+
     public void HouseholdComplete(ITashaHousehold household, bool success)
     {
 
@@ -77,6 +79,26 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
 
     public void Execute(ITashaHousehold household, int iteration)
     {
+        Span<Entry> entries = stackalloc Entry[16];
+        int numberOfEntries = 0;
+
+        void AddToMatrix(Span<Entry> entries, float expFactor, Time startTime, IZone origin, IZone destination)
+        {
+            // Make sure that we are always in the positive time bin space, even if it takes 2 days.
+            if (startTime >= StartTime && startTime < EndTime)
+            {
+                return;
+            }
+            var flatOrigin = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
+            var flatDestination = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
+            entries[numberOfEntries++] = new Entry(expFactor, flatOrigin, flatDestination);
+            if (numberOfEntries == entries.Length)
+            {
+                StoreEntries(entries);
+                numberOfEntries = 0;
+            }
+        }
+
         var persons = household.Persons;
         for (int i = 0; i < persons.Length; i++)
         {
@@ -100,7 +122,7 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
                     var modeChosen = trips[k].Mode;
                     if (UsesMode(modeChosen))
                     {
-                        AddToMatrix(expFactor, startTime, trips[k].OriginalZone, trips[k].DestinationZone);
+                        AddToMatrix(entries, expFactor, startTime, trips[k].OriginalZone, trips[k].DestinationZone);
                     }
                     else
                     {
@@ -110,7 +132,7 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
                             {
                                 if (AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out IZone origin, out IZone destination))
                                 {
-                                    AddToMatrix(expFactor, startTime, origin, destination);
+                                    AddToMatrix(entries, expFactor, startTime, origin, destination);
                                 }
                                 access = false;
                             }
@@ -119,6 +141,22 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
                 }
             }
         }
+        if (numberOfEntries > 0)
+        {
+            StoreEntries(entries.Slice(0, numberOfEntries));
+        }
+    }
+
+    private void StoreEntries(ReadOnlySpan<Entry> toWrite)
+    {
+        bool taken = false;
+        WriteLock.Enter(ref taken);
+        foreach (var entry in toWrite)
+        {
+            var row = Matrix[entry.FlatOrigin];
+            row[entry.FlatDestination] += entry.ExpansionFactor;
+        }
+        WriteLock.Exit(true);
     }
 
     private void AddToMatrix(float expFactor, Time startTime, IZone origin, IZone destination)

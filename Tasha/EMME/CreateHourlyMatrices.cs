@@ -88,7 +88,7 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
 
     public void Execute(ITashaHousehold household, int iteration)
     {
-        Span<Entry> entries = stackalloc Entry[50];
+        Span<Entry> entries = stackalloc Entry[16];
         int numberOfEntries = 0;
 
         void AddToMatrix(Span<Entry> entries, float expFactor, Time startTime, IZone origin, IZone destination)
@@ -98,7 +98,7 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
             var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
             var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
             entries[numberOfEntries++] = new Entry(expFactor, timeBin, originIndex, destinationIndex);
-            if(numberOfEntries == entries.Length)
+            if (numberOfEntries == entries.Length)
             {
                 StoreEntries(entries);
                 numberOfEntries = 0;
@@ -152,14 +152,14 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
 
     private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        lock (this)
+        bool taken = false;
+        WriteLock.Enter(ref taken);
+        foreach (var entry in toWrite)
         {
-            foreach (var entry in toWrite)
-            {
-                var row = Matrix[entry.TimeBin][entry.FlatOrigin];
-                row[entry.FlatDestination] += entry.ExpansionFactor;
-            }
+            var row = Matrix[entry.TimeBin][entry.FlatOrigin];
+            row[entry.FlatDestination] += entry.ExpansionFactor;
         }
+        WriteLock.Exit(true);
     }
 
     public sealed class ModeLink : IModule

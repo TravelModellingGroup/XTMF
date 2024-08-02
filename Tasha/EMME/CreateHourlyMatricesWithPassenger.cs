@@ -74,7 +74,7 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
 
     public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
     {
-        Span<Entry> entries = stackalloc Entry[50];
+        Span<Entry> entries = stackalloc Entry[16];
         int numberOfEntries = 0;
 
         void AddToMatrix(Span<Entry> entries, Time startTime, float expFactor, int flatOrigin, int flatDestination)
@@ -175,14 +175,14 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
 
     private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        lock (this)
+        bool taken = false;
+        WriteLock.Enter(ref taken);
+        foreach (var entry in toWrite)
         {
-            foreach (var entry in toWrite)
-            {
-                var row = Matrix[entry.TimeBin][entry.FlatOrigin];
-                row[entry.FlatDestination] += entry.ExpansionFactor;
-            }
+            var row = Matrix[entry.TimeBin][entry.FlatOrigin];
+            row[entry.FlatDestination] += entry.ExpansionFactor;
         }
+        WriteLock.Exit(true);
     }
 
     public sealed class ModeLink : IModule
