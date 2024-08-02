@@ -21,6 +21,7 @@ using Datastructure;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Tasha.Common;
 using TMG;
 using XTMF;
@@ -73,6 +74,9 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         [SubModelInformation(Required = false, Description = "The income values to use.")]
         public Category[] Incomes;
 
+        [SubModelInformation(Required = false, Description = "Dwelling Types to use.")]
+        public Category[] Dwelling = null!;
+
         private SparseArray<float> _zoneUtility = null!;
 
         [ModuleInformation(Description = "Provides a general way of giving a constant for a particular number of something coming from the household.")]
@@ -118,7 +122,7 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
             }
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         internal float GetUtility(ref NodeData nodeData)
         {
             var v = (_zoneUtility?.GetFlatData()[nodeData.FlatTAZ]) ?? 0f;
@@ -129,6 +133,7 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
                 + (B_FTWorkers * nodeData.FTWorkers)
                 + GetLookup(DriverLicenses, nodeData.DriverLicenses)
                 + GetLookup(Incomes, nodeData.IncomeClass)
+                + GetLookup(Dwelling, nodeData.DwellingType)
                 + B_PopulationDensity * nodeData.PopulationDensity
                 ;
 
@@ -177,7 +182,8 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
     /// <param name="AverageWorkSchoolTPTT">The average TPVTT to get to work or school.</param>
     /// <param name="AverageWorkSchoolDistance">The average distance (km) to get to work or school.</param>
     internal record struct NodeData
-        (int FlatTAZ, int IncomeClass, int DriverLicenses, float FTWorkers, float AverageWorkSchoolAIVTT, float AverageWorkSchoolTPTT, float AverageWorkSchoolDistance, float PopulationDensity);
+        (int FlatTAZ, int IncomeClass, int DriverLicenses, float FTWorkers, float AverageWorkSchoolAIVTT,
+        float AverageWorkSchoolTPTT, float AverageWorkSchoolDistance, float PopulationDensity, int DwellingType);
 
     [SubModelInformation(Required = true, Description = "The different options for the number of vehicles to generate.")]
     public AutoNode[] Nodes = null!;
@@ -273,6 +279,7 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
             AverageWorkSchoolDistance = distance,
             IncomeClass = data.IncomeClass,
             PopulationDensity = _populationDensity[flatHouseholdZone],
+            DwellingType = (int)data.DwellingType,
         };
 
         // Note: The number of auto nodes will be very small so this is safe
