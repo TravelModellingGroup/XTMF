@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+using System.Threading.Tasks;
 
 namespace TMG.Functions;
 
@@ -738,6 +739,33 @@ public static partial class VectorHelper
             }
             return remainderSum;
         }
+    }
+
+    /// <summary>
+    /// Multiplies two-dimensional float arrays element-wise and returns the sum of the products.
+    /// </summary>
+    /// <param name="first">The first two-dimensional float array.</param>
+    /// <param name="second">The second two-dimensional float array.</param>
+    /// <returns>The sum of the products of the two arrays.</returns>
+    public static float MultiplyAndSum(float[][] first, float[][] second)
+    {
+        object lockObject = new();
+        float ret = 0.0f;
+        Parallel.For(0, first.Length,
+            () => 0f,
+            (i, _, local) =>
+            {
+                local += MultiplyAndSum(first[i], 0, second[i], 0, first.Length);
+                return local;
+            },
+            (local) =>
+            {
+                lock (lockObject)
+                {
+                    ret += local;
+                }
+            });
+        return ret;
     }
 
     /// <summary>

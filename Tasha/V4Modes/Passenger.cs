@@ -295,7 +295,7 @@ public sealed class Passenger : ITashaPassenger, IIterationSensitive
             + autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones) + 1]
             + autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones) + 1])
             + (_parkingModel == null ? driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, timeToNextTrip)
-             : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromMinutes(timeToNextTrip), driverDestination))
+             : _parkingModel.ComputeParkingCost(driverOriginalTrip.ActivityStartTime, driverOriginalTrip.ActivityStartTime + Time.FromHours(timeToNextTrip), driverDestination))
             ) * costFactor;
         switch(passengerTrip.Purpose)
         {

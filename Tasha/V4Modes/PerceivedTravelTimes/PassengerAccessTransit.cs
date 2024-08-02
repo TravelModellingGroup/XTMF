@@ -1,8 +1,28 @@
-﻿using Datastructure;
+﻿/*
+    Copyright 2019-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using Datastructure;
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Tasha.Common;
 using TMG;
+using TMG.Functions;
 using XTMF;
 
 namespace Tasha.V4Modes.PerceivedTravelTimes;
@@ -29,6 +49,12 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
 
     [RunParameter("OtherFlag", 0f, "Added to the utility if the trip's purpose is 'other'.")]
     public float OtherFlag;
+
+    [RunParameter("SchoolFlag", 0f, "Added to the utility if the trip's purpose is 'School'.")]
+    public float SchoolFlag;
+
+    [RunParameter("WorkFlag", 0f, "Added to the utility if the trip's purpose is a type of work.")]
+    public float WorkFlag;
 
     [RunParameter("ProfessionalTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
     public float ProfessionalCostFactor;
@@ -179,6 +205,14 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
             case Activity.Home:
                 v += ZonalDensityForHomeArray[d];
                 break;
+            case Activity.School:
+                v += SchoolFlag + ZonalDensityForActivitiesArray[d];
+                break;
+            case Activity.PrimaryWork:
+            case Activity.SecondaryWork:
+            case Activity.WorkBasedBusiness:
+                v += WorkFlag + ZonalDensityForActivitiesArray[d];
+                break;
             default:
                 v += ZonalDensityForActivitiesArray[d];
                 break;
@@ -199,16 +233,12 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
         if (choices != null)
         {
             var p = choices.Second;
-            for (int i = 0; i < p.Length; i++)
-            {
-                if (p[i] > 0f)
-                {
-                    return true;
-                }
-            }
+            return VectorHelper.AnyGreaterThan(p, 0, 0f, p.Length);
         }
         return false;
     }
+
+    private int[] StationIndexLookup;
 
     private bool ComputeExpectedTravelTimes(Pair<IZone[], float[]> choices, int o, int d, Time activityStartTime,
         out float autoTime, out float tppt, out float cost)
@@ -218,7 +248,7 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
         float a = 0f, t = 0f, c = 0f;
         var auto = AutoNetwork.GetTimePeriodData(activityStartTime);
         var transit = TransitNetwork.GetTimePeriodData(activityStartTime);
-        var zones = _zones.GetFlatData();
+        var numberOfZones = _zones.GetFlatData().Length;
         if (auto == null || transit == null)
         {
             autoTime = 0;
@@ -226,13 +256,14 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
             cost = 0;
             return false;
         }
+        var stationIndexLookup = StationIndexLookup ?? CreateStationIndexLookup(stnZones);
         if (AutoAccess)
         {
             for (int stn = 0; stn < stnZones.Length; stn++)
             {
-                var s = _zones.GetFlatIndex(stnZones[stn].ZoneNumber);
-                var aIndex = (o * zones.Length + s) * 2;
-                var tIndex = (s * zones.Length + d) * 5;
+                var s = stationIndexLookup[stn];
+                var aIndex = (o * numberOfZones + s) * 2;
+                var tIndex = (s * numberOfZones + d) * 5;
                 a += auto[aIndex] * stnProb[stn];
                 t += transit[tIndex + 4] * stnProb[stn];
                 c += (auto[aIndex + 1] + transit[tIndex + 3]) * stnProb[stn];
@@ -242,9 +273,9 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
         {
             for (int stn = 0; stn < stnZones.Length; stn++)
             {
-                var s = _zones.GetFlatIndex(stnZones[stn].ZoneNumber);
-                var tIndex = (o * zones.Length + s) * 5;
-                var aIndex = (s * zones.Length + d) * 2;
+                var s = stationIndexLookup[stn];
+                var tIndex = (o * numberOfZones + s) * 5;
+                var aIndex = (s * numberOfZones + d) * 2;
                 a += auto[aIndex] * stnProb[stn];
                 t += transit[tIndex + 4] * stnProb[stn];
                 c += (auto[aIndex + 1] + transit[tIndex + 3]) * stnProb[stn];
@@ -254,6 +285,22 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
         tppt = t;
         cost = c;
         return true;
+    }
+
+    private int[] CreateStationIndexLookup(IZone[] stationZones)
+    {
+        lock (this)
+        {
+            // Do a second check just in case the
+            // StationIndexLookup was created while we were waiting for the lock
+            if (StationIndexLookup is not null)
+            {
+                return StationIndexLookup;
+            }
+            var lookup = stationZones.Select(z => _zones.GetFlatIndex(z.ZoneNumber)).ToArray();
+            StationIndexLookup = lookup;
+            return lookup;
+        }
     }
 
     public float CalculateV(IZone origin, IZone destination, Time time)

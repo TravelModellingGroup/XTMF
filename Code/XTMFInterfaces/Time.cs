@@ -125,6 +125,11 @@ public struct Time : IComparable<Time>
         return new Time() { InternalTime = (long)(result * 60000.0f) };
     }
 
+    public static Time FromHours(float hours)
+    {
+        return new Time() { InternalTime = (long)(hours * (60 * 60000.0f)) };
+    }
+
     public static implicit operator DateTime(Time t)
     {
         return new DateTime(0, 0, 0, t.Hours, t.Minutes, t.Seconds, 0);
@@ -605,4 +610,5 @@ public struct Time : IComparable<Time>
             return String.Format("{0}:{1:00}:{2:00}", Hours, Minutes, Seconds);
         }
     }
+
 }
