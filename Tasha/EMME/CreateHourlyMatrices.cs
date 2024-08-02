@@ -73,8 +73,38 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
 
     }
 
+    private record struct Entry(float ExpansionFactor, int TimeBin, int FlatOrigin, int FlatDestination);
+
+    /// <summary>
+    /// Provides a modulo operation that works correctly for negative numbers.
+    /// </summary>
+    /// <param name="number">The numerator</param>
+    /// <param name="divisor">The denominator.</param>
+    /// <returns>The modulo of the number, if negative it wraps around back into the positive domain.</returns>
+    private static int SafeMod(int numerator, int denominator)
+    {
+        return ((numerator %= denominator) < 0) ? numerator + denominator : numerator;
+    }
+
     public void Execute(ITashaHousehold household, int iteration)
     {
+        Span<Entry> entries = stackalloc Entry[16];
+        int numberOfEntries = 0;
+
+        void AddToMatrix(Span<Entry> entries, float expFactor, Time startTime, IZone origin, IZone destination)
+        {
+            // Make sure that we are always in the positive time bin space, even if it takes 2 days.
+            var timeBin = SafeMod(((int)startTime.ToMinutes() / 60) + 48, 24);
+            var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
+            var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
+            entries[numberOfEntries++] = new Entry(expFactor, timeBin, originIndex, destinationIndex);
+            if (numberOfEntries == entries.Length)
+            {
+                StoreEntries(entries);
+                numberOfEntries = 0;
+            }
+        }
+
         var persons = household.Persons;
         for (int i = 0; i < persons.Length; i++)
         {
@@ -94,7 +124,7 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
                     var modeChosen = trips[k].Mode;
                     if (UsesMode(modeChosen))
                     {
-                        AddToMatrix(expFactor, startTime, trips[k].OriginalZone, trips[k].DestinationZone);
+                        AddToMatrix(entries, expFactor, startTime, trips[k].OriginalZone, trips[k].DestinationZone);
                     }
                     else
                     {
@@ -104,7 +134,7 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
                             {
                                 if (AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out IZone origin, out IZone destination))
                                 {
-                                    AddToMatrix(expFactor, startTime, origin, destination);
+                                    AddToMatrix(entries, expFactor, startTime, origin, destination);
                                 }
                                 access = false;
                             }
@@ -113,23 +143,23 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
                 }
             }
         }
+        // If there are any entries left, store them.
+        if (numberOfEntries > 0)
+        {
+            StoreEntries(entries[..numberOfEntries]);
+        }
     }
 
-    private void AddToMatrix(float expFactor, Time startTime, IZone origin, IZone destination)
+    private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        // Make sure that we are always in the positive time bin space, even if it takes 2 days.
-        var timeBin = (((int)startTime.ToMinutes() / 60) + 48) % 24;
-        var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
-        var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
-        while(timeBin < 0)
+        bool taken = false;
+        WriteLock.Enter(ref taken);
+        foreach (var entry in toWrite)
         {
-            timeBin += 24;
+            var row = Matrix[entry.TimeBin][entry.FlatOrigin];
+            row[entry.FlatDestination] += entry.ExpansionFactor;
         }
-        var row = Matrix[timeBin][originIndex];
-        bool gotLock = false;
-        WriteLock.Enter(ref gotLock);
-        row[destinationIndex] += expFactor;
-        if (gotLock) WriteLock.Exit(true);
+        WriteLock.Exit(true);
     }
 
     public sealed class ModeLink : IModule

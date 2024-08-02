@@ -60,8 +60,28 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
 
     private int HouseholdIterations = 1;
 
+    private record struct Entry(float ExpansionFactor, int FlatOrigin, int FlatDestination);
+
     public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
     {
+        Span<Entry> entries = stackalloc Entry[16];
+        int numberOfEntries = 0;
+
+        void AddToMatrix(Span<Entry> entries, Time startTime, float expFactor, int flatOrigin, int flatDestination)
+        {
+            // Make sure that we are always in the positive time bin space, even if it takes 2 days.
+            if (startTime >= StartTime && startTime < EndTime)
+            {
+                return;
+            }
+            entries[numberOfEntries++] = new Entry(expFactor, flatOrigin, flatDestination);
+            if (numberOfEntries == entries.Length)
+            {
+                StoreEntries(entries);
+                numberOfEntries = 0;
+            }
+        }
+
         // Gather the number of household iterations
         HouseholdIterations = totalHouseholdIterations;
         // now execute
@@ -106,18 +126,18 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
                             // subtract out the old data
                             if (IsDriverAlreadyOnRoad(driversTrip))
                             {
-                                AddToMatrix(startTime, -driverExpansionFactor, driverOrigin, driverDestination);
+                                AddToMatrix(entries, startTime, -driverExpansionFactor, driverOrigin, driverDestination);
                             }
                             // add in our 3 trip leg data
                             if (driverOrigin != passengerOrigin)
                             {
                                 // this really is driver on joint
-                                AddToMatrix(startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
+                                AddToMatrix(entries, startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
                             }
-                            AddToMatrix(startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
+                            AddToMatrix(entries, startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
                             if (passengerDestination != driverDestination)
                             {
-                                AddToMatrix(startTime, driverExpansionFactor, passengerDestination, driverDestination);
+                                AddToMatrix(entries, startTime, driverExpansionFactor, passengerDestination, driverDestination);
                             }
                         }
                     }
@@ -127,7 +147,7 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
                         {
                             var originIndex = GetFlatIndex(origin);
                             var destinationIndex = GetFlatIndex(destination);
-                            AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
+                            AddToMatrix(entries, startTime, expFactor, originIndex, destinationIndex);
                         }
                         initialAccessTrip = false;
                     }
@@ -135,7 +155,7 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
                     {
                         var originIndex = GetFlatIndex(trips[k].OriginalZone);
                         var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
-                        AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
+                        AddToMatrix(entries, startTime, expFactor, originIndex, destinationIndex);
                     }
                 }
             }
@@ -150,17 +170,16 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
         return driversTrip.TripChain.Trips.Count > 1;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AddToMatrix(Time startTime, float expFactor, int originIndex, int destinationIndex)
+    private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        if (startTime >= StartTime & startTime < EndTime)
+        bool taken = false;
+        WriteLock.Enter(ref taken);
+        foreach (var entry in toWrite)
         {
-            var row = Matrix[originIndex];
-            bool gotLock = false;
-            WriteLock.Enter(ref gotLock);
-            row[destinationIndex] += expFactor;
-            if (gotLock) WriteLock.Exit(true);
+            var row = Matrix[entry.FlatOrigin];
+            row[entry.FlatDestination] += entry.ExpansionFactor;
         }
+        WriteLock.Exit(true);
     }
 
     public sealed class ModeLink : IModule
