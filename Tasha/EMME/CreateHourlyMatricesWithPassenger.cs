@@ -59,8 +59,36 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
 
     private int HouseholdIterations = 1;
 
+    private record struct Entry(float ExpansionFactor, int TimeBin, int FlatOrigin, int FlatDestination);
+
+    /// <summary>
+    /// Provides a modulo operation that works correctly for negative numbers.
+    /// </summary>
+    /// <param name="number">The numerator</param>
+    /// <param name="divisor">The denominator.</param>
+    /// <returns>The modulo of the number, if negative it wraps around back into the positive domain.</returns>
+    private static int SafeMod(int numerator, int denominator)
+    {
+        return ((numerator %= denominator) < 0) ? numerator + denominator : numerator;
+    }
+
     public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
     {
+        Span<Entry> entries = stackalloc Entry[50];
+        int numberOfEntries = 0;
+
+        void AddToMatrix(Span<Entry> entries, Time startTime, float expFactor, int flatOrigin, int flatDestination)
+        {
+            // Make sure that we are always in the positive time bin space, even if it takes 2 days.
+            var timeBin = SafeMod((((int)startTime.ToMinutes() / 60) + 48), 24);
+            entries[numberOfEntries++] = new Entry(expFactor, timeBin, flatOrigin, flatDestination);
+            if (numberOfEntries == entries.Length)
+            {
+                StoreEntries(entries);
+                numberOfEntries = 0;
+            }
+        }
+
         // Gather the number of household iterations
         HouseholdIterations = totalHouseholdIterations;
         // now execute
@@ -101,18 +129,18 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
                             // subtract out the old data
                             if (IsDriverAlreadyOnRoad(driversTrip))
                             {
-                                AddToMatrix(driverStartTime, -driverExpansionFactor, driverOrigin, driverDestination);
+                                AddToMatrix(entries, driverStartTime, -driverExpansionFactor, driverOrigin, driverDestination);
                             }
                             // add in our 3 trip leg data
                             if (driverOrigin != passengerOrigin)
                             {
                                 // this really is driver on joint
-                                AddToMatrix(startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
+                                AddToMatrix(entries, startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
                             }
-                            AddToMatrix(startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
+                            AddToMatrix(entries, startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
                             if (passengerDestination != driverDestination)
                             {
-                                AddToMatrix(startTime, driverExpansionFactor, passengerDestination, driverDestination);
+                                AddToMatrix(entries, startTime, driverExpansionFactor, passengerDestination, driverDestination);
                             }
                         }
                     }
@@ -122,7 +150,7 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
                         {
                             var originIndex = GetFlatIndex(origin);
                             var destinationIndex = GetFlatIndex(destination);
-                            AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
+                            AddToMatrix(entries, startTime, expFactor, originIndex, destinationIndex);
                         }
                         initialAccessTrip = false;
                     }
@@ -130,7 +158,7 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
                     {
                         var originIndex = GetFlatIndex(trips[k].OriginalZone);
                         var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
-                        AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
+                        AddToMatrix(entries, startTime, expFactor, originIndex, destinationIndex);
                     }
                 }
             }
@@ -145,16 +173,16 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
         return driversTrip.TripChain.Trips.Count > 1;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AddToMatrix(Time startTime, float expFactor, int originIndex, int destinationIndex)
+    private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        var timeBin = (((int)startTime.ToMinutes() / 60) + 24) % 24;
-        var row = Matrix[timeBin][originIndex];
-        bool gotLock = false;
-        WriteLock.Enter(ref gotLock);
-        row[destinationIndex] += expFactor;
-        if (gotLock) WriteLock.Exit(true);
-
+        lock (this)
+        {
+            foreach (var entry in toWrite)
+            {
+                var row = Matrix[entry.TimeBin][entry.FlatOrigin];
+                row[entry.FlatDestination] += entry.ExpansionFactor;
+            }
+        }
     }
 
     public sealed class ModeLink : IModule
