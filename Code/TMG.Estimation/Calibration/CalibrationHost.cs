@@ -280,7 +280,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
                 Targets[j].SetParameterValue(jobParameters[j].Current);
             }
             Client.Start();
-            if (targetIndex > 0)
+            if (targetIndex >= 0)
             {
                 Targets[targetIndex].StoreRun(runForTarget);
             }
