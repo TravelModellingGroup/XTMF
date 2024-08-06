@@ -58,10 +58,6 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
     [RunParameter("Just Compute Against Targets", false, "Instead of doing a full run instead just run the parameters as they are and compare against the targets.")]
     public bool JustComputeAgainstTargets;
 
-    [RunParameter("Compute Each Derivative Separately", true, "If you are calibrating many parameters at the same time flip this to false " +
-        " so we approximate the derivative all at the same time.")]
-    public bool ComputeEachDerivativeSeparately;
-
     public string OutputBaseDirectory { get; set; }
 
     public bool ExitRequest()
