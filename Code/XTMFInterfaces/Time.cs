@@ -51,7 +51,7 @@ public struct Time : IComparable<Time>
 
     public Time(DateTime time)
     {
-        InternalTime = ((60 * (60 * time.Hour) + time.Minute) + time.Second) * 1000 + time.Millisecond;
+        InternalTime = ((60 * (60 * time.Hour + time.Minute)) + time.Second) * 1000 + time.Millisecond;
     }
 
     /// <summary>

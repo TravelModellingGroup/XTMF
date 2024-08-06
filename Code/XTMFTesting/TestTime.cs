@@ -300,6 +300,25 @@ public class TestTime
         CheckTime(t, 10, 0, 30);
     }
 
+    [TestMethod]
+    public void TestConvertFromDateTime()
+    {
+        var time = new DateTime(1, 1, 1, 22, 11, 3);
+        var convertedTime = time;
+        if (convertedTime.Hour != 22)
+        {
+            Assert.Fail("The hour was not 22!");
+        }
+        if (convertedTime.Minute != 11)
+        {
+            Assert.Fail("The minute was not 11!");
+        }
+        if (convertedTime.Second != 3)
+        {
+            Assert.Fail("The second was not 3!");
+        }
+    }
+
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private void CheckTime(Time time, int hours, int minutes, int seconds)
     {
