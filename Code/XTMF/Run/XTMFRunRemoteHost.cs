@@ -283,12 +283,94 @@ sealed class XTMFRunRemoteHost : XTMFRun
             }
             using var stream = new MemoryStream(msText);
             var mss = ModelSystemStructure.Load(stream, Configuration);
-            SendProjectSaved(mss as ModelSystemStructure);
+            var numberOfLinkedParameters = reader.ReadInt32();
+            List<ILinkedParameter> linkedParameters = new(numberOfLinkedParameters);
+            for (int i = 0; i < numberOfLinkedParameters; i++)
+            {
+                string name = reader.ReadString();
+                var lp = new LinkedParameter(name);
+                string error = null;
+                lp.SetValue(reader.ReadString(), ref error);
+
+                int numberOfReferences = reader.ReadInt32();
+                for (int j = 0; j < numberOfReferences; j++)
+                {
+                    string referenceName = reader.ReadString();
+                    var parameter = GetParameter(mss, referenceName);
+                    if (parameter is not null)
+                    {
+                        lp.Add(parameter, ref error);
+                    }
+                }
+                linkedParameters.Add(lp);
+                SendProjectSaved(mss as ModelSystemStructure, linkedParameters);
+            }
         }
         catch (Exception e)
         {
             SendRunMessage(e.Message + "\r\n" + e.StackTrace);
         }
+    }
+
+    private IModuleParameter GetParameter(IModelSystemStructure mss, string referenceName)
+    {
+        ReadOnlySpan<char> current = referenceName;
+        while (!current.IsEmpty)
+        {
+            var index = current.IndexOf('.');
+            if (index >= 0)
+            {
+                // If we should be looking for a child
+                var moduleName = current.Slice(0, index);
+                if (mss.IsCollection)
+                {
+                    if (!int.TryParse(moduleName, out int moduleIndex)
+                        || moduleIndex < 0
+                        || mss.Children.Count <= moduleIndex)
+                    {
+                        return null;
+                    }
+                    mss = mss.Children[moduleIndex];
+                }
+                else
+                {
+                    bool found = false;
+                    foreach (var child in mss.Children)
+                    {
+                        if (moduleName.SequenceEqual(child.ParentFieldName))
+                        {
+                            mss = child;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        return null;
+                    }
+                }
+            }
+            else
+            {
+                // If we should be looking for the parameter
+                var parameters = mss.Parameters?.Parameters;
+                if (parameters is null)
+                {
+                    return null;
+                }
+                foreach (var parameter in parameters)
+                {
+                    if (current.SequenceEqual(parameter.Name))
+                    {
+                        return parameter;
+                    }
+                }
+                return null;
+            }
+            // Step into the next part of the reference
+            current = current[(index + 1)..];
+        }
+        return null;
     }
 
     private static List<ErrorWithPath> ReadErrors(BinaryReader reader)

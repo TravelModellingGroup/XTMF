@@ -605,14 +605,15 @@ public sealed partial class Project : IProject
     /// </summary>
     /// <param name="modelSystemIndex"></param>
     /// <param name="newMSS"></param>
-    public void UpdateModelSystemStructure(int modelSystemIndex, ModelSystemStructure newMSS)
+    public void UpdateModelSystemStructure(int modelSystemIndex, ModelSystemStructure newMSS, List<ILinkedParameter> linkedParameters)
     {
         if (modelSystemIndex < 0 || modelSystemIndex >= ProjectModelSystems.Count)
         {
             throw new ArgumentOutOfRangeException(nameof(modelSystemIndex));
         }
-
+        // Fix the linked parameters before swapping in the new model system structure
         ProjectModelSystems[modelSystemIndex].Root = newMSS;
+        ProjectModelSystems[modelSystemIndex].LinkedParameters = linkedParameters;
     }
 
     /// <summary>
@@ -1589,8 +1590,13 @@ public sealed partial class Project : IProject
         return true;
     }
 
-
-    private string LookupName(IModuleParameter reference, IModelSystemStructure current)
+    /// <summary>
+    /// Get the path for a given parameter
+    /// </summary>
+    /// <param name="reference">The parameter to find.</param>
+    /// <param name="current">The starting point in the model system to refer from.</param>
+    /// <returns>The path to the parameter separated by periods.</returns>
+    public static string LookupName(IModuleParameter reference, IModelSystemStructure current)
     {
         var param = current.Parameters;
         if (param != null)

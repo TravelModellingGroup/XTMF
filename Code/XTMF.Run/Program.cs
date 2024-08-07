@@ -217,14 +217,34 @@ class Program
                 });
                 messageQueue.CompleteAdding();
             };
-            run.ProjectSavedByRun += (_, _2) =>
+            run.ProjectSavedByRun += (_, _2, _3) =>
             {
                 WriteMessageToStream(messageQueue, (writer) =>
                 {
                     writer.Write((Int32)ToHost.ProjectSaved);
                     writer.Flush();
-                    run.ModelSystemStructureModelRoot.Save(writer.BaseStream);
+                    var root = run.ModelSystemStructureModelRoot;
+                    root.Save(writer.BaseStream);
+                    // Make sure everything is synchronized
                     writer.BaseStream.Flush();
+                    writer.Flush();
+                    // Write out the linked paramters
+                    var lps = run.LinkedParameters;
+                    writer.Write(lps.Count);
+                    StringBuilder sb = new();
+                    foreach (var lp in lps)
+                    {
+                        writer.Write(lp.Name);
+                        writer.Write(lp.Value);
+                        var references = lp.Parameters;
+                        writer.Write(references.Count);
+                        foreach (var reference in references)
+                        {
+                            var name = Project.LookupName(reference, root.RealModelSystemStructure);
+                            writer.Write(name);
+                        }
+                    }
+                    writer.Flush();
                 });
             };
             run.RunCompleted += () =>

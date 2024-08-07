@@ -51,6 +51,11 @@ public abstract class XTMFRun : IDisposable
     /// </summary>
     public ModelSystemStructureModel ModelSystemStructureModelRoot { get; protected set; }
 
+    /// <summary>
+    /// The linked parameters that are currently being used
+    /// </summary>
+    public List<ILinkedParameter> LinkedParameters { get; protected set; }
+
     public string RunDirectory { get; private set; }
 
     public abstract bool RunsRemotely { get; }
@@ -180,7 +185,7 @@ public abstract class XTMFRun : IDisposable
     /// <summary>
     /// An event the fires when the running project has saved itself
     /// </summary>
-    public event Action<XTMFRun, ModelSystemStructure> ProjectSavedByRun;
+    public event Action<XTMFRun, ModelSystemStructure, List<ILinkedParameter>> ProjectSavedByRun;
 
     /// <summary>
     /// Attempt to ask the model system to exit.
@@ -375,8 +380,8 @@ public abstract class XTMFRun : IDisposable
         }
     }
 
-    protected void SendProjectSaved(ModelSystemStructure mss)
+    protected void SendProjectSaved(ModelSystemStructure mss, List<ILinkedParameter> linkedParameters)
     {
-        ProjectSavedByRun?.Invoke(this, mss);
+        ProjectSavedByRun?.Invoke(this, mss, linkedParameters);
     }
 }

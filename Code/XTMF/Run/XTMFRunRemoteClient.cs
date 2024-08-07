@@ -46,7 +46,7 @@ sealed class XTMFRunRemoteClient : XTMFRun
             ((ProjectRepository)(configuration.ProjectRepository)).SetActiveProject(temp);
             temp.ExternallySaved += (o, e) =>
             {
-                SendProjectSaved(null);
+                SendProjectSaved(null, null);
             };
             var msAsBytes = Encoding.Unicode.GetBytes(modelSystemString);
             memStream.Write(msAsBytes, 0, msAsBytes.Length);
@@ -56,6 +56,7 @@ sealed class XTMFRunRemoteClient : XTMFRun
             _Root = (ModelSystemStructure)mss;
             _linkedParameters = LoadLinkedParameters(_Root, memStream);
             temp.AddModelSystem(_Root, _linkedParameters, String.Empty);
+            LinkedParameters = _linkedParameters;
         }
         catch (Exception e)
         {
