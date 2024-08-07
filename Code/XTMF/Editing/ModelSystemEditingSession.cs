@@ -344,10 +344,10 @@ public sealed class ModelSystemEditingSession : IDisposable
                                 : XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
                                     Runtime.Configuration, runName, overwrite);
                     }
-                    run.ProjectSavedByRun += (theRun, newMSS) =>
+                    run.ProjectSavedByRun += (theRun, newMSS, linkedParameters) =>
                     {
                         string e = null;
-                        ProjectEditingSession.Project.UpdateModelSystemStructure(_ModelSystemIndex, newMSS);
+                        ProjectEditingSession.Project.UpdateModelSystemStructure(_ModelSystemIndex, newMSS, linkedParameters);
                         ProjectEditingSession.Project.Save(ref e);
                         Reload();
                         ProjectWasExternallySaved?.Invoke(this, new ProjectWasExternallySavedEventArgs(ModelSystemModel));
