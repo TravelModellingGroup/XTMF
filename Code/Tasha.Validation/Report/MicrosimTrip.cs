@@ -57,9 +57,20 @@ internal sealed class MicrosimTrip
     /// The zone number of where the trip ends
     /// </summary>
     internal readonly int DestinationZone;
-    // Ignore weight
+    
+    // Ignore Weight
 
-    private MicrosimTrip(int householdID, int personID, int tripID, string originPurpose, int originZone, string destinationPurpose, int destinationZone)
+    /// <summary>
+    /// The joint tour representative, optional.
+    /// </summary>
+    internal readonly int JointTourRep;
+
+    /// <summary>
+    /// The joint tour id, optional.
+    /// </summary>
+    internal readonly int JointTourID;
+
+    private MicrosimTrip(int householdID, int personID, int tripID, string originPurpose, int originZone, string destinationPurpose, int destinationZone, int jointTourRep, int jointTourID)
     {
         HouseholdID = householdID;
         PersonID = personID;
@@ -68,6 +79,8 @@ internal sealed class MicrosimTrip
         OriginZone = originZone;
         DestinationPurpose = destinationPurpose;
         DestinationZone = destinationZone;
+        JointTourRep = jointTourRep;
+        JointTourID = jointTourID;
     }
 
     /// <summary>
@@ -103,8 +116,16 @@ internal sealed class MicrosimTrip
                     {
                         ret[(householdID, personID)] = trips = new List<MicrosimTrip>(4);
                     }
+                    // If there is joint tour data, load it
+                    int jointTourRep = 0;
+                    int jointTourID = 0;
+                    if (columns >= 9)
+                    {
+                        reader.Get(out jointTourRep, 7);
+                        reader.Get(out jointTourID, 8);
+                    }
                     trips.Add(new MicrosimTrip(householdID, personID, tripID, originPurpose, originZone,
-                        destinationPurpose, destinationZone));
+                        destinationPurpose, destinationZone, jointTourID, jointTourRep));
                 }
             }
         }
