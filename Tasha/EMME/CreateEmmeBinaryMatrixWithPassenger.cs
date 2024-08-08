@@ -69,8 +69,7 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
 
         void AddToMatrix(Span<Entry> entries, Time startTime, float expFactor, int flatOrigin, int flatDestination)
         {
-            // Make sure that we are always in the positive time bin space, even if it takes 2 days.
-            if (startTime >= StartTime && startTime < EndTime)
+            if ((startTime < StartTime) | (startTime >= EndTime))
             {
                 return;
             }
@@ -159,6 +158,12 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
                     }
                 }
             }
+        }
+
+        // If there are any entries left, store them.
+        if (numberOfEntries > 0)
+        {
+            StoreEntries(entries[..numberOfEntries]);
         }
     }
 
