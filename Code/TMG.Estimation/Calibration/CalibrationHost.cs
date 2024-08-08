@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 
@@ -178,10 +179,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
 
     private void LoadTargets()
     {
-        foreach (var target in Targets)
-        {
-            target.Intialize(Client);
-        }
+        Parallel.ForEach(Targets, target => target.Intialize(Client));
     }
 
     private ParameterSetting[] LoadPosition()
@@ -283,10 +281,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             else
             {
                 // If this is the base job, store the results for all targets
-                for (int j = 0; j < Targets.Length; j++)
-                {
-                    Targets[j].StoreRun(-1);
-                }
+                Parallel.ForEach(Targets, target => target.StoreRun(-1));
             }
         }
     }

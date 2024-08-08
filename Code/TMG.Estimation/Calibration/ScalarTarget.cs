@@ -26,6 +26,9 @@ namespace TMG.Estimation.Calibration;
 [ModuleInformation(Description = "A scalar target to try to calibrate to.")]
 public sealed class ScalarTarget : CalibrationTarget
 {
+    [RunParameter("Explore Size", 0.01f, "The different in the value of the parameter to explore to compute the derivative.")]
+    public float ExploreSize;
+
     [RunParameter("Learning Rate", 0.75f, "The distance to move towards hitting the target.")]
     public float LearningRate;
 

@@ -140,7 +140,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
         // Do nothing
     }
 
-    SpinLock _lock = new SpinLock();
+    SpinLock _lock = new SpinLock(false);
 
     public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
     {

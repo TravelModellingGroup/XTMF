@@ -400,17 +400,7 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         return Time.Zero;
     }
 
-    struct StationTripPair
-    {
-        byte FirstIndex;
-        byte SecondIndex;
-
-        public StationTripPair(byte firstIndex, byte secondIndex)
-        {
-            FirstIndex = firstIndex;
-            SecondIndex = secondIndex;
-        }
-    }
+    private record struct StationTripPair(byte FirstIndex, byte SecondIndex);
 
     public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<Random, ITripChain> onSelection)
     {

@@ -31,9 +31,6 @@ public abstract class CalibrationTarget : IModule
     [RunParameter("Parameter Path", "", "The path separated by '.'s to the parameter relative to the client model system's root, commas allows for additional parameters.")]
     public string ParameterPath;
 
-    [RunParameter("Explore Size", 0.01f, "The different in the value of the parameter to explore to compute the derivative.")]
-    public float ExploreSize;
-
     public string Name { get; set; }
 
     public float Progress => 0f;
