@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Threading.Tasks;
 using Tasha.Common;
 using XTMF;
 
@@ -45,6 +46,9 @@ public class ModeChoice : ITashaModeChoice
 
     [RunParameter("Apply RideShare Bug", true, "Keep this set to true for backwards compatibility where rideshare was assigned to both the driver and passenger during a joint tour.")]
     public bool ApplyRideshareBug;
+
+    [RunParameter("Parallel PostHouseholdIteration", false, "Should we run the post household modules in parallel at the end of the iteration?")]
+    public bool PostHouseholdInParallel;
 
     [RootModule]
     public ITashaRuntime Root;
@@ -336,9 +340,19 @@ public class ModeChoice : ITashaModeChoice
 
     public void IterationFinished(int currentIteration, int totalIterations)
     {
-        foreach (var module in PostHouseholdIteration)
+        if (PostHouseholdInParallel)
         {
-            module.IterationFinished(currentIteration, totalIterations);
+            Parallel.ForEach(PostHouseholdIteration, module =>
+            {
+                module.IterationFinished(currentIteration, totalIterations);
+            });
+        }
+        else
+        {
+            foreach (var module in PostHouseholdIteration)
+            {
+                module.IterationFinished(currentIteration, totalIterations);
+            }
         }
     }
 }

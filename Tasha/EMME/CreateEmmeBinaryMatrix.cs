@@ -84,8 +84,7 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
 
         void AddToMatrix(Span<Entry> entries, float expFactor, Time startTime, IZone origin, IZone destination)
         {
-            // Make sure that we are always in the positive time bin space, even if it takes 2 days.
-            if (startTime >= StartTime && startTime < EndTime)
+            if ((startTime < StartTime) | (startTime >= EndTime))
             {
                 return;
             }
@@ -157,19 +156,6 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
             row[entry.FlatDestination] += entry.ExpansionFactor;
         }
         WriteLock.Exit(true);
-    }
-
-    private void AddToMatrix(float expFactor, Time startTime, IZone origin, IZone destination)
-    {
-        if (startTime >= StartTime & startTime < EndTime)
-        {
-            var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
-            var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
-            bool gotLock = false;
-            WriteLock.Enter(ref gotLock);
-            Matrix[originIndex][destinationIndex] += expFactor;
-            if (gotLock) WriteLock.Exit(true);
-        }
     }
 
     public sealed class ModeLink : IModule

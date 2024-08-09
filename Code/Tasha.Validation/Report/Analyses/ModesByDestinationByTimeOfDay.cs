@@ -121,8 +121,16 @@ public sealed class ModesByDestinationByTimeOfDay : Analysis
                     var expansionFactor = person.ExpansionFactor;
                     foreach (var tripChain in person.TripChains)
                     {
+                        if (IsFacilitatePassengerTripChain(tripChain))
+                        {
+                            continue;
+                        }
                         foreach (var trip in tripChain.Trips)
                         {
+                            if (trip.Purpose == Activity.FacilitatePassenger)
+                            {
+                                continue;
+                            }
                             var time = trip.TripStartTime;
                             var mode = trip[ObservedModeAttachment] as ITashaMode;
                             var timeIndex = timePeriods.GetIndex(time);
@@ -164,7 +172,16 @@ public sealed class ModesByDestinationByTimeOfDay : Analysis
         return ret;
     }
 
-
+    /// <summary>
+    /// Check to see if the tour is a basic facilitate passenger tour.
+    /// </summary>
+    /// <param name="tripChain">The trip chain to check for.</param>
+    /// <returns>True if the tour is only to facilitate the passenger.</returns>
+    private static bool IsFacilitatePassengerTripChain(ITripChain tripChain)
+    {
+        var trips = tripChain.Trips;
+        return trips.Count == 2 && trips[0].Purpose == Activity.FacilitatePassenger;
+    }
 
     private float[] GetModel(MicrosimData microsimData, TimePeriod[] timePeriods, int[] pds, int[] zoneToPd, SparseArray<IZone> zones)
     {
@@ -242,8 +259,8 @@ public sealed class ModesByDestinationByTimeOfDay : Analysis
                 float temp = 0.0f;
                 for (int k = 0; k < modeGroups.Length; k++)
                 {
-                    var index = i * pds.Length * modeGroups.Length 
-                        + j * modeGroups.Length 
+                    var index = i * pds.Length * modeGroups.Length
+                        + j * modeGroups.Length
                         + k;
                     temp += ret[index];
                 }
@@ -252,8 +269,8 @@ public sealed class ModesByDestinationByTimeOfDay : Analysis
                 temp = float.IsFinite(temp) ? temp : 0.0f;
                 for (int k = 0; k < modeGroups.Length; k++)
                 {
-                    var index = i * pds.Length * modeGroups.Length 
-                        + j * modeGroups.Length 
+                    var index = i * pds.Length * modeGroups.Length
+                        + j * modeGroups.Length
                         + k;
                     ret[index] *= temp;
                 }

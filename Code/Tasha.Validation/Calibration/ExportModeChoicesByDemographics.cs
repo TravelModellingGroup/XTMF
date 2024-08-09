@@ -26,6 +26,7 @@ using System.Linq;
 
 using static Tasha.Validation.Calibration.Utilities;
 using TMG.Emme;
+using System.Threading;
 
 namespace Tasha.Validation.Calibration;
 
@@ -139,6 +140,8 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
         // Do nothing
     }
 
+    SpinLock _lock = new SpinLock(false);
+
     public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
     {
         if (!_execute)
@@ -147,7 +150,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
         }
         // Make a buffer for the entries to limit the number of locks
         int numberOfEntries = 0;
-        int maxEntries = household.Persons.Length * 10;
+        const int maxEntries = 16;
         Span<Entry> entries = stackalloc Entry[maxEntries];
 
         void WriteEntries(Span<Entry> entries)
@@ -157,13 +160,13 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
                 return;
             }
             var flatMatrix = _matrix.GetFlatData();
-            lock (this)
+            bool lockTaken = false;
+            _lock.Enter(ref lockTaken);
+            for (int i = 0; i < numberOfEntries; i++)
             {
-                for (int i = 0; i < numberOfEntries; i++)
-                {
-                    flatMatrix[entries[i].FlatOrigin][entries[i].FlatDestination] += entries[i].ExpansionFactor;
-                }
+                flatMatrix[entries[i].FlatOrigin][entries[i].FlatDestination] += entries[i].ExpansionFactor;
             }
+            _lock.Exit(true);
             numberOfEntries = 0;
         }
 
@@ -212,7 +215,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
 
         WriteEntries(entries);
     }
-    
+
     /// <summary>
     /// Checks if the specified mode is contained in the list of modes.
     /// </summary>
@@ -225,7 +228,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
 
     public void IterationFinished(int iteration, int totalIterations)
     {
-        if(_execute)
+        if (_execute)
         {
             new EmmeMatrix(_zones, _matrix.GetFlatData())
             .Save(SaveTo, false);
@@ -236,7 +239,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
 
     public float Progress => 0f;
 
-    public Tuple<byte, byte, byte> ProgressColour => new (50, 150, 50);
+    public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
     public bool RuntimeValidation(ref string error)
     {
