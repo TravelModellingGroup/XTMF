@@ -94,7 +94,7 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
         void AddToMatrix(Span<Entry> entries, float expFactor, Time startTime, IZone origin, IZone destination)
         {
             // Make sure that we are always in the positive time bin space, even if it takes 2 days.
-            var timeBin = SafeMod(((int)startTime.ToMinutes() / 60) + 48, 24);
+            var timeBin = SafeMod((int)(startTime.ToMinutes() / 60), 24);
             var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
             var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
             entries[numberOfEntries++] = new Entry(expFactor, timeBin, originIndex, destinationIndex);
