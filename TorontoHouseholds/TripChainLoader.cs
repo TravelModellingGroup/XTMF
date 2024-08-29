@@ -63,7 +63,7 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
     [RunParameter("Origin Zone Column", 7, "The 8 indexed column that represents the Origin Zone" )]
     public int OriginZone;
 
-    [RunParameter("Override Bad Zones", false, "Continue to load trips where the zone numbers do not exist in the given zone system.  They will be filled in with null values." )]
+    [RunParameter("Override Bad Zones", false, "Continue to load trips where the zone numbers do not exist in the given zone system.  They will be filled in with the 'Bad Zone Number'." )]
     public bool OverrideBadZones;
 
     [RunParameter("PersonID", 1, "The 1 indexed column that represents a person's Person Number" )]
@@ -77,6 +77,10 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
 
     [RunParameter("StartTime", 3, "The 3 indexed column that represents a the Trip's Start Time." )]
     public int StartTime;
+
+    [RunParameter("Bad Zone Number", -1, "This zone number will be asserted if the origin or destination zone was not found.")]
+    public int BadZoneNumber;
+    private IZone _badZoneNumber = null;
 
     [RootModule]
     public ITashaRuntime TashaRuntime;
@@ -112,7 +116,7 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
     public bool Load(ITashaPerson person)
     {
         TripChain currentChain = null;
-
+        _badZoneNumber = TashaRuntime.ZoneSystem.Get(BadZoneNumber);  
         if ( Reader == null )
         {
             Reader = new CsvReader( System.IO.Path.Combine( TashaRuntime.InputBaseDirectory, FileName ) );
@@ -169,7 +173,9 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
                 {
                     throw new XTMFRuntimeException( this, "We were unable to load a trip starting from zone " + tempInt + " please make sure this zone exists!\r\nHousehold #" + person.Household.HouseholdId );
                 }
+                t.OriginalZone = _badZoneNumber;
             }
+
             Reader.Get( out tempInt, Number );
             t.TripNumber = tempInt;
             if ( person.TripChains.Count == 0 && ( t.OriginalZone != null && t.OriginalZone.ZoneNumber != person.Household.HomeZone.ZoneNumber ) )
@@ -195,6 +201,7 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
                 {
                     throw new XTMFRuntimeException(this, "We were unable to load a trip ending in zone " + tempInt + " please make sure this zone exists!\r\nHousehold #" + person.Household.HouseholdId );
                 }
+                t.DestinationZone = _badZoneNumber;
             }
             if ( ObservedMode >= 0 )
             {
@@ -218,7 +225,8 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
                 }
             }
             //if (lastChain != (chain = int.Parse(parts[TripChainNumber])))
-            if ( currentChain == null || ( t.OriginalZone != null && t.OriginalZone.ZoneNumber == person.Household.HomeZone.ZoneNumber && purposeOrigin == 'H' ) )
+            if ( currentChain == null 
+                || ( t.OriginalZone != null && t.OriginalZone.ZoneNumber == person.Household.HomeZone.ZoneNumber && purposeOrigin == 'H' ) )
             {
                 person.TripChains.Add( currentChain = TripChain.MakeChain( person ) );
                 Reader.Get( out tempInt, JointTourID );

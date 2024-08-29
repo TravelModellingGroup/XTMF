@@ -262,18 +262,18 @@ public class PersonLoader : IDatachainLoader<ITashaHousehold, ITashaPerson>, IDi
             Reader.Get(out tempChar, PersonStudentCol);
             p.StudentStatus = GetStudentStatus(tempChar);
             // check to see if we should load in the school zone directly or just call our PoRPoS model to give us a zone for this student
-            if(p.StudentStatus == StudentStatus.FullTime | p.StudentStatus == StudentStatus.PartTime)
+            if((p.StudentStatus == StudentStatus.FullTime) | (p.StudentStatus == StudentStatus.PartTime))
             {
                 Reader.Get(out tempInt, PersonStudentZoneCol);
                 p.SchoolZone = tempInt != 0 ? (tempInt == UnknownZoneNumber ? p.Household.HomeZone : TashaRuntime.ZoneSystem.ZoneArray[tempInt]) : null;
             }
-            if((p.EmploymentStatus == TTSEmploymentStatus.FullTime | p.EmploymentStatus == TTSEmploymentStatus.PartTime))
+            if((p.EmploymentStatus == TTSEmploymentStatus.FullTime) | (p.EmploymentStatus == TTSEmploymentStatus.PartTime))
             {
                 Reader.Get(out tempInt, PersonEmploymentZoneCol);
                 var employmentZone = tempInt != 0 ? (tempInt == UnknownZoneNumber ? p.Household.HomeZone : TashaRuntime.ZoneSystem.Get(tempInt)) : null;
                 p.EmploymentZone = employmentZone;
             }
-            else if(p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_FullTime | p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_PartTime)
+            else if((p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_FullTime) | (p.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_PartTime))
             {
                 p.EmploymentZone = household.HomeZone;
             }
