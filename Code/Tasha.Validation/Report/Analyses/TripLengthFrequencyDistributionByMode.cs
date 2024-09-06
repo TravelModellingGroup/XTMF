@@ -17,9 +17,11 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System.IO;
 using System.Threading.Tasks;
 using Tasha.Common;
+using TMG;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
@@ -54,8 +56,14 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
     [SubModelInformation(Required = true, Description = "The groups of modes to analyze.")]
     public ModeGroup[] ModeGroups;
 
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseArray<IZone> _zones;
+
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
+        _zones = Root.ZoneSystem.ZoneArray;
         using var writer = new StreamWriter(SaveTo);
         writer.WriteLine("Mode,Duration(minutes),Observed,Model,Model-Observed");
         // There are 48 30-minute time intervals from 4:00 AM to 4:00 AM the next day
@@ -97,6 +105,10 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
                         {
                             if (group.Contains((trip[ObservedModeAttachment] as ITashaMode)))
                             {
+                                if(HasInvalidZone(trip))
+                                {
+                                    continue;
+                                }
                                 var tripTime = trip.ActivityStartTime - trip.TripStartTime;
                                 var tripBin = GetBin(tripTime);
                                 local[tripBin] += expFactor;
@@ -121,6 +133,16 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
             VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
+    }
+
+    private bool HasInvalidZone(ITrip trip)
+    {
+        var origin = trip.OriginalZone;
+        var destination = trip.DestinationZone;
+        return origin == null
+            || destination == null
+            || _zones.GetFlatIndex(origin.ZoneNumber) < 0
+            || _zones.GetFlatIndex(destination.ZoneNumber) < 0;
     }
 
     /// <summary>
@@ -156,7 +178,7 @@ public sealed class TripLengthFrequencyDistributionByMode : Analysis
                             {
                                 var tripTime = mode.ArrivalTime - mode.DepartureTime;
                                 var tripBin = GetBin(tripTime);
-                                local[tripBin] += expFactor;
+                                local[tripBin] += expFactor * mode.Weight;
                             }
                         }
                     }

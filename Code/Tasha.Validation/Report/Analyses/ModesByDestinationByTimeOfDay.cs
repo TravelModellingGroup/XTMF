@@ -131,24 +131,23 @@ public sealed class ModesByDestinationByTimeOfDay : Analysis
                             {
                                 continue;
                             }
-                            var time = trip.TripStartTime;
-                            var mode = trip[ObservedModeAttachment] as ITashaMode;
-                            var timeIndex = timePeriods.GetIndex(time);
-                            if (timeIndex < 0)
-                            {
-                                continue;
-                            }
                             var zoneIndex = zones.GetFlatIndex(trip.DestinationZone.ZoneNumber);
                             if (zoneIndex < 0)
                             {
-                                throw new XTMFRuntimeException(this, $"We found an invalid zone {trip.DestinationZone.ZoneNumber}!");
+                                continue;
                             }
-                            var pdIndex = zoneToPd[zoneIndex];
+
+                            var time = trip.TripStartTime;
+                            var mode = trip[ObservedModeAttachment] as ITashaMode;
+                            var timeIndex = timePeriods.GetIndex(time);
                             var modeIndex = ModeGroups.GetIndex(mode);
-                            if (modeIndex < 0)
+
+                            if ((timeIndex < 0)
+                               | (modeIndex < 0))
                             {
                                 continue;
                             }
+                            var pdIndex = zoneToPd[zoneIndex];
                             var index = (timeIndex * pds.Length * ModeGroups.Length) + (pdIndex * ModeGroups.Length) + modeIndex;
                             local[index] += expansionFactor;
                         }

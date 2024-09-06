@@ -82,6 +82,9 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
     public int BadZoneNumber;
     private IZone _badZoneNumber = null;
 
+    [RunParameter("Auto Fix Activity Episodes", true, "Automatically make changes to the given activity episodes.")]
+    public bool AutoFixActivityEpisodes;
+
     [RootModule]
     public ITashaRuntime TashaRuntime;
 
@@ -235,9 +238,12 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
                 currentChain.JointTripRep = ( tempInt - 1 == personID );
             }
             t.TripChain = currentChain;
-            if ( (t.Purpose == Activity.PrimaryWork || t.Purpose == Activity.SecondaryWork) && t.TripChain.Person.EmploymentZone != t.DestinationZone )
+            if (AutoFixActivityEpisodes)
             {
-                t.Purpose = Activity.WorkBasedBusiness;
+                if ((t.Purpose == Activity.PrimaryWork || t.Purpose == Activity.SecondaryWork) && t.TripChain.Person.EmploymentZone != t.DestinationZone)
+                {
+                    t.Purpose = Activity.WorkBasedBusiness;
+                }
             }
             t.TripChain.Trips.Add( t );
         }

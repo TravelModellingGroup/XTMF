@@ -112,7 +112,7 @@ public sealed class TourLengthDistribution : Analysis
                     {
                         continue;
                     }
-                    var expFactor = person.Weight / microsimData.ModeChoiceIterations;
+                    var expFactor = person.Weight;
                     int count = 1;
                     foreach (var trip in trips)
                     {
