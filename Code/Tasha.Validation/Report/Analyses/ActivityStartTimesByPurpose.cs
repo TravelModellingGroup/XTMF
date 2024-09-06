@@ -16,11 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Datastructure;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Tasha.Common;
+using TMG;
 using TMG.Input;
 using XTMF;
 
@@ -41,6 +43,11 @@ public class ActivityStartTimesByPurpose : Analysis
     [SubModelInformation(Required = true, Description = "The groups of purposes to analyze.")]
     public ActivityGroup[] PurposeGroup;
 
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseArray<IZone> _zones;
+
     /// <summary>
     /// Executes the analysis to produce a CSV containing the number of activities by type binned in 30-minute increments.
     /// </summary>
@@ -49,6 +56,7 @@ public class ActivityStartTimesByPurpose : Analysis
     /// <param name="surveyHouseholdsWithTrips">The survey households with trips.</param>
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
+        _zones = Root.ZoneSystem.ZoneArray;
         using var streamWriter = new StreamWriter(SaveTo);
         streamWriter.WriteLine("Time,Purpose,Observed,Model,Model-Observed");
         // There are 48 30-minute time intervals from 4:00 AM to 4:00 AM the next day
@@ -95,6 +103,10 @@ public class ActivityStartTimesByPurpose : Analysis
                     {
                         foreach (var trip in tripChain.Trips)
                         {
+                            if(HasInvalidZone(trip))
+                            {
+                                continue;
+                            }
                             if (trip.ActivityStartTime.ToMinutes() >= startTimeInterval * 30
                                 && trip.ActivityStartTime.ToMinutes() < (startTimeInterval + 1) * 30
                                 && purposes.Contains(trip.Purpose))
@@ -111,6 +123,16 @@ public class ActivityStartTimesByPurpose : Analysis
             localAccumulated => { lock (lockObject) { accumulated += localAccumulated; } }
         );
         return (float)accumulated;
+    }
+
+    private bool HasInvalidZone(ITrip trip)
+    {
+        var origin = trip.OriginalZone;
+        var destination = trip.DestinationZone;
+        return origin == null
+            || destination == null
+            || _zones.GetFlatIndex(origin.ZoneNumber) < 0
+            || _zones.GetFlatIndex(destination.ZoneNumber) < 0;
     }
 
     /// <summary>

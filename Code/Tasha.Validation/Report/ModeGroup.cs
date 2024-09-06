@@ -22,6 +22,7 @@ using System.Linq;
 using Tasha.Common;
 using TMG;
 using XTMF;
+using static Tasha.Validation.Report.Analyses.ModeGroup;
 
 namespace Tasha.Validation.Report.Analyses;
 
@@ -76,7 +77,7 @@ public sealed class ModeGroup : IModule
     public bool Contains(IMode mode)
     {
         var targetName = mode.ModeName;
-        return Array.IndexOf(_modeNames, targetName) != -1;
+        return Contains(targetName);
     }
 
     /// <summary>
@@ -107,7 +108,7 @@ public sealed class ModeGroup : IModule
 
 }
 
-public static class ModeGroupExtensions
+internal static class ModeGroupExtensions
 {
     /// <summary>
     /// Gets the index of the specified mode within the array of mode groups.
@@ -115,16 +116,9 @@ public static class ModeGroupExtensions
     /// <param name="modeGroups">The array of mode groups.</param>
     /// <param name="mode">The mode to search for.</param>
     /// <returns>The index of the mode group containing the specified mode, or -1 if the mode is not found.</returns>
-    public static int GetIndex(this ModeGroup[] modeGroups, IMode mode)
+    internal static int GetIndex(this ModeGroup[] modeGroups, IMode mode)
     {
-        for (int i = 0; i < modeGroups.Length; i++)
-        {
-            if (modeGroups[i].Contains(mode))
-            {
-                return i;
-            }
-        }
-        return -1;
+        return GetIndex(modeGroups, mode.ModeName);
     }
 
     /// <summary>
@@ -135,9 +129,20 @@ public static class ModeGroupExtensions
     /// <returns>The index of the mode group containing the specified mode, or -1 if the mode is not found.</returns>
     internal static int GetIndex(this ModeGroup[] modeGroups, MicrosimTripMode mode)
     {
+        return GetIndex(modeGroups, mode.Mode);
+    }
+    
+    /// <summary>
+    /// Gets the index of the specified mode within the array of mode groups.
+    /// </summary>
+    /// <param name="modeGroups">The array of mode groups.</param>
+    /// <param name="modeName">The name of the mode to search for.</param>
+    /// <returns>The index of the mode group containing the specified mode, or -1 if the mode is not found.</returns>
+    internal static int GetIndex(this ModeGroup[] modeGroups, string modeName)
+    {
         for (int i = 0; i < modeGroups.Length; i++)
         {
-            if (modeGroups[i].Contains(mode.Mode))
+            if (modeGroups[i].Contains(modeName))
             {
                 return i;
             }

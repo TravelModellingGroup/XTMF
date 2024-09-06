@@ -104,7 +104,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
         }
     }
 
-    private float[] GetObserved(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods, int[] pds, int[]zoneToPd, SparseArray<IZone> zones)
+    private float[] GetObserved(ITashaHousehold[] surveyHouseholdsWithTrips, TimePeriod[] timePeriods, int[] pds, int[] zoneToPd, SparseArray<IZone> zones)
     {
         object lockObject = new();
         float[] ret = new float[timePeriods.Length * pds.Length * ModeGroups.Length];
@@ -123,24 +123,21 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                     {
                         foreach (var trip in tripChain.Trips)
                         {
+                            var zoneIndex = zones.GetFlatIndex(trip.OriginalZone.ZoneNumber);
+                            if (zoneIndex < 0)
+                            {
+                                continue;
+                            }
+
                             var time = trip.TripStartTime;
                             var mode = trip[ObservedModeAttachment] as ITashaMode;
                             var timeIndex = timePeriods.GetIndex(time);
-                            if (timeIndex < 0)
+                            var modeIndex = ModeGroups.GetIndex(mode);
+                            if ((timeIndex < 0) | (modeIndex < 0))
                             {
                                 continue;
-                            }
-                            var zoneIndex = zones.GetFlatIndex(trip.OriginalZone.ZoneNumber);
-                            if(zoneIndex < 0)
-                            {
-                                throw new XTMFRuntimeException(this, $"We found an invalid zone {trip.OriginalZone.ZoneNumber}!");
                             }
                             var pdIndex = zoneToPd[zoneIndex];
-                            var modeIndex = ModeGroups.GetIndex(mode);
-                            if (modeIndex < 0)
-                            {
-                                continue;
-                            }
                             var index = timeIndex * pds.Length * ModeGroups.Length + pdIndex * ModeGroups.Length + modeIndex;
                             local[index] += person.ExpansionFactor;
                         }
@@ -157,7 +154,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
             }
             );
 
-        if(NormalizeResults)
+        if (NormalizeResults)
         {
             NormalizeModes(ret, timePeriods, pds, ModeGroups);
         }
@@ -168,7 +165,7 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
     {
         object lockObject = new();
         float[] ret = new float[timePeriods.Length * pds.Length * ModeGroups.Length];
-        Parallel.ForEach(microsimData.Households, 
+        Parallel.ForEach(microsimData.Households,
             () => new float[timePeriods.Length * pds.Length * ModeGroups.Length],
             (household, _, local) =>
             {
@@ -186,11 +183,11 @@ public sealed class ModesByOriginByTimeOfDay : Analysis
                     var expFactor = person.Weight / microsimData.ModeChoiceIterations;
                     foreach (var trip in trips)
                     {
-                        if(!microsimData.Modes.TryGetValue((trip.HouseholdID, trip.PersonID, trip.TripID), out var modes))
+                        if (!microsimData.Modes.TryGetValue((trip.HouseholdID, trip.PersonID, trip.TripID), out var modes))
                         {
                             continue;
                         }
-                        foreach(var mode in modes)
+                        foreach (var mode in modes)
                         {
                             var time = mode.DepartureTime;
                             var timeIndex = timePeriods.GetIndex(time);

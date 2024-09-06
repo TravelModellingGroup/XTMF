@@ -67,6 +67,9 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
     [RunParameter("Skip Single Trip Chain Households", false, "Should we continue loading households even if we find an invalid trip chain?")]
     public bool JustSkipSingleTripTripChainHouseholds;
 
+    [RunParameter("Allow All Trips", false, "Allow all trip chains without any filtering.  This overrides 'Skip Single Trip Chain Household'.")]
+    public bool AllowAllTrips;
+
     [RunParameter("MaxTripsInChain", 0, "Set the maximum number of trips allowed in a trip chain, 0 means any.")]
     public int MaxNumberOfTripsInChain;
 
@@ -287,7 +290,7 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
             {
                 throw new XTMFRuntimeException(this, terminalException.Message ?? "" + "\r\n" + terminalException.StackTrace);
             }
-            
+
         }
         NeedsReset = true;
     }
@@ -601,10 +604,6 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
                     HouseholdFile.GetFilePath()
                     : Path.Combine(Root.InputBaseDirectory, FileName));
             Reset();
-            if (ContainsHeader)
-            {
-                Reader.LoadLine();
-            }
             NeedsReset = true;
             AllDataLoaded = Reader.EndOfFile;
             AutoOwnershipModel?.Load();
@@ -677,16 +676,16 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
             Reader.Get(out int dwellingType, DwellingTypeCol);
             h.DwellingType = (DwellingType)dwellingType;
 
-            void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehcicles)
+            void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehicles)
             {
-                IVehicle[] toAssign = household.Vehicles != null && (household.Vehicles.Length == numberOfAutos + numberOfSecondaryVehcicles) ?
+                IVehicle[] toAssign = household.Vehicles != null && (household.Vehicles.Length == numberOfAutos + numberOfSecondaryVehicles) ?
                     household.Vehicles :
-                    new IVehicle[numberOfAutos + numberOfSecondaryVehcicles];
+                    new IVehicle[numberOfAutos + numberOfSecondaryVehicles];
                 for (int i = 0; i < numberOfAutos; i++)
                 {
                     toAssign[i] = Vehicle.MakeVehicle(AutoType);
                 }
-                for (int i = 0; i < numberOfSecondaryVehcicles; i++)
+                for (int i = 0; i < numberOfSecondaryVehicles; i++)
                 {
                     toAssign[i + numberOfAutos] = Vehicle.MakeVehicle(SecondaryType);
                 }
@@ -732,23 +731,28 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
                 {
                     person.ExpansionFactor = h.ExpansionFactor;
                 }
-                var tripChains = person.TripChains;
-                for (int j = 0; j < tripChains.Count; j++)
+                // Filter out invalid trip chains or other factors.
+                if (!AllowAllTrips)
                 {
-                    var tc = person.TripChains[j];
-                    if ((tc.Trips.Count == 1) | ((MaxNumberOfTripsInChain > 0) & (MaxNumberOfTripsInChain < tc.Trips.Count)))
+                    var tripChains = person.TripChains;
+
+                    for (int j = 0; j < tripChains.Count; j++)
                     {
-                        if (!JustSkipSingleTripTripChainHouseholds)
+                        var tc = person.TripChains[j];
+                        if ((tc.Trips.Count == 1) | ((MaxNumberOfTripsInChain > 0) & (MaxNumberOfTripsInChain < tc.Trips.Count)))
                         {
-                            if (tc.Trips.Count <= 1)
+                            if (!JustSkipSingleTripTripChainHouseholds)
                             {
-                                throw new XTMFRuntimeException(this, "We found an invalid trip for Household '" + h.HouseholdId
-                                    + "' Person '" + person.Id + "' From '" + tc.Trips[0].OriginalZone.ZoneNumber + "' To '"
-                                    + tc.Trips[0].DestinationZone.ZoneNumber + "'.  Please check your data!");
+                                if (tc.Trips.Count <= 1)
+                                {
+                                    throw new XTMFRuntimeException(this, "We found an invalid trip for Household '" + h.HouseholdId
+                                        + "' Person '" + person.Id + "' From '" + tc.Trips[0].OriginalZone.ZoneNumber + "' To '"
+                                        + tc.Trips[0].DestinationZone.ZoneNumber + "'.  Please check your data!");
+                                }
                             }
+                            loadnext = true;
+                            break;
                         }
-                        loadnext = true;
-                        break;
                     }
                 }
                 if (loadnext)

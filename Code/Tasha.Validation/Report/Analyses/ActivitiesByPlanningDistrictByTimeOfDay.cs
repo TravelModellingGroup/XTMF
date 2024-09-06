@@ -123,7 +123,12 @@ public sealed class ActivitiesByPlanningDistrictByTimeOfDay : Analysis
                     {
                         foreach (var trip in tripChain.Trips)
                         {
-                            var pdIndex = zoneToPD[zones.GetFlatIndex(trip.DestinationZone.ZoneNumber)];
+                            var zoneIndex = zones.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+                            if(zoneIndex < 0)
+                            {
+                                continue;
+                            }
+                            var pdIndex = zoneToPD[zoneIndex];
                             var purposeIndex = PurposeGroup.GetIndex(trip.Purpose);
                             if (purposeIndex < 0)
                             {

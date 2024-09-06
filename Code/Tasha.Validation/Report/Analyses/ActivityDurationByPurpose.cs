@@ -16,11 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Datastructure;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Tasha.Common;
+using TMG;
 using TMG.Input;
 using XTMF;
 
@@ -41,8 +43,14 @@ public sealed class ActivityDurationByPurpose : Analysis
     [RunParameter("Minimum Age", 11, "The minimum age of a person to compare against.")]
     public int MinimumAge;
 
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseArray<IZone> _zones;
+
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
+        _zones = Root.ZoneSystem.ZoneArray;
         using var streamWriter = new StreamWriter(SaveTo);
         streamWriter.WriteLine("Duration(Minutes),Purpose,Observed,Model,Model-Observed");
 
@@ -80,6 +88,10 @@ public sealed class ActivityDurationByPurpose : Analysis
                         for (int i = 0; i < trips.Count - 1; i++)
                         {
                             var trip = trips[i];
+                            if (HasInvalidZone(trip))
+                            {
+                                continue;
+                            }
                             var activityDuration = (trips[i + 1].TripStartTime - trip.ActivityStartTime).ToMinutes();
                             if (activityDuration >= duration * 15
                                 && activityDuration < (duration + 1) * 15
@@ -97,6 +109,16 @@ public sealed class ActivityDurationByPurpose : Analysis
             localAccumulated => { lock (lockObject) { accumulated += localAccumulated; } }
         );
         return (float)accumulated;
+    }
+
+    private bool HasInvalidZone(ITrip trip)
+    {
+        var origin = trip.OriginalZone;
+        var destination = trip.DestinationZone;
+        return origin == null
+            || destination == null
+            || _zones.GetFlatIndex(origin.ZoneNumber) < 0
+            || _zones.GetFlatIndex(destination.ZoneNumber) < 0;
     }
 
     private float ComputeModel(MicrosimData microsimData, float durationInMinutes, ActivityGroup purposes)

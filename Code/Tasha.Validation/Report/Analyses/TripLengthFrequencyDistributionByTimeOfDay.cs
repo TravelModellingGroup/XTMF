@@ -17,9 +17,11 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System.IO;
 using System.Threading.Tasks;
 using Tasha.Common;
+using TMG;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
@@ -49,8 +51,14 @@ public sealed class TripLengthFrequencyDistributionByTimeOfDay : Analysis
     /// </summary>
     private const int TIME_BIN_SIZE = 15;
 
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseArray<IZone> _zones;
+
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData, ITashaHousehold[] surveyHouseholdsWithTrips)
     {
+        _zones = Root.ZoneSystem.ZoneArray;
         using var writer = new StreamWriter(SaveTo);
         writer.WriteLine("TimePeriod,Duration(minutes),Observed,Model,Model-Observed");
         for (int i = 0; i < timePeriods.Length; i++)
@@ -90,6 +98,10 @@ public sealed class TripLengthFrequencyDistributionByTimeOfDay : Analysis
                     {
                         foreach (var trip in tripChain.Trips)
                         {
+                            if(HasInvalidZone(trip))
+                            {
+                                continue;
+                            }
                             if (!period.Contains(trip.TripStartTime))
                             {
                                 continue;
@@ -117,6 +129,16 @@ public sealed class TripLengthFrequencyDistributionByTimeOfDay : Analysis
             VectorHelper.Multiply(ret, 0, ret, 0, reciprocal, ret.Length);
         }
         return ret;
+    }
+
+    private bool HasInvalidZone(ITrip trip)
+    {
+        var origin = trip.OriginalZone;
+        var destination = trip.DestinationZone;
+        return origin == null
+            || destination == null
+            || _zones.GetFlatIndex(origin.ZoneNumber) < 0
+            || _zones.GetFlatIndex(destination.ZoneNumber) < 0;
     }
 
     /// <summary>
@@ -154,7 +176,7 @@ public sealed class TripLengthFrequencyDistributionByTimeOfDay : Analysis
                             }
                             var tripTime = mode.ArrivalTime - mode.DepartureTime;
                             var tripBin = GetBin(tripTime);
-                            local[tripBin] += expFactor;
+                            local[tripBin] += expFactor * mode.Weight;
                         }
                     }
                 }

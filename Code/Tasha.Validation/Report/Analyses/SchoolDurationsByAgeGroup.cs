@@ -17,9 +17,11 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System.IO;
 using System.Threading.Tasks;
 using Tasha.Common;
+using TMG;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
@@ -37,9 +39,15 @@ public sealed class SchoolDurationsTimeByAgeGroup : Analysis
 
     private const int HOURS = 24;
 
+    [RootModule]
+    public ITravelDemandModel Root;
+
+    private SparseArray<IZone> _zones;
+
     public override void Execute(TimePeriod[] timePeriods, MicrosimData microsimData,
         ITashaHousehold[] surveyHouseholdsWithTrips)
     {
+        _zones = Root.ZoneSystem.ZoneArray;
         float[] observed = GetObservedResults(surveyHouseholdsWithTrips);
         float[] model = GetModelResults(microsimData);
         using var writer = new StreamWriter(SaveTo);
@@ -138,7 +146,8 @@ public sealed class SchoolDurationsTimeByAgeGroup : Analysis
                         var trips = tripChain.Trips;
                         for (int i = 0; i < trips.Count - 1; i++)
                         {
-                            if (trips[i].Purpose != Activity.School)
+                            if (trips[i].Purpose != Activity.School
+                                || HasInvalidZone(trips[i]))
                             {
                                 continue;
                             }
@@ -159,6 +168,16 @@ public sealed class SchoolDurationsTimeByAgeGroup : Analysis
             }
         );
         return ret;
+    }
+
+    private bool HasInvalidZone(ITrip trip)
+    {
+        var origin = trip.OriginalZone;
+        var destination = trip.DestinationZone;
+        return origin == null
+            || destination == null
+            || _zones.GetFlatIndex(origin.ZoneNumber) < 0
+            || _zones.GetFlatIndex(destination.ZoneNumber) < 0;
     }
 
     /// <summary>
