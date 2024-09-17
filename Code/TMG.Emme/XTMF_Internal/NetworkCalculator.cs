@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -23,10 +23,11 @@ using TMG.Emme;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
-namespace Tasha.Validation.PerformanceMeasures;
+namespace TMG.EMME.XTMF_Internal;
 
 [ModuleInformation(Description = "This tool is designed to call the EMME Network calculator.")]
-public class NetworkCalculator : IEmmeTool
+[RedirectModule("Tasha.Validation.PerformanceMeasures.NetworkCalculator, Tasha.Validation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null")]
+public sealed class NetworkCalculator : IEmmeTool
 {
 
     public enum DomainTypes
@@ -111,17 +112,10 @@ public class NetworkCalculator : IEmmeTool
         return String.Concat("\"", toQuote, "\"");
     }
 
-    public string Name
-    {
-        get;
-        set;
-    }
-
-    public float Progress
-    {
-        get;
-        set;
-    }
+    public string Name { get; set; } = string.Empty;
+    
+    public float Progress { get; set; }
+    
 
     public Tuple<byte, byte, byte> ProgressColour => new(120, 25, 100);
 
@@ -134,7 +128,7 @@ public class NetworkCalculator : IEmmeTool
                 error = $"In {Name} the SumOfReport is not of type float!";
                 return false;
             }
-            if (!(SumOfReport.GetDataSource() is ISetableDataSource<float>))
+            if (SumOfReport.GetDataSource() is not ISetableDataSource<float>)
             {
                 error = $"In {Name} the SumOfReport is not a settable data source!";
                 return false;
