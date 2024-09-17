@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,21 +16,22 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using TMG.Emme;
-using XTMF;
-using Tasha.Common;
-using TMG;
 using Datastructure;
-using TMG.Input;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
+using Tasha.Common;
+using TMG.Emme;
+using TMG.Input;
+using TMG;
+using XTMF;
 using TMG.Functions;
 
 namespace Tasha.EMME;
 
-public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteration
+[ModuleInformation(Description = "Creates a matrix of the facilitated passenger trips for the given time selection.")]
+public sealed class CreateEMMEBinaryMatrixWithFacilitatedPassengerTrips : IPostHouseholdIteration
 {
     [RootModule]
     public ITravelDemandModel Root;
@@ -55,7 +56,7 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
 
     private int GetFlatIndex(IZone zone)
     {
-        return ZoneSystem.GetFlatIndex(zone.ZoneNumber);
+        return _zoneSystem.GetFlatIndex(zone.ZoneNumber);
     }
 
     private int HouseholdIterations = 1;
@@ -101,12 +102,9 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
                     continue;
                 }
                 var trips = tripChains[j].Trips;
-                // check to see if we should be running access or egress for this person on their trip chain
-                bool initialAccessTrip = true;
                 for (int k = 0; k < trips.Count; k++)
                 {
                     var startTime = trips[k].TripStartTime;
-                    int accessModeIndex;
                     var modeChosen = trips[k].Mode;
                     if (Passenger.Mode == modeChosen)
                     {
@@ -122,39 +120,19 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
                         if (driverTripChain != null)
                         {
                             float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
-                            // subtract out the old data
-                            if (IsDriverAlreadyOnRoad(driversTrip))
-                            {
-                                AddToMatrix(entries, startTime, -driverExpansionFactor, driverOrigin, driverDestination);
-                            }
+                            
                             // add in our 3 trip leg data
                             if (driverOrigin != passengerOrigin)
                             {
                                 // this really is driver on joint
                                 AddToMatrix(entries, startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
                             }
-                            AddToMatrix(entries, startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
+                            
                             if (passengerDestination != driverDestination)
                             {
                                 AddToMatrix(entries, startTime, driverExpansionFactor, passengerDestination, driverDestination);
                             }
                         }
-                    }
-                    else if ((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
-                    {
-                        if (AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out IZone origin, out IZone destination))
-                        {
-                            var originIndex = GetFlatIndex(origin);
-                            var destinationIndex = GetFlatIndex(destination);
-                            AddToMatrix(entries, startTime, expFactor, originIndex, destinationIndex);
-                        }
-                        initialAccessTrip = false;
-                    }
-                    else if (IsThisModeOneWeShouldCount(modeChosen))
-                    {
-                        var originIndex = GetFlatIndex(trips[k].OriginalZone);
-                        var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
-                        AddToMatrix(entries, startTime, expFactor, originIndex, destinationIndex);
                     }
                 }
             }
@@ -219,102 +197,17 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
         }
     }
 
-    public sealed class AccessModeLink : IModule
-    {
-        [RootModule]
-        public ITashaRuntime Root;
-
-        [RunParameter("Mode Name", "DAT", "The name of the mode")]
-        public string ModeName;
-
-        [RunParameter("Count Access", true, "True to _Count for access, false to _Count for egress.")]
-        public bool CountAccess;
-
-        [RunParameter("Access Tag Name", "AccessStation", "The tag used for storing the zone used for access.")]
-        public string AccessZoneTagName;
-
-        internal ITashaMode Mode;
-
-        public string Name { get; set; }
-
-        public float Progress { get; set; }
-
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool initialTrip, out IZone origin, out IZone destination)
-        {
-            if (CountAccess ^ (!initialTrip))
-            {
-                origin = trip.OriginalZone;
-                destination = chain[AccessZoneTagName] as IZone;
-                return destination != null;
-            }
-            origin = chain[AccessZoneTagName] as IZone;
-            destination = trip.DestinationZone;
-            return origin != null;
-        }
-
-        public bool RuntimeValidation(ref string error)
-        {
-            foreach (var mode in Root.AllModes)
-            {
-                if (mode.ModeName == ModeName)
-                {
-                    Mode = mode;
-                    return true;
-                }
-            }
-            error = "In '" + Name + "' we were unable to find a mode called '" + ModeName + "'";
-            return false;
-        }
-    }
-
-    [SubModelInformation(Required = false, Description = "The modes to listen for.")]
-    public ModeLink[] Modes;
-
     [SubModelInformation(Required = true, Description = "The link to the passenger mode.")]
     public ModeLink Passenger;
 
-    [SubModelInformation(Required = false, Description = "The access modes to listen for.")]
-    public AccessModeLink[] AccessModes;
-
-    /// <summary>
-    /// check to see if the mode being used for this trip is one that we are interested in.
-    /// </summary>
-    /// <returns></returns>
-    private bool IsThisModeOneWeShouldCount(ITashaMode mode)
-    {
-        for (int i = 0; i < Modes.Length; i++)
-        {
-            if (Modes[i].Mode == mode)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private int UsesAccessMode(ITashaMode mode)
-    {
-        for (int i = 0; i < AccessModes.Length; i++)
-        {
-            if (AccessModes[i].Mode == mode)
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private SparseArray<IZone> ZoneSystem;
+    private SparseArray<IZone> _zoneSystem;
     private int NumberOfZones;
 
     public void IterationStarting(int iteration, int totalIterations)
     {
         // get the newest zone system
-        ZoneSystem = Root.ZoneSystem.ZoneArray;
-        NumberOfZones = ZoneSystem.Count;
+        _zoneSystem = Root.ZoneSystem.ZoneArray;
+        NumberOfZones = _zoneSystem.Count;
         if (Matrix == null)
         {
             Matrix = new float[NumberOfZones][];
@@ -333,32 +226,17 @@ public sealed class CreateEmmeBinaryMatrixWithPassenger : IPostHouseholdIteratio
         }
     }
 
-    public IModeAggregationTally[] SpecialGenerators;
-
     public void IterationFinished(int iteration, int totalIterations)
     {
         //Min each OD to Zero
         MinZero(Matrix);
-        if (SpecialGenerators.Length > 0)
-        {
-            var specialGenerationResults = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>().GetFlatData();
-            // Apply the special generators
-            for (int i = 0; i < SpecialGenerators.Length; i++)
-            {
-                SpecialGenerators[i].IncludeTally(specialGenerationResults);
-            }
-            // Now scale the by household iterations and integrate it back into the result matrix
-            Parallel.For(0, specialGenerationResults.Length, i =>
-            {
-                VectorHelper.FusedMultiplyAdd(Matrix[i], specialGenerationResults[i], HouseholdIterations, Matrix[i]);
-            });
-        }
         // write to disk
-        new EmmeMatrix(ZoneSystem, Matrix).Save(MatrixSaveLocation, true);
+        new EmmeMatrix(_zoneSystem, Matrix).Save(MatrixSaveLocation, true);
     }
 
     private void MinZero(float[][] matrix)
     {
+        
         Parallel.For(0, matrix.Length, i =>
         {
             var row = matrix[i];
