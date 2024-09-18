@@ -137,8 +137,11 @@ public class MultiClassRoadAssignmentTool : IEmmeTool
             [RunParameter("Attribute ID", "", "The attribute to use for analysis.")]
             public string AttributeId;
 
-            [RunParameter("Aggregation Matrix", 0, "The matrix number to store the results into.")]
+            [RunParameter("Aggregation Matrix", 0, "The matrix number to store the results into. Leave 0 to not apply.")]
             public int AggregationMatrix;
+
+            [RunParameter("Selected Link Volumes", "", "The name of the link attribute to store the results into. Leave blank to not apply.")]
+            public string SelectedLinkVolumes;
 
             [RunParameter("Operator", "+", "The operator to use to aggregate the matrix. Example:'+' for emissions, 'max' for select link analysis")]
             public string AggregationOperator;
@@ -169,12 +172,6 @@ public class MultiClassRoadAssignmentTool : IEmmeTool
                     error = $"In {Name} the attribute ID was not valid!";
                     return false;
                 }
-                if (AggregationMatrix <= 0)
-                {
-                    error = $"In {Name} the aggregation matrix number was invalid!";
-                    return false;
-                }
-
                 return true;
             }
         }
@@ -222,6 +219,7 @@ public class MultiClassRoadAssignmentTool : IEmmeTool
             new ModellerControllerParameter("ResultAttributes", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
             new ModellerControllerParameter("xtmf_AnalysisAttributes", GetAttributesFromClass()),
             new ModellerControllerParameter("xtmf_AnalysisAttributesMatrixId", GetAttributeMatrixIds()),
+            new ModellerControllerParameter("xtmf_AnalysisSelectedLinkVolumes", GetelectedLinkVolumes()),
             new ModellerControllerParameter("xtmf_AggregationOperator", GetAggregationOperator()),
             new ModellerControllerParameter("xtmf_LowerBound", GetLowerBound()),
             new ModellerControllerParameter("xtmf_UpperBound", GetUpperBound()),
@@ -245,6 +243,13 @@ public class MultiClassRoadAssignmentTool : IEmmeTool
         return string.Join("|", from c in Classes
                                 select string.Join(",", from at in c.PathAnalyses
                                                         select "mf" + at.AggregationMatrix));
+    }
+
+    private string GetelectedLinkVolumes()
+    {
+        return string.Join("|", from c in Classes
+                                select string.Join(",", from at in c.PathAnalyses
+                                                        select at.SelectedLinkVolumes));
     }
 
     private string GetAggregationOperator()
