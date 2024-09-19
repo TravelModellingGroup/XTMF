@@ -58,8 +58,11 @@ internal static class SelectedModesExtensions
         for (var i = 0; i < modes.Length; i++)
         {
             var mode = modes[i];
-            var selectedMode = allModes.FirstOrDefault(m => m.Name == mode.ModeName)
-                ?? throw new XTMFRuntimeException(callingModule, $"Mode {mode.ModeName} not found.");
+            // Find the mode by name, first by module name and then
+            // by mode name, this will keep backwards compatibility.
+            var selectedMode = allModes.FirstOrDefault(m => m.Name == mode.ModeName);
+            selectedMode ??= allModes.FirstOrDefault(m => m.ModeName == mode.ModeName)
+                  ?? throw new XTMFRuntimeException(callingModule, $"Mode {mode.ModeName} not found.");
             ret[i] = selectedMode;
         }
         return ret;
