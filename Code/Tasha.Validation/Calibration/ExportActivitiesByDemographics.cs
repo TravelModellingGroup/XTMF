@@ -38,8 +38,11 @@ public sealed class ExportActivitiesByDemographics : IPostHousehold
     [RunParameter("Start Time", "6:00", typeof(Time), "The start time of the activity to capture, inclusive.", Index = 0)]
     public Time StartTime;
 
-    [RunParameter("End Time", "9:00", typeof(Time), "The start time of the activity to capture, exclusive.", Index = 1)]
+    [RunParameter("End Time", "9:00", typeof(Time), "The end time of the activity to capture, exclusive.", Index = 1)]
     public Time EndTime;
+
+    [RunParameter("Income Classes", "0-100", typeof(RangeSet), "The household income classes to include.")]
+    public RangeSet IncomeClasses;
 
     [RunParameter("Age Ranges", "0-200", typeof(RangeSet), "The valid ages to get.", Index = 3)]
     public RangeSet AgeRanges;
@@ -133,6 +136,12 @@ public sealed class ExportActivitiesByDemographics : IPostHousehold
     public void Execute(ITashaHousehold household, int iteration)
     {
         if (_targetIteration != iteration)
+        {
+            return;
+        }
+        // We can avoid all work if the household doesn't belong to the selected
+        // income classes.
+        if (!IncomeClasses.Contains(household.IncomeClass))
         {
             return;
         }
