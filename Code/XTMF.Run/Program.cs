@@ -37,9 +37,9 @@ class Program
             StartupExecuteRunsInADifferentProcess(args[1]);
             return;
         }
-        if (args.Length != 3)
+        if (args.Length < 3)
         {
-            Console.WriteLine("Usage: [ProjectName] [ModelSystemName] [RunName]");
+            Console.WriteLine("Usage: [ProjectName] [ModelSystemName] [RunName] <-Overwrite / -NoOverwrite>");
             return;
         }
         RunModelSystemFromProjectPath(args);
@@ -50,6 +50,7 @@ class Program
         string projectName = args[0];
         string modelSystemName = args[1];
         string runName = args[2];
+        bool overwrite = args.Length >= 4 ? args[3] == "-Overwrite" : true;
         var runtime = new XTMFRuntime();
         string error = null;
         Project project;
@@ -66,7 +67,7 @@ class Program
                 Console.WriteLine("There was no model system in the project " + project.Name + " called " + modelSystemName + "!");
                 return;
             case 1:
-                Run(modelSystems[0].Index, projectSession, runName);
+                Run(modelSystems[0].Index, projectSession, runName, overwrite);
                 break;
             default:
                 Console.WriteLine("There were multiple model systems in the project " + project.Name + " called " + modelSystemName + "!");
@@ -386,12 +387,12 @@ class Program
         }
     }
 
-    private static void Run(int index, ProjectEditingSession projectSession, string runName)
+    private static void Run(int index, ProjectEditingSession projectSession, string runName, bool overwrite)
     {
         using var modelSystemSession = projectSession.EditModelSystem(index);
         XTMFRun run;
         string error = null;
-        if ((run = modelSystemSession.Run(runName, ref error, true, true, true)) == null)
+        if ((run = modelSystemSession.Run(runName, ref error, overwrite, true, true)) == null)
         {
             Console.WriteLine("Unable to run \r\n" + error);
             return;
