@@ -14,7 +14,7 @@ public partial class ModelSystemDisplay
     /// 
     /// </summary>
     /// <param name="e"></param>
-    protected override void OnKeyDown(KeyEventArgs e)
+    protected async override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
         if (e.Handled)
@@ -136,11 +136,11 @@ public partial class ModelSystemDisplay
                 case Key.F2:
                     if (EditorController.IsShiftDown())
                     {
-                        RenameDescription().GetAwaiter().GetResult();
+                        await RenameDescription();
                     }
                     else
                     {
-                        RenameParameter().GetAwaiter().GetResult();
+                        await RenameParameter();
                     }
                     e.Handled = true;
                     break;
