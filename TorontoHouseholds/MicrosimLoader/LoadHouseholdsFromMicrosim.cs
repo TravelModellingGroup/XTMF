@@ -143,14 +143,14 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
         () => personsRecords = MicrosimPerson.LoadPersons(this, PersonFile),
         () =>
         {
-            if (TripFile != null)
+            if (TripFile is not null)
             {
                 tripRecords = MicrosimTrip.LoadTrips(this, TripFile);
             }
         },
         () =>
         {
-            if (ModeFile != null)
+            if (ModeFile is not null)
             {
                 modeRecords = MicrosimTripMode.LoadModes(this, ModeFile);
             }
@@ -236,6 +236,9 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
     [RunParameter("Household Iterations", 10, "Set this to the same number of iterations that the mode choice algorithm will use.")]
     public int HouseholdIterations;
 
+    [RunParameter("Mode Attribute", "", "An optional attribute name to give to the first observed mode.")]
+    public string ModeAttribute;
+
     private ITrip ConstructTrip(MicrosimTrip trip, TripChain tc, SparseArray<IZone> zoneSystem, MicrosimTripMode modeData)
     {
         IZone origin = GetZone(zoneSystem, trip.OriginZone, "origin");
@@ -251,6 +254,10 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             ret.TripStartTime = startTime;
             ret.TripChain = tc;
             ret.TripNumber = trip.TripID;
+            if (!string.IsNullOrWhiteSpace(ModeAttribute))
+            {
+                ret.Attach(ModeAttribute, modeData.Mode);
+            }
             return ret;
         }
         else
@@ -263,6 +270,10 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             ret.ActivityStartTime = startTime;
             ret.TripChain = tc;
             ret.TripNumber = trip.TripID;
+            if (!string.IsNullOrWhiteSpace(ModeAttribute))
+            {
+                ret.Attach(ModeAttribute, modeData.Mode);
+            }
             return ret;
         }
     }
@@ -538,7 +549,7 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             error = $"In {Name} either both the Trip file and Mode file need to be selected for or not.";
             return false;
         }
-        if(TelecommutingModel is not null && String.IsNullOrWhiteSpace(TelecommuterAttribute))
+        if (TelecommutingModel is not null && String.IsNullOrWhiteSpace(TelecommuterAttribute))
         {
             error = $"In {Name} you must specify the attribute to store the telecommuter choice to when using the telecommuting model!";
             return false;

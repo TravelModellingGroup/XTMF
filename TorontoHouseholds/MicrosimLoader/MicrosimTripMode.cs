@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2021-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -42,6 +42,10 @@ internal sealed class MicrosimTripMode
     /// </summary>
     internal readonly int TripID;
     /// <summary>
+    /// The mode of the trip
+    /// </summary>
+    internal readonly string Mode;
+    /// <summary>
     /// The start time of the trip.
     /// </summary>
     internal readonly float DepartureTime;
@@ -50,11 +54,12 @@ internal sealed class MicrosimTripMode
     /// </summary>
     internal readonly float ArrivalTime;
 
-    private MicrosimTripMode(int householdID, int personID, int tripID, float departureTime, float arrivalTime)
+    private MicrosimTripMode(int householdID, int personID, int tripID, string mode, float departureTime, float arrivalTime)
     {
         HouseholdID = householdID;
         PersonID = personID;
         TripID = tripID;
+        Mode = mode;
         DepartureTime = departureTime;
         ArrivalTime = arrivalTime;
     }
@@ -84,12 +89,13 @@ internal sealed class MicrosimTripMode
                     reader.Get(out int householdID, 0);
                     reader.Get(out int personID, 1);
                     reader.Get(out int tripID, 2);
+                    reader.Get(out string mode, 3);
                     reader.Get(out float departureTime, 4);
                     reader.Get(out float arrivalTime, 5);
                     // We only need to get 1 of these records
                     if (!ret.ContainsKey((householdID, personID, tripID)))
                     {
-                        ret[(householdID, personID, tripID)] = new MicrosimTripMode(householdID, personID, tripID, departureTime, arrivalTime);
+                        ret[(householdID, personID, tripID)] = new MicrosimTripMode(householdID, personID, tripID, mode, departureTime, arrivalTime);
                     }
                 }
             }
