@@ -163,6 +163,12 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
                 }
             }
         }
+
+        // If there are any entries left, store them.
+        if (numberOfEntries > 0)
+        {
+            StoreEntries(entries[..numberOfEntries]);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
