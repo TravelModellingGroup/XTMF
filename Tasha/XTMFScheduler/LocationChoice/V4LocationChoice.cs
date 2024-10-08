@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,11 +26,9 @@ using XTMF;
 using TMG.Functions;
 using System.Numerics;
 using System.Collections.Concurrent;
-// ReSharper disable ParameterHidesMember
-// ReSharper disable AccessToModifiedClosure
+using Tasha.EMME;
 
 namespace Tasha.XTMFScheduler.LocationChoice;
-
 
 public sealed class V4LocationChoice : ILocationChoiceModel
 {
@@ -239,8 +237,6 @@ public sealed class V4LocationChoice : ILocationChoiceModel
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-
-
         public float[] RowTravelTimes;
         public float[] ColumnTravelTimes;
         internal float[] EstimationAIVTT;
@@ -354,6 +350,9 @@ public sealed class V4LocationChoice : ILocationChoiceModel
 
             [RunParameter("Travel Logsum Denominator", 1.0f, "The scale term to apply to the logsum coming from the travel times.")]
             public float TravelLogsumDenominator;
+
+            [SubModelInformation(Required = false, Description = "Custom utility to apply")]
+            public IDataSource<SparseTwinIndex<float>> CustomUtility;
 
             internal float ExpSamePD;
 
@@ -577,7 +576,6 @@ public sealed class V4LocationChoice : ILocationChoiceModel
         private IZone[] Zones;
         private int[] FlatZoneToPDCubeLookup;
 
-
         internal void Load()
         {
             ZoneSystem = Root.ZoneSystem.ZoneArray;
@@ -653,13 +651,21 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                 throw new XTMFRuntimeException(this, "The professional full-time employment data is not of the same size as the number of zones!");
             }
             float[][] jSum = new float[TimePeriod.Length][];
+            var expCustomUtilities = new float[TimePeriod.Length][][];
             for (int i = 0; i < TimePeriod.Length; i++)
             {
                 jSum[i] = new float[zones.Length];
+                var customUtilities = GetData(TimePeriod[i].CustomUtility)?.GetFlatData();
+                expCustomUtilities[i] = customUtilities;
                 Parallel.For(0, jSum[i].Length, j =>
                 {
+                    // Start by exponentiating the custom utilities
+                    // if there are any for this time period
+                    if (customUtilities is not null)
+                    {
+                        VectorHelper.Exp(customUtilities[j], customUtilities[j]);
+                    }
                     var jPD = zones[j].PlanningDistrict;
-
                     if (Parent.ValidDestinations[j])
                     {
                         var nonExpPDConstant = 0.0f;
@@ -726,6 +732,7 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                 var distances = Root.ZoneSystem.Distances.GetFlatData();
                 for (int time = 0; time < times.Length; time++)
                 {
+                    var customUtilities = expCustomUtilities[time];
                     var timeParameters = TimePeriod[time];
                     Time timeOfDay = times[time].StartTime;
                     if (Parent.EstimationMode)
@@ -736,14 +743,29 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                             fixed (float* from = From[time])
                             fixed (float* logsumSpace = times[time].EstimationTempSpace)
                             {
-                                for (int j = 0; j < zones.Length; j++)
+                                if (customUtilities is null)
                                 {
-                                    var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                    var travelUtility = logsumSpace[i * zones.Length + j];
-                                    // compute to
-                                    to[i * zones.Length + j] = nonExpPDConstant * travelUtility;
-                                    // compute from
-                                    from[j * zones.Length + i] = travelUtility;
+                                    for (int j = 0; j < zones.Length; j++)
+                                    {
+                                        var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
+                                        var travelUtility = logsumSpace[i * zones.Length + j];
+                                        // compute to
+                                        to[i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                        // compute from
+                                        from[j * zones.Length + i] = travelUtility;
+                                    }
+                                }
+                                else
+                                {
+                                    for (int j = 0; j < zones.Length; j++)
+                                    {
+                                        var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
+                                        var travelUtility = logsumSpace[i * zones.Length + j];
+                                        // compute to
+                                        to[i * zones.Length + j] = nonExpPDConstant * travelUtility * customUtilities[i][j];
+                                        // compute from
+                                        from[j * zones.Length + i] = travelUtility * customUtilities[j][i];
+                                    }
                                 }
                             }
                         }
@@ -753,31 +775,73 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                         // if we are on anything besides the first iteration do a blended assignment for the utility to help converge.
                         if (currentIteration == 0)
                         {
-                            for (int j = 0; j < zones.Length; j++)
+                            if (customUtilities is null)
                             {
-                                var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
-                                // compute to
-                                To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
-                                // compute from
-                                From[time][j * zones.Length + i] = travelUtility;
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
+                                    var travelUtility = MathF.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = travelUtility;
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
+                                    var travelUtility = MathF.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility * customUtilities[i][j];
+                                    // compute from
+                                    From[time][j * zones.Length + i] = travelUtility * customUtilities[j][i];
+                                }
                             }
                         }
                         else
                         {
-                            for (int j = 0; j < zones.Length; j++)
+                            if (customUtilities is null)
                             {
-                                var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
-                                var travelUtility = (float)Math.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
-                                // compute to
-                                To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility) + To[time][i * zones.Length + j]) * 0.5f;
-                                // compute from
-                                From[time][j * zones.Length + i] = (travelUtility + From[time][j * zones.Length + i]) * 0.5f;
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
+                                    var travelUtility = MathF.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility) + To[time][i * zones.Length + j]) * 0.5f;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = (travelUtility + From[time][j * zones.Length + i]) * 0.5f;
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
+                                    var travelUtility = MathF.Pow(GetTravelLogsum(network, transitNetwork, distances, i, j, timeOfDay, timeParameters.TravelLogsumDenominator), timeParameters.TravelLogsumScale);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility * customUtilities[i][j]) + To[time][i * zones.Length + j]) * 0.5f;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = (travelUtility * customUtilities[j][i] + From[time][j * zones.Length + i]) * 0.5f;
+                                }
                             }
                         }
                     }
                 }
             });
+        }
+
+        private static SparseTwinIndex<float> GetData(IDataSource<SparseTwinIndex<float>> customUtility)
+        {
+            if (customUtility is null)
+            {
+                return null;
+            }
+            customUtility.LoadData();
+            var ret = customUtility.GiveData();
+            customUtility.UnloadData();
+            return ret;
         }
 
 
@@ -874,7 +938,7 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                         calculationSpace[i] = 0;
                     }
                 }
-                total += remainderTotal + Vector.Dot(totalV, Vector<float>.One);
+                total += remainderTotal + Vector.Sum(totalV);
             }
             else
             {
@@ -1055,9 +1119,12 @@ public sealed class V4LocationChoice : ILocationChoiceModel
         {
             ValidDestinations = Root.ZoneSystem.ZoneArray.GetFlatData().Select(zone => ValidDestinationZones.Contains(zone.ZoneNumber)).ToArray();
         }
-        MarketModel.Load();
-        OtherModel.Load();
-        WorkBasedBusinessModel.Load();
+        // We can load all of the location choice models in parallel.
+        Parallel.Invoke(
+            () => MarketModel.Load(),
+            () => OtherModel.Load(),
+            () => WorkBasedBusinessModel.Load()
+            );
     }
 
     public bool RuntimeValidation(ref string error)
