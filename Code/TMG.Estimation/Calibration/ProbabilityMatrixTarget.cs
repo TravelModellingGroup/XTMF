@@ -19,8 +19,6 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
@@ -65,7 +63,7 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     private float _baseRunProbability = float.NegativeInfinity;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ProbabilityMatrixTarget"/> class.
+    /// Called by XTMF
     /// </summary>
     /// <param name="config">The configuration.</param>
     public ProbabilityMatrixTarget(IConfiguration config) : base(config)
