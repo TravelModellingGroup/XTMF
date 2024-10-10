@@ -27,6 +27,7 @@ using System.Linq;
 using static Tasha.Validation.Calibration.Utilities;
 using TMG.Emme;
 using System.Threading;
+using TMG.Functions;
 
 namespace Tasha.Validation.Calibration;
 
@@ -76,6 +77,9 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
 
     [SubModelInformation(Required = true, Description = "The modes to select for.")]
     public SelectedModes[] SelectedModes;
+
+    [RunParameter("Normalize Household Iterations", false, "Divide by the number of household iterations before saving.")]
+    public bool NormalizeHouseholdIterations;
 
     [DoNotAutomate]
     private ITashaMode[] _modes;
@@ -133,9 +137,12 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
         }
     }
 
+    private int _householdIterations;
+
     public void HouseholdStart(ITashaHousehold household, int householdIterations)
     {
         // Do nothing
+        _householdIterations = householdIterations;
     }
 
     public void HouseholdComplete(ITashaHousehold household, bool success)
@@ -239,7 +246,12 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
     {
         if (_execute)
         {
-            new EmmeMatrix(_zones, _matrix.GetFlatData())
+            var data = _matrix.GetFlatData();
+            if (NormalizeHouseholdIterations)
+            {
+                VectorHelper.Multiply(data, 1.0f / _householdIterations, data);
+            }
+            new EmmeMatrix(_zones, data)
             .Save(SaveTo, false);
         }
     }

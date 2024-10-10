@@ -83,7 +83,7 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         var delta = MathF.Log(numerator / denominator);
         if (!float.IsFinite(delta))
         {
-            Console.WriteLine($"We found an invalid step size for {Name}!");
+            Console.WriteLine($"We found an invalid step size for {Name}, TargetProbability {_targetProbability}, Current {_baseRunProbability}!");
             return currentValue;
         }
         return ClampValue(currentValue + delta, MinimumValue, MaximumValue);
@@ -147,11 +147,25 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         else
         {
             var mask = _mask;
+            CheckMaskNonZero(mask);
             for (int i = 0; i < data.Length; i++)
             {
                 acc += VectorHelper.MultiplyAndSumNoStore(data[i], mask[i]);
             }
             return acc;
+        }
+    }
+
+    private void CheckMaskNonZero(float[][] mask)
+    {
+        var acc = 0.0f;
+        for (int i = 0; i < mask.Length; i++)
+        {
+            acc += VectorHelper.Sum(mask[i], 0, mask.Length);
+        }
+        if (acc <= 0.0f)
+        {
+            throw new XTMFRuntimeException(this, "The mask matrix is all zeros!");
         }
     }
 

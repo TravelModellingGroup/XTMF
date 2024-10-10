@@ -39,7 +39,7 @@ public sealed class ZoneSystemMaskMatrix : IDataSource<SparseTwinIndex<float>>
     private SparseTwinIndex<float> _data = null;
 
     [SubModelInformation(Required = false, Description = "An optional zone system to use. If not selected the Root zone system will be used.")]
-    public IDataSource<SparseArray<IZone>> ZoneSystem;
+    public IDataSource<IZoneSystem> ZoneSystem;
 
     public bool Loaded => _data is not null;
 
@@ -88,9 +88,8 @@ public sealed class ZoneSystemMaskMatrix : IDataSource<SparseTwinIndex<float>>
 
     private SparseArray<IZone> GetZoneSystem()
     {
-        if (_root is not null)
+        static SparseArray<IZone> Get(IDataSource<IZoneSystem> zoneSystem)
         {
-            var zoneSystem = _root.ZoneSystem;
             var loaded = zoneSystem.Loaded;
             if (!loaded)
             {
@@ -103,20 +102,7 @@ public sealed class ZoneSystemMaskMatrix : IDataSource<SparseTwinIndex<float>>
             }
             return ret;
         }
-        else
-        {
-            var loaded = ZoneSystem.Loaded;
-            if (!loaded)
-            {
-                ZoneSystem.LoadData();
-            }
-            var ret = ZoneSystem.GiveData();
-            if (!loaded)
-            {
-                ZoneSystem.UnloadData();
-            }
-            return ret;
-        }
+        return _root is not null ? Get(_root.ZoneSystem) : Get(ZoneSystem);
     }
 
     private int[] GetSpatialIndexes(SparseArray<IZone> zonesSystem)
