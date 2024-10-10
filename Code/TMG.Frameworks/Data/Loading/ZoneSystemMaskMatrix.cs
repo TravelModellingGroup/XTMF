@@ -51,6 +51,7 @@ public sealed class ZoneSystemMaskMatrix : IDataSource<SparseTwinIndex<float>>
         FlatIndex
     }
 
+    [RunParameter("Fill With", FillData.PlanningDistrict, "The type of information to use for selection what to activate for the mask.")]
     public FillData FillWith;
 
     private IConfiguration _config;
