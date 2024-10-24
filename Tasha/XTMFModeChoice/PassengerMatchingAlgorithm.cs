@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Tasha.Common;
 using TMG;
 using TMG.Functions;
@@ -117,13 +118,14 @@ public sealed class PassengerMatchingAlgorithm
         }
     }
 
-    private void AssignPassengerTrips(PotentialPassengerTrip[][] feasible, int[] bestAssignment)
+    private void AssignPassengerTrips(PotentialPassengerTrip?[][] feasible, int[] bestAssignment)
     {
         for(int i = 0; i < feasible.Length; i++)
         {
-            if(bestAssignment[i] >= 0)
+            var best = Get(bestAssignment, i);
+            if (best >= 0)
             {
-                var assign = feasible[i][bestAssignment[i]];
+                var assign = Get(feasible, i, best).Value;
                 var tripData = HouseholdData.PersonData[assign.PassengerIndex].TripChainData[assign.PassengerTripChainIndex].TripData[assign.PassengerTripIndex];
                 var otherModeIndex = IndexOf(assign.PassengerDestinationTrip.Mode, Modes);
                 // add the change of utility to the old data to compute our utility
@@ -232,7 +234,7 @@ public sealed class PassengerMatchingAlgorithm
         }
     }
 
-    private int[][] ConflictTable(PotentialPassengerTrip[][] feasible, int numberOfDrivers, out int numberOfConflicts)
+    private int[][] ConflictTable(PotentialPassengerTrip?[][] feasible, int numberOfDrivers, out int numberOfConflicts)
     {
         var ret = new int[feasible.Length][];
         numberOfConflicts = 1;
@@ -244,30 +246,34 @@ public sealed class PassengerMatchingAlgorithm
         {
             for(int j = 0; j < feasible.Length; j++)
             {
-                if(feasible[j][driver] == null)
+                var jDriverRecord = Get(feasible, j, driver);
+                if (!jDriverRecord.HasValue)
                 {
                     continue;
                 }
-                for(int k = j + 1; k < feasible.Length; k++)
+                var jDriver = jDriverRecord.Value;
+                for (int k = j + 1; k < feasible.Length; k++)
                 {
-                    if(feasible[k][driver] == null)
+                    var kDriverRecord = Get(feasible, k, driver);
+                    if (!kDriverRecord.HasValue)
                     {
                         continue;
-                    }
-                    if(Time.Intersection(feasible[j][driver].DriverDestinationTrip.TripStartTime,
-                            feasible[j][driver].PassengerDestinationTrip.ActivityStartTime,
-                            feasible[k][driver].DriverDestinationTrip.TripStartTime,
-                            feasible[k][driver].PassengerDestinationTrip.ActivityStartTime))
+                    }                   
+                    var kDriver = kDriverRecord.Value;
+                    if (Time.Intersection(jDriver.DriverDestinationTrip.TripStartTime,
+                            jDriver.PassengerDestinationTrip.ActivityStartTime,
+                            kDriver.DriverDestinationTrip.TripStartTime,
+                            kDriver.PassengerDestinationTrip.ActivityStartTime))
                     {
                         if(ret[j][driver] == 0)
                         {
-                            ret[j][driver] = numberOfConflicts;
-                            ret[k][driver] = numberOfConflicts;
+                            Get(ret, j, driver) = numberOfConflicts;
+                            Get(ret, k, driver) = numberOfConflicts;
                             numberOfConflicts++;
                         }
                         else
                         {
-                            ret[k][driver] = ret[j][driver];
+                            Get(ret, k, driver) = Get(ret, j, driver);
                         }
                     }
                 }
@@ -275,6 +281,23 @@ public sealed class PassengerMatchingAlgorithm
         }
         numberOfConflicts--;
         return ret;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static ref T Get<T>(T[][] matrix, int row, int column)
+    {
+        // This is a helper method to get a value from a matrix without bounds checking.
+        ref var arrayRow = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(matrix), row);
+        ref var cell = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(arrayRow), column);
+        return ref cell;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static ref T Get<T>(T[] vector, int column)
+    {
+        // This is a helper method to get a value from a matrix without bounds checking.
+        ref var cell = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(vector), column);
+        return ref cell;
     }
 
     private PurePassengerTripChain CreateDriverTripChain(Time start, Time end, IZone homeZone, ITashaPerson driver)
@@ -288,20 +311,20 @@ public sealed class PassengerMatchingAlgorithm
         return driverTripChain;
     }
 
-    private bool Feasible(int[][] feasible, int[] currentAssignment, int highest)
+    private bool Feasible(int[][] conflicts, int[] currentAssignment, int index)
     {
         int highestConflictIndex;
-        if(currentAssignment[highest] == -1 || (highestConflictIndex = feasible[highest][currentAssignment[highest]]) == 0)
+        if(currentAssignment[index] == -1 || (highestConflictIndex = Get(conflicts, index, Get(currentAssignment, index))) == 0)
         {
             return true;
         }
         // if we do want a driver though, check to make sure no one else is using them at the same time
-        for(int j = 0; j < highest; j++)
+        for(int j = index - 1; j >= 0 ; j--)
         {
             if(currentAssignment[j] >= 0)
             {
                 // check to see if they are using the same driver
-                if(highestConflictIndex == feasible[j][currentAssignment[j]])
+                if(highestConflictIndex == Get(conflicts, j, Get(currentAssignment, j)))
                 {
                     return false;
                 }
@@ -454,7 +477,7 @@ public sealed class PassengerMatchingAlgorithm
     private void HardCase()
     {
         List<ITrip> uniquePassenger = GetUniquePassengerTrips();
-        PotentialPassengerTrip[][] feasible = new PotentialPassengerTrip[uniquePassenger.Count][];
+        PotentialPassengerTrip?[][] feasible = new PotentialPassengerTrip?[uniquePassenger.Count][];
         SetupTable(HouseholdData.PersonData.Length, feasible, uniquePassenger);
         //var watch = new Stopwatch();
         //watch.Start();
@@ -479,11 +502,11 @@ public sealed class PassengerMatchingAlgorithm
         return -1;
     }
 
-    private void SetupTable(int numberOfPeoples, PotentialPassengerTrip[][] feasible, List<ITrip> uniqueTrips)
+    private void SetupTable(int numberOfPeoples, PotentialPassengerTrip?[][] feasible, List<ITrip> uniqueTrips)
     {
         for(int i = 0; i < uniqueTrips.Count; i++)
         {
-            feasible[i] = new PotentialPassengerTrip[numberOfPeoples];
+            feasible[i] = new PotentialPassengerTrip?[numberOfPeoples];
         }
         for(int i = 0; i < uniqueTrips.Count; i++)
         {
@@ -491,13 +514,13 @@ public sealed class PassengerMatchingAlgorithm
             {
                 if(PotentialTrips[j].PassengerDestinationTrip == uniqueTrips[i])
                 {
-                    feasible[i][IndexOf(PotentialTrips[j].DriverDestinationTrip.TripChain.Person, Household.Persons)] = PotentialTrips[j];
+                    Get(feasible, i, IndexOf(PotentialTrips[j].DriverDestinationTrip.TripChain.Person, Household.Persons)) = PotentialTrips[j];
                 }
             }
         }
     }
 
-    private void Solve(PotentialPassengerTrip[][] feasible, int[] bestAssignment, int numberOfDrivers)
+    private void Solve(PotentialPassengerTrip?[][] feasible, int[] bestAssignment, int numberOfDrivers)
     {
         var conflicts = ConflictTable(feasible, numberOfDrivers, out int numberOfConflicts);
         int[] currentAssignment = new int[bestAssignment.Length];
@@ -518,14 +541,14 @@ public sealed class PassengerMatchingAlgorithm
                 {
                     for(int i = 0; i < currentAssignment.Length; i++)
                     {
-                        bestAssignment[i] = currentAssignment[i];
+                        Get(bestAssignment, i) = currentAssignment[i];
                     }
                     bestU = currentU;
                 }
                 index--;
                 while(index >= 0)
                 {
-                    if(alreadySolved[index])
+                    if(Get(alreadySolved, index))
                     {
                         index--;
                         continue;
@@ -535,20 +558,20 @@ public sealed class PassengerMatchingAlgorithm
                 continue;
             }
             bool notFound = true;
-            for(int i = currentAssignment[index] + 1; i < feasible[index].Length; i++)
+            for(int i = Get(currentAssignment, index) + 1; i < Get(feasible, index).Length; i++)
             {
-                if(feasible[index][i] != null)
+                if(Get(feasible, index, i) != null)
                 {
-                    currentAssignment[index] = i;
+                    Get(currentAssignment, index) = i;
                     if(!Feasible(conflicts, currentAssignment, index))
                     {
                         continue;
                     }
-                    currentU += feasible[index][i].DeltaUtility;
+                    currentU += Get(feasible, index, i).Value.DeltaUtility;
                     index++;
                     while(index < feasible.Length)
                     {
-                        if(alreadySolved[index])
+                        if(Get(alreadySolved, index))
                         {
                             index++;
                             continue;
@@ -561,11 +584,11 @@ public sealed class PassengerMatchingAlgorithm
             }
             if(notFound)
             {
-                currentU -= feasible[index][currentAssignment[index]].DeltaUtility;
-                currentAssignment[index--] = -1;
+                currentU -= Get(feasible, index, Get(currentAssignment, index)).Value.DeltaUtility;
+                Get(currentAssignment, index--) = -1;
                 while(index >= 0)
                 {
-                    if(alreadySolved[index])
+                    if(Get(alreadySolved , index))
                     {
                         index--;
                         continue;
@@ -576,7 +599,7 @@ public sealed class PassengerMatchingAlgorithm
         }
     }
 
-    private bool[] SolveSimpleCases(PotentialPassengerTrip[][] feasible, int[] currentAssignment, int[] bestAssignment, int[][] conflicts)
+    private bool[] SolveSimpleCases(PotentialPassengerTrip?[][] feasible, int[] currentAssignment, int[] bestAssignment, int[][] conflicts)
     {
         bool[] solved = new bool[currentAssignment.Length];
         for(int i = 0; i < conflicts.Length; i++)
@@ -585,9 +608,10 @@ public sealed class PassengerMatchingAlgorithm
             float bestUtility = float.NegativeInfinity;
             for(int j = 0; j < conflicts[i].Length; j++)
             {
-                if(feasible[i][j] != null)
+                var feasibilityRecord = Get(feasible, i, j);
+                if (feasibilityRecord.HasValue)
                 {
-                    var util = feasible[i][j].DeltaUtility;
+                    var util = feasibilityRecord.Value.DeltaUtility;
                     if(util > bestUtility)
                     {
                         bestUtility = util;
@@ -597,11 +621,11 @@ public sealed class PassengerMatchingAlgorithm
             }
             if(maxIndex >= 0)
             {
-                if(conflicts[i][maxIndex] == 0)
+                if(Get(conflicts, i, maxIndex) == 0)
                 {
                     // then we can just pick the best
-                    currentAssignment[i] = bestAssignment[i] = maxIndex;
-                    solved[i] = true;
+                    Get(currentAssignment, i) = Get(bestAssignment, i) = maxIndex;
+                    Get(solved, i) = true;
                 }
             }
         }
@@ -609,7 +633,7 @@ public sealed class PassengerMatchingAlgorithm
     }
 }
 
-public sealed class PotentialPassengerTrip
+public struct PotentialPassengerTrip
 {
     internal int DriverIndex;
     internal int PassengerIndex;
