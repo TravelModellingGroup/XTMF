@@ -97,6 +97,7 @@ public class Schoolbus : ITashaMode, IIterationSensitive
         var zones = zoneSystem.ZoneArray;
         var o = zones.GetFlatIndex( trip.OriginalZone.ZoneNumber );
         var d = zones.GetFlatIndex( trip.DestinationZone.ZoneNumber );
+
         // get the distance in km
         var distance = zoneSystem.Distances.GetFlatData()[o][d] / 1000.0f;
         // if intrazonal
@@ -108,6 +109,7 @@ public class Schoolbus : ITashaMode, IIterationSensitive
         {
             v = Constant;
         }
+        v += _customUtility?[o][d] ?? 0;
         v += DistanceFactor * distance;
         var p = trip.TripChain.Person;
         if ( p.Licence )
@@ -187,7 +189,11 @@ public class Schoolbus : ITashaMode, IIterationSensitive
     public SpatialConstant[] SpatialConstants;
 
     private SparseTwinIndex<float> RegionConstants;
-     
+
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         //build the region constants
@@ -205,6 +211,13 @@ public class Schoolbus : ITashaMode, IIterationSensitive
         foreach(var timePeriod in TimePeriodConstants)
         {
             timePeriod.BuildMatrix();
+        }
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
         }
     }
 

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Datastructure;
 using System;
 using System.Collections.Generic;
 using Tasha.Common;
@@ -170,8 +171,10 @@ public sealed class AutoDrive : ITashaMode, IIterationSensitive
         var p = chain.Person;
         GetPersonVariables(p, out float timeFactor, out float constant, out float costParameter);
         float v = constant;
+        v += _customUtility?[o][d] ?? 0;
         // if Intrazonal
         Time tripStartTime = trip.TripStartTime;
+
         if (o == d)
         {
             v += IntrazonalConstant;
@@ -459,6 +462,10 @@ public sealed class AutoDrive : ITashaMode, IIterationSensitive
 
     private float[] AgeUtilLookup;
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
@@ -484,6 +491,13 @@ public sealed class AutoDrive : ITashaMode, IIterationSensitive
                 ParkingModel.LoadData();
             }
             _parkingModel = ParkingModel.GiveData();
+        }
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
         }
     }
 

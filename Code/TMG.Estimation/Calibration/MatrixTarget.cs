@@ -70,13 +70,18 @@ public sealed class MatrixTarget : CalibrationTarget
     {
         var flatTarget = _target.GetFlatData();
         var flatBaseResult = _baseResult.GetFlatData();
-        var flatOffsetResult = _offsetResult.GetFlatData();
+        var flatOffsetResult = _offsetResult?.GetFlatData();
 
         var sumTarget = SumMatrix(flatTarget);
         var sumBase = SumMatrix(flatBaseResult);
-        var sumOffset = SumMatrix(flatOffsetResult);
+        var sumOffset = flatOffsetResult is not null ? SumMatrix(flatOffsetResult) : sumBase;
 
         _baseError = sumBase - sumTarget;
+
+        if (flatOffsetResult is null)
+        {
+            return currentValue;
+        }
 
         var derivative = (sumOffset - sumBase) / ExploreSize;
 
@@ -140,7 +145,7 @@ public sealed class MatrixTarget : CalibrationTarget
             error = "The maximum change must be greater than 0!";
             return false;
         }
-        if(MaximumValue < MinimumValue)
+        if (MaximumValue < MinimumValue)
         {
             error = "The maximum value must be greater than the minimum value!";
             return false;

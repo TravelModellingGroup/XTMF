@@ -193,8 +193,9 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
         var p = trip.TripChain.Person;
         GetPersonVariables(p, out float constant, out float timeFactor, out float walkBeta, out float waitBeta, out float boardingBeta, out float costFactor);
         float v = constant;
+        v += _customUtility?[o][d] ?? 0;
         // if Intrazonal
-        if(o == d)
+        if (o == d)
         {
             v += IntrazonalConstant;
             v += IntrazonalTripDistanceFactor * zoneSystem.Distances.GetFlatData()[o][d] * 0.001f;
@@ -440,6 +441,10 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
     private float[] ZonalDensityForActivitiesArray;
     private float[] ZonalDensityForHomeArray;
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
@@ -460,6 +465,13 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
         ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
         StudentCost = StudentCostFactor * ProfessionalTimeFactor;
         NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
+        }
     }
 
     public void IterationEnding(int iterationNumber, int maxIterations)

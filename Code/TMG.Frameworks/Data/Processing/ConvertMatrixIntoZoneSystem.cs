@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2019 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2019-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,8 +27,8 @@ namespace TMG.Frameworks.Data.Processing;
     " in the zone system but that are not present in the source matrix will return the default value, typically zero.")]
 public sealed class ConvertMatrixIntoZoneSystem : IDataSource<SparseTwinIndex<float>>
 {
-    [RootModule]
-    public ITravelDemandModel Root;
+    [DoNotAutomate]
+    private ITravelDemandModel _root;
 
     public bool Loaded => _data != null;
 
@@ -36,10 +36,20 @@ public sealed class ConvertMatrixIntoZoneSystem : IDataSource<SparseTwinIndex<fl
 
     public float Progress => 0f;
 
+    private IConfiguration _config;
+
+    public ConvertMatrixIntoZoneSystem(IConfiguration config)
+    {
+        _config = config;
+    }
+
     public Tuple<byte, byte, byte> ProgressColour => new(50,150,50);
 
     [SubModelInformation(Required = true, Description = "The matrix to convert into the model's zone system.")]
     public IDataSource<SparseTwinIndex<float>> Source;
+
+    [SubModelInformation(Required = false, Description = "An optional zone system to convert into. If not selected the Root zone system will be used.")]
+    public IDataSource<IZoneSystem> ZoneSystem;
 
     private SparseTwinIndex<float> _data;
 
@@ -50,25 +60,22 @@ public sealed class ConvertMatrixIntoZoneSystem : IDataSource<SparseTwinIndex<fl
 
     public void LoadData()
     {
-        if(!Root.ZoneSystem.Loaded)
-        {
-            Root.ZoneSystem.LoadData();
-        }
+        SparseTwinIndex<float> ret = CreateDestinationMatrix();
         var loadedSource = !Source.Loaded;
-        if(loadedSource)
+        if (loadedSource)
         {
             Source.LoadData();
         }
         var sourceMatrix = Source.GiveData();
-        if(loadedSource)
+        if (loadedSource)
         {
             Source.UnloadData();
         }
-        var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+
         var flatRet = ret.GetFlatData();
-        foreach(var oIndexSet in ret.Indexes.Indexes)
+        foreach (var oIndexSet in ret.Indexes.Indexes)
         {
-            foreach(var dIndexSet in oIndexSet.SubIndex.Indexes)
+            foreach (var dIndexSet in oIndexSet.SubIndex.Indexes)
             {
                 var oRange = oIndexSet.Stop - oIndexSet.Start + 1;
                 for (int o = 0; o < oRange; o++)
@@ -84,8 +91,49 @@ public sealed class ConvertMatrixIntoZoneSystem : IDataSource<SparseTwinIndex<fl
         _data = ret;
     }
 
+    private SparseTwinIndex<float> CreateDestinationMatrix()
+    {
+        if (ZoneSystem is not null)
+        {
+            var loaded = ZoneSystem.Loaded;
+            if(!loaded) ZoneSystem.LoadData();
+            var ret = ZoneSystem.GiveData().ZoneArray.CreateSquareTwinArray<float>();
+            if (!loaded) ZoneSystem.UnloadData();
+            return ret;
+        }
+        else
+        {
+            if (!_root.ZoneSystem.Loaded)
+            {
+                _root.ZoneSystem.LoadData();
+            }
+            return _root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+        }
+    }
+
     public bool RuntimeValidation(ref string error)
     {
+        if (ZoneSystem is not null)
+        {
+            // No need to find a root if we have a source already.
+            return true;
+        }
+        // Find our source of the zone system
+        if (!TMG.Functions.ModelSystemReflection.GetRootOfType(_config, typeof(ITravelDemandModel), this, out var root))
+        {
+            error = $"Could not find a root of type {typeof(ITravelDemandModel).FullName} and there was no ZoneSystem provided!";
+            return false;
+        }
+        if (root.Module is ITravelDemandModel model)
+        {
+            _root = model;
+        }
+        else
+        {
+            // This should never happen
+            error = "We were not able to get out an ITravelDemandModel after reflecting a found root of that type!";
+            return false;
+        }
         return true;
     }
 

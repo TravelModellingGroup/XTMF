@@ -58,6 +58,12 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     [SubModelInformation(Required = false, Description = "A mask matrix to apply to the matrices.")]
     public IDataSource<SparseTwinIndex<float>> Mask;
 
+    [RunParameter("Paramter Is Ratio", false, "Set this to true if the parameter is a a ratio instead of linear.")]
+    public bool ParameterIsRatio;
+
+    [RunParameter("Only Mask Selection", false, "Set this to true if you want the ratio of masked/unmasked for both modelled and observed.")]
+    public bool OnlyMaskSelection;
+
     private float[][] _mask = null!;
     private float _targetProbability = float.NegativeInfinity;
     private float _baseRunProbability = float.NegativeInfinity;
@@ -79,14 +85,23 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     {
         var numerator = _targetProbability * _baseRunProbability - _targetProbability;
         var denominator = _baseRunProbability * _targetProbability - _baseRunProbability;
+        var ratio = numerator / denominator;
 
-        var delta = MathF.Log(numerator / denominator);
-        if (!float.IsFinite(delta))
+        if (!float.IsFinite(ratio))
         {
             Console.WriteLine($"We found an invalid step size for {Name}, TargetProbability {_targetProbability}, Current {_baseRunProbability}!");
             return currentValue;
         }
-        return ClampValue(currentValue + delta, MinimumValue, MaximumValue);
+        if (ParameterIsRatio)
+        {
+            var delta = ratio;
+            return ClampValue(currentValue * delta, MinimumValue, MaximumValue);
+        }
+        else
+        {
+            var delta = MathF.Log(ratio);
+            return ClampValue(currentValue + delta, MinimumValue, MaximumValue);
+        }
     }
 
     /// <summary>
@@ -121,15 +136,28 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         SparseTwinIndex<float> selection = null;
         float sumTotal = float.NegativeInfinity;
         float sumSelection = float.NegativeInfinity;
+        // Get the matrices
         Parallel.Invoke(
             () => total = GetValue(totalSource),
             () => selection = GetValue(selectionSource)
         );
+        // Mask Sum the matrices
         Parallel.Invoke(
-            () => sumTotal = GetMaskedSum(total),
+            () => sumTotal = OnlyMaskSelection ? GetSum(total) : GetMaskedSum(total),
             () => sumSelection = GetMaskedSum(selection)
         );
         return sumSelection / sumTotal;
+    }
+
+    private float GetSum(SparseTwinIndex<float> matrix)
+    {
+        var flat = matrix.GetFlatData();
+        var acc = 0.0f;
+        for ( var i = 0; i < flat.Length; i++)
+        {
+            acc += VectorHelper.Sum(flat[i], 0, flat.Length);
+        }
+        return acc;
     }
 
     private float GetMaskedSum(SparseTwinIndex<float> matrix)

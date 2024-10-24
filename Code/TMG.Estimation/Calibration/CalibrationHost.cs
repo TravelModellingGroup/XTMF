@@ -156,7 +156,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             writer.Write("Iteration");
             for (int i = 0; i < Targets.Length; i++)
             {
-                writer.Write($",TargetDistance-{Targets[i].Name}");
+                writer.Write($",Target-{Targets[i].Name}");
             }
             for (int i = 0; i < Targets.Length; i++)
             {

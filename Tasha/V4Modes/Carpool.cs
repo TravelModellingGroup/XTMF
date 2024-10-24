@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Datastructure;
 using System;
 using System.Collections.Generic;
 using Tasha.Common;
@@ -155,6 +156,7 @@ public sealed class Carpool : ITashaMode, IIterationSensitive
         var p = trip.TripChain.Person;
         GetPersonVariables(p, out float timeFactor, out float constant, out float costFactor);
         float v = constant;
+        v += _customUtility?[o][d] ?? 0;
         var startTime = trip.TripStartTime;
         // if Intrazonal
         if(o == d)
@@ -341,6 +343,10 @@ public sealed class Carpool : ITashaMode, IIterationSensitive
     {
     }
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         for(int i = 0; i < TimePeriodConstants.Length; i++)
@@ -353,6 +359,13 @@ public sealed class Carpool : ITashaMode, IIterationSensitive
         ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
         StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
         NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
+        }
     }
     private float ConvertCostFactor(float costFactor, float timeFactor)
     {

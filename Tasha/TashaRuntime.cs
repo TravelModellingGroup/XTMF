@@ -629,27 +629,69 @@ public class TashaRuntime : ITashaRuntime, IIterativeModel
                 ModeChoice.IterationFinished(i, TotalIterations);
             }
         }
+        PostSchedulerFinished(i);
+        PostHouseholdFinished(i);
+    }
+
+    private void PostSchedulerFinished(int i)
+    {
         if (PostScheduler != null)
         {
-            foreach (var module in PostScheduler)
+            if (ParallelPostScheduler)
             {
-                if (!_ExitRequested)
+                System.Threading.Tasks.Parallel.ForEach(PostScheduler, module =>
                 {
-                    module.IterationFinished(i);
-                }
+                    if (!_ExitRequested)
+                    {
+                        module.IterationFinished(i);
+                    }
+                });
             }
-        }
-        if (PostHousehold != null)
-        {
-            foreach (var module in PostHousehold)
+            else
             {
-                if (!_ExitRequested)
+                foreach (var module in PostScheduler)
                 {
-                    module.IterationFinished(i);
+                    if (!_ExitRequested)
+                    {
+                        module.IterationFinished(i);
+                    }
                 }
             }
         }
     }
+
+    private void PostHouseholdFinished(int i)
+    {
+        if (PostHousehold != null)
+        {
+            if (ParallelPostHousehold)
+            {
+                System.Threading.Tasks.Parallel.ForEach(PostHousehold, module =>
+                {
+                    if (!_ExitRequested)
+                    {
+                        module.IterationFinished(i);
+                    }
+                });
+            }
+            else
+            {
+                foreach (var module in PostHousehold)
+                {
+                    if (!_ExitRequested)
+                    {
+                        module.IterationFinished(i);
+                    }
+                }
+            }
+        }
+    }
+
+    [RunParameter("Parallel PostHousehold", false, "Run the post household module's cleanup and loading in Parallel.")]
+    public bool ParallelPostHousehold;
+
+    [RunParameter("Parallel PostScheduler", false, "Run the post scheduler module's cleanup and loading in Parallel.")]
+    public bool ParallelPostScheduler;
 
     private void UnloadNetworkData()
     {
@@ -674,23 +716,59 @@ public class TashaRuntime : ITashaRuntime, IIterativeModel
                 ModeChoice.IterationStarted(i, TotalIterations);
             }
         }
+        PostSchedulerStarting(i);
+        PostHouseholdStarting(i);
+    }
+
+    private void PostSchedulerStarting(int iteration)
+    {
         if (PostScheduler != null)
         {
-            foreach (var module in PostScheduler)
+            if (ParallelPostScheduler)
             {
-                if (!_ExitRequested)
+                System.Threading.Tasks.Parallel.ForEach(PostScheduler, module =>
                 {
-                    module.IterationStarting(i);
+                    if (!_ExitRequested)
+                    {
+                        module.IterationStarting(iteration);
+                    }
+                });
+            }
+            else
+            {
+                foreach (var module in PostScheduler)
+                {
+                    if (!_ExitRequested)
+                    {
+                        module.IterationStarting(iteration);
+                    }
                 }
             }
         }
+    }
+
+    private void PostHouseholdStarting(int iteration)
+    {
         if (PostHousehold != null)
         {
-            foreach (var module in PostHousehold)
+            if (ParallelPostHousehold)
             {
-                if (!_ExitRequested)
+                System.Threading.Tasks.Parallel.ForEach(PostHousehold, module =>
                 {
-                    module.IterationStarting(i);
+                    if (!_ExitRequested)
+                    {
+                        module.IterationStarting(iteration);
+                    }
+                });
+            }
+            else
+            {
+                foreach (var module in PostHousehold)
+                {
+                    if (!_ExitRequested)
+                    {
+                        module.IterationStarting(iteration);
+                    }
                 }
             }
         }
@@ -786,4 +864,5 @@ public class TashaRuntime : ITashaRuntime, IIterativeModel
             Console.WriteLine(FinishedProcessingHouseholds);
         }
     }
+
 }

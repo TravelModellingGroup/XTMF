@@ -181,7 +181,7 @@ public sealed class Walk : ITashaMode, IIterationSensitive
         Time startTime = trip.ActivityStartTime;
         v += TravelTime(o, d, startTime).ToMinutes() * walkBeta;
         v += _zonalDestinationUtility[d];
-
+        v += _customUtility?[o][d] ?? 0;
         //checking if child
         if (person.Youth)
         {
@@ -373,6 +373,9 @@ public sealed class Walk : ITashaMode, IIterationSensitive
 
     }
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         _zoneSystem = Root.ZoneSystem.ZoneArray;
@@ -413,6 +416,13 @@ public sealed class Walk : ITashaMode, IIterationSensitive
             {
                 _zonalDestinationUtility = new float[_zoneSystem.Count];
             }
+        }
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
         }
     }
 }

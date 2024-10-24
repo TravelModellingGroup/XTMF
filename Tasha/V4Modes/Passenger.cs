@@ -255,6 +255,7 @@ public sealed class Passenger : ITashaPassenger, IIterationSensitive
         }
         // Since this is going to be valid, start building a real utility!
         v = GetPlanningDistrictConstant(passengerTrip.ActivityStartTime, passengerTrip.OriginalZone.PlanningDistrict, passengerTrip.DestinationZone.PlanningDistrict);
+        v += _customUtility?[passengerOrigin][passengerDestination] ?? 0;
         var sameOrigin = passengerOrigin == driverOrigin;
         var sameDestination = passengerDestination == driverDestination;
         var passenger = passengerTrip.TripChain.Person;
@@ -362,9 +363,10 @@ public sealed class Passenger : ITashaPassenger, IIterationSensitive
         // we are going to add in the time of the to passenger destination twice
         var zeroTime = Time.Zero;
         int same = 0;
-
+        var zoneSystem = Root.ZoneSystem.ZoneArray;
+        v += _customUtility?[zoneSystem.GetFlatIndex(passengerOrigin.ZoneNumber)][zoneSystem.GetFlatIndex(passengerDestination.ZoneNumber)] ?? 0;
         // from driver's origin to passenger's origin
-        if(toPassengerOrigin == zeroTime)
+        if (toPassengerOrigin == zeroTime)
         {
             v += zoneDistances[driverOrigin.ZoneNumber,
                 passengerOrigin.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
@@ -723,6 +725,10 @@ public sealed class Passenger : ITashaPassenger, IIterationSensitive
 
     }
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     private float[] AgeUtilLookup;
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
@@ -751,6 +757,13 @@ public sealed class Passenger : ITashaPassenger, IIterationSensitive
                 ParkingModel.LoadData();
             }
             _parkingModel = ParkingModel.GiveData();
+        }
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
         }
     }
 

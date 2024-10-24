@@ -187,11 +187,12 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
         }
         GetPersonVariables(trip.TripChain.Person, out float constant);
         GetPersonVariables(trip.TripChain.Person, out float bAutoTime, out float bTransitTime, out float costFactor);
-        var v = constant;
         IZone oZone = trip.OriginalZone;
-        var o = _zones.GetFlatIndex(oZone.ZoneNumber);
         IZone dZone = trip.DestinationZone;
+        var o = _zones.GetFlatIndex(oZone.ZoneNumber);
         var d = _zones.GetFlatIndex(dZone.ZoneNumber);
+        var v = constant;
+        v += _customUtility?[o][d] ?? 0;
         switch (trip.Purpose)
         {
             case Activity.Market:
@@ -512,6 +513,10 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
     private float StudentCost;
     private float NonWorkerStudentCost;
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         _zones = Root.ZoneSystem.ZoneArray;
@@ -539,6 +544,13 @@ public sealed class PassengerAccessTransit : ITashaMode, IIterationSensitive, IT
         ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, (ManufacturingTimeFactorAuto + ManufacturingTimeFactorTransit) / 2.0f);
         StudentCost = ConvertCostFactor(StudentCostFactor, (StudentTimeFactorAuto + StudentTimeFactorTransit) / 2.0f);
         NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, (NonWorkerStudentTimeFactorAuto + NonWorkerStudentTimeFactorTransit) / 2.0f);
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
+        }
     }
 
     private float ConvertCostFactor(float costFactor, float timeFactor)

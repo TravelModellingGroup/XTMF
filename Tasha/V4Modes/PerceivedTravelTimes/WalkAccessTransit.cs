@@ -148,6 +148,7 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
         var p = trip.TripChain.Person;
         GetPersonVariables(p, out float constant, out float perceivedTimeFactor, out float costFactor);
         float v = constant;
+        v += _customUtility?[o][d] ?? 0;
         if (Network.GetAllData(o, d, trip.TripStartTime, out float ivtt, out float walk, out float wait, out float perceivedTime, out float cost))
         {
             v += perceivedTime * perceivedTimeFactor
@@ -357,6 +358,10 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
     private float[] ZonalDensityForActivitiesArray;
     private float[] ZonalDensityForHomeArray;
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         var zoneSystem = Root.ZoneSystem;
@@ -380,6 +385,13 @@ public class WalkAccessTransit : ITashaMode, IIterationSensitive
         ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
         StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
         NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
+        }
     }
 
     private float ConvertCostFactor(float costFactor, float timeFactor)

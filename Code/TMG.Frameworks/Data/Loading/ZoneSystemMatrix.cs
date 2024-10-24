@@ -20,7 +20,6 @@ using Datastructure;
 using System;
 using System.Linq;
 using System.Runtime.Intrinsics;
-using System.Xml.Schema;
 using TMG.Functions;
 using XTMF;
 
@@ -40,6 +39,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
         ManhattanZoneDistance = 1,
         IntraPDMatrix = 3,
         IntraRegionMatrix = 4,
+        ZoneSystemDistanceMatrix = 5,
     }
 
     [RunParameter("Matrix Type", MatrixType.StraightLineZoneDistance, "The type of data from the zone system to fill the matrix with.")]
@@ -62,6 +62,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
             MatrixType.ManhattanZoneDistance => ComputeManhattanDistance(),
             MatrixType.IntraPDMatrix => ComputeIntraPDMatrix(),
             MatrixType.IntraRegionMatrix => ComputeIntraRegionMatrix(),
+            MatrixType.ZoneSystemDistanceMatrix => CopyZoneSystemDistance(),
             _ => throw new XTMFRuntimeException(this, "Unknown Matrix Type!")
         };
     }
@@ -206,6 +207,20 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
             {
                 flatRet[i][j] = region[i] == region[j] ? 1.0f : 0.0f;
             }
+        }
+        return ret;
+    }
+
+    private SparseTwinIndex<float> CopyZoneSystemDistance()
+    {
+        var zoneSystemDistances = Root.ZoneSystem.Distances;
+        var ret = zoneSystemDistances.CreateSimilarArray<float>();
+        // Clone the data
+        var flatRet = ret.GetFlatData();
+        var flatData = zoneSystemDistances.GetFlatData();
+        for ( var i = 0; i < flatData.Length; i++)
+        {
+            Array.Copy(flatData[i], flatRet[i], flatData.Length);
         }
         return ret;
     }

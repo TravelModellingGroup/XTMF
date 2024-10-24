@@ -220,6 +220,7 @@ public sealed class Bicycle : ITashaMode, IIterationSensitive
         IZone destination = trip.DestinationZone;
         var o = _zoneSystem.GetFlatIndex(origin.ZoneNumber);
         var d = _zoneSystem.GetFlatIndex(destination.ZoneNumber);
+        v += _customUtility?[o][d] ?? 0;
         if (o == d)
         {
             v += IntrazonalConstant;
@@ -471,6 +472,9 @@ public sealed class Bicycle : ITashaMode, IIterationSensitive
 
     }
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         _zoneSystem = Root.ZoneSystem.ZoneArray;
@@ -511,6 +515,13 @@ public sealed class Bicycle : ITashaMode, IIterationSensitive
             {
                 _zonalDestinationUtility = new float[_zoneSystem.Count];
             }
+        }
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
         }
     }
 }

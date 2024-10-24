@@ -132,6 +132,7 @@ public class DriveAccessTransitLogsumOnly : ITourDependentMode, IIterationSensit
         var p = trip.TripChain.Person;
         GetPersonVariables(p, out float constant);
         v = constant;
+        v += _customUtility?[o][d] ?? 0;
         if (p.Female)
         {
             v += FemaleFlag;
@@ -395,6 +396,10 @@ public class DriveAccessTransitLogsumOnly : ITourDependentMode, IIterationSensit
     private float[] ZonalDensityForActivitiesArray;
     private float[] ZonalDensityForHomeArray;
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
+
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         if (!AccessStationChoiceLoaded | UnloadAccessStationModelEachIteration)
@@ -419,6 +424,13 @@ public class DriveAccessTransitLogsumOnly : ITourDependentMode, IIterationSensit
         {
             ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
             ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
+        }
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
         }
     }
 

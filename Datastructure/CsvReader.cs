@@ -430,7 +430,7 @@ public sealed class CsvReader : IDisposable
         return DataBufferLength == 0;
     }
 
-    private volatile bool NextDataReady;
+    SemaphoreSlim? _nextDataReady = null!;
     private volatile int NextDataBufferLength;
 
     private void LoadInData()
@@ -439,24 +439,21 @@ public sealed class CsvReader : IDisposable
         {
             DataBuffer2 = new char[_bufferSize];
             NextDataBufferLength = Reader.Read(DataBuffer2, 0, DataBuffer!.Length);
-            NextDataReady = true;
+            _nextDataReady = new SemaphoreSlim(1, 1);
         }
         // spin-wait on this being ready until the data is ready
-        while (!NextDataReady)
-        {
-        }
+        _nextDataReady!.Wait();
         DataBufferPosition = 0;
         var temp = DataBuffer;
         DataBuffer = DataBuffer2;
         DataBuffer2 = temp;
         DataBufferLength = NextDataBufferLength;
-        NextDataReady = false;
         // load the next set of data in parallel
         Task.Run(() =>
         {
             NextDataBufferLength = Reader.Read(DataBuffer2!, 0, DataBuffer.Length);
             Thread.MemoryBarrier();
-            NextDataReady = true;
+            _nextDataReady!.Release();
         });
     }
 

@@ -192,6 +192,7 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         var p = trip.TripChain.Person;
         GetPersonVariables(p, out float constant);
         float v = constant;
+        v += _customUtility?[o][d] ?? 0f;
         if (p.Female)
         {
             v += FemaleFlag;
@@ -698,6 +699,9 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         return tripCount;
     }
 
+    [SubModelInformation(Required = false, Description = "An optional custom utility matrix to apply to the mode.")]
+    public IDataSource<SparseTwinIndex<float>> CustomUtility;
+    private float[][] _customUtility;
     public void IterationStarting(int iterationNumber, int maxIterations)
     {
         if (iterationNumber == 0)
@@ -736,6 +740,13 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         {
             ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
             ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
+        }
+        _customUtility = null;
+        if (CustomUtility is not null)
+        {
+            CustomUtility.LoadData();
+            _customUtility = CustomUtility.GiveData()!.GetFlatData();
+            CustomUtility.UnloadData();
         }
     }
 
