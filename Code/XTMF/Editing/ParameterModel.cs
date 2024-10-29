@@ -89,6 +89,8 @@ public class ParameterModel : INotifyPropertyChanged
 
     public string Name => RealParameter.Name;
 
+    public string DefaultName => RealParameter.NameOnModule;
+
     private string _Value;
 
     public string Value
