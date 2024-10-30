@@ -1911,7 +1911,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             var parameters = root.Parameters.GetParameters();
             for (var i = 0; i < parameters.Count; i++)
             {
-                if (parameters[i].Name == parameterName)
+                if (parameters[i].DefaultName == parameterName)
                 {
                     parameter = parameters[i];
                     return parameters[i].Value;
