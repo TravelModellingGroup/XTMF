@@ -34,13 +34,13 @@ namespace Tasha.PopulationSynthesis;
  in the modal that wants a school zone receives one.")]
 public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<ITashaPerson, IZone>
 {
-    [SubModelInformation(Required = true, Description = "The resource to gather the elementary school probabilities from.")]
+    [SubModelInformation(Required = false, Description = "The resource to gather the elementary school probabilities from.")]
     public IResource ElementarySchoolProbabilitiesResource;
 
-    [SubModelInformation(Required = true, Description = "The resource to gather the high school probabilities from.")]
+    [SubModelInformation(Required = false, Description = "The resource to gather the high school probabilities from.")]
     public IResource HighschoolProbabilitiesResource;
 
-    [SubModelInformation(Required = true, Description = "The resource to gather the university probabilities from.")]
+    [SubModelInformation(Required = false, Description = "The resource to gather the university probabilities from.")]
     public IResource UniversityProbabilitiesResource;
 
     [RunParameter("Elementary School Ages", "0-11", typeof(RangeSet), "The valid ages to use for Elementary school.")]
@@ -51,6 +51,63 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
 
     [RunParameter("External Zones", "", typeof(RangeSet), "Exclude persons who already have a place of school in this range.")]
     public RangeSet ExternalZones;
+
+    [ModuleInformation(Description = "Provides an alternate way to provide the probabilities for different age groups.")]
+    public class CustomAgeRange : IModule
+    {
+        [RunParameter("Age Ranges", "", typeof(RangeSet), "The set of ages to use for this category.")]
+        public RangeSet AgeRange;
+
+        [SubModelInformation(Required = true, Description = "The resource to gather the elementary school probabilities from.")]
+        public IDataSource<SparseTwinIndex<float>> SchoolProbabilitiesResource;
+
+        [SubModelInformation(Required = false, Description = "Optional place to store the probabilities.")]
+        public FileLocation SaveSchoolProbabilities;
+
+        /// <summary>
+        /// The probabilities for the given age range.
+        /// </summary>
+        internal SparseTwinIndex<float> Probabilities;
+
+        internal SparseTwinIndex<float> Current;
+
+        public string Name { get; set; }
+
+        public float Progress => 0f;
+
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+        public float[] Totals;
+
+        public void Load()
+        {
+            SchoolProbabilitiesResource.LoadData();
+            Probabilities = SchoolProbabilitiesResource.GiveData();
+            SchoolProbabilitiesResource.UnloadData();
+            Totals = GetRowTotals(Probabilities);
+            if (SaveSchoolProbabilities is not null)
+            {
+                SaveData.SaveMatrix(Probabilities, SaveSchoolProbabilities);
+            }
+        }
+
+        public void Unload()
+        {
+            Probabilities = null;
+        }
+
+        public bool RuntimeValidation(ref string error)
+        {
+            if (AgeRange.Count == 0)
+            {
+                error = "You need to specify a range of ages for the Custom Age Range.";
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public CustomAgeRange[] CustomAgeRanges;
 
 
     private SparseTwinIndex<float> ElementarySchoolProbabilities;
@@ -68,6 +125,7 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     public int RandomSeed;
 
     private SparseArray<IZone> Zones;
+
     [SubModelInformation(Required = false, Description = "The location to save the remainders for the final iteration.")]
     public FileLocation SaveElementrySchoolProbabilities;
 
@@ -82,27 +140,41 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     public void Load()
     {
         _random = new Random(RandomSeed);
-        // Get our resources
-        Parallel.Invoke(
-        () =>
+        if (CustomAgeRanges.Length > 0)
         {
-            ElementarySchoolProbabilities = ElementarySchoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
-            _elementryProbabilities = GetRowTotals(ElementarySchoolProbabilities);
-        }, () =>
+            Parallel.ForEach(CustomAgeRanges, (range) =>
+            {
+                range.Load();
+                if (!WithReplacement)
+                {
+                    range.Current = Replicate(range.Probabilities);
+                }
+            });
+        }
+        else
         {
-            HighSchoolProbabilities = HighschoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
-            _highschoolProbabilities = GetRowTotals(HighSchoolProbabilities);
-        }, () =>
-        {
-            UniversityProbabilities = UniversityProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
-            _universityProperties = GetRowTotals(UniversityProbabilities);
-        });
-        // create replicated versions for our per iteration needs
-        if (!WithReplacement)
-        {
-            CurrentElementarySchoolProbabilities = Replicate(ElementarySchoolProbabilities);
-            CurrentHighSchoolProbabilities = Replicate(HighSchoolProbabilities);
-            CurrentUniversityProbabilities = Replicate(UniversityProbabilities);
+            // Get our resources
+            Parallel.Invoke(
+            () =>
+            {
+                ElementarySchoolProbabilities = ElementarySchoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+                _elementryProbabilities = GetRowTotals(ElementarySchoolProbabilities);
+            }, () =>
+            {
+                HighSchoolProbabilities = HighschoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+                _highschoolProbabilities = GetRowTotals(HighSchoolProbabilities);
+            }, () =>
+            {
+                UniversityProbabilities = UniversityProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+                _universityProperties = GetRowTotals(UniversityProbabilities);
+            });
+            // create replicated versions for our per iteration needs
+            if (!WithReplacement)
+            {
+                CurrentElementarySchoolProbabilities = Replicate(ElementarySchoolProbabilities);
+                CurrentHighSchoolProbabilities = Replicate(HighSchoolProbabilities);
+                CurrentUniversityProbabilities = Replicate(UniversityProbabilities);
+            }
         }
         // Gather the zone system for use from the root module.
         Zones = Root.ZoneSystem.ZoneArray;
@@ -337,15 +409,29 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     /// <returns>The probability distribution for the age.</returns>
     private SparseTwinIndex<float> GetDataForAge(int age)
     {
-        if (ElementryRange.Contains(age))
+        if (CustomAgeRanges.Length > 0)
         {
-            return CurrentElementarySchoolProbabilities;
+            foreach (var range in CustomAgeRanges)
+            {
+                if (range.AgeRange.Contains(age))
+                {
+                    return range.Current;
+                }
+            }
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any data for the age " + age + "!");
         }
-        if (HighschoolRange.Contains(age))
+        else
         {
-            return CurrentHighSchoolProbabilities;
+            if (ElementryRange.Contains(age))
+            {
+                return CurrentElementarySchoolProbabilities;
+            }
+            if (HighschoolRange.Contains(age))
+            {
+                return CurrentHighSchoolProbabilities;
+            }
+            return CurrentUniversityProbabilities;
         }
-        return CurrentUniversityProbabilities;
     }
 
     /// <summary>
@@ -355,24 +441,39 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     /// <returns>The probability distribution for the age.</returns>
     private (SparseTwinIndex<float> Probabilities, float[] Totals, IModule probabilitySource) GetOriginalDataForAge(int age)
     {
-        if (ElementryRange.Contains(age))
+        if (CustomAgeRanges.Length > 0)
         {
-            return (ElementarySchoolProbabilities, _elementryProbabilities, ElementarySchoolProbabilitiesResource);
+            foreach (var range in CustomAgeRanges)
+            {
+                if (range.AgeRange.Contains(age))
+                {
+                    return (range.Probabilities, range.Totals, range);
+                }
+            }
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any data for the age " + age + "!");
         }
-        if (HighschoolRange.Contains(age))
+        else
         {
-            return (HighSchoolProbabilities, _highschoolProbabilities, HighschoolProbabilitiesResource);
+            if (ElementryRange.Contains(age))
+            {
+                return (ElementarySchoolProbabilities, _elementryProbabilities, ElementarySchoolProbabilitiesResource);
+            }
+            if (HighschoolRange.Contains(age))
+            {
+                return (HighSchoolProbabilities, _highschoolProbabilities, HighschoolProbabilitiesResource);
+            }
+            return (UniversityProbabilities, _universityProperties, UniversityProbabilitiesResource);
         }
-        return (UniversityProbabilities, _universityProperties, UniversityProbabilitiesResource);
     }
 
 
     public void Unload()
     {
-
-        SaveIfFileExists(CurrentElementarySchoolProbabilities, SaveElementrySchoolProbabilities);
-        SaveIfFileExists(CurrentHighSchoolProbabilities, SaveHighSchoolProbabilities);
-        SaveIfFileExists(CurrentUniversityProbabilities, SaveUniversitySchoolProbabilities);
+        Parallel.Invoke(
+            () => SaveIfFileExists(ElementarySchoolProbabilities, SaveElementrySchoolProbabilities),
+            () => SaveIfFileExists(HighSchoolProbabilities, SaveHighSchoolProbabilities),
+            () => SaveIfFileExists(UniversityProbabilities, SaveUniversitySchoolProbabilities)
+        );
 
         ElementarySchoolProbabilities = null;
         HighSchoolProbabilities = null;
@@ -381,6 +482,11 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
         CurrentElementarySchoolProbabilities = null;
         CurrentHighSchoolProbabilities = null;
         CurrentUniversityProbabilities = null;
+
+        foreach (var custom in CustomAgeRanges)
+        {
+            custom.Unload();
+        }
     }
 
     private static void SaveIfFileExists(SparseTwinIndex<float> matrix, FileLocation file)
@@ -405,10 +511,13 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
 
     public bool RuntimeValidation(ref string error)
     {
-        if (!ElementarySchoolProbabilitiesResource.CheckResourceType<SparseTwinIndex<float>>())
+        if (CustomAgeRanges.Length <= 0)
         {
-            error = "In '" + Name + "' ";
-            return false;
+            if (!ElementarySchoolProbabilitiesResource.CheckResourceType<SparseTwinIndex<float>>())
+            {
+                error = "In '" + Name + "' ";
+                return false;
+            }
         }
         return true;
     }
