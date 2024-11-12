@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -77,7 +77,7 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
 
         public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
 
-        public float[] Totals;
+        internal float[] Totals;
 
         public void Load()
         {
@@ -89,6 +89,13 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
             {
                 SaveData.SaveMatrix(Probabilities, SaveSchoolProbabilities);
             }
+        }
+
+        public bool Contains(ITashaPerson person)
+        {
+            var age = person.Age;
+
+            return AgeRange.Contains(age);
         }
 
         public void Unload()
@@ -225,7 +232,7 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
         {
             _random = new Random(RandomSeed * household.HouseholdId);
         }
-        var probabilities = GetDataForAge(person.Age);
+        var probabilities = GetDataForPerson(person);
         var householdZone = household.HomeZone.ZoneNumber;
         if (Root.ZoneSystem.ZoneArray.GetFlatIndex(householdZone) < 0)
         {
@@ -407,21 +414,22 @@ public sealed class AssignSchoolZonesFromResourceProbabilities : ICalculation<IT
     /// </summary>
     /// <param name="age">The age of the person to lookup for.</param>
     /// <returns>The probability distribution for the age.</returns>
-    private SparseTwinIndex<float> GetDataForAge(int age)
+    private SparseTwinIndex<float> GetDataForPerson(ITashaPerson person)
     {
         if (CustomAgeRanges.Length > 0)
         {
-            foreach (var range in CustomAgeRanges)
+            foreach (var category in CustomAgeRanges)
             {
-                if (range.AgeRange.Contains(age))
+                if (category.Contains(person))
                 {
-                    return range.Current;
+                    return category.Current;
                 }
             }
-            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any data for the age " + age + "!");
+            throw new XTMFRuntimeException(this, "In '" + Name + "' we were unable to find any data for the age " + person.Age + "!");
         }
         else
         {
+            var age = person.Age;
             if (ElementryRange.Contains(age))
             {
                 return CurrentElementarySchoolProbabilities;
