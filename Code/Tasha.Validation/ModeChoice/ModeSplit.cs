@@ -52,52 +52,52 @@ public class ModeSplit : IPostHousehold
 
     ITashaMode[] Modes;
     float[] Counts;
-    SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
 
     public void Execute(ITashaHousehold household, int iteration)
     {
         var persons = household.Persons;
-        bool taken = false;
-        WriteLock.Enter(ref taken);
-        for(int i = 0; i < persons.Length; i++)
+        lock (_writeLock)
         {
-            var expanionFactor = persons[i].ExpansionFactor;
-            var tripChains = persons[i].TripChains;
-            for(int j = 0; j < tripChains.Count; j++)
+            for (int i = 0; i < persons.Length; i++)
             {
-                var tripChain = tripChains[j].Trips;
-                for(int k = 0; k < tripChain.Count; k++)
+                var expanionFactor = persons[i].ExpansionFactor;
+                var tripChains = persons[i].TripChains;
+                for (int j = 0; j < tripChains.Count; j++)
                 {
-                    var mode = tripChain[k].Mode;
-                    for(int l = 0; l < Modes.Length; l++)
+                    var tripChain = tripChains[j].Trips;
+                    for (int k = 0; k < tripChain.Count; k++)
                     {
-                        if(Modes[l] == mode)
+                        var mode = tripChain[k].Mode;
+                        for (int l = 0; l < Modes.Length; l++)
                         {
-                            Counts[l] += expanionFactor;
-                            break;
+                            if (Modes[l] == mode)
+                            {
+                                Counts[l] += expanionFactor;
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
-        if(taken) WriteLock.Exit(true);
     }
 
     public void IterationFinished(int iteration)
     {
-        using(var writer = new StreamWriter(OutputFileLocation, true))
+        using (var writer = new StreamWriter(OutputFileLocation, true))
         {
             writer.Write("Iteration: ");
             writer.WriteLine(iteration);
             writer.WriteLine("Mode,ExpandedTrips");
-            for(int i = 0; i < Modes.Length; i++)
+            for (int i = 0; i < Modes.Length; i++)
             {
                 writer.Write(Modes[i].ModeName);
                 writer.Write(',');
                 writer.WriteLine(Counts[i]);
             }
         }
-        for(int i = 0; i < Counts.Length; i++)
+        for (int i = 0; i < Counts.Length; i++)
         {
             Counts[i] = 0.0f;
         }

@@ -73,7 +73,7 @@ public class ExtractObservedDemandToPD : IPostHousehold
         /// <summary>
         /// This is the lock for accessing the demand matrix data, please acquire this before changing the values
         /// </summary>
-        private SpinLock WriteLock = new(false);
+        private Lock _writeLock = new();
 
         /// <summary>
         /// Please have the write lock before editing these values
@@ -109,11 +109,11 @@ public class ExtractObservedDemandToPD : IPostHousehold
                     {
                         if (IsContained(trip, out int pdO, out int pdD, out int mode))
                         {
-                            bool taken = false;
                             var row = Demand[mode][pdO];
-                            WriteLock.Enter(ref taken);
-                            row[pdD] += expFactor;
-                            if(taken) WriteLock.Exit(true);
+                            lock (_writeLock)
+                            {
+                                row[pdD] += expFactor;
+                            }
                         }
                     }
                 }

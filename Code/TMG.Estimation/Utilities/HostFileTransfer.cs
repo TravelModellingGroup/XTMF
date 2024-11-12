@@ -83,7 +83,7 @@ public class HostFileTransfer : ISelfContainedModule
             Host.RegisterCustomReceiver(DataChannel, (stream, remote) =>
                 {
                     var data = new byte[stream.Length];
-                    stream.Read(data, 0, data.Length);
+                    stream.ReadExactly(data, 0, data.Length);
                     return data;
                 });
             Host.RegisterCustomMessageHandler(DataChannel, (obj, remote) =>

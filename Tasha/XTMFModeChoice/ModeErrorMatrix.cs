@@ -37,7 +37,7 @@ public class ModeErrorMatrix : IPostHousehold
     [RunParameter("Household Iterations", 100, "The number of household iterations that we are expecting.")]
     public int HouseholdIterations;
 
-    SpinLock ObservationsLock = new(false);
+    private Lock _observationsLock = new();
     public float[][] Observations;
 
     [RunParameter("ObservedMode", "ObservedMode", "The name of the observed mode's attribute.")]
@@ -68,7 +68,7 @@ public class ModeErrorMatrix : IPostHousehold
 
     private float ZeroParamFitness;
 
-    private SpinLock FitnessUpdateLock = new(false);
+    private Lock _writeLock = new();
 
     public string Name
     {
@@ -91,22 +91,22 @@ public class ModeErrorMatrix : IPostHousehold
     {
         var numberOfModes = Modes.Count;
         var numberOfSharedModes = TashaRuntime.SharedModes.Count;
-        var householdData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
+        var householdData = (ModeChoiceHouseholdData)household["ModeChoiceData"];
         double householdFitness = 0.0;
         double zeroFitness = 0.0;
         // Make sure there is data for this household.  This might happen if there is no trips.
-        if(householdData == null)
+        if (householdData == null)
         {
             return;
         }
-        for(int personIndex = 0; personIndex < householdData.PersonData.Length; personIndex++)
+        for (int personIndex = 0; personIndex < householdData.PersonData.Length; personIndex++)
         {
             var personData = householdData.PersonData[personIndex];
             var expFactor = ReportExpansionFactors ? household.Persons[personIndex].ExpansionFactor : 1.0f;
-            for(int tripChainIndex = 0; tripChainIndex < personData.TripChainData.Length; tripChainIndex++)
+            for (int tripChainIndex = 0; tripChainIndex < personData.TripChainData.Length; tripChainIndex++)
             {
                 var tripChainData = personData.TripChainData[tripChainIndex];
-                for(int tripIndex = 0; tripIndex < tripChainData.TripData.Length; tripIndex++)
+                for (int tripIndex = 0; tripIndex < tripChainData.TripData.Length; tripIndex++)
                 {
                     var trip = tripChainData.TripChain.Trips[tripIndex];
                     // Check to see if we should exclude this trip
@@ -114,27 +114,27 @@ public class ModeErrorMatrix : IPostHousehold
                     {
                         continue;
                     }
-                    
+
                     var tripData = tripChainData.TripData[tripIndex];
-                    
+
                     int correct = 0;
-                    if(trip.ModesChosen == null)
+                    if (trip.ModesChosen == null)
                     {
                         Interlocked.Add(ref MissingTrips, HouseholdIterations);
                         break;
                     }
                     var hhldIterations = trip.ModesChosen.Length;
-                    if(hhldIterations != HouseholdIterations)
+                    if (hhldIterations != HouseholdIterations)
                     {
                         Interlocked.Add(ref MissingTrips, HouseholdIterations - hhldIterations);
                     }
-                    if(hhldIterations == 0)
+                    if (hhldIterations == 0)
                     {
                         break;
                     }
 
                     var obs = trip[ObservedMode];
-                    if(obs != null)
+                    if (obs != null)
                     {
                         if (obs is ITashaMode obsMode)
                         {
@@ -148,11 +148,10 @@ public class ModeErrorMatrix : IPostHousehold
                                     var predMode = Modes.IndexOf(chosenModes[k]);
                                     if (predMode >= 0)
                                     {
-                                        bool taken = false;
-                                        ObservationsLock.Enter(ref taken);
-                                        Thread.MemoryBarrier();
-                                        Observations[realIndex][predMode] += expFactor;
-                                        if (taken) ObservationsLock.Exit(true);
+                                        lock (_observationsLock)
+                                        {
+                                            Observations[realIndex][predMode] += expFactor;
+                                        }
                                     }
                                     if (realIndex == predMode)
                                     {
@@ -209,13 +208,11 @@ public class ModeErrorMatrix : IPostHousehold
                 }
             }
         }
-        bool entered = false;
-        FitnessUpdateLock.Enter(ref entered);
-        Thread.MemoryBarrier();
-        Fitness += (float)householdFitness;
-        ZeroParamFitness += (float)zeroFitness;
-        Thread.MemoryBarrier();
-        if(entered) FitnessUpdateLock.Exit(true);
+        lock (_writeLock)
+        {
+            Fitness += (float)householdFitness;
+            ZeroParamFitness += (float)zeroFitness;
+        }
     }
 
     private bool IsInTimeBound(ITrip trip)
@@ -237,29 +234,29 @@ public class ModeErrorMatrix : IPostHousehold
         var correctTotal = 0.0f;
         var columnTotals = new float[numModes];
         var total = 0.0f;
-        using(StreamWriter writer = new(FileName))
+        using (StreamWriter writer = new(FileName))
         {
             // print the header
             writer.Write("Pred\\Real");
-            for(int i = 0; i < numModes; i++)
+            for (int i = 0; i < numModes; i++)
             {
                 writer.Write(',');
                 writer.Write(Modes[i].ModeName);
             }
             writer.WriteLine(",Row Total");
             // for each row
-            for(int j = 0; j < numModes; j++)
+            for (int j = 0; j < numModes; j++)
             {
                 float rowTotal = 0.0f;
                 writer.Write(Modes[j].ModeName);
-                for(int i = 0; i < numModes; i++)
+                for (int i = 0; i < numModes; i++)
                 {
                     var val = Observations[i][j];
                     writer.Write(',');
                     writer.Write(val);
                     columnTotals[i] += val;
                     rowTotal += val;
-                    if(i == j)
+                    if (i == j)
                     {
                         correctTotal += val;
                     }
@@ -269,7 +266,7 @@ public class ModeErrorMatrix : IPostHousehold
                 writer.WriteLine(rowTotal);
             }
             writer.Write("Column Total,");
-            for(int i = 0; i < numModes; i++)
+            for (int i = 0; i < numModes; i++)
             {
                 writer.Write(columnTotals[i]);
                 writer.Write(',');
@@ -278,18 +275,18 @@ public class ModeErrorMatrix : IPostHousehold
 
             // NOW COMPUTE THE %
             writer.Write("Pred\\Real%");
-            for(int i = 0; i < numModes; i++)
+            for (int i = 0; i < numModes; i++)
             {
                 writer.Write(',');
                 writer.Write(Modes[i].ModeName);
             }
             writer.WriteLine(",Row Total");
             // for each row
-            for(int j = 0; j < numModes; j++)
+            for (int j = 0; j < numModes; j++)
             {
                 float rowTotal = 0;
                 writer.Write(Modes[j].ModeName);
-                for(int i = 0; i < numModes; i++)
+                for (int i = 0; i < numModes; i++)
                 {
                     writer.Write(',');
                     writer.Write("{0:0.##}%", 100 * ((Observations[i][j]) / total));
@@ -298,14 +295,14 @@ public class ModeErrorMatrix : IPostHousehold
                 writer.WriteLine(",{0:0.##}%", 100 * (rowTotal / total));
             }
             writer.Write("Column Total,");
-            for(int i = 0; i < numModes; i++)
+            for (int i = 0; i < numModes; i++)
             {
                 writer.Write("{0:0.##}%", 100 * (columnTotals[i] / total));
                 writer.Write(',');
             }
             writer.WriteLine("{0:0.##}%", 100 * (correctTotal / total));
 
-            if(ComputeFitness)
+            if (ComputeFitness)
             {
                 writer.Write("Value,");
                 writer.WriteLine(Fitness);
@@ -317,7 +314,7 @@ public class ModeErrorMatrix : IPostHousehold
                 var numberOfModes = Modes.Count;
                 writer.WriteLine("\r\n");
                 writer.WriteLine("Number of Non-Feasible Trips");
-                for(int i = 0; i < numberOfModes; i++)
+                for (int i = 0; i < numberOfModes; i++)
                 {
                     writer.Write(Modes[i].ModeName);
                     writer.Write(',');
@@ -327,7 +324,7 @@ public class ModeErrorMatrix : IPostHousehold
                 writer.WriteLine(MissingTrips);
                 writer.WriteLine("Invaid Trips");
                 writer.WriteLine("HHLD,Person,Trip#,Mode,Distance,HasTravelTime,OriginZone,DestZone");
-                while(BadTripsQueue.TryDequeue(out BadTripEntry t))
+                while (BadTripsQueue.TryDequeue(out BadTripEntry t))
                 {
                     writer.Write(t.HHLD);
                     writer.Write(',');
@@ -351,7 +348,7 @@ public class ModeErrorMatrix : IPostHousehold
         Fitness = 0;
         ZeroParamFitness = 0;
         MissingTrips = 0;
-        for(int i = 0; i < BadTrips.Length; i++)
+        for (int i = 0; i < BadTrips.Length; i++)
         {
             BadTrips[i] = 0;
         }
@@ -363,7 +360,7 @@ public class ModeErrorMatrix : IPostHousehold
         // Create the table
         var allModes = Modes = TashaRuntime.AllModes;
         Observations = new float[allModes.Count][];
-        for(int i = 0; i < Observations.Length; i++)
+        for (int i = 0; i < Observations.Length; i++)
         {
             Observations[i] = new float[allModes.Count];
         }
@@ -381,7 +378,7 @@ public class ModeErrorMatrix : IPostHousehold
         ClearTrips();
         Fitness = 0;
         ZeroParamFitness = 0;
-        for(int i = 0; i < BadTrips.Length; i++)
+        for (int i = 0; i < BadTrips.Length; i++)
         {
             BadTrips[i] = 0;
         }

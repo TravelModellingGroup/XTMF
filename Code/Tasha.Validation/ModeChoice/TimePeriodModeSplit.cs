@@ -64,16 +64,16 @@ public class TimePeriodModeSplit : IPostHousehold
         public Time EndTime;
 
         internal Dictionary<Activity, float[]> Counts = [];
-        SpinLock WriteLock = new(false);
+        private Lock _writeLock = new();
 
         public bool Execute(Time tripStart, int modeIndex, float expansionFactor, Activity activity)
         {
             if(StartTime <= tripStart && tripStart < EndTime)
             {
-                bool taken = false;
-                WriteLock.Enter(ref taken);
-                GetPurposeCount(activity)[modeIndex] += expansionFactor;
-                if(taken) WriteLock.Exit(true);
+                lock (_writeLock)
+                {
+                    GetPurposeCount(activity)[modeIndex] += expansionFactor;
+                }
                 return true;
             }
             return false;

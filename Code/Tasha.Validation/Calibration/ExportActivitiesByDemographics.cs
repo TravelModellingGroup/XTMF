@@ -20,6 +20,7 @@
 using Datastructure;
 using System;
 using System.Linq;
+using System.Threading;
 using Tasha.Common;
 using TMG;
 using TMG.Emme;
@@ -128,6 +129,8 @@ public sealed class ExportActivitiesByDemographics : IPostHousehold
         }
     }
 
+    private Lock _writeLock = new ();
+
     /// <summary>
     /// Executes the logic to extract activities by demographics for a given household and iteration.
     /// </summary>
@@ -157,7 +160,7 @@ public sealed class ExportActivitiesByDemographics : IPostHousehold
                 return;
             }
             var flatMatrix = _matrix.GetFlatData();
-            lock (this)
+            lock (_writeLock)
             {
                 for (int i = 0; i < numberOfEntries; i++)
                 {

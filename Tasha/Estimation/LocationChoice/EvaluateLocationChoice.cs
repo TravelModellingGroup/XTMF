@@ -60,7 +60,7 @@ public class EvaluateLocationChoice : IPostHousehold
 
     SparseTwinIndex<float> Choices;
 
-    SpinLock ChoicesLock = new(false);
+    Lock _choicesLock = new();
 
     public string Name
     {
@@ -83,7 +83,7 @@ public class EvaluateLocationChoice : IPostHousehold
         }
     }
 
-    SpinLock FitnessLock = new(false);
+    Lock _lock = new();
     private float Fitness;
 
     private SparseArray<IZone> ZoneSystem;
@@ -92,7 +92,6 @@ public class EvaluateLocationChoice : IPostHousehold
     {
         var localFitness = 0.0f;
         var persons = household.Persons;
-        bool taken;
         if (ConfusionMatrix == null)
         {
             for (int personIndex = 0; personIndex < persons.Length; personIndex++)
@@ -150,50 +149,51 @@ public class EvaluateLocationChoice : IPostHousehold
                                 {
                                     var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
                                     var correct = Math.Min(choices[revieldChoice] + 0.001f, 1.0f);
-                                    taken = false;
-                                    ChoicesLock.Enter(ref taken);
-                                    for (int i = 0; i < choices.Length; i++)
+                                    lock (_choicesLock)
                                     {
-                                        flatChoices[i][revieldChoice] += choices[i];
+
+                                        for (int i = 0; i < choices.Length; i++)
+                                        {
+                                            flatChoices[i][revieldChoice] += choices[i];
+                                            switch (activtiyType)
+                                            {
+                                                case Activity.WorkBasedBusiness:
+                                                    if (ModelWork != null)
+                                                    {
+                                                        ModelWork[i][revieldChoice] += choices[i];
+                                                    }
+                                                    break;
+                                                case Activity.Market:
+                                                case Activity.JointMarket:
+                                                    if (ModelMarket != null)
+                                                    {
+                                                        ModelMarket[i][revieldChoice] += choices[i];
+                                                    }
+                                                    break;
+                                                case Activity.IndividualOther:
+                                                case Activity.JointOther:
+                                                    if (ModelOther != null)
+                                                    {
+                                                        ModelOther[i][revieldChoice] += choices[i];
+                                                    }
+                                                    break;
+                                            }
+                                        }
                                         switch (activtiyType)
                                         {
                                             case Activity.WorkBasedBusiness:
-                                                if (ModelWork != null)
-                                                {
-                                                    ModelWork[i][revieldChoice] += choices[i];
-                                                }
+                                                AddIfExists(ObservedWork, origin, revieldChoice);
                                                 break;
                                             case Activity.Market:
                                             case Activity.JointMarket:
-                                                if (ModelMarket != null)
-                                                {
-                                                    ModelMarket[i][revieldChoice] += choices[i];
-                                                }
+                                                AddIfExists(ObservedMarket, origin, revieldChoice);
                                                 break;
                                             case Activity.IndividualOther:
                                             case Activity.JointOther:
-                                                if (ModelOther != null)
-                                                {
-                                                    ModelOther[i][revieldChoice] += choices[i];
-                                                }
+                                                AddIfExists(ObservedOther, origin, revieldChoice);
                                                 break;
                                         }
                                     }
-                                    switch (activtiyType)
-                                    {
-                                        case Activity.WorkBasedBusiness:
-                                            AddIfExists(ObservedWork, origin, revieldChoice);
-                                            break;
-                                        case Activity.Market:
-                                        case Activity.JointMarket:
-                                            AddIfExists(ObservedMarket, origin, revieldChoice);
-                                            break;
-                                        case Activity.IndividualOther:
-                                        case Activity.JointOther:
-                                            AddIfExists(ObservedOther, origin, revieldChoice);
-                                            break;
-                                    }
-                                    if (taken) ChoicesLock.Exit(false);
                                     localFitness += (float)Math.Log(correct);
                                     break;
                                 }
@@ -202,11 +202,11 @@ public class EvaluateLocationChoice : IPostHousehold
                 }
             }
         }
-        taken = false;
         // evaluate the household
-        FitnessLock.Enter(ref taken);
-        Fitness += localFitness;
-        if (taken) FitnessLock.Exit(true);
+        lock (_lock)
+        {
+            Fitness += localFitness;
+        }
     }
 
     private void AddIfExists(float[][] observedWork, int origin, int revieldChoice)

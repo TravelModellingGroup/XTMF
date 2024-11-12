@@ -83,7 +83,7 @@ public class GatherAutoEmissionsTripRecord : IPostHouseholdIteration
     [SubModelInformation(Required = true, Description = "CSV: Home,Origin,Destination,Mode,StartHour,ExpandedPersons.")]
     public FileLocation SaveTo;
 
-    private SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
 
     public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
     {
@@ -170,11 +170,11 @@ public class GatherAutoEmissionsTripRecord : IPostHouseholdIteration
     {
         var hour = startTime.Hours;
         var index = new Index(homeZone, origin, destination, hour);
-        bool gotLock = false;
-        WriteLock.Enter(ref gotLock);
-        Data.TryGetValue(index, out float previous);
-        Data[index] = previous + expFactor;
-        if (gotLock) WriteLock.Exit(true);
+        lock (_writeLock)
+        {
+            Data.TryGetValue(index, out float previous);
+            Data[index] = previous + expFactor;
+        }
     }
 
     public sealed class ModeLink : IModule

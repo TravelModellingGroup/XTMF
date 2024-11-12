@@ -58,7 +58,7 @@ public class ExtractPoRPoSAssignments : IPostHousehold
     [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
     public int MinimumAge;
 
-    SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
     Dictionary<int, Dictionary<StudentStatus, float[][]>> Data = [];
     public void Execute(ITashaHousehold household, int iteration)
     {
@@ -84,10 +84,10 @@ public class ExtractPoRPoSAssignments : IPostHousehold
                                 if (schoolZones >= 0)
                                 {
                                     var row = studentData[homeIndex];
-                                    bool taken = false;
-                                    WriteLock.Enter(ref taken);
-                                    row[schoolZones] += expansionFactor;
-                                    if (taken) WriteLock.Exit(true);
+                                    lock(_writeLock)
+                                    { 
+                                        row[schoolZones] += expansionFactor; 
+                                    }
                                 }
                             }
                         }

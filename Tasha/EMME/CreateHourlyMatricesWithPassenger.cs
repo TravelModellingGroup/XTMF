@@ -50,7 +50,7 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
     [SubModelInformation(Required = true, Description = "The location to save the SOV matrix.")]
     public FileLocation MatrixSaveLocation;
 
-    private SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
 
     private int GetFlatIndex(IZone zone)
     {
@@ -181,14 +181,14 @@ public sealed class CreateHourlyMatricesWithPassenger : IPostHouseholdIteration
 
     private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        bool taken = false;
-        WriteLock.Enter(ref taken);
-        foreach (var entry in toWrite)
+        lock (_writeLock)
         {
-            var row = Matrix[entry.TimeBin][entry.FlatOrigin];
-            row[entry.FlatDestination] += entry.ExpansionFactor;
+            foreach (var entry in toWrite)
+            {
+                var row = Matrix[entry.TimeBin][entry.FlatOrigin];
+                row[entry.FlatDestination] += entry.ExpansionFactor;
+            }
         }
-        WriteLock.Exit(true);
     }
 
     public sealed class ModeLink : IModule

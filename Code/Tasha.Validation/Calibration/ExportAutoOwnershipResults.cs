@@ -20,6 +20,7 @@ using Datastructure;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Tasha.Common;
 using TMG;
 using TMG.Input;
@@ -67,6 +68,8 @@ public sealed class ExportAutoOwnershipResults : IPostHousehold
         }
     }
 
+    private Lock _writeLock = new();
+
     public void Execute(ITashaHousehold household, int iteration)
     {
         // Only write the last iteration
@@ -81,7 +84,7 @@ public sealed class ExportAutoOwnershipResults : IPostHousehold
         autos = Math.Min(autos, MaxVehicles);
         var autoCountIndex = (householdZone * (MaxVehicles + 1) + autos) * 2 + dwellingOffset;
         var additionalCar = autos > household.Persons.Count(p => p.Licence) ? expansionFactor : 0.0f;
-        lock (_autoCounts)
+        lock (_writeLock)
         {
             _autoCounts[autoCountIndex] += expansionFactor;
             _householdsWithAdditionalCars[householdZone] += additionalCar;

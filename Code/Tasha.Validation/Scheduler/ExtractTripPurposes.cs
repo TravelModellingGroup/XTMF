@@ -113,19 +113,18 @@ public class ExtractTripPurposes : IPostHousehold
         }
     }
 
-    SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AddToMatrix(ITrip trip, float expFactor)
     {
-        bool taken = false;
         var o = ZoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
         var d = ZoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
         var row = Data[o];
-        WriteLock.Enter(ref taken);
-        Thread.MemoryBarrier();
-        row[d] += expFactor;
-        if(taken) WriteLock.Exit(true);
+        lock (_writeLock)
+        {
+            row[d] += expFactor;
+        }
     }
 
     public void IterationFinished(int iteration)
