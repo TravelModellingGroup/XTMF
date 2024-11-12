@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8</TargetFramework>
+		<TargetFramework>net9</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>TMG.Tasha</RootNamespace>
 		<SccProjectName>SAK</SccProjectName>
