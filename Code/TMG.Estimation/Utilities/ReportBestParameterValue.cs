@@ -53,7 +53,7 @@ public class ReportBestParameterValue : IModelSystemTemplate
 
     public bool RuntimeValidation(ref string error)
     {
-        if(!Attached)
+        if (!Attached)
         {
             Root.FitnessFunctionEvaluated += Root_FitnessFunctionEvaluated;
             Response.Root.RetrieveValue = () => GetBestFitness();
@@ -64,45 +64,45 @@ public class ReportBestParameterValue : IModelSystemTemplate
 
     private float GetBestFitness()
     {
-        bool taken = false;
-        FitnessLock.Enter(ref taken);
-        var ret = BestFitness;
-        FitnessLock.Exit(true);
-        return ret;
+        lock (_fitnessLock)
+        {
+            return BestFitness;
+        }
     }
 
     private void Root_FitnessFunctionEvaluated(Job job, int gen, float fitness)
     {
-        bool taken = false;
-        if(Maximize)
+        if (Maximize)
         {
-            FitnessLock.Enter(ref taken);
-            if(BestFitness < fitness)
+            lock (_fitnessLock)
             {
-                BestFitness = fitness;
+                if (BestFitness < fitness)
+                {
+                    BestFitness = fitness;
+                }
             }
-            FitnessLock.Exit(true);
         }
         else
         {
-            FitnessLock.Enter(ref taken);
-            if(BestFitness > fitness)
+            lock (_fitnessLock)
             {
-                BestFitness = fitness;
+                if (BestFitness > fitness)
+                {
+                    BestFitness = fitness;
+                }
             }
-            FitnessLock.Exit(true);
         }
     }
 
     [RunParameter("Maximize", false, "Find the max or min value.")]
     public bool Maximize;
 
-    private SpinLock FitnessLock = new(false);
+    private Lock _fitnessLock = new();
     private float BestFitness;
 
     public void Start()
     {
-        if(Maximize)
+        if (Maximize)
         {
             BestFitness = float.MinValue;
         }

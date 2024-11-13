@@ -39,8 +39,6 @@ public partial class HelpDialog : UserControl
     /// </summary>
     private IConfiguration Config;
 
-    private SpinLock FullyLoaded = new(false);
-
     /// <summary>
     /// 
     /// </summary>

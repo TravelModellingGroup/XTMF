@@ -59,7 +59,7 @@ public class ClientFileTransfer : ISelfContainedModule
                 Client.RegisterCustomReceiver( DataChannel, (stream) =>
                 {
                     var data = new byte[stream.Length];
-                    stream.Read( data, 0, data.Length );
+                    stream.ReadExactly( data, 0, data.Length );
                     return data;
                 } );
                 Client.RegisterCustomMessageHandler( DataChannel, (obj) =>

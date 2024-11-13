@@ -44,7 +44,7 @@ public class LinkageDistanceHistogram : IPostHousehold
     public float CoordinateFactor;
 
     private SparseTwinIndex<float> _ZoneDistances;
-    SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
     private float[][] _BinData;
 
     public string Name
@@ -92,10 +92,10 @@ public class LinkageDistanceHistogram : IPostHousehold
             {
                 index = HistogramBins.Count;
             }
-            bool taken = false;
-            WriteLock.Enter(ref taken);
-            _BinData[index][wcat] += person.ExpansionFactor;
-            if (taken) WriteLock.Exit(true);
+            lock (_writeLock)
+            {
+                _BinData[index][wcat] += person.ExpansionFactor;
+            }
         }
     }
 

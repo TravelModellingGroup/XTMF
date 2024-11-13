@@ -49,7 +49,7 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
     [SubModelInformation(Required = true, Description = "The location to save the matrix.")]
     public FileLocation MatrixSaveLocation;
 
-    private SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
 
     [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
     public int MinimumAge;
@@ -152,14 +152,14 @@ public sealed class CreateHourlyMatrices : IPostHouseholdIteration
 
     private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        bool taken = false;
-        WriteLock.Enter(ref taken);
-        foreach (var entry in toWrite)
+        lock (_writeLock)
         {
-            var row = Matrix[entry.TimeBin][entry.FlatOrigin];
-            row[entry.FlatDestination] += entry.ExpansionFactor;
+            foreach (var entry in toWrite)
+            {
+                var row = Matrix[entry.TimeBin][entry.FlatOrigin];
+                row[entry.FlatDestination] += entry.ExpansionFactor;
+            }
         }
-        WriteLock.Exit(true);
     }
 
     public sealed class ModeLink : IModule

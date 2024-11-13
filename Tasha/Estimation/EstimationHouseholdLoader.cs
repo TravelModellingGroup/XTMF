@@ -108,7 +108,7 @@ public class EstimationHouseholdLoader : IDataLoader<ITashaHousehold>
                            byte[] key = GetKey()
                                , iv = GetIV();
                            byte[] data = new byte[(int)stream.Length];
-                           stream.Read(data, 0, (int)stream.Length);
+                           stream.ReadExactly(data.AsSpan());
                            Task.Factory.StartNew(() =>
                                {
                                    MemoryStream memStream = null;

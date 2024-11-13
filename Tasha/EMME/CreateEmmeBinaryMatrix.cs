@@ -50,7 +50,7 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
     [RunParameter("End Time", "9:00AM", typeof(Time), "The end of the time to record (non inclusive).")]
     public Time EndTime;
 
-    private SpinLock WriteLock = new(false);
+    private Lock WriteLock = new();
 
     [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
     public int MinimumAge;
@@ -148,14 +148,14 @@ public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdItera
 
     private void StoreEntries(ReadOnlySpan<Entry> toWrite)
     {
-        bool taken = false;
-        WriteLock.Enter(ref taken);
-        foreach (var entry in toWrite)
+        lock (WriteLock)
         {
-            var row = Matrix[entry.FlatOrigin];
-            row[entry.FlatDestination] += entry.ExpansionFactor;
+            foreach (var entry in toWrite)
+            {
+                var row = Matrix[entry.FlatOrigin];
+                row[entry.FlatDestination] += entry.ExpansionFactor;
+            }
         }
-        WriteLock.Exit(true);
     }
 
     public sealed class ModeLink : IModule

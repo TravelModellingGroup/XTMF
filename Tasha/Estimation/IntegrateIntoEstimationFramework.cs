@@ -52,16 +52,15 @@ public class IntegrateIntoEstimationFramework : IPostHousehold
         get { return null; }
     }
 
-    private SpinLock FitnessUpdateLock = new(false);
+    private Lock _writeLock = new();
 
     public void Execute(ITashaHousehold household, int iteration)
     {
         var householdFitness = (float)EvaluateHousehold(household);
-        bool taken = false;
-        FitnessUpdateLock.Enter(ref taken);
-        Thread.MemoryBarrier();
-        Fitness += householdFitness;
-        if(taken) FitnessUpdateLock.Exit(true);
+        lock (_writeLock)
+        {
+            Fitness += householdFitness;
+        }
     }
 
     public void IterationFinished(int iteration)

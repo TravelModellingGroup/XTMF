@@ -278,7 +278,6 @@ public sealed class PersonSchedule : Schedule
     }
 
     public static float SkippedWorkEpisodes = -1;
-    private static SpinLock SkippedWorkLock = new(false);
 
     internal void InsertWorkSchedule(Schedule schedule, Random random)
     {            

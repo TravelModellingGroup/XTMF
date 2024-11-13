@@ -49,7 +49,7 @@ public class PostSchedulePoRPoWAssignments : IPostScheduler
         }
     }
 
-    SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
     Dictionary<Occupation, Dictionary<TTSEmploymentStatus, float[][]>> Data = [];
     public void Execute(ITashaHousehold household)
     {
@@ -67,10 +67,10 @@ public class PostSchedulePoRPoWAssignments : IPostScheduler
                     if (employmentZone >= 0)
                     {
                         var row = empData[homeIndex];
-                        bool taken = false;
-                        WriteLock.Enter(ref taken);
-                        row[employmentZone] += expansionFactor;
-                        if (taken) WriteLock.Exit(true);
+                        lock (_writeLock)
+                        {
+                            row[employmentZone] += expansionFactor;
+                        }
                     }
                 }
             }

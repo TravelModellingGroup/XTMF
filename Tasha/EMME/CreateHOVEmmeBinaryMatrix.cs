@@ -53,7 +53,7 @@ public sealed class CreateHOVEmmeBinaryMatrix : IPostHouseholdIteration
     [RunParameter("End Time", "9:00AM", typeof(Time), "The end of the time to record (non inclusive).")]
     public Time EndTime;
 
-    private SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
 
     private int GetFlatIndex(IZone zone)
     {
@@ -146,10 +146,10 @@ public sealed class CreateHOVEmmeBinaryMatrix : IPostHouseholdIteration
         if(startTime >= StartTime & startTime < EndTime)
         {
             var row = Matrix[jointTrip ? 1 : 0][originIndex];
-            bool gotLock = false;
-            WriteLock.Enter(ref gotLock);
-            row[destinationIndex] += expFactor;
-            if(gotLock) WriteLock.Exit(true);
+            lock(_writeLock)
+            {
+                row[destinationIndex] += expFactor;
+            }
         }
     }
 

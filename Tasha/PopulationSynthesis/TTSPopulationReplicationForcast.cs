@@ -91,7 +91,7 @@ public class TTSPopulationReplicationForcast : IPostHousehold
         private readonly int _pd;
         internal readonly List<ExpandedHousehold> Households = new(10);
         internal float TotalExpansionFactor;
-        private SpinLock _lock = new(false);
+        private Lock _lock = new();
 
         public PDData(int pd)
         {
@@ -102,11 +102,11 @@ public class TTSPopulationReplicationForcast : IPostHousehold
         {
             var expansionFactor = household.ExpansionFactor;
             var newHhld = new ExpandedHousehold(household);
-            bool taken = false;
-            _lock.Enter(ref taken);
-            TotalExpansionFactor += expansionFactor;
-            Households.Add(newHhld);
-            if (taken) _lock.Exit(true);
+            lock (_lock)
+            {
+                TotalExpansionFactor += expansionFactor;
+                Households.Add(newHhld);
+            }
         }
 
         internal List<KeyValuePair<int, int>> ProcessPD(int randomSeed, IZone[] zones, float householdExpansion, int[] zoneIndexes)
@@ -457,7 +457,7 @@ public class TTSPopulationReplicationForcast : IPostHousehold
                                 writer.Write("P,");
                                 break;
                             case TTSEmploymentStatus.WorkAtHome_FullTime:
-                                if(WriteWorkAtHomeEmploymentStatus)
+                                if (WriteWorkAtHomeEmploymentStatus)
                                 {
                                     writer.Write("H,");
                                 }

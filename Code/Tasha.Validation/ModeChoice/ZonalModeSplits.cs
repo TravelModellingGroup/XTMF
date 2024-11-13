@@ -82,12 +82,9 @@ public class ZonalModeSplits : IPostHouseholdIteration
                         var dIndex = ZoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
                         if(oIndex >= 0 & dIndex >= 0)
                         {
-                            bool taken = false;
-                            DataLock[index].Enter(ref taken);
-                            if(taken)
+                            lock(DataLock[index])
                             {
                                 Data[index][oIndex][dIndex] += expansionFactor;
-                                DataLock[index].Exit(true);
                             }
                         }
                     }
@@ -154,7 +151,7 @@ public class ZonalModeSplits : IPostHouseholdIteration
     private SparseArray<IZone> ZoneSystem;
     private ITashaMode[] Modes;
     private float[][][] Data;
-    private SpinLock[] DataLock;
+    private Lock[] DataLock;
 
     public void IterationStarting(int iteration, int totalIterations)
     {
@@ -172,10 +169,10 @@ public class ZonalModeSplits : IPostHouseholdIteration
             }
         }
         // setup the instance variables
-        DataLock = new SpinLock[modes.Length];
+        DataLock = new Lock[modes.Length];
         for(int i = 0; i < DataLock.Length; i++)
         {
-            DataLock[i] = new SpinLock(false);
+            DataLock[i] = new Lock();
         }
         Data = data;
         Modes = modes;

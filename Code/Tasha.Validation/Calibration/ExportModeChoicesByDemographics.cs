@@ -150,7 +150,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
         // Do nothing
     }
 
-    SpinLock _lock = new SpinLock(false);
+    private Lock _writeLock = new();
 
     public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
     {
@@ -176,13 +176,14 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
                 return;
             }
             var flatMatrix = _matrix.GetFlatData();
-            bool lockTaken = false;
-            _lock.Enter(ref lockTaken);
-            for (int i = 0; i < numberOfEntries; i++)
+            lock (_writeLock)
             {
-                flatMatrix[entries[i].FlatOrigin][entries[i].FlatDestination] += entries[i].ExpansionFactor;
+
+                for (int i = 0; i < numberOfEntries; i++)
+                {
+                    flatMatrix[entries[i].FlatOrigin][entries[i].FlatDestination] += entries[i].ExpansionFactor;
+                }
             }
-            _lock.Exit(true);
             numberOfEntries = 0;
         }
 

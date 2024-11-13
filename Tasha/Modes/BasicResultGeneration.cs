@@ -53,7 +53,7 @@ public sealed class BasicResultGeneration : IPostHousehold, IDisposable
     [ThreadStatic]
     private static StringBuilder Builder;
 
-    private SpinLock WriteLock = new(false);
+    private Lock _writeLock = new();
 
     public void Execute(ITashaHousehold household, int iteration)
     {
@@ -119,12 +119,9 @@ public sealed class BasicResultGeneration : IPostHousehold, IDisposable
         if(builder.Length > 0)
         {
             var builderData = builder.ToString();
-            bool taken = false;
-            lock (ModesChosen)
+            lock (_writeLock)
             {
-                WriteLock.Enter(ref taken);
                 ModesChosen.Write(builderData);
-                if (taken) WriteLock.Exit(false);
             }
             builder.Clear();
         }
@@ -132,7 +129,7 @@ public sealed class BasicResultGeneration : IPostHousehold, IDisposable
 
     public void IterationFinished(int iteration)
     {
-        lock(this)
+        lock(_writeLock)
         {
             ModesChosen.Close();
         }
@@ -149,7 +146,7 @@ public sealed class BasicResultGeneration : IPostHousehold, IDisposable
 
     public void IterationStarting(int iteration)
     {
-        lock(this)
+        lock(_writeLock)
         {
             var alreadyExists = File.Exists(ResultsFileName);
             ModesChosen = new StreamWriter(ResultsFileName, true);
