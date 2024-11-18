@@ -263,7 +263,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
     {
         // Run the jobs
         int i = 0;
-        _progress = () => ((float)iteration / MaxIterations) + (float)i / (MaxIterations * jobs.Length);
+        _progress = () => ((float)iteration / MaxIterations) + ((float)i + Client.Progress) / (MaxIterations * jobs.Length);
         for (; i < jobs.Length; i++)
         {
             var targetIndex = jobs[i].TargetIndex;
