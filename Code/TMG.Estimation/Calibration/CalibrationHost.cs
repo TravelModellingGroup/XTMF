@@ -105,7 +105,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             Thread.MemoryBarrier();
         }
         int iteration = 0;
-        _status = () => $"Running calibration iteration {iteration + 1} of {MaxIterations}";
+        _status = () => $"Running calibration iteration {iteration + 1} of {MaxIterations}: {Client?.ToString() ?? String.Empty}" ;
         for (; iteration < MaxIterations && !_exit; iteration++)
         {
             // Compute the jobs to run
@@ -263,7 +263,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
     {
         // Run the jobs
         int i = 0;
-        _progress = () => ((float)iteration / MaxIterations) + (float)i / (MaxIterations * jobs.Length);
+        _progress = () => ((float)iteration / MaxIterations) + ((float)i + Client.Progress) / (MaxIterations * jobs.Length);
         for (; i < jobs.Length; i++)
         {
             var targetIndex = jobs[i].TargetIndex;
