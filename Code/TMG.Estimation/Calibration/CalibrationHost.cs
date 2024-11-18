@@ -105,7 +105,7 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             Thread.MemoryBarrier();
         }
         int iteration = 0;
-        _status = () => $"Running calibration iteration {iteration + 1} of {MaxIterations}";
+        _status = () => $"Running calibration iteration {iteration + 1} of {MaxIterations}: {Client?.ToString() ?? String.Empty}" ;
         for (; iteration < MaxIterations && !_exit; iteration++)
         {
             // Compute the jobs to run
