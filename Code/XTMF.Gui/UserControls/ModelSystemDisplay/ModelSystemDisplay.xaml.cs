@@ -1692,6 +1692,25 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
+    private void CopyExcelClipboard()
+    {
+        StringBuilder sb = new();
+        var display = GetCurrentParameterDisplay();
+        sb.AppendLine("Name\tValue\tDescription");
+        foreach(var item in display.Items)
+        {
+            if(item is ParameterDisplayModel parameter)
+            {
+                sb.Append(parameter.Name);
+                sb.Append('\t');
+                sb.Append(parameter.Value);
+                sb.Append('\t');
+                sb.AppendLine(parameter.Description);
+            }
+        }
+        Clipboard.SetText(sb.ToString());
+    }
+
     private void PasteExcelClipboard()
     {
         if (Clipboard.ContainsText())
@@ -2081,6 +2100,11 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     private void ShowParameter_Click(object sender, RoutedEventArgs e)
     {
         SetCurrentParameterHidden(false);
+    }
+
+    private void CopyParameters_Click(object sender, RoutedEventArgs e)
+    {
+        CopyExcelClipboard();
     }
 
     private void PasteSpreadsheet_Click(object sender, RoutedEventArgs e)
