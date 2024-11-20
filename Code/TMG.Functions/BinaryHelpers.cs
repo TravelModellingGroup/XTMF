@@ -99,8 +99,19 @@ public static class BinaryHelpers
     /// <exception cref="XTMFRuntimeException">Can throw a captured IOException.</exception>
     public static void ExecuteReader(IModule module, Action<BinaryReader> toRun, string fileName)
     {
-        using var reader = CreateReader(module, fileName);
-        toRun(reader);
+        try
+        {
+            using var reader = CreateReader(module, fileName);
+            toRun(reader);
+        }
+        catch (Exception e)
+        {
+            if (!File.Exists(fileName))
+            {
+                throw new XTMFRuntimeException(module, e, $"File not found at '{fileName}'!");
+            }
+            throw new XTMFRuntimeException(module, e);
+        }
     }
 
     /// <summary>
