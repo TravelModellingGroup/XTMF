@@ -173,6 +173,11 @@
                                     <materialDesign:PackIcon Kind="ContentCopy" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 </MenuItem.Icon>
                             </MenuItem>
+                            <MenuItem Name="CloneMenuItem"  Header="Clone (Ctrl+Shift+C)" Click="CloneMenuItem_OnClick" >
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="FileDocumentAdd" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
                             <MenuItem Name="PastMenuItem"  Header="Paste (Ctrl+V)" Click="PastMenuItem_OnClick" >
                                 <MenuItem.Icon>
                                     <materialDesign:PackIcon Kind="ContentPaste" VerticalAlignment="Center" HorizontalAlignment="Center"/>

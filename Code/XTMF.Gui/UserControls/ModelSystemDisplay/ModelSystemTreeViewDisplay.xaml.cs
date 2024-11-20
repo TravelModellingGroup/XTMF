@@ -235,6 +235,10 @@ public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView,
                             menuItem.IsEnabled = false;
                         }
                     }
+                    else if(menuItem.Name == nameof(CloneMenuItem))
+                    {
+                        menuItem.IsEnabled = treeViewItem.BackingModel.Parent?.IsCollection ?? false;
+                    }
                     else if (menuItem.Name == "ModuleMenuItem")
                     {
                         menuItem.Header = treeViewItem.BackingModel.BaseModel.IsCollection
@@ -879,6 +883,15 @@ public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView,
     private void CopyMenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         _display.CopyCurrentModule();
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void CloneMenuItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        _display.CloneCurrentModule();
     }
 
     /// <summary>

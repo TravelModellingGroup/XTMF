@@ -106,7 +106,14 @@ public partial class ModelSystemDisplay
                     e.Handled = true;
                     break;
                 case Key.C:
-                    CopyCurrentModule();
+                    if (EditorController.IsShiftDown())
+                    {
+                        CloneCurrentModule();
+                    }
+                    else
+                    {
+                        CopyCurrentModule();
+                    }
                     e.Handled = true;
                     break;
                 case Key.V:
@@ -122,7 +129,6 @@ public partial class ModelSystemDisplay
                     else
                     {
                         ToggleQuickParameterDisplaySearch();
-
                         e.Handled = true;
                         break;
                     }
