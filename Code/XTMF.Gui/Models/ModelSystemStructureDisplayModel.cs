@@ -300,6 +300,36 @@ public class ModelSystemStructureDisplayModel : INotifyPropertyChanged
         Clipboard.SetDataObject(ModelSystemStructureModel.CopyModule(toCopy.Select(m => m.BaseModel).ToList()));
     }
 
+    internal static bool CloneModules(ModelSystemEditingSession session, List<ModelSystemStructureDisplayModel> toClone, ref string error)
+    {
+        List<string> errors = [];
+        session.ExecuteCombinedCommands("Clone", () => 
+        {
+            var inner = toClone.Select(m => m.BaseModel).ToList();
+            foreach (var toProcess in inner)
+            {
+                var parent = session.GetParent(toProcess);
+                if(parent is null || !parent.IsCollection)
+                {
+                    errors.Add("You can only clone modules inside of a collection. ");
+                    break;
+                }
+                string e = null;
+                if(!parent.Paste(session, toProcess.CopyModule(), ref e))
+                {
+                    errors.Add(e);
+                    break;
+                }
+            }
+        });
+        if(errors.Count > 0)
+        {
+            error = string.Join("\n", errors);
+            return false;
+        }
+        return true;
+    }
+
     internal bool Paste(ModelSystemEditingSession session, string toPaste, ref string error)
     {
         return BaseModel.Paste(session, toPaste, ref error);

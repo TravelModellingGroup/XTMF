@@ -1328,6 +1328,17 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
 
     /// <summary>
     /// </summary>
+    public void CloneCurrentModule()
+    {
+        string error = null;
+        if (!ModelSystemStructureDisplayModel.CloneModules(Session, CurrentlySelected, ref error))
+        {
+            MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// </summary>
     public void PasteCurrentModule()
     {
         var pasteText = Clipboard.GetText();
@@ -1698,7 +1709,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
 
             // Make sure there is enough room
 
-            if(startingIndex + text.Length > currentParameterDisplay.Items.Count)
+            if (startingIndex + text.Length > currentParameterDisplay.Items.Count)
             {
                 MessageBox.Show(GetWindow(), "There is not enough space to paste all of the entries.");
                 return;
