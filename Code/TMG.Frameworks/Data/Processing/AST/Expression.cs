@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using XTMF;
@@ -31,7 +32,7 @@ public abstract class Expression : AstNode
 
     }
 
-    private static int FindEndOfBracket(char[] buffer, int start, int length, ref string error)
+    private static int FindEndOfBracket(ReadOnlySpan<char> buffer, int start, int length, ref string error)
     {
         int bracketLevel = 1;
         int i = start;
@@ -61,7 +62,7 @@ public abstract class Expression : AstNode
     }
     
 
-    private static int FindStartOfBracket(char[] buffer, int start, int length, ref string error)
+    private static int FindStartOfBracket(ReadOnlySpan<char> buffer, int start, int length, ref string error)
     {
         int bracketLevel = 1;
         int i = start + length - 1;
@@ -84,7 +85,7 @@ public abstract class Expression : AstNode
         return -1;
     }
 
-    private static bool AnyNonWhitespace(char[] buffer, int start, int length)
+    private static bool AnyNonWhitespace(ReadOnlySpan<char> buffer, int start, int length)
     {
         for (int i = start; i < start + length; i++)
         {
@@ -113,7 +114,7 @@ public abstract class Expression : AstNode
             || t == typeof(CompareOr);
     }
 
-    public static bool Compile(char[] buffer, int start, int length, out Expression ex, ref string error)
+    public static bool Compile(ReadOnlySpan<char> buffer, int start, int length, out Expression ex, ref string error)
     {
         ex = null;
         var endPlusOne = (length + start);
@@ -529,7 +530,8 @@ public abstract class Expression : AstNode
         first = true;
         complete = false;
         int index = -1;
-        for (int i = start; i < endPlusOne && !complete; i++)
+        // We need to scan the whole range to make sure that the literal is not followed up upon
+        for (int i = start; i < endPlusOne; i++)
         {
             switch (buffer[i])
             {
@@ -549,6 +551,11 @@ public abstract class Expression : AstNode
                     {
                         first = false;
                         index = i;
+                    }
+                    else if(complete)
+                    {
+                        error = "Invalid variable / literal starting at position " + start;
+                        return false;
                     }
                     builder.Append(buffer[i]);
                     break;
