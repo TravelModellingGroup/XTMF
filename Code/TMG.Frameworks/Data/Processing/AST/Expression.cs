@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using XTMF;
 
@@ -114,7 +115,7 @@ public abstract class Expression : AstNode
             || t == typeof(CompareOr);
     }
 
-    public static bool Compile(ReadOnlySpan<char> buffer, int start, int length, out Expression ex, ref string error)
+    public static bool Compile(ReadOnlySpan<char> buffer, int start, int length, [NotNullWhen(true)] out Expression ex, [NotNullWhen(false)] ref string error)
     {
         ex = null;
         var endPlusOne = (length + start);

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,14 +18,34 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TMG.Frameworks.Data.Processing.AST;
 
 public static class Compiler
 {
-    public static bool Compile(string expression,out Expression ex, ref string error)
+    /// <summary>
+    /// Compiles the expression and returns the AST.
+    /// </summary>
+    /// <param name="expression">The expression to compile.</param>
+    /// <param name="ex">The resulting AST.</param>
+    /// <param name="error">An error message if it fails to compile.</param>
+    /// <returns>True if it succeeds, false with an error message if it fails.</returns>
+    public static bool Compile(string expression, [NotNullWhen(true)] out Expression ex, [NotNullWhen(false)] ref string error)
     {
         var buffer = expression.AsSpan();
         return Expression.Compile(buffer, 0, buffer.Length, out ex, ref error) && Expression.Optimize(ref ex, ref error);
+    }
+
+    /// <summary>
+    /// Compiles the expression and returns the AST.
+    /// </summary>
+    /// <param name="expression">The expression to compile.</param>
+    /// <param name="ex">The resulting AST.</param>
+    /// <param name="error">An error message if it fails to compile.</param>
+    /// <returns>True if it succeeds, false with an error message if it fails.</returns>
+    public static bool Compile(ReadOnlySpan<char> expression, [NotNullWhen(true)] out Expression ex, [NotNullWhen(false)] ref string error)
+    {
+        return Expression.Compile(expression, 0, expression.Length, out ex, ref error) && Expression.Optimize(ref ex, ref error);
     }
 }
