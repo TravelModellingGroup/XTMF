@@ -1346,6 +1346,56 @@ public class TestCompiler
     }
 
     [TestMethod]
+    public void TestSpaceInNameStart()
+    {
+        string error = null;
+        Assert.IsFalse(Compiler.Compile("A B + C", out var expression, ref error), expression?.ToString());
+        Assert.IsNotNull(error, "No error message was supplied.");
+    }
+
+
+    [TestMethod]
+    public void TestSpaceInNameMiddle()
+    {
+        string error = null;
+        Assert.IsFalse(Compiler.Compile("A + B C + D", out var expression, ref error), expression?.ToString());
+        Assert.IsNotNull(error, "No error message was supplied.");
+    }
+
+    [TestMethod]
+    public void TestSpaceInNameEnd()
+    {
+        string error = null;
+        Assert.IsFalse(Compiler.Compile("B + C D", out var expression, ref error), expression?.ToString());
+        Assert.IsNotNull(error, "No error message was supplied.");
+    }
+
+    [TestMethod]
+    public void TestSpaceInLiteralStart()
+    {
+        string error = null;
+        Assert.IsFalse(Compiler.Compile("1 2 + 3", out var expression, ref error), expression?.ToString());
+        Assert.IsNotNull(error, "No error message was supplied.");
+    }
+
+
+    [TestMethod]
+    public void TestSpaceInLiteralMiddle()
+    {
+        string error = null;
+        Assert.IsFalse(Compiler.Compile("1 + 2 3 + 4", out var expression, ref error), expression?.ToString());
+        Assert.IsNotNull(error, "No error message was supplied.");
+    }
+
+    [TestMethod]
+    public void TestSpaceInLiteralEnd()
+    {
+        string error = null;
+        Assert.IsFalse(Compiler.Compile("1 + 2 3", out var expression, ref error), expression?.ToString());
+        Assert.IsNotNull(error, "No error message was supplied.");
+    }
+
+    [TestMethod]
     public void TestSubtractionOrder()
     {
         string error = null;
