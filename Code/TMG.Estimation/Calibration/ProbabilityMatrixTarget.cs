@@ -83,8 +83,11 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     /// <returns>The updated value of the parameter.</returns>
     public override float UpdateParameter(float currentValue)
     {
-        var numerator = _targetProbability * _baseRunProbability - _targetProbability;
-        var denominator = _baseRunProbability * _targetProbability - _baseRunProbability;
+        // Update the base probability if it is 0 to a very low value
+        // But not over the target probability
+        var baseProbability = Math.Max(_baseRunProbability, Math.Min(_targetProbability, 0.00000001f));
+        var numerator = _targetProbability * baseProbability - _targetProbability;
+        var denominator = _baseRunProbability * _targetProbability - baseProbability;
         var ratio = numerator / denominator;
 
         if (!float.IsFinite(ratio))
@@ -95,11 +98,17 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         if (ParameterIsRatio)
         {
             var delta = ratio;
+
             return ClampValue(currentValue * delta, MinimumValue, MaximumValue);
         }
         else
         {
             var delta = MathF.Log(ratio);
+            if (!float.IsFinite(delta))
+            {
+                Console.WriteLine($"We found an invalid step size for {Name}, TargetProbability {_targetProbability}, Current {_baseRunProbability}, Delta {delta}!");
+                return currentValue;
+            }
             return ClampValue(currentValue + delta, MinimumValue, MaximumValue);
         }
     }
