@@ -30,8 +30,11 @@ namespace TMG.Frameworks.Data.Loading;
 public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
 {
 
-    [RootModule]
-    public ITravelDemandModel Root;
+    [DoNotAutomate]
+    public ITravelDemandModel _root;
+
+    [SubModelInformation(Required = false, Description = "An optional zone system to use. If not selected the Root zone system will be used.")]
+    public IDataSource<IZoneSystem> ZoneSystem;
 
     public enum MatrixType
     {
@@ -45,6 +48,13 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
     [RunParameter("Matrix Type", MatrixType.StraightLineZoneDistance, "The type of data from the zone system to fill the matrix with.")]
     public MatrixType Data;
 
+    private IConfiguration _config;
+
+    public ZoneSystemMatrix(IConfiguration config)
+    {
+        _config = config;
+    }
+
     private SparseTwinIndex<float> _data = null;
 
     public SparseTwinIndex<float> GiveData()
@@ -56,20 +66,21 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
 
     public void LoadData()
     {
+        var zoneSystem = LoadZoneSystem(ZoneSystem ?? _root.ZoneSystem);
         _data = Data switch
         {
-            MatrixType.StraightLineZoneDistance => ComputeStraightLineDistance(),
-            MatrixType.ManhattanZoneDistance => ComputeManhattanDistance(),
-            MatrixType.IntraPDMatrix => ComputeIntraPDMatrix(),
-            MatrixType.IntraRegionMatrix => ComputeIntraRegionMatrix(),
-            MatrixType.ZoneSystemDistanceMatrix => CopyZoneSystemDistance(),
+            MatrixType.StraightLineZoneDistance => ComputeStraightLineDistance(zoneSystem),
+            MatrixType.ManhattanZoneDistance => ComputeManhattanDistance(zoneSystem),
+            MatrixType.IntraPDMatrix => ComputeIntraPDMatrix(zoneSystem),
+            MatrixType.IntraRegionMatrix => ComputeIntraRegionMatrix(zoneSystem),
+            MatrixType.ZoneSystemDistanceMatrix => CopyZoneSystemDistance(zoneSystem),
             _ => throw new XTMFRuntimeException(this, "Unknown Matrix Type!")
         };
     }
 
-    private SparseTwinIndex<float> ComputeStraightLineDistance()
+    private SparseTwinIndex<float> ComputeStraightLineDistance(IZoneSystem zoneSystem)
     {
-        var zones = Root.ZoneSystem.ZoneArray;
+        var zones = zoneSystem.ZoneArray;
         var ret = zones.CreateSquareTwinArray<float>();
         var zonePoints = zones.GetFlatData().Select(x => (x.X, x.Y)).ToArray();
         var flatData = ret.GetFlatData();
@@ -88,9 +99,21 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
         return ret;
     }
 
-    private SparseTwinIndex<float> ComputeManhattanDistance()
+    private IZoneSystem LoadZoneSystem(IDataSource<IZoneSystem> dataSource)
     {
-        var zones = Root.ZoneSystem.ZoneArray;
+        if (dataSource.Loaded)
+        {
+            return dataSource.GiveData();
+        }
+        dataSource.LoadData();
+        var ret = dataSource.GiveData();
+        dataSource.UnloadData();
+        return ret;
+    }
+
+    private SparseTwinIndex<float> ComputeManhattanDistance(IZoneSystem zoneSystem)
+    {
+        var zones = zoneSystem.ZoneArray;
         var ret = zones.CreateSquareTwinArray<float>();
         var zonePoints = zones.GetFlatData().Select(x => (x.X, x.Y)).ToArray();
         var flatData = ret.GetFlatData();
@@ -109,9 +132,9 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
         return ret;
     }
 
-    private SparseTwinIndex<float> ComputeIntraPDMatrix()
+    private SparseTwinIndex<float> ComputeIntraPDMatrix(IZoneSystem zoneSystem)
     {
-        var zones = Root.ZoneSystem.ZoneArray;
+        var zones = zoneSystem.ZoneArray;
         var flatZones = zones.GetFlatData();
         var ret = zones.CreateSquareTwinArray<float>();
         var flatRet = ret.GetFlatData();
@@ -139,7 +162,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
                     Vector512.StoreUnsafe(result, ref flatRet[i][j]);
                 }
             }
-            else if(Vector256.IsHardwareAccelerated)
+            else if (Vector256.IsHardwareAccelerated)
             {
                 var one = Vector256<float>.One;
                 var zero = Vector256<float>.Zero;
@@ -160,9 +183,9 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
         return ret;
     }
 
-    private SparseTwinIndex<float> ComputeIntraRegionMatrix()
+    private SparseTwinIndex<float> ComputeIntraRegionMatrix(IZoneSystem zoneSystem)
     {
-        var zones = Root.ZoneSystem.ZoneArray;
+        var zones = zoneSystem.ZoneArray;
         var flatZones = zones.GetFlatData();
         var ret = zones.CreateSquareTwinArray<float>();
         var flatRet = ret.GetFlatData();
@@ -211,14 +234,14 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
         return ret;
     }
 
-    private SparseTwinIndex<float> CopyZoneSystemDistance()
+    private SparseTwinIndex<float> CopyZoneSystemDistance(IZoneSystem zoneSystem)
     {
-        var zoneSystemDistances = Root.ZoneSystem.Distances;
+        var zoneSystemDistances = zoneSystem.Distances;
         var ret = zoneSystemDistances.CreateSimilarArray<float>();
         // Clone the data
         var flatRet = ret.GetFlatData();
         var flatData = zoneSystemDistances.GetFlatData();
-        for ( var i = 0; i < flatData.Length; i++)
+        for (var i = 0; i < flatData.Length; i++)
         {
             Array.Copy(flatData[i], flatRet[i], flatData.Length);
         }
@@ -238,6 +261,27 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
 
     public bool RuntimeValidation(ref string error)
     {
+        if (ZoneSystem is not null)
+        {
+            // No need to find a root if we have a source already.
+            return true;
+        }
+        // Find our source of the zone system
+        if (!TMG.Functions.ModelSystemReflection.GetRootOfType(_config, typeof(ITravelDemandModel), this, out var root))
+        {
+            error = $"Could not find a root of type {typeof(ITravelDemandModel).FullName} and there was no ZoneSystem provided!";
+            return false;
+        }
+        if (root.Module is ITravelDemandModel model)
+        {
+            _root = model;
+        }
+        else
+        {
+            // This should never happen
+            error = "We were not able to get out an ITravelDemandModel after reflecting a found root of that type!";
+            return false;
+        }
         return true;
     }
 }
