@@ -70,7 +70,7 @@ public sealed class ScalarTarget : CalibrationTarget
         // TODO: We might want to add some momentum to avoid getting stuck
         if (MathF.Abs(derivative) < MinimumAbsoluteDerivative)
         {
-            Console.WriteLine($"{Name} encountered a derivative that was under the minimum allowed {MinimumAbsoluteDerivative}, no parameter change has been applied.");
+            Console.WriteLine($"{Name} encountered a derivative that was under the minimum allowed {MinimumAbsoluteDerivative}, no parameter change has been applied. Target = {_targetValue}, BeforeStep = {_baseValue}, AfterStep = {_stepValue}.");
             return currentValue;
         }
 
