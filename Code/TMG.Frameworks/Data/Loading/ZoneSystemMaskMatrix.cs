@@ -36,6 +36,15 @@ public sealed class ZoneSystemMaskMatrix : IDataSource<SparseTwinIndex<float>>
     [RunParameter("Destinations", "1", typeof(RangeSet), "The range of destination values to include in the mask.")]
     public RangeSet Destinations;
 
+    public enum SelectionType
+    {
+        And = 0,
+        Or = 1,
+    }
+
+    [RunParameter("Selection Type", SelectionType.And, "The type of selection to use when filling the matrix.")]
+    public SelectionType Selection;
+
     private SparseTwinIndex<float> _data = null;
 
     [SubModelInformation(Required = false, Description = "An optional zone system to use. If not selected the Root zone system will be used.")]
@@ -67,6 +76,22 @@ public sealed class ZoneSystemMaskMatrix : IDataSource<SparseTwinIndex<float>>
         int[] intVector = GetSpatialIndexes(zoneSystem);
         var data = zoneSystem.CreateSquareTwinArray<float>();
         var flatData = data.GetFlatData();
+        switch(Selection)
+        {
+            case SelectionType.And:
+                FillMatrixWithAnd(intVector, flatData);
+                break;
+            case SelectionType.Or:
+                FillMatrixWithOr(intVector, flatData);
+                break;
+            default:
+                throw new XTMFRuntimeException(this, "Unknown Selection Type!");
+        }
+        _data = data;
+    }
+
+    private void FillMatrixWithAnd(int[] intVector, float[][] flatData)
+    {
         System.Threading.Tasks.Parallel.For(0, intVector.Length, (i) =>
         {
             // No need to process if this is not an origin
@@ -80,7 +105,19 @@ public sealed class ZoneSystemMaskMatrix : IDataSource<SparseTwinIndex<float>>
                 row[j] = Destinations.Contains(intVector[j]) ? 1.0f : 0.0f;
             }
         });
-        _data = data;
+    }
+
+    private void FillMatrixWithOr(int[] intVector, float[][] flatData)
+    {
+        System.Threading.Tasks.Parallel.For(0, intVector.Length, (i) =>
+        {
+            // No need to process if this is not an origin
+            var row = flatData[i];
+            for (int j = 0; j < row.Length; j++)
+            {
+                row[j] = (Origins.Contains(intVector[i]) || Destinations.Contains(intVector[j])) ? 1.0f : 0.0f;
+            }
+        });
     }
 
     [DoNotAutomate]
