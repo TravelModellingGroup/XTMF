@@ -92,6 +92,10 @@ public class SpaceTimeTrafficAssignmentTool : IEmmeTool
     [RunParameter("Run Title", "Multi-class Run", "The name of the run to appear in the logbook.")]
     public string RunTitle;
 
+    [RunParameter("Lane Attribute", "", "Set this to the first attribute in an attribute series if the number of lanes changes over the assignment period." +
+        "  Leave blank to use the built in number of lanes for all periods.")]
+    public string LaneAttribute;
+
     [ModuleInformation(Description = "This module is used to define the different classes that will be assigned during STTA.")]
     public sealed class TrafficClass : IModule
     {
@@ -178,6 +182,7 @@ public class SpaceTimeTrafficAssignmentTool : IEmmeTool
                 ALL = 0,
                 SELECTED = 1
             }
+
             [RunParameter("Paths to Select", "ALL", typeof(Selection), "The paths that will be used for analysis")]
             public Selection PathSelection;
 
@@ -347,6 +352,7 @@ public class SpaceTimeTrafficAssignmentTool : IEmmeTool
             new ModellerControllerParameter("PerformanceFlag", PerformanceFlag.ToString(CultureInfo.InvariantCulture)),
             new ModellerControllerParameter("RunTitle", RunTitle),
             new ModellerControllerParameter("TrafficClasses", sb.ToString()),
+            new ModellerControllerParameter("NumberOfLanes", LaneAttribute ?? String.Empty),
         ];
     }
 
