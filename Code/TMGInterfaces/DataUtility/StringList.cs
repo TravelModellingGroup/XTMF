@@ -18,6 +18,8 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace TMG.DataUtility;
@@ -28,11 +30,11 @@ namespace TMG.DataUtility;
 /// </summary>
 public sealed class StringList : IList<string>
 {
-    private string[] Data;
+    private readonly string[] _data;
 
     private StringList(string[] strings)
     {
-        Data = strings;
+        _data = strings;
     }
 
     public static bool TryParse(string input, out StringList stringList)
@@ -82,7 +84,7 @@ public sealed class StringList : IList<string>
 
     public int IndexOf(string item)
     {
-        var data = Data;
+        var data = _data;
         for ( int i = 0; i < data.Length; i++ )
         {
             if ( data[i] == item )
@@ -95,34 +97,34 @@ public sealed class StringList : IList<string>
 
     public void Insert(int index, string item)
     {
-        throw new NotImplementedException();
+        throw new InvalidOperationException();
     }
 
     public void RemoveAt(int index)
     {
-        throw new NotImplementedException();
+        throw new InvalidOperationException();
     }
 
     public string this[int index]
     {
         get
         {
-            return Data[index];
+            return _data[index];
         }
         set
         {
-            Data[index] = value;
+            _data[index] = value;
         }
     }
 
     public void Add(string item)
     {
-        throw new NotImplementedException();
+        throw new InvalidOperationException();
     }
 
     public void Clear()
     {
-        throw new NotImplementedException();
+        Array.Clear(_data, 0, _data.Length);
     }
 
     public bool Contains(string item)
@@ -132,37 +134,41 @@ public sealed class StringList : IList<string>
 
     public void CopyTo(string[] array, int arrayIndex)
     {
-        throw new NotImplementedException();
+        if(array.Length - arrayIndex < _data.Length)
+        {
+            throw new ArgumentException($"{nameof(array)} does not have enough space to store the StringList starting at position {arrayIndex}.");
+        }
+        Array.Copy(_data, 0, array, arrayIndex, _data.Length);
     }
 
-    public int Count => Data.Length;
+    public int Count => _data.Length;
 
     public bool IsReadOnly => false;
 
     public bool Remove(string item)
     {
-        throw new NotImplementedException();
+        throw new InvalidOperationException();
     }
 
     public IEnumerator<string> GetEnumerator()
     {
-        return ( (IEnumerable<string>)Data ).GetEnumerator();
+        return ( (IEnumerable<string>)_data ).GetEnumerator();
     }
 
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
-        return Data.GetEnumerator();
+        return _data.GetEnumerator();
     }
 
     public string[] ToArray()
     {
-        return Data;
+        return [.. _data];
     }
 
     public override string ToString()
     {
         StringBuilder builder = new();
-        var data = Data;
+        var data = _data;
         for ( int i = 0; i < data.Length; i++ )
         {
             builder.Append( data[i].Replace( ",", "\\," ) );
