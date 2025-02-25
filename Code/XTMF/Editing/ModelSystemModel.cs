@@ -216,15 +216,22 @@ public class ModelSystemModel : INotifyPropertyChanged
         }
         else if (_ModelSystemIndex >= 0)
         {
+            // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
+            Name = ClonedModelSystemRoot.Name;
+            Description = ClonedModelSystemRoot.Description;
             _Project.SetModelSystem(_ModelSystemIndex,
                 ClonedModelSystemRoot,
                 LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList(),
                 [.. RegionDisplaysModel.RegionDisplays],
                 Description);
-            // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
-            Name = ClonedModelSystemRoot.Name;
+            
             _Project.SetLastModifiedToNow(ClonedModelSystemRoot);
-            return _Project.Save(ref error);
+            var result = _Project.Save(ref error);
+            if(result)
+            {
+                _Dirty = false;
+            }
+            return result;
         }
         else
         {
