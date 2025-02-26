@@ -43,6 +43,9 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     [RunParameter("Maximum Value", float.PositiveInfinity, "The highest value allowed for this parameter.")]
     public float MaximumValue;
 
+    [RunParameter("Change Weight", 1.0f, "A multiplier for the amount of change to apply.  Lower this if there are multiple targets targeting a similar system to set priorities.")]
+    public float ChangeWeight;
+
     [SubModelInformation(Required = true, Description = "The total matrix from the observed.")]
     public IDataSource<SparseTwinIndex<float>> ObservedTotal;
 
@@ -99,7 +102,7 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         {
             var delta = ratio;
 
-            return ClampValue(currentValue * delta, MinimumValue, MaximumValue);
+            return ClampValue(currentValue * (delta * ChangeWeight), MinimumValue, MaximumValue);
         }
         else
         {
@@ -109,7 +112,7 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
                 Console.WriteLine($"We found an invalid step size for {Name}, TargetProbability {_targetProbability}, Current {_baseRunProbability}, Delta {delta}!");
                 return currentValue;
             }
-            return ClampValue(currentValue + delta, MinimumValue, MaximumValue);
+            return ClampValue(currentValue + (delta * ChangeWeight), MinimumValue, MaximumValue);
         }
     }
 
