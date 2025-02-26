@@ -34,6 +34,9 @@ public sealed class ProbabilityTarget : CalibrationTarget
     [RunParameter("Maximum Value", float.PositiveInfinity, "The highest value allowed for this parameter.")]
     public float MaximumValue;
 
+    [RunParameter("Change Weight", 1.0f, "A multiplier for the amount of change to apply.  Lower this if there are multiple targets targeting a similar system to set priorities.")]
+    public float ChangeWeight;
+
     private float _targetProbability;
 
     private float _baseRunProbability;
@@ -58,7 +61,7 @@ public sealed class ProbabilityTarget : CalibrationTarget
             Console.WriteLine($"We found an invalid step size for {Name}!");
             return currentValue;
         }
-        var next = ClampValue(currentValue + delta, MinimumValue, MaximumValue);
+        var next = ClampValue(currentValue + (delta * ChangeWeight), MinimumValue, MaximumValue);
         return next;
     }
 
