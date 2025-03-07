@@ -123,7 +123,9 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
     public float CurrentlyFeasible { get; set; }
 
     [Parameter("Mode Name", "DAT", "The name of the mode.")]
-    public string ModeName { get => _ModeName;
+    public string ModeName
+    {
+        get => _ModeName;
         set
         {
             _ModeName = value;
@@ -164,6 +166,79 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
 
     [SubModelInformation(Description = "Constants for time of day")]
     public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+    [ModuleInformation(Description = "Used for loading different congestion levels for different times of day.")]
+    public sealed class TimeOfDayStationCongestion : IModule
+    {
+        [RunParameter("Start Time", "6:00", typeof(Time), "The start time of the period.", Index = 0)]
+        public Time StartTime;
+
+        [RunParameter("End Time", "9:00", typeof(Time), "The end time of the period, exclusive.", Index = 1)]
+        public Time EndTime;
+
+        [SubModelInformation(Required = true, Description = "The congestion for station zones.")]
+        public IDataSource<SparseArray<float>> CongestionData;
+
+        [RunParameter("Congestion Factor", 0.0f, "A penalty to apply to the expected (Volume / Capacity) of access stations.")]
+        public float CongestionFactor;
+
+        public string Name { get; set; }
+
+        public float Progress => 0f;
+
+        public Tuple<byte, byte, byte> ProgressColour => new(50, 150, 50);
+
+        /// <summary>
+        /// The congestion ratio for each station.
+        /// </summary>
+        private float[] _congestion;
+
+        public void Update(int[] stationIndexes)
+        {
+            _congestion = (_congestion is null || stationIndexes.Length != _congestion.Length) ? new float[stationIndexes.Length] : _congestion;
+            // Attempt to read in the data, station capacities normally only computed on the second pass
+            // so if it fails to load, just assume that all stations are at capacity.
+            try
+            {
+                CongestionData.LoadData();
+                // Zone system sized
+                var congestion = CongestionData.GiveData();
+                CongestionData.UnloadData();
+                var flat = congestion.GetFlatData();
+                // Create a backing array for the congestion
+                for (int i = 0; i < stationIndexes.Length; i++)
+                {
+                    _congestion[i] = flat[stationIndexes[i]];
+                }
+            }
+            catch
+            {
+                // If we can't load the data, assume that all stations have their capacity used.
+                for (int i = 0; i < _congestion.Length; i++)
+                {
+                    _congestion[i] = 1.0f;
+                }
+            }
+        }
+
+        public float ComputeCongestionTerm(float[] stationProbabilities)
+        {
+            return CongestionFactor * VectorHelper.MultiplyAndSum(_congestion, 0, stationProbabilities, 0, stationProbabilities.Length);
+        }
+
+        public bool RuntimeValidation(ref string error)
+        {
+            if(EndTime <= StartTime)
+            {
+                error = "The end time must be greater than the start time!";
+                return false;
+            }
+            return true;
+        }
+    }
+
+    [SubModelInformation(Required = false, Description = "Station congestion by time of day.")]
+    public TimeOfDayStationCongestion[] StationCongestion;
 
     [SubModelInformation(Required = true, Description = "The density of zones for activities")]
     public IResource ZonalDensityForActivities;
@@ -319,7 +394,7 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
                 count++;
             }
             // If you are in the DAT leg tour, it is not feasible to use the vehicle you have required.
-            else if(inDAT && tripMode.RequiresVehicle != null)
+            else if (inDAT && tripMode.RequiresVehicle != null)
             {
                 return false;
             }
@@ -418,13 +493,13 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         {
             // Try to access the cache to see if this pair
             Dictionary<StationTripPair, Pair<float, Action<Random, ITripChain>>> cache = null;
-            if((cache = chain.GetVariable(_CacheName) as Dictionary<StationTripPair, Pair<float, Action<Random, ITripChain>>>) == null)
+            if ((cache = chain.GetVariable(_CacheName) as Dictionary<StationTripPair, Pair<float, Action<Random, ITripChain>>>) == null)
             {
                 cache = new Dictionary<StationTripPair, Pair<float, Action<Random, ITripChain>>>(1);
                 trips[tripIndex].Attach(_CacheName, cache);
             }
             var pair = new StationTripPair((byte)tripIndex, (byte)otherIndex);
-            
+
             if (!cache.TryGetValue(pair, out var cached))
             {
                 var accessData = AccessStationModel.ProduceResult(chain);
@@ -475,7 +550,28 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         return 0f;
     }
 
-    private int[] StationIndexLookup;
+    private int[] _stationIndexLookup;
+
+    /// <summary>
+    /// Get the expected congestion multiplied by its factor for the given time period.
+    /// 
+    /// This must be called after the station index lookup has been created.
+    /// </summary>
+    /// <param name="startTime">The start time of the first trip.</param>
+    /// <param name="stationProbabilities">The probability to go to each station.</param>
+    /// <returns>The component of the utility for congestion.</returns>
+    private float GetCongestionTerm(Time startTime, float[] stationProbabilities)
+    {
+        foreach(var timePeriod in StationCongestion)
+        {
+            if (startTime >= timePeriod.StartTime && startTime < timePeriod.EndTime)
+            {
+                return timePeriod.ComputeCongestionTerm(stationProbabilities);
+            }
+        }
+        return 0f;
+    }
+    
 
     private bool BuildUtility(IZone firstOrigin, IZone secondOrigin, Pair<IZone[], float[]> accessData, IZone firstDestination, IZone secondDestination,
         ITashaPerson person, Time firstTime, Time secondTime, out float dependentUtility)
@@ -492,9 +588,11 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         }
         dependentUtility = GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict)
             + GetPlanningDistrictConstant(secondTime, secondOrigin.PlanningDistrict, secondDestination.PlanningDistrict);
+        
         totalUtil = 1 / totalUtil;
         // we still need to do this in order to reduce time for computing the selected access station
         VectorHelper.Multiply(utils, 0, utils, 0, totalUtil, utils.Length);
+
         var zoneSystem = Root.ZoneSystem.ZoneArray;
         var fo = zoneSystem.GetFlatIndex(firstOrigin.ZoneNumber);
         var so = zoneSystem.GetFlatIndex(secondOrigin.ZoneNumber);
@@ -503,13 +601,16 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         totalUtil = 0;
         var fastTransit = TransitNetwork as ITripComponentCompleteData;
         var fastAuto = AutoNetwork as INetworkCompleteData;
-        var stationIndexLookup = StationIndexLookup ?? CreateStationIndexLookup(zoneSystem, zones);
+        var stationIndexLookup = _stationIndexLookup ?? CreateStationIndexLookup(zoneSystem, zones);
+
+        // We only care about the congestion term for the first trip, and we need to ensure that the station lookup has already run.
+        dependentUtility += GetCongestionTerm(firstTime, utils);
         if (fastTransit == null | fastAuto == null)
         {
 
             for (int i = 0; i < utils.Length; i++)
             {
-                var stationIndex = StationIndexLookup[i];
+                var stationIndex = _stationIndexLookup[i];
                 var probability = utils[i];
                 if (probability > 0)
                 {
@@ -570,12 +671,19 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         {
             // Do a second check just in case the
             // StationIndexLookup was created while we were waiting for the lock
-            if (StationIndexLookup is not null)
+            if (_stationIndexLookup is not null)
             {
-                return StationIndexLookup;
+                return _stationIndexLookup;
             }
             var lookup = zones.Select(z => zoneSystem.GetFlatIndex(z.ZoneNumber)).ToArray();
-            StationIndexLookup = lookup;
+            // Update the station congestion lookup
+            foreach (var timePeriod in StationCongestion)
+            {
+                timePeriod.Update(lookup);
+            }
+            // We need to load the time periods before assigning the value otherwise
+            // we can run into race conditions.
+            _stationIndexLookup = lookup;           
             return lookup;
         }
     }
@@ -690,7 +798,7 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
                     otherIndex = i;
                 }
                 tripCount++;
-                if(tripCount > 2)
+                if (tripCount > 2)
                 {
                     return 3;
                 }
@@ -706,7 +814,7 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
     {
         if (iterationNumber == 0)
         {
-            StationIndexLookup = null;
+            _stationIndexLookup = null;
         }
         if (!AccessStationChoiceLoaded | UnloadAccessStationModelEachIteration)
         {
