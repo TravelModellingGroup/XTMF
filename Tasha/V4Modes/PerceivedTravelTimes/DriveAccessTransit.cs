@@ -816,6 +816,14 @@ public class DriveAccessTransit : ITourDependentMode, IIterationSensitive
         {
             _stationIndexLookup = null;
         }
+        else
+        {
+            // Update the congestion for subsequent iterations
+            foreach (var timePeriod in StationCongestion)
+            {
+                timePeriod.Update(_stationIndexLookup);
+            }
+        }
         if (!AccessStationChoiceLoaded | UnloadAccessStationModelEachIteration)
         {
             AccessStationModel.Load();
