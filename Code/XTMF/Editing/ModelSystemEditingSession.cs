@@ -68,7 +68,7 @@ public sealed class ModelSystemEditingSession : IDisposable
         }
         return [];
     }
-    
+
     public Task<List<string>> GetPreviousRunNamesAsync()
     {
         return new Task<List<string>>(GetPreviousRunNames);
@@ -115,11 +115,13 @@ public sealed class ModelSystemEditingSession : IDisposable
     /// <param name="runtime">A link to the XTMFRuntime</param>
     /// <param name="projectSession">The project this is for.</param>
     /// <param name="runFile">The location of the previous run.</param>
-    public ModelSystemEditingSession(XTMFRuntime runtime, ProjectEditingSession projectSession, string runFile)
+    public ModelSystemEditingSession(XTMFRuntime runtime, ProjectEditingSession projectSession, string runFile, bool isPreviousRun)
     {
         Runtime = runtime;
         ProjectEditingSession = projectSession;
         _ModelSystemIndex = -1;
+        _saveSemaphor = new Semaphore(1, 1);
+        _isPreviousRun = isPreviousRun;
         ModelSystemModel = new ModelSystemModel(Runtime, this, projectSession.Project, runFile);
     }
 
@@ -143,6 +145,16 @@ public sealed class ModelSystemEditingSession : IDisposable
     /// </summary>
     /// <returns>If it is not a project, true.</returns>
     public bool EditingModelSystem => _ModelSystem != null;
+
+    /// <summary>
+    /// Is the session read only?
+    /// </summary>
+    public bool IsReadOnly => _isPreviousRun;
+
+    /// <summary>
+    /// Set to true if the model system is a previous run.
+    /// </summary>
+    private bool _isPreviousRun = false;
 
     /// <summary>
     ///     The model system's model that we will interact with.
@@ -329,7 +341,8 @@ public sealed class ModelSystemEditingSession : IDisposable
                         [],
                          ModelSystemModel.Description
                         );
-                    if (((Configuration)Configuration).RemoteHost)
+                    if (true)
+                    //if (((Configuration)Configuration).RemoteHost)
                     {
                         run = XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
                             Runtime.Configuration, runName, overwrite);
@@ -355,7 +368,7 @@ public sealed class ModelSystemEditingSession : IDisposable
                 }
                 else
                 {
-                    run = XTMFRun.CreateLocalRun(ProjectEditingSession.Project, ModelSystemModel,
+                    run = XTMFRun.CreateRemoteHost(ProjectEditingSession.Project, ModelSystemModel,
                         Runtime.Configuration, runName, overwrite);
                 }
                 return run;
@@ -380,7 +393,7 @@ public sealed class ModelSystemEditingSession : IDisposable
     /// <param name="newQueueIndex"></param>
     public void ReorderQueuedRun(XTMFRun run, int newQueueIndex)
     {
-        Runtime.RunController.ReorderQueuedRun(run,newQueueIndex);
+        Runtime.RunController.ReorderQueuedRun(run, newQueueIndex);
     }
 
     /// <summary>
@@ -432,6 +445,11 @@ public sealed class ModelSystemEditingSession : IDisposable
     /// <returns>If we were able to save or not.</returns>
     public bool Save(ref string error)
     {
+        if (IsReadOnly)
+        {
+            error = "Cannot save a previous run.";
+            return false;
+        }
         lock (_SessionLock)
         {
             if (!ModelSystemModel.Save(ref error))
@@ -758,7 +776,7 @@ public sealed class ModelSystemEditingSession : IDisposable
     public bool IsSaving()
     {
         var gotLock = _saveSemaphor.WaitOne(0, false);
-        if(gotLock)
+        if (gotLock)
         {
             _saveSemaphor.Release();
             return false;

@@ -231,7 +231,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         {
             if (_canSaveModelSystem != value)
             {
-                _canSaveModelSystem = value;
+                _canSaveModelSystem = value && !_session.IsReadOnly;
                 OnPropertyChanged(nameof(CanSaveModelSystem));
             }
         }
@@ -1174,14 +1174,21 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             {
                 if (Session.SaveWait())
                 {
+                    bool success = true;
                     try
                     {
                         if (!Session.Save(ref error))
                         {
                             Dispatcher.Invoke(() =>
                             {
-                                MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save",
-                                    MessageBoxButton.OK, MessageBoxImage.Error);
+                                success = false;
+                                StatusSnackBar.MessageQueue.Enqueue($"Failed to Save \r\n{error}");
+                                SaveModelSystemButton.Background = Brushes.Transparent;
+                                SaveModelSystemButton.BorderBrush = Brushes.Transparent;
+                                ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);
+                                ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, false);
+                                ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton, Brushes.Transparent);
+                                ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton, Brushes.Transparent);
                             });
                         }
                     }
@@ -1195,19 +1202,21 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                     }
                     finally
                     {
-                        CanSaveModelSystem = false;
                         Session.SaveRelease();
-
-                        Dispatcher.Invoke(() =>
+                        if (success)
                         {
-                            StatusSnackBar.MessageQueue.Enqueue("Model system finished saving");
-                            SaveModelSystemButton.Background = Brushes.Transparent;
-                            SaveModelSystemButton.BorderBrush = Brushes.Transparent;
-                            ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);
-                            ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, false);
-                            ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton, Brushes.Transparent);
-                            ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton, Brushes.Transparent);
-                        });
+                            CanSaveModelSystem = false;
+                            Dispatcher.Invoke(() =>
+                            {
+                                StatusSnackBar.MessageQueue.Enqueue("Model system finished saving");
+                                SaveModelSystemButton.Background = Brushes.Transparent;
+                                SaveModelSystemButton.BorderBrush = Brushes.Transparent;
+                                ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);
+                                ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, false);
+                                ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton, Brushes.Transparent);
+                                ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton, Brushes.Transparent);
+                            });
+                        }
                     }
                 }
             });
@@ -1697,9 +1706,9 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         StringBuilder sb = new();
         var display = GetCurrentParameterDisplay();
         sb.AppendLine("Name\tValue\tDescription");
-        foreach(var item in display.Items)
+        foreach (var item in display.Items)
         {
-            if(item is ParameterDisplayModel parameter)
+            if (item is ParameterDisplayModel parameter)
             {
                 sb.Append(parameter.Name);
                 sb.Append('\t');

@@ -557,7 +557,7 @@ public sealed class ProjectEditingSession : IDisposable
         }
         try
         {
-            session = new ModelSystemEditingSession(_Runtime, this, runFileName);
+            session = new ModelSystemEditingSession(_Runtime, this, runFileName, true);
             return true;
         }
         catch (Exception e)
