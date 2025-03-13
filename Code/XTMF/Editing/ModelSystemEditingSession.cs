@@ -341,8 +341,8 @@ public sealed class ModelSystemEditingSession : IDisposable
                         [],
                          ModelSystemModel.Description
                         );
-                    if (true)
-                    //if (((Configuration)Configuration).RemoteHost)
+                    
+                    if (((Configuration)Configuration).RemoteHost)
                     {
                         run = XTMFRun.CreateRemoteHost(cloneProject, _ModelSystemIndex, ModelSystemModel,
                             Runtime.Configuration, runName, overwrite);
