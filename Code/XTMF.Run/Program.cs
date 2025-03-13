@@ -164,7 +164,6 @@ class Program
             }
             catch
             {
-                // drain the pipe of writes
                 messagesToSend?.CompleteAdding();
                 // drain the pipe of host writes
                 while(true)
