@@ -120,15 +120,25 @@ public abstract class XTMFRun : IDisposable
             overwrite);
     }
 
+    /// <summary>
+    /// Create a new run on a remote host
+    /// 
+    /// Call this when you want to re-run a previously executed run.
+    /// </summary>
+    /// <param name="project">The project associated with the run.</param>
+    /// <param name="model">The model system model to use for the run.</param>
+    /// <param name="configuration">The configuration settings for the run.</param>
+    /// <param name="runName">The name of the run.</param>
+    /// <param name="overwrite">Whether to overwrite existing run data.</param>
+    /// <returns>A new instance of <see cref="XTMFRun"/> configured for remote execution.</returns>
+    public static XTMFRun CreateRemoteHost(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite = false)
+    {
+        return new XTMFRunRemoteHost(configuration, model.Root, model.LinkedParameters.GetRealLinkedParameters(), runName, Path.Combine(configuration.ProjectDirectory, project.Name, runName), overwrite);
+    }
+
     public static XTMFRun CreateLocalRun(Project project, ModelSystemModel model, Configuration configuration, string runName, bool overwrite = false)
     {
         return new XTMFRunLocal(project, model, configuration, runName, overwrite);
-    }
-
-    public static XTMFRun CreateRemoteHost(Project project, ModelSystemStructureModel root, Configuration config, string runName, bool overwrite = false)
-    {
-        return new XTMFRunRemoteHost(config, root, [], runName, Path.Combine(config.ProjectDirectory, project.Name, runName),
-            overwrite);
     }
 
     public static XTMFRun CreateRemoteClient(Configuration configuration, string runName, string runDirectory, string modelSystem)

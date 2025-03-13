@@ -90,7 +90,7 @@ class Program
         using var messagesToSend = new BlockingCollection<byte[]>();
         XTMFRuntime runtime = null;
         // create the client
-        Task.Factory.StartNew(() =>
+        var toHostCommunication = Task.Factory.StartNew(() =>
         {
             var reader = new BinaryReader(clientStream, Encoding.Unicode, true);
             Configuration config = new(reader.ReadString())
@@ -130,7 +130,7 @@ class Program
             runtime = new XTMFRuntime(config);
             try
             {
-                while (true)
+                while (!messagesToSend.IsCompleted)
                 {
                     switch ((ToClient)reader.ReadInt32())
                     {
@@ -149,26 +149,54 @@ class Program
                         case ToClient.CancelModelRun:
                             CancelModelSystem(root);
                             Console.WriteLine("Model System cancelled by host.");
-                            return;
+                            messagesToSend.CompleteAdding();
+                            continue;
                         case ToClient.KillModelRun:
                             Console.WriteLine("Model system termination signalled.");
-                            return;
+                            messagesToSend.CompleteAdding();
+                            continue;
                         default:
                             Console.WriteLine("Unknown command!");
-                            return;
+                            messagesToSend.CompleteAdding();
+                            continue;
+                    }
+                }
+            }
+            catch
+            {
+                messagesToSend?.CompleteAdding();
+                // drain the pipe of host writes
+                while(true)
+                {
+                    try
+                    {
+                        reader.ReadInt32();
+                    }
+                    catch
+                    {
+                        break;
                     }
                 }
             }
             finally
             {
+                // If the connection fails notify that we have processed the last message.
                 messagesToSend?.CompleteAdding();
-                Environment.Exit(0);
             }
+
         }, TaskCreationOptions.LongRunning);
-        // Send out the messages as they arise
-        foreach (var msg in messagesToSend.GetConsumingEnumerable())
+        try
         {
-            clientStream.Write(msg, 0, msg.Length);
+            // Send out the messages as they arise
+            foreach (var msg in messagesToSend.GetConsumingEnumerable())
+            {
+                clientStream.Write(msg, 0, msg.Length);
+            }
+            clientStream.Dispose();
+        }
+        finally
+        {
+            Environment.Exit(0);
         }
     }
 
@@ -229,23 +257,32 @@ class Program
                     // Make sure everything is synchronized
                     writer.BaseStream.Flush();
                     writer.Flush();
-                    // Write out the linked paramters
+                    // Write out the linked parameters
                     var lps = run.LinkedParameters;
-                    writer.Write(lps.Count);
-                    StringBuilder sb = new();
-                    foreach (var lp in lps)
+                    // If there are no linked parameters then write out a 0
+                    if (lps is null)
                     {
-                        writer.Write(lp.Name);
-                        writer.Write(lp.Value);
-                        var references = lp.Parameters;
-                        writer.Write(references.Count);
-                        foreach (var reference in references)
-                        {
-                            var name = Project.LookupName(reference, root.RealModelSystemStructure);
-                            writer.Write(name);
-                        }
+                        writer.Write(0);
+                        writer.Flush();
                     }
-                    writer.Flush();
+                    else
+                    {
+                        writer.Write(lps.Count);
+                        StringBuilder sb = new();
+                        foreach (var lp in lps)
+                        {
+                            writer.Write(lp.Name);
+                            writer.Write(lp.Value);
+                            var references = lp.Parameters;
+                            writer.Write(references.Count);
+                            foreach (var reference in references)
+                            {
+                                var name = Project.LookupName(reference, root.RealModelSystemStructure);
+                                writer.Write(name);
+                            }
+                        }
+                        writer.Flush();
+                    }
                 });
             };
             run.RunCompleted += () =>

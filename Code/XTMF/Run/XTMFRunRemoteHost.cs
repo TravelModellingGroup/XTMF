@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Buffers.Binary;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -113,10 +114,11 @@ sealed class XTMFRunRemoteHost : XTMFRun
     {
         lock (this)
         {
-            BinaryWriter writer = new(_Pipe, System.Text.Encoding.Unicode, true);
             try
             {
-                writer.Write((Int32)signal);
+                Span<byte> buffer = stackalloc byte[sizeof(int)];
+                BinaryPrimitives.WriteInt32LittleEndian(buffer, (int)signal);
+                _Pipe.Write(buffer);
             }
             catch (Exception e)
             {
@@ -274,13 +276,14 @@ sealed class XTMFRunRemoteHost : XTMFRun
     {
         try
         {
-            var length = (int)reader.ReadInt64();
-            byte[] msText = new byte[length];
-            var soFar = 0;
-            while (soFar < length)
+            var llength = reader.ReadInt64();
+            if(llength > int.MaxValue)
             {
-                soFar += reader.Read(msText, soFar, length - soFar);
+                throw new Exception("The model system is too large to load!");
             }
+            var length = (int)llength;
+            byte[] msText = new byte[(int)length];
+            reader.BaseStream.ReadExactly(msText, 0, length);
             using var stream = new MemoryStream(msText);
             var mss = ModelSystemStructure.Load(stream, Configuration);
             var numberOfLinkedParameters = reader.ReadInt32();
@@ -291,7 +294,6 @@ sealed class XTMFRunRemoteHost : XTMFRun
                 var lp = new LinkedParameter(name);
                 string error = null;
                 lp.SetValue(reader.ReadString(), ref error);
-
                 int numberOfReferences = reader.ReadInt32();
                 for (int j = 0; j < numberOfReferences; j++)
                 {
