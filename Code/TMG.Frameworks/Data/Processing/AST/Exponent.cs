@@ -75,6 +75,30 @@ public sealed class Exponent : BinaryExpression
         }
         else if (rhs.IsValue)
         {
+            // Check for common cases to accelerate them
+            if( float.IsInteger(rhs.LiteralValue))
+            {
+                var r = (int)rhs.LiteralValue;
+                // Convert x^2 to x * x
+                if (r == 2)
+                {
+                    if (lhs.IsVectorResult)
+                    {
+                        var retVector = lhs.Accumulator ? lhs.VectorData : lhs.VectorData.CreateSimilarArray<float>();
+                        var flat = retVector.GetFlatData();
+                        VectorHelper.Multiply(flat, 0, lhs.VectorData.GetFlatData(), 0, lhs.VectorData.GetFlatData(), 0, flat.Length);
+                        return new ComputationResult(retVector, true, lhs.Direction);
+                    }
+                    else
+                    {
+                        // matrix / float
+                        var retMatrix = lhs.Accumulator ? lhs.OdData : lhs.OdData.CreateSimilarArray<float>();
+                        VectorHelper.Multiply(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), lhs.OdData.GetFlatData());
+                        return new ComputationResult(retMatrix, true);
+                    }
+                }
+            }
+            // If it isn't a special case handle it normally
             if (lhs.IsVectorResult)
             {
                 var retVector = lhs.Accumulator ? lhs.VectorData : lhs.VectorData.CreateSimilarArray<float>();

@@ -21,6 +21,7 @@ using System.Runtime.Intrinsics;
 using System;
 using System.Runtime.CompilerServices;
 using System.Numerics;
+using System.Reflection;
 
 namespace TMG.Functions;
 
@@ -35,210 +36,30 @@ public static partial class VectorHelper
     /// <param name="src"></param>
     public static unsafe void Exp(float[] destination, float[] src)
     {
-        int i = 0;
-        if (Avx512F.IsSupported)
+        ArgumentOutOfRangeException.ThrowIfLessThan(destination.Length, src.Length);
+        nint i = 0;
+        ref var pSrc = ref src[0];
+        ref var pDest = ref destination[0];
+        if (Vector512.IsHardwareAccelerated)
         {
-            Vector512<float> c_one = Vector512<float>.One;
-            Vector512<float> half = Vector512.Create(0.5f);
-            Vector512<float> exp_hi = Vector512.Create(88.3762626647949f);
-            Vector512<float> exp_lo = Vector512.Create(-88.3762626647949f);
-            Vector512<float> LOG2EF = Vector512.Create(1.44269504088896341f);
-            Vector512<float> exp_C1 = Vector512.Create(0.693359375f);
-            Vector512<float> exp_C2 = Vector512.Create(-2.12194440e-4f);
-            Vector512<float> exp_p0 = Vector512.Create(1.9875691500E-4f);
-            Vector512<float> exp_p1 = Vector512.Create(1.3981999507E-3f);
-            Vector512<float> exp_p2 = Vector512.Create(8.3334519073E-3f);
-            Vector512<float> exp_p3 = Vector512.Create(4.1665795894E-2f);
-            Vector512<float> exp_p4 = Vector512.Create(1.6666665459E-1f);
-            Vector512<float> exp_p5 = Vector512.Create(5.0000001201E-1f);
-            Vector512<int> c0x7f = Vector512.Create(0x7F);
-            for (; i < destination.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (; i <= destination.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
-                Vector512<float> x = Vector512.LoadUnsafe(ref src[i]);
-                Vector512<float> original_x = x;
-                x = Vector512.Min(x, exp_hi);
-                x = Vector512.Max(x, exp_lo);
-                Vector512<float> fx = Avx512F.FusedMultiplyAdd(x, LOG2EF, half);
-                var tmp = Vector512.Floor(fx);
-                Vector512<float> mask = Vector512.GreaterThan(tmp, fx);
-                mask = Vector512.BitwiseAnd(tmp, mask);
-                fx = tmp - mask;
-                tmp = fx * exp_C1;
-                var z = (fx * exp_C2);
-                x = x - tmp - z;
-                z = x * x;
-                var y = exp_p0;
-                y = Avx512F.FusedMultiplyAdd(y, x, exp_p1);
-                y = Avx512F.FusedMultiplyAdd(y, x, exp_p2);
-                y = Avx512F.FusedMultiplyAdd(y, x, exp_p3);
-                y = Avx512F.FusedMultiplyAdd(y, x, exp_p4);
-                y = Avx512F.FusedMultiplyAdd(y, x, exp_p5);
-                y = Avx512F.FusedMultiplyAdd(y, z, x);
-                y += c_one;
-                var imm0 = Vector512.ConvertToInt32(fx);
-                imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
-                y = imm0.AsSingle() * y;
-
-                // Check for NaN / +inf / -inf
-                var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-                y = Blend(y, original_x, shouldRemainTheSame);
-                y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
-
-                // Store
-                Vector512.StoreUnsafe(y, ref destination[i]);
+                var temp = Vector512.LoadUnsafe(ref Unsafe.Add(ref pSrc, i));
+                temp = Exp(temp);
+                Vector512.StoreUnsafe(temp, ref Unsafe.Add(ref pDest, i));
             }
         }
-        else if (Vector512.IsHardwareAccelerated)
+        // Fall back to 256 bit instructions
+        else if (Vector256.IsHardwareAccelerated)
         {
-            Vector512<float> c_one = Vector512<float>.One;
-            Vector512<float> half = Vector512.Create(0.5f);
-            Vector512<float> exp_hi = Vector512.Create(88.3762626647949f);
-            Vector512<float> exp_lo = Vector512.Create(-88.3762626647949f);
-            Vector512<float> LOG2EF = Vector512.Create(1.44269504088896341f);
-            Vector512<float> exp_C1 = Vector512.Create(0.693359375f);
-            Vector512<float> exp_C2 = Vector512.Create(-2.12194440e-4f);
-            Vector512<float> exp_p0 = Vector512.Create(1.9875691500E-4f);
-            Vector512<float> exp_p1 = Vector512.Create(1.3981999507E-3f);
-            Vector512<float> exp_p2 = Vector512.Create(8.3334519073E-3f);
-            Vector512<float> exp_p3 = Vector512.Create(4.1665795894E-2f);
-            Vector512<float> exp_p4 = Vector512.Create(1.6666665459E-1f);
-            Vector512<float> exp_p5 = Vector512.Create(5.0000001201E-1f);
-            Vector512<int> c0x7f = Vector512.Create(0x7F);
-            for (; i < destination.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (; i <= destination.Length - (nint)Vector256<float>.Count; i += Vector256<float>.Count)
             {
-                Vector512<float> x = Vector512.LoadUnsafe(ref src[i]);
-                Vector512<float> original_x = x;
-                x = Vector512.Min(x, exp_hi);
-                x = Vector512.Max(x, exp_lo);
-                Vector512<float> fx = x * LOG2EF + half;
-                var tmp = Vector512.Floor(fx);
-                Vector512<float> mask = Vector512.GreaterThan(tmp, fx);
-                mask = Vector512.BitwiseAnd(tmp, mask);
-                fx = tmp - mask;
-                tmp = fx * exp_C1;
-                var z = (fx * exp_C2);
-                x = x - tmp - z;
-                z = x * x;
-                var y = exp_p0;
-                y = y * x + exp_p1;
-                y = y * x + exp_p2;
-                y = y * x + exp_p3;
-                y = y * x + exp_p4;
-                y = y * x + exp_p5;
-                y = y * z + x;
-                y += c_one;
-                var imm0 = Vector512.ConvertToInt32(fx);
-                imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
-                y = imm0.AsSingle() * y;
-
-                var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-                y = Blend(y, original_x, shouldRemainTheSame);
-                y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
-
-                Vector512.StoreUnsafe(y, ref destination[i]);
+                var temp = Vector256.LoadUnsafe(ref Unsafe.Add(ref pSrc, i));
+                temp = Exp(temp);
+                Vector256.StoreUnsafe(temp, ref Unsafe.Add(ref pDest, i));
             }
         }
-        else if (Fma.IsSupported)
-        {
-            Vector256<float> c_one = Vector256<float>.One;
-            Vector256<float> half = Vector256.Create(0.5f);
-            Vector256<float> exp_hi = Vector256.Create(88.3762626647949f);
-            Vector256<float> exp_lo = Vector256.Create(-88.3762626647949f);
-            Vector256<float> LOG2EF = Vector256.Create(1.44269504088896341f);
-            Vector256<float> exp_C1 = Vector256.Create(0.693359375f);
-            Vector256<float> exp_C2 = Vector256.Create(-2.12194440e-4f);
-            Vector256<float> exp_p0 = Vector256.Create(1.9875691500E-4f);
-            Vector256<float> exp_p1 = Vector256.Create(1.3981999507E-3f);
-            Vector256<float> exp_p2 = Vector256.Create(8.3334519073E-3f);
-            Vector256<float> exp_p3 = Vector256.Create(4.1665795894E-2f);
-            Vector256<float> exp_p4 = Vector256.Create(1.6666665459E-1f);
-            Vector256<float> exp_p5 = Vector256.Create(5.0000001201E-1f);
-            Vector256<int> c0x7f = Vector256.Create(0x7F);
-            for (; i < destination.Length - Vector256<float>.Count; i += Vector256<float>.Count)
-            {
-                Vector256<float> x = Vector256.LoadUnsafe(ref src[i]);
-                var original_x = x;
-                x = Vector256.Min(x, exp_hi);
-                x = Vector256.Max(x, exp_lo);
-                Vector256<float> fx = Fma.MultiplyAdd(x, LOG2EF, half);
-                var tmp = Vector256.Floor(fx);
-                Vector256<float> mask = Vector256.GreaterThan(tmp, fx);
-                mask = Vector256.BitwiseAnd(tmp, mask);
-                fx = tmp - mask;
-                tmp = fx * exp_C1;
-                var z = (fx * exp_C2);
-                x = x - tmp - z;
-                z = x * x;
-                var y = exp_p0;
-                y = Fma.MultiplyAdd(y, x, exp_p1);
-                y = Fma.MultiplyAdd(y, x, exp_p2);
-                y = Fma.MultiplyAdd(y, x, exp_p3);
-                y = Fma.MultiplyAdd(y, x, exp_p4);
-                y = Fma.MultiplyAdd(y, x, exp_p5);
-                y = Fma.MultiplyAdd(y, z, x);
-                y += c_one;
-                var imm0 = Vector256.ConvertToInt32(fx);
-                imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
-                y = imm0.AsSingle() * y;
-
-                var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-                y = Blend(y, original_x, shouldRemainTheSame);
-                y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
-
-                Vector256.StoreUnsafe(y, ref destination[i]);
-            }
-        }
-        else
-        {
-            Vector256<float> c_one = Vector256<float>.One;
-            Vector256<float> half = Vector256.Create(0.5f);
-            Vector256<float> exp_hi = Vector256.Create(88.3762626647949f);
-            Vector256<float> exp_lo = Vector256.Create(-88.3762626647949f);
-            Vector256<float> LOG2EF = Vector256.Create(1.44269504088896341f);
-            Vector256<float> exp_C1 = Vector256.Create(0.693359375f);
-            Vector256<float> exp_C2 = Vector256.Create(-2.12194440e-4f);
-            Vector256<float> exp_p0 = Vector256.Create(1.9875691500E-4f);
-            Vector256<float> exp_p1 = Vector256.Create(1.3981999507E-3f);
-            Vector256<float> exp_p2 = Vector256.Create(8.3334519073E-3f);
-            Vector256<float> exp_p3 = Vector256.Create(4.1665795894E-2f);
-            Vector256<float> exp_p4 = Vector256.Create(1.6666665459E-1f);
-            Vector256<float> exp_p5 = Vector256.Create(5.0000001201E-1f);
-            Vector256<int> c0x7f = Vector256.Create(0x7F);
-            for (; i < destination.Length - Vector256<float>.Count; i += Vector256<float>.Count)
-            {
-                Vector256<float> x = Vector256.LoadUnsafe(ref src[i]);
-                var original_x = x;
-                x = Vector256.Min(x, exp_hi);
-                x = Vector256.Max(x, exp_lo);
-                Vector256<float> fx = Fma.MultiplyAdd(x, LOG2EF, half);
-                var tmp = Vector256.Floor(fx);
-                Vector256<float> mask = Vector256.GreaterThan(tmp, fx);
-                mask = Vector256.BitwiseAnd(tmp, mask);
-                fx = tmp - mask;
-                tmp = fx * exp_C1;
-                var z = (fx * exp_C2);
-                x = x - tmp - z;
-                z = x * x;
-                var y = exp_p0;
-                y = y * x + exp_p1;
-                y = y * x + exp_p2;
-                y = y * x + exp_p3;
-                y = y * x + exp_p4;
-                y = y * x + exp_p5;
-                y = y * z + x;
-                y += c_one;
-                var imm0 = Vector256.ConvertToInt32(fx);
-                imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
-                y = imm0.AsSingle() * y;
-
-                var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-                y = Blend(y, original_x, shouldRemainTheSame);
-                y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
-
-                Vector256.StoreUnsafe(y, ref destination[i]);
-            }
-        }
-        // Cleanup the remainder with the built-in algorithm
+        // Fallback to basic for everything not accelerated
         for (; i < destination.Length; i++)
         {
             destination[i] = MathF.Exp(src[i]);
@@ -254,95 +75,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static Vector512<float> Exp(Vector512<float> x)
     {
-        var original_x = x;
-        if (Avx512F.IsSupported)
-        {
-            Vector512<float> c_one = Vector512<float>.One;
-            Vector512<float> half = Vector512.Create(0.5f);
-            Vector512<float> exp_hi = Vector512.Create(88.3762626647949f);
-            Vector512<float> exp_lo = Vector512.Create(-88.3762626647949f);
-            Vector512<float> LOG2EF = Vector512.Create(1.44269504088896341f);
-            Vector512<float> exp_C1 = Vector512.Create(0.693359375f);
-            Vector512<float> exp_C2 = Vector512.Create(-2.12194440e-4f);
-            Vector512<float> exp_p0 = Vector512.Create(1.9875691500E-4f);
-            Vector512<float> exp_p1 = Vector512.Create(1.3981999507E-3f);
-            Vector512<float> exp_p2 = Vector512.Create(8.3334519073E-3f);
-            Vector512<float> exp_p3 = Vector512.Create(4.1665795894E-2f);
-            Vector512<float> exp_p4 = Vector512.Create(1.6666665459E-1f);
-            Vector512<float> exp_p5 = Vector512.Create(5.0000001201E-1f);
-            Vector512<int> c0x7f = Vector512.Create(0x7F);
-            x = Vector512.Min(x, exp_hi);
-            x = Vector512.Max(x, exp_lo);
-            Vector512<float> fx = Avx512F.FusedMultiplyAdd(x, LOG2EF, half);
-            var tmp = Vector512.Floor(fx);
-            Vector512<float> mask = Vector512.GreaterThan(tmp, fx);
-            mask = Vector512.BitwiseAnd(tmp, mask);
-            fx = tmp - mask;
-            tmp = fx * exp_C1;
-            var z = (fx * exp_C2);
-            x = x - tmp - z;
-            z = x * x;
-            var y = exp_p0;
-            y = Avx512F.FusedMultiplyAdd(y, x, exp_p1);
-            y = Avx512F.FusedMultiplyAdd(y, x, exp_p2);
-            y = Avx512F.FusedMultiplyAdd(y, x, exp_p3);
-            y = Avx512F.FusedMultiplyAdd(y, x, exp_p4);
-            y = Avx512F.FusedMultiplyAdd(y, x, exp_p5);
-            y = Avx512F.FusedMultiplyAdd(y, z, x);
-            y += c_one;
-            var imm0 = Vector512.ConvertToInt32(fx);
-            imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
-            y = imm0.AsSingle() * y;
-
-            var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-            y = Blend(y, original_x, shouldRemainTheSame);
-            y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
-            return y;
-        }
-        else
-        {
-            Vector512<float> c_one = Vector512<float>.One;
-            Vector512<float> half = Vector512.Create(0.5f);
-            Vector512<float> exp_hi = Vector512.Create(88.3762626647949f);
-            Vector512<float> exp_lo = Vector512.Create(-88.3762626647949f);
-            Vector512<float> LOG2EF = Vector512.Create(1.44269504088896341f);
-            Vector512<float> exp_C1 = Vector512.Create(0.693359375f);
-            Vector512<float> exp_C2 = Vector512.Create(-2.12194440e-4f);
-            Vector512<float> exp_p0 = Vector512.Create(1.9875691500E-4f);
-            Vector512<float> exp_p1 = Vector512.Create(1.3981999507E-3f);
-            Vector512<float> exp_p2 = Vector512.Create(8.3334519073E-3f);
-            Vector512<float> exp_p3 = Vector512.Create(4.1665795894E-2f);
-            Vector512<float> exp_p4 = Vector512.Create(1.6666665459E-1f);
-            Vector512<float> exp_p5 = Vector512.Create(5.0000001201E-1f);
-            Vector512<int> c0x7f = Vector512.Create(0x7F);
-            x = Vector512.Min(x, exp_hi);
-            x = Vector512.Max(x, exp_lo);
-            Vector512<float> fx = x * LOG2EF + half;
-            var tmp = Vector512.Floor(fx);
-            Vector512<float> mask = Vector512.GreaterThan(tmp, fx);
-            mask = Vector512.BitwiseAnd(tmp, mask);
-            fx = tmp - mask;
-            tmp = fx * exp_C1;
-            var z = (fx * exp_C2);
-            x = x - tmp - z;
-            z = x * x;
-            var y = exp_p0;
-            y = y * x + exp_p1;
-            y = y * x + exp_p2;
-            y = y * x + exp_p3;
-            y = y * x + exp_p4;
-            y = y * x + exp_p5;
-            y = y * z + x;
-            y += c_one;
-            var imm0 = Vector512.ConvertToInt32(fx);
-            imm0 = Vector512.ShiftLeft(imm0 + c0x7f, 23);
-            y = imm0.AsSingle() * y;
-
-            var shouldRemainTheSame = Vector512.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-            y = Blend(y, original_x, shouldRemainTheSame);
-            y = Blend(y, Vector512<float>.Zero, CreateNegativeInfMask(original_x));
-            return y;
-        }
+        return Vector512.Exp(x);
     }
 
     /// <summary>
@@ -354,93 +87,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static Vector256<float> Exp(Vector256<float> x)
     {
-        var original_x = x;
-        if (Fma.IsSupported)
-        {
-            Vector256<float> c_one = Vector256<float>.One;
-            Vector256<float> half = Vector256.Create(0.5f);
-            Vector256<float> exp_hi = Vector256.Create(88.3762626647949f);
-            Vector256<float> exp_lo = Vector256.Create(-88.3762626647949f);
-            Vector256<float> LOG2EF = Vector256.Create(1.44269504088896341f);
-            Vector256<float> exp_C1 = Vector256.Create(0.693359375f);
-            Vector256<float> exp_C2 = Vector256.Create(-2.12194440e-4f);
-            Vector256<float> exp_p0 = Vector256.Create(1.9875691500E-4f);
-            Vector256<float> exp_p1 = Vector256.Create(1.3981999507E-3f);
-            Vector256<float> exp_p2 = Vector256.Create(8.3334519073E-3f);
-            Vector256<float> exp_p3 = Vector256.Create(4.1665795894E-2f);
-            Vector256<float> exp_p4 = Vector256.Create(1.6666665459E-1f);
-            Vector256<float> exp_p5 = Vector256.Create(5.0000001201E-1f);
-            Vector256<int> c0x7f = Vector256.Create(0x7F);
-            x = Vector256.Min(x, exp_hi);
-            x = Vector256.Max(x, exp_lo);
-            Vector256<float> fx = Fma.MultiplyAdd(x, LOG2EF, half);
-            var tmp = Vector256.Floor(fx);
-            Vector256<float> mask = Vector256.GreaterThan(tmp, fx);
-            mask = Vector256.BitwiseAnd(tmp, mask);
-            fx = tmp - mask;
-            tmp = fx * exp_C1;
-            var z = (fx * exp_C2);
-            x = x - tmp - z;
-            z = x * x;
-            var y = exp_p0;
-            y = Fma.MultiplyAdd(y, x, exp_p1);
-            y = Fma.MultiplyAdd(y, x, exp_p2);
-            y = Fma.MultiplyAdd(y, x, exp_p3);
-            y = Fma.MultiplyAdd(y, x, exp_p4);
-            y = Fma.MultiplyAdd(y, x, exp_p5);
-            y = Fma.MultiplyAdd(y, z, x);
-            y += c_one;
-            var imm0 = Vector256.ConvertToInt32(fx);
-            imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
-            y = imm0.AsSingle() * y;
-            var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-            y = Blend(y, original_x, shouldRemainTheSame);
-            y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
-            return y;
-        }
-        else
-        {
-            Vector256<float> c_one = Vector256<float>.One;
-            Vector256<float> half = Vector256.Create(0.5f);
-            Vector256<float> exp_hi = Vector256.Create(88.3762626647949f);
-            Vector256<float> exp_lo = Vector256.Create(-88.3762626647949f);
-            Vector256<float> LOG2EF = Vector256.Create(1.44269504088896341f);
-            Vector256<float> exp_C1 = Vector256.Create(0.693359375f);
-            Vector256<float> exp_C2 = Vector256.Create(-2.12194440e-4f);
-            Vector256<float> exp_p0 = Vector256.Create(1.9875691500E-4f);
-            Vector256<float> exp_p1 = Vector256.Create(1.3981999507E-3f);
-            Vector256<float> exp_p2 = Vector256.Create(8.3334519073E-3f);
-            Vector256<float> exp_p3 = Vector256.Create(4.1665795894E-2f);
-            Vector256<float> exp_p4 = Vector256.Create(1.6666665459E-1f);
-            Vector256<float> exp_p5 = Vector256.Create(5.0000001201E-1f);
-            Vector256<int> c0x7f = Vector256.Create(0x7F);
-            x = Vector256.Min(x, exp_hi);
-            x = Vector256.Max(x, exp_lo);
-            Vector256<float> fx = x * LOG2EF + half;
-            var tmp = Vector256.Floor(fx);
-            Vector256<float> mask = Vector256.GreaterThan(tmp, fx);
-            mask = Vector256.BitwiseAnd(tmp, mask);
-            fx = tmp - mask;
-            tmp = fx * exp_C1;
-            var z = (fx * exp_C2);
-            x = x - tmp - z;
-            z = x * x;
-            var y = exp_p0;
-            y = y * x + exp_p1;
-            y = y * x + exp_p2;
-            y = y * x + exp_p3;
-            y = y * x + exp_p4;
-            y = y * x + exp_p5;
-            y = y * z + x;
-            y += c_one;
-            var imm0 = Vector256.ConvertToInt32(fx);
-            imm0 = Vector256.ShiftLeft(imm0 + c0x7f, 23);
-            y = imm0.AsSingle() * y;
-            var shouldRemainTheSame = Vector256.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-            y = Blend(y, original_x, shouldRemainTheSame);
-            y = Blend(y, Vector256<float>.Zero, CreateNegativeInfMask(original_x));
-            return y;
-        }
+        return Vector256.Exp(x);
     }
 
 
@@ -453,47 +100,7 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static Vector<float> Exp(Vector<float> x)
     {
-        var original_x = x;
-        Vector<float> c_one = Vector<float>.One;
-        Vector<float> half = new Vector<float>(0.5f);
-        Vector<float> exp_hi = new(88.3762626647949f);
-        Vector<float> exp_lo = new(-88.3762626647949f);
-        Vector<float> LOG2EF = new(1.44269504088896341f);
-        Vector<float> exp_C1 = new(0.693359375f);
-        Vector<float> exp_C2 = new(-2.12194440e-4f);
-        Vector<float> exp_p0 = new(1.9875691500E-4f);
-        Vector<float> exp_p1 = new(1.3981999507E-3f);
-        Vector<float> exp_p2 = new(8.3334519073E-3f);
-        Vector<float> exp_p3 = new(4.1665795894E-2f);
-        Vector<float> exp_p4 = new(1.6666665459E-1f);
-        Vector<float> exp_p5 = new(5.0000001201E-1f);
-        Vector<int> c0x7f = new(0x7F);
-        x = Vector.Min(x, exp_hi);
-        x = Vector.Max(x, exp_lo);
-        Vector<float> fx = x * LOG2EF + half;
-        var tmp = Vector.Floor(fx);
-        Vector<float> mask = Vector.As<int, float>(Vector.GreaterThan(tmp, fx));
-        mask = Vector.BitwiseAnd(tmp, mask);
-        fx = tmp - mask;
-        tmp = fx * exp_C1;
-        var z = (fx * exp_C2);
-        x = x - tmp - z;
-        z = x * x;
-        var y = exp_p0;
-        y = y * x + exp_p1;
-        y = y * x + exp_p2;
-        y = y * x + exp_p3;
-        y = y * x + exp_p4;
-        y = y * x + exp_p5;
-        y = y * z + x;
-        y += c_one;
-        var imm0 = Vector.ConvertToInt32(fx);
-        imm0 = Vector.ShiftLeft(imm0 + c0x7f, 23);
-        y = Vector.As<int, float>(imm0) * y;
-        var shouldRemainTheSame = Vector.BitwiseOr(CreatePositiveInfMask(original_x), CreateNaNMask(original_x));
-        y = Blend(y, original_x, shouldRemainTheSame);
-        y = Blend(y, Vector<float>.Zero, CreateNegativeInfMask(original_x));
-        return y;
+        return Vector.Exp(x);
     }
 
     /// <summary>
@@ -517,27 +124,21 @@ public static partial class VectorHelper
         // Check to see if we have 512 bit instructions
         else if (Vector512.IsHardwareAccelerated)
         {
-            unsafe
+            for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
-                for (; i < length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var temp = Vector512.LoadUnsafe(ref x[i]);
-                    temp = Exp(temp);
-                    Vector512.StoreUnsafe(temp, ref x[i]);
-                }
+                var temp = Vector512.LoadUnsafe(ref x[i]);
+                temp = Exp(temp);
+                Vector512.StoreUnsafe(temp, ref x[i]);
             }
         }
         // Fall back to 256 bit instructions
         else if (Vector256.IsHardwareAccelerated)
         {
-            unsafe
+            for (; i <= length - Vector256<float>.Count; i += Vector256<float>.Count)
             {
-                for (; i < length - Vector256<float>.Count; i += Vector256<float>.Count)
-                {
-                    var temp = Vector256.LoadUnsafe(ref x[i]);
-                    temp = Exp(temp);
-                    Vector256.StoreUnsafe(temp, ref x[i]);
-                }
+                var temp = Vector256.LoadUnsafe(ref x[i]);
+                temp = Exp(temp);
+                Vector256.StoreUnsafe(temp, ref x[i]);
             }
         }
         // Fallback to basic for everything not accelerated
