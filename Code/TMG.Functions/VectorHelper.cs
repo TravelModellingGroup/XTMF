@@ -2233,6 +2233,21 @@ public static partial class VectorHelper
     }
 
     /// <summary>
+    /// Is the mask is 1, then the RHS is selected LHS if 0.
+    /// </summary>
+    /// <param name="lhs">The values to select if the LHS was selected.</param>
+    /// <param name="rhs">The values to select if the RHS was selected.</param>
+    /// <param name="mask">0 to select the LHS, 1 to select the RHS.</param>
+    /// <returns>A new vector with the selected elements.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector<float> Blend(Vector<float> lhs, Vector<float> rhs, Vector<int> mask)
+    {
+        var invMask = Vector.OnesComplement(mask).As<int, float>();
+        return Vector.BitwiseOr(Vector.BitwiseAnd(lhs, invMask),
+            Vector.BitwiseAnd(rhs, mask.As<int, float>()));
+    }
+
+    /// <summary>
     /// Tests if any of the floats contained are NaN
     /// </summary>
     /// <param name="v">The vector to test.</param>

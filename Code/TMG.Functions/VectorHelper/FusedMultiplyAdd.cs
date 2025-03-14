@@ -35,7 +35,7 @@ public static partial class VectorHelper
         {
             int i;
             var vAdd = Vector512.Create(add);
-            for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var l = Vector512.LoadUnsafe(ref lhs[i]);
                 var r = Vector512.LoadUnsafe(ref rhs[i]);
@@ -44,7 +44,7 @@ public static partial class VectorHelper
                     (l * r + vAdd);
                 Vector512.StoreUnsafe(local, ref dest[i]);
             }
-            for (; i < dest.Length; i++)
+            for (; i <= dest.Length; i++)
             {
                 dest[i] = lhs[i] * rhs[i] + add;
             }
@@ -53,7 +53,7 @@ public static partial class VectorHelper
         {
             int i;
             var vAdd = new Vector<float>(add);
-            for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
                 var r = new Vector<float>(rhs, i);
@@ -66,7 +66,7 @@ public static partial class VectorHelper
         }
         else
         {
-            for (int i = 0; i < dest.Length; i++)
+            for (int i = 0; i <= dest.Length; i++)
             {
                 dest[i] = lhs[i] * rhs[i] + add;
             }
@@ -83,7 +83,7 @@ public static partial class VectorHelper
             int i;
             var vAdd = Vector512.Create(add);
             var r = Vector512.Create(rhs);
-            for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var l = Vector512.LoadUnsafe(ref lhs[i]);
                 var local = Avx512F.IsSupported ?
@@ -91,7 +91,7 @@ public static partial class VectorHelper
                     (l * r + vAdd);
                 Vector512.StoreUnsafe(local, ref dest[i]);
             }
-            for (; i < dest.Length; i++)
+            for (; i <= dest.Length; i++)
             {
                 dest[i] = lhs[i] * rhs + add;
             }
@@ -101,7 +101,7 @@ public static partial class VectorHelper
             int i;
             var vAdd = new Vector<float>(add);
             var r = new Vector<float>(rhs);
-            for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
 
@@ -130,7 +130,7 @@ public static partial class VectorHelper
         {
             int i;
             var r = Vector512.Create(rhs);
-            for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var l = Vector512.LoadUnsafe(ref lhs[i]);
                 var vAdd = Vector512.LoadUnsafe(ref add[i]);
@@ -148,7 +148,7 @@ public static partial class VectorHelper
         {
             int i;
             var r = new Vector<float>(rhs);
-            for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
                 var vAdd = new Vector<float>(add, i);
@@ -176,7 +176,7 @@ public static partial class VectorHelper
         if (Vector512.IsHardwareAccelerated)
         {
             int i;
-            for (i = 0; i < dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var l = Vector512.LoadUnsafe(ref lhs[i]);
                 var r = Vector512.LoadUnsafe(ref rhs[i]);
@@ -194,7 +194,7 @@ public static partial class VectorHelper
         else if (Vector.IsHardwareAccelerated)
         {
             int i;
-            for (i = 0; i < dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
                 var r = new Vector<float>(rhs, i);

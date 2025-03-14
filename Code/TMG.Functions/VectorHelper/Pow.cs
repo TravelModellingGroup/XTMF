@@ -18,6 +18,7 @@
 */
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 
@@ -27,25 +28,28 @@ public static partial class VectorHelper
 {
     public static void Pow(float[] flat, float[] lhs, float rhs)
     {
-        int i = 0;
-        if(Vector512.IsHardwareAccelerated)
+        nint i = 0;
+        ArgumentOutOfRangeException.ThrowIfLessThan(flat.Length, lhs.Length);
+        ref var pFlat = ref flat[0];
+        ref var pLhs = ref lhs[0];
+        if (Vector512.IsHardwareAccelerated)
         {
             var vy = Vector512.Create(rhs);
-            for (; i < flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (; i <= flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
-                var vx = Vector512.LoadUnsafe(ref lhs[i]);
+                var vx = Vector512.LoadUnsafe(ref Unsafe.Add(ref pLhs, i));
                 var res = Pow(vx, vy);
-                Vector512.StoreUnsafe(res, ref flat[i]);
+                Vector512.StoreUnsafe(res, ref Unsafe.Add(ref pFlat, i));
             }
         }
-        else if(Vector256.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated)
         {
             var vy = Vector256.Create(rhs);
-            for (; i < flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
+            for (; i <= flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
             {
-                var vx = Vector256.LoadUnsafe(ref lhs[i]);
+                var vx = Vector256.LoadUnsafe(ref Unsafe.Add(ref pLhs, i));
                 var res = Pow(vx, vy);
-                Vector256.StoreUnsafe(res, ref flat[i]);
+                Vector256.StoreUnsafe(res, ref Unsafe.Add(ref pFlat, i));
             }
         }
         for (; i < flat.Length; i++)
@@ -56,15 +60,18 @@ public static partial class VectorHelper
 
     public static void Pow(float[] flat, float lhs, float[] rhs)
     {
-        int i = 0;
+        nint i = 0;
+        ArgumentOutOfRangeException.ThrowIfLessThan(flat.Length, rhs.Length);
+        ref var pFlat = ref flat[0];
+        ref var pRhs = ref rhs[0];
         if (Vector512.IsHardwareAccelerated)
         {
             var vx = Vector512.Create(lhs);
             for (; i < flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
-                var vy = Vector512.LoadUnsafe(ref rhs[i]);
+                var vy = Vector512.LoadUnsafe(ref Unsafe.Add(ref pRhs, i));
                 var res = Pow(vx, vy);
-                Vector512.StoreUnsafe(res, ref flat[i]);
+                Vector512.StoreUnsafe(res, ref Unsafe.Add(ref pFlat, i));
             }
         }
         else if (Vector256.IsHardwareAccelerated)
@@ -72,9 +79,9 @@ public static partial class VectorHelper
             var vx = Vector256.Create(lhs);
             for (; i < flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
             {
-                var vy = Vector256.LoadUnsafe(ref rhs[i]);
+                var vy = Vector256.LoadUnsafe(ref Unsafe.Add(ref pRhs, i));
                 var res = Pow(vx, vy);
-                Vector256.StoreUnsafe(res, ref flat[i]);
+                Vector256.StoreUnsafe(res, ref Unsafe.Add(ref pFlat, i));
             }
         }
         for (; i < flat.Length; i++)
@@ -85,26 +92,32 @@ public static partial class VectorHelper
 
     public static void Pow(float[] flat, float[] lhs, float[] rhs)
     {
-        int i = 0;
+        nint i = 0;
+        ArgumentOutOfRangeException.ThrowIfLessThan(flat.Length, lhs.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(flat.Length, rhs.Length);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(lhs.Length, rhs.Length);
+        ref var pFlat = ref flat[0];
+        ref var pLhs = ref lhs[0];
+        ref var pRhs = ref rhs[0];
         if (Vector512.IsHardwareAccelerated)
         {
-            
-            for (; i < flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+
+            for (; i <= flat.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
-                var vx = Vector512.LoadUnsafe(ref lhs[i]);
-                var vy = Vector512.LoadUnsafe(ref rhs[i]);
+                var vx = Vector512.LoadUnsafe(ref Unsafe.Add(ref pLhs, i));
+                var vy = Vector512.LoadUnsafe(ref Unsafe.Add(ref pLhs, i));
                 var res = Pow(vx, vy);
                 Vector512.StoreUnsafe(res, ref flat[i]);
             }
         }
         else if (Vector256.IsHardwareAccelerated)
         {
-            for (; i < flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
+            for (; i <= flat.Length - Vector256<float>.Count; i += Vector256<float>.Count)
             {
-                var vx = Vector256.LoadUnsafe(ref lhs[i]);
-                var vy = Vector256.LoadUnsafe(ref rhs[i]);
+                var vx = Vector256.LoadUnsafe(ref Unsafe.Add(ref pLhs, i));
+                var vy = Vector256.LoadUnsafe(ref Unsafe.Add(ref pLhs, i));
                 var res = Pow(vx, vy);
-                Vector256.StoreUnsafe(res, ref flat[i]);
+                Vector256.StoreUnsafe(res, ref Unsafe.Add(ref pFlat, i));
             }
         }
         for (; i < flat.Length; i++)
@@ -145,29 +158,21 @@ public static partial class VectorHelper
     /// <returns>A vector with x^y</returns>
     public static Vector512<float> Pow(Vector512<float> x, float y)
     {
-        return Exp(y * Log(x));
-    }
-
-    /// <summary>
-    /// Computes x^y for each element in the vector.
-    /// </summary>
-    /// <param name="x">The base of the exponent.</param>
-    /// <param name="y">The exponential term</param>
-    /// <returns>A vector with x^y</returns>
-    public static Vector512<float> Pow(float x, Vector512<float> y) 
-    {
-        var vx = Vector512.Create(x);
-        return Exp(y * Log(vx));
-    }
-
-    /// <summary>
-    /// Computes x^y for each element in the vector.
-    /// </summary>
-    /// <param name="x">The base of the exponent.</param>
-    /// <param name="y">The exponential term</param>
-    /// <returns>A vector with x^y</returns>
-    public static Vector512<float> Pow(Vector512<float> x, Vector512<float> y)
-    {
+        // We need to handle cases where y is negative but is an integer
+        // If it is not an integer, let it fail like normal
+        if (Vector512.LessThanAny(x, Vector512<float>.Zero)
+            && float.IsInteger(y))
+        {
+            int intY = (int)y;
+            var result = Exp(y * Log(Vector512.Abs(x)));
+            // if it is odd then we need to negate the result
+            if (int.IsOddInteger(intY))
+            {
+                var negativeMask = Vector512.LessThan(x, Vector512<float>.Zero);
+                result = Blend(result, Vector512.Negate(result), negativeMask);
+            }
+            return result;
+        }
         return Exp(y * Log(x));
     }
 
@@ -179,7 +184,145 @@ public static partial class VectorHelper
     /// <returns>A vector with x^y</returns>
     public static Vector256<float> Pow(Vector256<float> x, float y)
     {
+        // We need to handle cases where y is negative but is an integer
+        // If it is not an integer, let it fail like normal
+        if (Vector256.LessThanAny(x, Vector256<float>.Zero)
+            && float.IsInteger(y))
+        {
+            int intY = (int)y;
+            var result = Exp(y * Log(Vector256.Abs(x)));
+            // if it is odd then we need to negate the result
+            if (int.IsOddInteger(intY))
+            {
+                var negativeMask = Vector256.LessThan(x, Vector256<float>.Zero);
+                var abw = Vector256.Exp(result);
+                result = Blend(result, Vector256.Negate(result), negativeMask);
+            }
+            return result;
+        }
         return Exp(y * Log(x));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector<float> Pow(Vector<float> x, float y)
+    {
+        // We need to handle cases where y is negative but is an integer
+        // If it is not an integer, let it fail like normal
+        if (Vector.LessThanAny(x, Vector<float>.Zero)
+            && float.IsInteger(y))
+        {
+            int intY = (int)y;
+            var result = Exp(y * Log(Vector.Abs(x)));
+            // if it is odd then we need to negate the result
+            if (int.IsOddInteger(intY))
+            {
+                var negativeMask = Vector.LessThan(x, Vector<float>.Zero);
+                result = Blend(result, Vector.Negate(result), negativeMask);
+            }
+            return result;
+        }
+        return Exp(y * Log(x));
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector512<float> Pow(Vector512<float> x, Vector512<float> y)
+    {
+        // We need to handle cases where y is negative but is an integer
+        // If it is not an integer, let it fail like normal
+        if (Vector512.LessThanAny(x, Vector512<float>.Zero))
+        {
+            return SlowPow(x, y);
+        }
+        return Exp(y * Log(x));
+    }
+
+    private static Vector512<float> SlowPow(Vector512<float> x, Vector512<float> y)
+    {
+        var integerMask = Vector512.Equals(Vector512.Floor(y), y);
+        // Only take the abs of integer exponents, everything else should be NaN
+        var result = Exp(y * Log(Blend(x, Vector512.Abs(x), integerMask)));
+        // if it is odd then we need to negate the result
+        var negativeMask = Vector512.LessThan(x, Vector512<float>.Zero);
+        result = Blend(result, Vector512.Negate(result), negativeMask);
+        return result;
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector256<float> Pow(Vector256<float> x, Vector256<float> y)
+    {
+        // We need to handle cases where y is negative but is an integer
+        // If it is not an integer, let it fail like normal
+        if (Vector256.LessThanAny(x, Vector256<float>.Zero))
+        {
+            return SlowPow(x, y);
+        }
+        return Exp(y * Log(x));
+    }
+
+    private static Vector256<float> SlowPow(Vector256<float> x, Vector256<float> y)
+    {
+        var integerMask = Vector256.Equals(Vector256.Floor(y), y);
+        // Only take the abs of integer exponents, everything else should be NaN
+        var result = Exp(y * Log(Blend(x, Vector256.Abs(x), integerMask)));
+        // if it is odd then we need to negate the result
+        var negativeMask = Vector256.LessThan(x, Vector256<float>.Zero);
+        result = Blend(result, Vector256.Negate(result), negativeMask);
+        return result;
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector<float> Pow(Vector<float> x, Vector<float> y)
+    {
+        // We need to handle cases where y is negative but is an integer
+        // If it is not an integer, let it fail like normal
+        if (Vector.LessThanAny(x, Vector<float>.Zero))
+        {
+            return SlowPow(x, y);
+        }
+        return Exp(y * Log(x));
+    }
+
+    private static Vector<float> SlowPow(Vector<float> x, Vector<float> y)
+    {
+        var integerMask = Vector.Equals(Vector.Floor(y), y);
+        // Only take the abs of integer exponents, everything else should be NaN
+        var result = Exp(y * Log(Blend(x, Vector.Abs(x), integerMask)));
+        // if it is odd then we need to negate the result
+        var negativeMask = Vector.LessThan(x, Vector<float>.Zero);
+        result = Blend(result, Vector.Negate(result), negativeMask);
+        return result;
+    }
+
+    /// <summary>
+    /// Computes x^y for each element in the vector.
+    /// </summary>
+    /// <param name="x">The base of the exponent.</param>
+    /// <param name="y">The exponential term</param>
+    /// <returns>A vector with x^y</returns>
+    public static Vector512<float> Pow(float x, Vector512<float> y)
+    {
+        var vx = Vector512.Create(x);
+        return Exp(y * Log(vx));
     }
 
     /// <summary>
@@ -200,43 +343,10 @@ public static partial class VectorHelper
     /// <param name="x">The base of the exponent.</param>
     /// <param name="y">The exponential term</param>
     /// <returns>A vector with x^y</returns>
-    public static Vector256<float> Pow(Vector256<float> x, Vector256<float> y)
-    {
-        return Exp(y * Log(x));
-    }
-
-    /// <summary>
-    /// Computes x^y for each element in the vector.
-    /// </summary>
-    /// <param name="x">The base of the exponent.</param>
-    /// <param name="y">The exponential term</param>
-    /// <returns>A vector with x^y</returns>
-    public static Vector<float> Pow(Vector<float> x, float y)
-    {
-        return Exp(y * Log(x));
-    }
-
-    /// <summary>
-    /// Computes x^y for each element in the vector.
-    /// </summary>
-    /// <param name="x">The base of the exponent.</param>
-    /// <param name="y">The exponential term</param>
-    /// <returns>A vector with x^y</returns>
     public static Vector<float> Pow(float x, Vector<float> y)
     {
         var vx = new Vector<float>(x);
         return Exp(y * Log(vx));
-    }
-
-    /// <summary>
-    /// Computes x^y for each element in the vector.
-    /// </summary>
-    /// <param name="x">The base of the exponent.</param>
-    /// <param name="y">The exponential term</param>
-    /// <returns>A vector with x^y</returns>
-    public static Vector<float> Pow(Vector<float> x, Vector<float> y)
-    {
-        return Exp(y * Log(x));
     }
 
 }
