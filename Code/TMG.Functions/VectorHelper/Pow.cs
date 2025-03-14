@@ -252,7 +252,13 @@ public static partial class VectorHelper
         // Only take the abs of integer exponents, everything else should be NaN
         var result = Exp(y * Log(Blend(x, Vector512.Abs(x), integerMask)));
         // if it is odd then we need to negate the result
-        var negativeMask = Vector512.LessThan(x, Vector512<float>.Zero);
+        var iy = Vector512.ConvertToInt32Native(y);
+        var isOdd = Vector512.Equals(Vector512.BitwiseAnd(iy, Vector512<int>.One), Vector512<int>.One)
+            .As<int, float>();
+        // Negative mask to only apply to odd exponents where the base is negative
+        var negativeMask = Vector512.BitwiseAnd(
+                Vector512.IsNegative(x),
+                isOdd);
         result = Blend(result, Vector512.Negate(result), negativeMask);
         return result;
     }
@@ -279,8 +285,13 @@ public static partial class VectorHelper
         var integerMask = Vector256.Equals(Vector256.Floor(y), y);
         // Only take the abs of integer exponents, everything else should be NaN
         var result = Exp(y * Log(Blend(x, Vector256.Abs(x), integerMask)));
-        // if it is odd then we need to negate the result
-        var negativeMask = Vector256.LessThan(x, Vector256<float>.Zero);
+        var iy = Vector256.ConvertToInt32Native(y);
+        var isOdd = Vector256.Equals(Vector256.BitwiseAnd(iy, Vector256<int>.One), Vector256<int>.One)
+            .As<int, float>();
+        // Negative mask to only apply to odd exponents where the base is negative
+        var negativeMask = Vector256.BitwiseAnd(
+                Vector256.IsNegative(x),
+                isOdd);
         result = Blend(result, Vector256.Negate(result), negativeMask);
         return result;
     }
@@ -308,7 +319,13 @@ public static partial class VectorHelper
         // Only take the abs of integer exponents, everything else should be NaN
         var result = Exp(y * Log(Blend(x, Vector.Abs(x), integerMask)));
         // if it is odd then we need to negate the result
-        var negativeMask = Vector.LessThan(x, Vector<float>.Zero);
+        var iy = Vector.ConvertToInt32Native(y);
+        var isOdd = Vector.Equals(Vector.BitwiseAnd(iy, Vector<int>.One), Vector<int>.One)
+            .As<int, float>();
+        // Negative mask to only apply to odd exponents where the base is negative
+        var negativeMask = Vector.BitwiseAnd(
+                Vector.IsNegative(x),
+                isOdd);
         result = Blend(result, Vector.Negate(result), negativeMask);
         return result;
     }
