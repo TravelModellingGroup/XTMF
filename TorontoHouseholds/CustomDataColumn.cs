@@ -38,6 +38,11 @@ public sealed class CustomDataColumn : IModule
 
     public bool RuntimeValidation(ref string error)
     {
+        if(ColumnIndex < 0)
+        {
+            error = "Column Index must be greater than or equal to 0.";
+            return false;
+        }
         return true;
     }
 }
