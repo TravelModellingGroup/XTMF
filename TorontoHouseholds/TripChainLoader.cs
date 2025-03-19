@@ -85,6 +85,9 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
     [RunParameter("Auto Fix Activity Episodes", true, "Automatically make changes to the given activity episodes.")]
     public bool AutoFixActivityEpisodes;
 
+    [SubModelInformation(Required = false, Description = "Extra attributes to load for each trip.")]
+    public CustomDataColumn[] CustomDataColumns;
+
     [RootModule]
     public ITashaRuntime TashaRuntime;
 
@@ -226,6 +229,11 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
                         }
                     }
                 }
+            }
+            foreach (var column in CustomDataColumns)
+            {
+                Reader.Get(out tempFloat, column.ColumnIndex);
+                t.Attach(column.VariableName, tempFloat);
             }
             //if (lastChain != (chain = int.Parse(parts[TripChainNumber])))
             if ( currentChain == null 
