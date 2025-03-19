@@ -95,6 +95,9 @@ public class PersonLoader : IDatachainLoader<ITashaHousehold, ITashaPerson>, IDi
     [SubModelInformation(Required = false, Description = "An alternative way of specifying the person file location.")]
     public FileLocation PersonFile;
 
+    [SubModelInformation(Required = false, Description = "Extra attributes to load for each person.")]
+    public CustomDataColumn[] CustomDataColumns;
+
     private bool ContainsData;
 
     private CsvReader Reader;
@@ -296,6 +299,11 @@ public class PersonLoader : IDatachainLoader<ITashaHousehold, ITashaPerson>, IDi
             {
                 Reader.Get(out tempChar, PersonDriversLicenceCol);
                 p.Licence = (tempChar == 'Y');
+            }
+            foreach (var column in CustomDataColumns)
+            {
+                Reader.Get(out float tempFloat, column.ColumnIndex);
+                p.Attach(column.VariableName, tempFloat);
             }
             persons.Add(p);
             if(Reader.LoadLine() == 0)

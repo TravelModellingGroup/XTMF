@@ -112,6 +112,9 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
     [SubModelInformation(Required = false, Description = "An alternative way of specifying the household file location.")]
     public FileLocation HouseholdFile;
 
+    [SubModelInformation(Required = false, Description = "Extra attributes to load for each household.")]
+    public CustomDataColumn[] CustomDataColumns;
+
     private bool AllDataLoaded = true;
     private IVehicleType AutoType;
     private ITashaHousehold[] Households;
@@ -675,6 +678,12 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
             h.ExpansionFactor = tempFloat;
             Reader.Get(out int dwellingType, DwellingTypeCol);
             h.DwellingType = (DwellingType)dwellingType;
+
+            foreach(var column in CustomDataColumns)
+            {
+                Reader.Get(out float value, column.ColumnIndex);
+                h.Attach(column.VariableName, value);
+            }
 
             void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehicles)
             {
