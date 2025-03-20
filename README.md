@@ -3,7 +3,7 @@
 XTMF is software that creates, edits and runs _model systems_. Model systems in XTMF are designed with a hierarchical compositions of modules.
 Every module in a model system provides data input and custom execution logic. XTMF uses projects as an organizational structure for containing a collection of model systems.
 
-XTMF and its modules are written in C# using the .NET 8.0 SDK.
+XTMF and its modules are written in C# using the .NET 9.0 SDK.
 
 A large collection of modules are available as part of this repository - and is also included with the binary releases of XTMF.
 
@@ -11,7 +11,9 @@ The current module library largely supports the creation of travel-demand relate
 
 ## Extensible Development
 
-XTMF includes an SDK for the development of your own custom modules. Custom modules are written in C# that provide custom executable logic and pre-defined module information (such as input properties).
+XTMF includes an SDK for the development of your own custom modules. Custom modules are written in C# that provide custom
+executable logic and pre-defined module information (such as input properties). XTMF will require that you have selected
+the .Net Desktop Development workload when installing Visual Studio or have the .NET SDK installed on your system.
 
 A guide for writing your own XTMF modules is available [here](http://tmg.utoronto.ca/doc/1.6/xtmf/programming/modules.html 'Writing Custom Modules').
 
@@ -27,7 +29,7 @@ The most recent XTMF binary release is available on the [releases](https://githu
 
 ## Development
 
-For development of XTMF, Visual Studio 2017 or later is required. _XTMF.sln_ in the _Code/_ folder is the solution file that should be used.
+For development of XTMF, Visual Studio 2022 or later is required. _XTMF.sln_ in the _Code/_ folder is the solution file that should be used.
 
 **Note:** Module development does not require using Visual Studio as your IDE. Rider, Visual Studio Code and others are suitable alternatives for module development _only_ with the XTMF SDK.
 
