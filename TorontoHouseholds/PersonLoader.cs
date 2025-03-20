@@ -302,8 +302,7 @@ public class PersonLoader : IDatachainLoader<ITashaHousehold, ITashaPerson>, IDi
             }
             foreach (var column in CustomDataColumns)
             {
-                Reader.Get(out float tempFloat, column.ColumnIndex);
-                p.Attach(column.VariableName, tempFloat);
+                column.ReadIntoAttachable(p, Reader);
             }
             persons.Add(p);
             if(Reader.LoadLine() == 0)
