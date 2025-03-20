@@ -232,8 +232,7 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
             }
             foreach (var column in CustomDataColumns)
             {
-                Reader.Get(out tempFloat, column.ColumnIndex);
-                t.Attach(column.VariableName, tempFloat);
+                column.ReadIntoAttachable(t, Reader);
             }
             //if (lastChain != (chain = int.Parse(parts[TripChainNumber])))
             if ( currentChain == null 

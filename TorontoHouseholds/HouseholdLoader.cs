@@ -679,10 +679,9 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
             Reader.Get(out int dwellingType, DwellingTypeCol);
             h.DwellingType = (DwellingType)dwellingType;
 
-            foreach(var column in CustomDataColumns)
+            foreach (var column in CustomDataColumns)
             {
-                Reader.Get(out float value, column.ColumnIndex);
-                h.Attach(column.VariableName, value);
+                column.ReadIntoAttachable(h, Reader);
             }
 
             void AssignNumberOfVehicles(Household household, int numberOfAutos, int numberOfSecondaryVehicles)
