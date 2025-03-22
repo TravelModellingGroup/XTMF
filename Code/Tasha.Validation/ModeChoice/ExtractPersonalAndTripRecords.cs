@@ -1471,7 +1471,7 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
             error = "In '" + Name + "' we were unable to find a PAT mode called '" + PETModeName + "'";
             return false;
         }
-        if (_passenger == null)
+        if (_passenger == null && !!String.IsNullOrWhiteSpace(PassengerModeName))
         {
             error = "In '" + Name + "' we were unable to find a Passenger mode called '" + PassengerModeName + "'";
             return false;
