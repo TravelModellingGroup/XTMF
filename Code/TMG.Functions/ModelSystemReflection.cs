@@ -299,6 +299,11 @@ public static class ModelSystemReflection
     {
         foreach (var ms in project.ModelSystemStructure)
         {
+            // SKip model systems that are not loaded.
+            if(ms is null)
+            {
+                continue;
+            }
             if (FindModuleStructure(ms, toFind, ref modelSystemStructure))
             {
                 return true;
