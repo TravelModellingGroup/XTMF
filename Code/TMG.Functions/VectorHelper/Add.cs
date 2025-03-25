@@ -17,8 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System.ComponentModel.Design;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 
@@ -28,47 +30,37 @@ public static partial class VectorHelper
 {
     public static void Add(float[] dest, float[] source, float scalar)
     {
+        nint i = 0;
         if (Vector512.IsHardwareAccelerated)
         {
             var constant = Vector512.Create(scalar);
-
+            ref var s = ref MemoryMarshal.GetArrayDataReference(source);
+            ref var d = ref MemoryMarshal.GetArrayDataReference(dest);
             // copy everything we can do inside of a vector
-            int i = 0;
             for (; i <= source.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
-                var dynamic = Vector512.LoadUnsafe(ref source[i]);
+                ref var nextS = ref Unsafe.Add(ref s, Vector512<float>.Count);
+                ref var nextD = ref Unsafe.Add(ref d, Vector512<float>.Count);
+                var dynamic = Vector512.LoadUnsafe(ref s);
                 var local = constant + dynamic;
-                Vector512.StoreUnsafe(local, ref dest[i]);
-            }
-            // copy the remainder
-            for (; i < source.Length; i++)
-            {
-                dest[i] = source[i] + scalar;
+                Vector512.StoreUnsafe(local, ref d);
+                s = ref nextS;
+                d = ref nextD;
             }
         }
         else if (Vector.IsHardwareAccelerated)
         {
             Vector<float> constant = new(scalar);
-
             // copy everything we can do inside of a vector
-            int i = 0;
             for (; i <= source.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
-                var dynamic = new Vector<float>(source, i);
-                (constant + dynamic).CopyTo(dest, i);
-            }
-            // copy the remainder
-            for (; i < source.Length; i++)
-            {
-                dest[i] = source[i] + scalar;
+                var dynamic = new Vector<float>(source, (int)i);
+                (constant + dynamic).CopyTo(dest, (int)i);
             }
         }
-        else
+        for (; i < dest.Length; i++)
         {
-            for (int i = 0; i < dest.Length; i++)
-            {
-                dest[i] = source[i] + scalar;
-            }
+            dest[i] = source[i] + scalar;
         }
     }
 
