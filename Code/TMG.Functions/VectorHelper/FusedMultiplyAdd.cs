@@ -18,6 +18,8 @@
 */
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
@@ -31,29 +33,33 @@ public static partial class VectorHelper
     /// </summary>
     public static void FusedMultiplyAdd(float[] dest, float[] lhs, float[] rhs, float add)
     {
+        int i = 0;
         if (Vector512.IsHardwareAccelerated)
         {
-            int i;
             var vAdd = Vector512.Create(add);
+            ref var lhsRef = ref MemoryMarshal.GetArrayDataReference(lhs);
+            ref var rhsRef = ref MemoryMarshal.GetArrayDataReference(rhs);
+            ref var destRef = ref MemoryMarshal.GetArrayDataReference(dest);
             for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
-                var l = Vector512.LoadUnsafe(ref lhs[i]);
-                var r = Vector512.LoadUnsafe(ref rhs[i]);
+                ref var nextLhsRef = ref Unsafe.Add(ref lhsRef, Vector512<float>.Count);
+                ref var nextRhsRef = ref Unsafe.Add(ref rhsRef, Vector512<float>.Count);
+                ref var nextDestRef = ref Unsafe.Add(ref destRef, Vector512<float>.Count);
+                var l = Vector512.LoadUnsafe(ref lhsRef);
+                var r = Vector512.LoadUnsafe(ref rhsRef);
                 var local = Avx512F.IsSupported ?
                     Avx512F.FusedMultiplyAdd(l, r, vAdd) :
                     (l * r + vAdd);
-                Vector512.StoreUnsafe(local, ref dest[i]);
-            }
-            for (; i <= dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs[i] + add;
+                Vector512.StoreUnsafe(local, ref destRef);
+                lhsRef = ref nextLhsRef;
+                rhsRef = ref nextRhsRef;
+                destRef = ref nextDestRef;
             }
         }
         else if (Vector.IsHardwareAccelerated)
         {
-            int i;
             var vAdd = new Vector<float>(add);
-            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
                 var r = new Vector<float>(rhs, i);
@@ -64,12 +70,9 @@ public static partial class VectorHelper
                 dest[i] = lhs[i] * rhs[i] + add;
             }
         }
-        else
+        for (; i < dest.Length; i++)
         {
-            for (int i = 0; i <= dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs[i] + add;
-            }
+            dest[i] = lhs[i] * rhs[i] + add;
         }
     }
 
@@ -78,12 +81,13 @@ public static partial class VectorHelper
     /// </summary>
     public static void FusedMultiplyAdd(float[] dest, float[] lhs, float rhs, float add)
     {
+        int i = 0;
+
         if (Vector512.IsHardwareAccelerated)
         {
-            int i;
             var vAdd = Vector512.Create(add);
             var r = Vector512.Create(rhs);
-            for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var l = Vector512.LoadUnsafe(ref lhs[i]);
                 var local = Avx512F.IsSupported ?
@@ -91,33 +95,21 @@ public static partial class VectorHelper
                     (l * r + vAdd);
                 Vector512.StoreUnsafe(local, ref dest[i]);
             }
-            for (; i <= dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs + add;
-            }
         }
         else if (Vector.IsHardwareAccelerated)
         {
-            int i;
             var vAdd = new Vector<float>(add);
             var r = new Vector<float>(rhs);
-            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
 
                 (l * r + vAdd).CopyTo(dest, i);
             }
-            for (; i < dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs + add;
-            }
         }
-        else
+        for (; i < dest.Length; i++)
         {
-            for (int i = 0; i < dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs + add;
-            }
+            dest[i] = lhs[i] * rhs + add;
         }
     }
 
@@ -126,11 +118,11 @@ public static partial class VectorHelper
     /// </summary>
     public static void FusedMultiplyAdd(float[] dest, float[] lhs, float rhs, float[] add)
     {
+        int i = 0;
         if (Vector512.IsHardwareAccelerated)
         {
-            int i;
             var r = Vector512.Create(rhs);
-            for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var l = Vector512.LoadUnsafe(ref lhs[i]);
                 var vAdd = Vector512.LoadUnsafe(ref add[i]);
@@ -139,32 +131,20 @@ public static partial class VectorHelper
                     (l * r + vAdd);
                 Vector512.StoreUnsafe(local, ref dest[i]);
             }
-            for (; i < dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs + add[i];
-            }
         }
         else if (Vector.IsHardwareAccelerated)
         {
-            int i;
             var r = new Vector<float>(rhs);
-            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
                 var vAdd = new Vector<float>(add, i);
                 (l * r + vAdd).CopyTo(dest, i);
             }
-            for (; i < dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs + add[i];
-            }
         }
-        else
+        for (; i < dest.Length; i++)
         {
-            for (int i = 0; i < dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs + add[i];
-            }
+            dest[i] = lhs[i] * rhs + add[i];
         }
     }
 
@@ -173,10 +153,10 @@ public static partial class VectorHelper
     /// </summary>
     public static void FusedMultiplyAdd(float[] dest, float[] lhs, float[] rhs, float[] add)
     {
+        int i = 0;
         if (Vector512.IsHardwareAccelerated)
         {
-            int i;
-            for (i = 0; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
+            for (; i <= dest.Length - Vector512<float>.Count; i += Vector512<float>.Count)
             {
                 var l = Vector512.LoadUnsafe(ref lhs[i]);
                 var r = Vector512.LoadUnsafe(ref rhs[i]);
@@ -193,8 +173,7 @@ public static partial class VectorHelper
         }
         else if (Vector.IsHardwareAccelerated)
         {
-            int i;
-            for (i = 0; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+            for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
             {
                 var l = new Vector<float>(lhs, i);
                 var r = new Vector<float>(rhs, i);
@@ -206,12 +185,9 @@ public static partial class VectorHelper
                 dest[i] = lhs[i] * rhs[i] + add[i];
             }
         }
-        else
+        for (; i < dest.Length; i++)
         {
-            for (int i = 0; i < dest.Length; i++)
-            {
-                dest[i] = lhs[i] * rhs[i] + add[i];
-            }
+            dest[i] = lhs[i] * rhs[i] + add[i];
         }
     }
 
