@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Datastructure;
 using Tasha.Common;
 using XTMF;
@@ -269,11 +270,14 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
     /// <returns>If the validation was successful or if there was a problem</returns>
     public bool RuntimeValidation(ref string error)
     {
-        CreateConversionDictionary();
+        if(!CreateConversionDictionary(ref error))
+        {
+            return false;
+        }
         return true;
     }
 
-    private void CreateConversionDictionary()
+    private bool CreateConversionDictionary(ref string error)
     {
         int state = 0;
         var length = ModeConversion.Length;
@@ -308,6 +312,10 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
                     {
                         if ( c == ',' )
                         {
+                            if (!CheckIsMode(currentName, ref error))
+                            {
+                                return false;
+                            }
                             CharacterToModeNameConversion.Add( currentLetter, currentName );
                             state = 0;
                         }
@@ -321,8 +329,28 @@ public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisp
         }
         if ( state == 2 )
         {
+            if (!CheckIsMode(currentName, ref error))
+            {
+                return false;
+            }
             CharacterToModeNameConversion.Add( currentLetter, currentName );
         }
+        return true;
+    }
+
+    private bool CheckIsMode(string modeName, ref string error)
+    {
+        var root = TashaRuntime;
+        // Check to see if the mode is in the list of modes
+        if ((root.AllModes?.Any(m => m.ModeName == modeName) ?? false)
+            || (root.SharedModes?.Any(m => m.ModeName == modeName) ?? false)
+            || (root.OtherModes?.Any(m => m.ModeName == modeName) ?? false)
+            )
+        {
+            return true;
+        }
+        error = $"The mode '{modeName}' was not found in the list of modes!  Please check the ModeName variable in each mode to ensure that it exists!";
+        return false;
     }
 
     public void Dispose()
