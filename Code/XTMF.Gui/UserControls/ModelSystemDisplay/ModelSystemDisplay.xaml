@@ -366,12 +366,6 @@
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" ContextMenuOpening="ParameterDisplay_OnContextMenuOpening"
                                   ItemTemplateSelector="{StaticResource ParameterSelector}"  SelectionChanged="ParameterDisplay_SelectionChanged"
                                               VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
-
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-                                                <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"/>
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
                                         <ListView.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="Parameter">
@@ -519,11 +513,6 @@
                                   Margin="0" Background="{DynamicResource MaterialDesignPaper}" KeyboardNavigation.TabNavigation="Cycle"
                                         ItemTemplateSelector="{StaticResource ParameterSelector}"
                                         VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItemNoTransition}">
-                                                <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
                                         <ListView.ContextMenu>
                                             <ContextMenu Name="QuickParameterContextMenu" ContextMenuOpening="QuickParameterContextMenu_ContextMenuOpening">
                                                 <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
