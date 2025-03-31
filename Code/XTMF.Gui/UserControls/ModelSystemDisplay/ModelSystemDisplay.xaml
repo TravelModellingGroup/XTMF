@@ -260,7 +260,7 @@
                                 Name="ModelSystemDisplayContent" />
                     <GridSplitter  Grid.Row="0" Grid.Column="1" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
                     <GridSplitter  Grid.Row="0" Grid.Column="3" Width="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False"  ShowsPreview="True"/>
-                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="4" IsEnabled="True"  PreviewKeyDown="ModuleParameterDisplay_OnPreviewKeyDown">
+                    <Grid Name="ModuleParameterDisplay" Grid.Row="0"  Grid.Column="4" IsEnabled="True">
                         <materialDesign:DialogHost
                         materialDesign:ShadowAssist.ShadowDepth="Depth5"
                         x:Name="ModuleParameterDialogHost" CloseOnClickAway="True" PreviewKeyDown="ModuleParameterDialogHost_OnPreviewKeyDown">
@@ -280,7 +280,7 @@
                                             <ColumnDefinition Width="30" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <Button  Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}" Name="ModuleParameterDisplaySearchBackButton" Click="ModuleParameterDisplayClose_Click">
+                                        <Button  Focusable="False" Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}" Name="ModuleParameterDisplaySearchBackButton" Click="ModuleParameterBackButton_Click">
                                             <materialDesign:PackIcon Kind="ArrowLeft" Width="25" Height="25" />
                                         </Button>
                                         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Width="270">
@@ -294,7 +294,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
                                                     <materialDesign:PackIcon Grid.Column="0" Kind="FilterVariant" Margin="5 2 0 5"  Width="18" Height="18" Opacity="0.6"  />
-                                                    <my:FilterBox Grid.Column="1" Opacity="1.0" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="4 0 0 5"/>
+                                                    <my:FilterBox Grid.Column="1" Opacity="1.0" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="4 0 0 5"/>
                                                 </Grid>
                                             </materialDesign:ColorZone>
                                         </Grid>
@@ -302,9 +302,9 @@
 
                                     <Grid Height="45" HorizontalAlignment="Stretch" Name="ModuleParameterDisplayHeader"  Margin="10 10 10 0" VerticalAlignment="Top">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"></ColumnDefinition>
-                                            <ColumnDefinition Width="AUTO"></ColumnDefinition>
-                                            <ColumnDefinition Width="AUTO"></ColumnDefinition>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="AUTO"/>
+                                            <ColumnDefinition Width="AUTO"/>
 
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Margin="0 -1 0 0" Grid.Column="0" Style="{DynamicResource MaterialDesignBody1TextBlock}" VerticalAlignment="Center" FontSize="20" Foreground="{DynamicResource MaterialDesignBody}">Module Parameters</TextBlock>
@@ -361,7 +361,7 @@
                                             </Expander>
                                         </Grid>
                                     </Border>
-                                    <ListView AllowDrop="False" materialDesign:TransitionAssist.DisableTransitions="True"   materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    <ListView AllowDrop="False" materialDesign:TransitionAssist.DisableTransitions="True" materialDesign:RippleAssist.IsDisabled="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                   Margin="0"  KeyboardNavigation.TabNavigation="Cycle"  SelectionMode="Single" ContextMenuOpening="ParameterDisplay_OnContextMenuOpening"
                                   ItemTemplateSelector="{StaticResource ParameterSelector}"  SelectionChanged="ParameterDisplay_SelectionChanged"
@@ -435,7 +435,7 @@
                             </Grid>
                         </materialDesign:DialogHost>
                     </Grid>
-                    <Grid Name="QuickParameterDisplay2"  Grid.Column="2" IsEnabled="True" PreviewKeyDown="QuickParameterDisplay2_OnPreviewKeyDown" >
+                    <Grid Name="QuickParameterDisplay2"  Grid.Column="2" IsEnabled="True" >
                         <materialDesign:DialogHost x:Name="QuickParameterDialogHost"  CloseOnClickAway="True" DialogOpened="QuickParameterDialogHost_OnDialogOpened"
                                                    PreviewKeyDown="QuickParameterDialogHost_OnPreviewKeyDown">
                             <materialDesign:DialogHost.DialogContent >

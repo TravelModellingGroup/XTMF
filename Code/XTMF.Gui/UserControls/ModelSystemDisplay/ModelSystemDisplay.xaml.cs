@@ -527,12 +527,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                 parameter.Name.Contains(arg2, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    protected override void OnGotFocus(RoutedEventArgs e)
-    {
-        base.OnGotFocus(e);
-        FilterBox.Focus();
-    }
-
     /// <summary>
     /// </summary>
     /// <returns></returns>
@@ -2266,15 +2260,13 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     private static void SelectParameterChildControl(UIElement selected)
     {
         var textbox = selected.FindChild<TextBox>("StandardParameterTemplateTextBox");
-        if (textbox != null)
+        if (textbox is not null)
         {
-            textbox.Focus();
             Keyboard.Focus(textbox);
         }
         else
         {
             var comboBox = selected.FindChild<ComboBox>("ComboBox");
-            comboBox.Focus();
             Keyboard.Focus(comboBox);
         }
     }
@@ -2688,6 +2680,17 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     private void QuickParameterContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
     }
+
+    private void FocusParameters()
+    {
+        ParameterFilterBox.Focus();
+    }
+
+    private void FocusQuickParameters()
+    {
+        QuickParameterFilterBox.Focus();
+    }
+
 }
 
 

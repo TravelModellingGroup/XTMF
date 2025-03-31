@@ -162,7 +162,7 @@ public partial class FilterBox : UserControl
 
     private bool ClearFilter()
     {
-        if (!string.IsNullOrWhiteSpace(Box.Text))
+        if (!string.IsNullOrEmpty(Box.Text))
         {
             Box.Text = string.Empty;
             return true;

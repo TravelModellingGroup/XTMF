@@ -46,6 +46,16 @@ public partial class ModelSystemTreeViewDisplay : UserControl, IModelSystemView,
 
     internal List<ModelSystemStructureDisplayModel> CurrentlySelected => _display.CurrentlySelected;
 
+    protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
+    {
+        base.OnGotKeyboardFocus(e);
+        // 
+        if(e.Source != this && e.Source != ModuleDisplay)
+        {
+            Keyboard.Focus(ModuleDisplay);
+        }
+    }
+
     /// <summary>
     /// </summary>
     public Brush GridBackgroundBrush
