@@ -62,8 +62,17 @@ public partial class ModelSystemDisplay
                     e.Handled = true;
                     break;
                 case Key.P:
-                    ModuleParameterDisplay.Focus();
-                    Keyboard.Focus(ParameterFilterBox);
+                    if (EditorController.IsShiftDown())
+                    {
+                        ToggleModuleParameterDisplay();
+                        e.Handled = true;
+                    }
+                    else
+                    {
+                        FocusModuleParameterDisplaySearch();
+                        e.Handled = true;
+                        break;
+                    }
                     e.Handled = true;
                     break;
                 case Key.E:
@@ -128,7 +137,7 @@ public partial class ModelSystemDisplay
                     }
                     else
                     {
-                        ToggleQuickParameterDisplaySearch();
+                        FocusQuickParameterDisplaySearch();
                         e.Handled = true;
                         break;
                     }
@@ -167,7 +176,31 @@ public partial class ModelSystemDisplay
                     ExecuteRun();
                     break;
                 case Key.Escape:
-                    FilterBox.Box.Text = string.Empty;
+                    {
+                        if(!e.Handled)
+                        {
+                            bool parametersWasFocused = ModuleParameterDisplay.IsKeyboardFocusWithin;
+                            var qpWasFocused = QuickParameterDisplay2.IsKeyboardFocusWithin;
+                            var currentlySelectedModule = GetCurrentlySelectedControl();
+                            if (currentlySelectedModule is IInputElement selected)
+                            {                                
+                                Keyboard.Focus(selected);
+                            }
+                            else
+                            {
+                                currentlySelectedModule.Focus();
+                            }
+                            if (parametersWasFocused)
+                            {
+                                SetModuleParameterDisplaySearch(false);
+                            }
+                            else if (qpWasFocused)
+                            {
+                                SetQuickParaemterDisplaySearch(false);
+                            }
+                            e.Handled = true;
+                        }
+                    }
                     break;
             }
         }

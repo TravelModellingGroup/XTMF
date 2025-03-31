@@ -42,32 +42,6 @@ public partial class ModelSystemDisplay
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void QuickParameterDisplay2_OnPreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (QuickParameterDisplaySearch.Opacity > 0 && e.Key == Key.Escape)
-        {
-            this.ToggleQuickParameterDisplaySearch();
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ModuleParameterDisplay_OnPreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (ModuleParameterDisplaySearch.Opacity > 0 && e.Key == Key.Escape)
-        {
-            this.ToggleModuleParameterDisplaySearch();
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void QuickParameterListView_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
         SoftActiveParameterDisplay = QuickParameterListView.SelectedItem as ParameterDisplayModel;
@@ -110,6 +84,11 @@ public partial class ModelSystemDisplay
     private void QuickParameterDisplaySearchBackButton_OnClick(object sender, RoutedEventArgs e)
     {
         ToggleQuickParameterDisplaySearch();
+    }
+
+    private void ModuleParameterBackButton_Click(object sender, RoutedEventArgs e)
+    {
+        ToggleModuleParameterDisplaySearch();
     }
 
     /// <summary>
@@ -182,32 +161,44 @@ public partial class ModelSystemDisplay
         this.ToggleQuickParameterDisplaySearch();
     }
 
+    private void FocusQuickParameterDisplaySearch()
+    {
+        // Make sure the quick parameter display is open
+        SetQuickParaemterDisplaySearch(true);
+        Keyboard.Focus(QuickParameterFilterBox.Box);
+    }
+
+    private void FocusModuleParameterDisplaySearch()
+    {
+        SetModuleParameterDisplaySearch(true);
+        Keyboard.Focus(ParameterFilterBox.Box);
+    }
+
     /// <summary>
     /// 
     /// </summary>
     private void ToggleQuickParameterDisplaySearch()
     {
-        Action localAction = new(() =>
+        var isVisable = IsQuickParameterDisplayOpen();
+        SetQuickParaemterDisplaySearch(!isVisable);
+        if (!isVisable)
         {
-            if (QuickParameterDisplaySearch.Opacity == 0.0)
-            {
-                this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0, QuickParameterFilterBox);
-                this.AnimateOpacity(QuickParameterDisplayHeader, 1.0, 0.0);
-            }
-            else
-            {
-                this.AnimateOpacity(QuickParameterDisplaySearch, 1.0, 0.0);
-                this.AnimateOpacity(QuickParameterDisplayHeader, 0.0, 1.0);
-                QuickParameterFilterBox.Box.Text = "";
-            }
-        });
-        if (!IsQuickParameterDisplayOpen())
-        {
-            ToggleQuickParameterDisplay(100, localAction);
+            QuickParameterFilterBox.Box.Text = "";
         }
-        else
+    }
+
+    private void SetQuickParaemterDisplaySearch(bool visable)
+    {
+        var alreadyVisable = QuickParameterDisplaySearch.Opacity > 0.0;
+        if (visable && !alreadyVisable)
         {
-            localAction.Invoke();
+            this.AnimateOpacity(QuickParameterDisplaySearch, 0, 1.0, QuickParameterFilterBox);
+            this.AnimateOpacity(QuickParameterDisplayHeader, 1.0, 0.0);
+        }
+        else if (!visable)
+        {
+            this.AnimateOpacity(QuickParameterDisplaySearch, 1.0, 0.0);
+            this.AnimateOpacity(QuickParameterDisplayHeader, 0.0, 1.0);
         }
     }
 
@@ -218,7 +209,6 @@ public partial class ModelSystemDisplay
     private bool IsQuickParameterDisplayOpen()
     {
         return ContentDisplayGrid.ColumnDefinitions[2].ActualWidth > 0;
-
     }
 
     /// <summary>
@@ -226,17 +216,26 @@ public partial class ModelSystemDisplay
     /// </summary>
     private void ToggleModuleParameterDisplaySearch()
     {
-        if (ModuleParameterDisplaySearch.Opacity == 0.0)
+        var isVisable = ModuleParameterDisplaySearch.Opacity > 0.0;
+        SetModuleParameterDisplaySearch(!isVisable);
+        if (!isVisable)
         {
-            this.AnimateOpacity(ModuleParameterDisplaySearch, 0, 1.0, ParameterFilterBox);
-            this.AnimateOpacity(ModuleParameterDisplayHeader, 1.0, 0.0);
-
-        }
-        else
-        {
-            this.AnimateOpacity(ModuleParameterDisplaySearch, 1.0, 0.0);
-            this.AnimateOpacity(ModuleParameterDisplayHeader, 0.0, 1.0);
             ParameterFilterBox.Box.Text = "";
+        }
+    }
+
+    private void SetModuleParameterDisplaySearch(bool visable)
+    {
+        var alreadyVisable = ModuleParameterDisplaySearch.Opacity > 0.0;
+        if (visable && !alreadyVisable)
+        {
+            AnimateOpacity(ModuleParameterDisplaySearch, 0, 1.0, ParameterFilterBox);
+            AnimateOpacity(ModuleParameterDisplayHeader, 1.0, 0.0);
+        }
+        else if(!visable)
+        {
+            AnimateOpacity(ModuleParameterDisplaySearch, 1.0, 0.0);
+            AnimateOpacity(ModuleParameterDisplayHeader, 0.0, 1.0);
         }
     }
 
