@@ -54,7 +54,7 @@
                             materialDesign:ButtonProgressAssist.IsIndeterminate="True" ToolTip="Stop Run" >
                         <materialDesign:PackIcon Kind="Stop" />
                     </Button>
-                   
+
                     <Button x:Name="ClearRunButton"  Click="ClearRunButton_Click" ToolTip="Clear Run Display" Visibility="Collapsed">
                         <materialDesign:PackIcon Kind="NotificationClearAll" />
                     </Button>
@@ -121,26 +121,28 @@
         </GroupBox>
         <GroupBox Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="12"  Grid.ColumnSpan="3" Foreground="{DynamicResource MaterialDesignBody}"  Grid.Row="3" Grid.Column="0" Header="Console Output" BorderThickness="0.5" Opacity="1"
                   VerticalAlignment="Stretch">
-            <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch"
-                Visibility="Visible" >
-                <Grid VerticalAlignment="Stretch">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Border HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1"  Grid.Row="0" VerticalAlignment="Stretch" >
-                        <ScrollViewer  Padding="0" x:Name="ConsoleScrollViewer"   BorderThickness="0"  
-                              HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible"
-                              VerticalAlignment="Stretch"  Margin="0,0,0,0">
-                            <TextBox  HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" 
-                                      Foreground="{DynamicResource MaterialDesignBody}"
-                                      TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
-                                      TextChanged="ConsoleOutput_TextChanged" IsReadOnly="True" IsReadOnlyCaretVisible="True"
-                                      SelectionChanged="ConsoleOutput_SelectionChanged" VerticalContentAlignment="Top"
-                                      BorderBrush="{x:Null}" FontFamily="Lucida Console" VerticalAlignment="Stretch"/>
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
-            </Border>
+            <Grid VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ListView x:Name="ConsoleOutput" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling"
+                          KeyDown="ConsoleOutput_KeyDown">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding" Value="0"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ., Mode=OneWay}" TextWrapping="Wrap" FontFamily="Lucida Console" FontSize="11"
+                                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                                   HorizontalAlignment="Stretch"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
         </GroupBox>
         <GroupBox  Style="{DynamicResource MaterialDesignCardGroupBox}" Name="ErrorGroupBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Header="Model System Errors" 
                    Visibility="Collapsed" Margin="12">
