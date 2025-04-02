@@ -19,13 +19,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
 using System.Windows.Threading;
@@ -104,6 +107,8 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
 
     private ConsoleOutputAppender _consoleAppender;
 
+    public ConsoleOutputController Console { get; set; }
+
     private FileAppender _fileAppender;
 
     static RunWindow()
@@ -121,24 +126,11 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, bool immediateRun = false,
         ModelSystemDisplay launchedFrom = null, SchedulerWindow schedulerWindow = null)
     {
-        InitializeComponent();
+        this.DataContext = this;
+        
         ErrorVisibility = Visibility.Collapsed;
         Session = session;
         Run = run;
-        OpenDirectoryButton.IsEnabled = true;
-        SchedulerWindow = schedulerWindow;
-        Dispatcher.BeginInvoke(new Action(() =>
-        {
-            RunNameLabel.Text = runName;
-            RunNameText.Text = runName;
-            IsRunClearable = false;
-        }));
-
-        if (launchedFrom != null)
-        {
-            _launchedFromModelSystemDisplay = launchedFrom;
-        }
-
         _progressReports = Run.Configuration.ProgressReports;
         _progressReports.ListChanged += ProgressReports_ListChanged;
         _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
@@ -150,9 +142,6 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         Run.RuntimeValidationError += Run_RuntimeValidationError;
         Run.ValidationStarting += RunOnValidationStarting;
         Run.ValidationError += RunOnValidationError;
-
-        ErrorGroupBox.Visibility = Visibility.Collapsed;
-        BaseGrid.RowDefinitions[1].Height = new GridLength(0);
         _runDirectory = Run.RunDirectory;
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         _isFinished = false;
@@ -169,16 +158,43 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
                 _taskbarInformation.ProgressValue = 0;
             }
         }
-        DetailsGroupBox.DataContext = this;
         ConfigureLogger();
-        var conc = new ConsoleOutputController(Run, iLog);
-        ConsoleOutput.DataContext = conc;
-        _consoleAppender.ConsoleOutputController = conc;
-
-        ConsoleBorder.DataContext = ConsoleOutput.DataContext;
+        Console = new ConsoleOutputController(Run, iLog);
+        _consoleAppender.ConsoleOutputController = Console;
+        InitializeComponent();
+        Console.PropertyChanged += Console_Updated;
+        ConsoleOutput.DataContext = Console;
+        ConsoleOutput.ItemsSource = Console.ConsoleOutput;
+        OpenDirectoryButton.IsEnabled = true;
+        SchedulerWindow = schedulerWindow;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            RunNameLabel.Text = runName;
+            RunNameText.Text = runName;
+            IsRunClearable = false;
+        }));
+        if (launchedFrom != null)
+        {
+            _launchedFromModelSystemDisplay = launchedFrom;
+        }
+        ErrorGroupBox.Visibility = Visibility.Collapsed;
+        BaseGrid.RowDefinitions[1].Height = new GridLength(0);
+        //ConsoleBorder.DataContext = ConsoleOutput.DataContext;
         session.ExecuteRun(run, immediateRun);
         StartRunAsync();
         _timer.Start();
+    }
+
+    private void Console_Updated(object sender, PropertyChangedEventArgs e)
+    {
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var selected = ConsoleOutput.SelectedItem;
+            if (selected is not null)
+            {
+                ConsoleOutput.ScrollIntoView(selected);
+            }
+        }), DispatcherPriority.Render);
     }
 
     /// <summary>
@@ -222,7 +238,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         _fileAppender.ActivateOptions();
         log4net.Config.BasicConfigurator.Configure(repo, _fileAppender, _consoleAppender);
         iLog = LogManager.GetLogger(Run.RunName, Run.RunName);
-        
+
     }
 
     ~RunWindow()
@@ -259,22 +275,11 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName, DateTime delayedStartTime,
         ModelSystemDisplay launchedFrom = null, SchedulerWindow schedulerWindow = null)
     {
-        InitializeComponent();
+        this.DataContext = this;
         ErrorVisibility = Visibility.Collapsed;
         Session = session;
         Run = run;
         SchedulerWindow = schedulerWindow;
-        OpenDirectoryButton.IsEnabled = true;
-        Dispatcher.BeginInvoke(new Action(() =>
-        {
-            RunNameLabel.Text = runName;
-            RunNameText.Text = runName;
-            IsRunClearable = false;
-        }));
-        if (launchedFrom != null)
-        {
-            _launchedFromModelSystemDisplay = launchedFrom;
-        }
         _progressReports = Run.Configuration.ProgressReports;
         _progressReports.ListChanged += ProgressReports_ListChanged;
         _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
@@ -286,9 +291,6 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         Run.RuntimeValidationError += Run_RuntimeValidationError;
         Run.ValidationStarting += RunOnValidationStarting;
         Run.ValidationError += RunOnValidationError;
-
-        ErrorGroupBox.Visibility = Visibility.Collapsed;
-        BaseGrid.RowDefinitions[1].Height = new GridLength(0);
         _runDirectory = Run.RunDirectory;
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         _isFinished = false;
@@ -306,10 +308,26 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
             }
         }
         ConfigureLogger();
-        var conc = new ConsoleOutputController(Run, iLog);
-        ConsoleOutput.DataContext = conc;
-        _consoleAppender.ConsoleOutputController = conc;
-        ConsoleBorder.DataContext = ConsoleOutput.DataContext;
+        Console = new ConsoleOutputController(Run, iLog);
+        _consoleAppender.ConsoleOutputController = Console;
+        InitializeComponent();
+        Console.PropertyChanged += Console_Updated;
+        ConsoleOutput.DataContext = Console;
+        ConsoleOutput.ItemsSource = Console.ConsoleOutput;
+        OpenDirectoryButton.IsEnabled = true;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            RunNameLabel.Text = runName;
+            RunNameText.Text = runName;
+            IsRunClearable = false;
+        }));
+        if (launchedFrom != null)
+        {
+            _launchedFromModelSystemDisplay = launchedFrom;
+        }
+        ErrorGroupBox.Visibility = Visibility.Collapsed;
+        BaseGrid.RowDefinitions[1].Height = new GridLength(0);
+        //ConsoleBorder.DataContext = ConsoleOutput.DataContext;
         session.ExecuteDelayedRun(run, delayedStartTime);
         DetailsGroupBox.DataContext = this;
         StartRunAsync();
@@ -354,13 +372,16 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     /// </summary>
     public void ScrollToBottomOfConsole()
     {
-        if (ConsoleOutput.Text.Length > 0)
+        /*
+         * TODO: Implement this for a list box later
+         if (ConsoleOutput.Text.Length > 0)
         {
             ConsoleOutput.CaretIndex = ConsoleOutput.Text.Length - 1;
             ConsoleOutput.ScrollToEnd();
             ConsoleScrollViewer.ScrollToBottom();
             ConsoleScrollViewer.ScrollToEnd();
         }
+        */
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -371,7 +392,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     }
 
     /// <summary>
-    ///     Callback method invokved by XTMF to notify of a validation error in the model system.
+    ///     Callback method invoked by XTMF to notify of a validation error in the model system.
     /// </summary>
     /// <param name="errorWithPaths"></param>
     private void RunOnValidationError(List<ErrorWithPath> errorWithPaths)
@@ -410,7 +431,8 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     /// <param name="e"></param>
     private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
     {
-        var newTextLength = ConsoleOutput.Text.Length;
+        /* Implement this for a listbox later.
+         * var newTextLength = ConsoleOutput.Text.Length;
         if (_oldCaret >= _consoleLength)
         {
             ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
@@ -420,6 +442,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
             ConsoleOutput.Select(ConsoleOutput.Text.Length - 1, 0);
         }
         _consoleLength = newTextLength;
+        */
     }
 
     /// <summary>
@@ -651,7 +674,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            System.Console.WriteLine(e.Message);
         }
     }
 
@@ -795,7 +818,7 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         StartTimeLabel.Content = string.Empty;
         _runDirectory = string.Empty;
         OpenDirectoryButton.IsEnabled = false;
-        ConsoleOutput.Clear();
+        // ConsoleOutput.Clear();
         _consoleAppender.Close();
         Dispose();
     }
@@ -869,14 +892,13 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
         /// <param name="loggingEvent"></param>
         protected override void Append(LoggingEvent loggingEvent)
         {
-            ConsoleOutputController.ConsoleOutput += RenderLoggingEvent(loggingEvent);
+            ConsoleOutputController.Append(RenderLoggingEvent(loggingEvent));
         }
     }
 
     public sealed class ConsoleOutputController : AppenderSkeleton, INotifyPropertyChanged, IDisposable
     {
         private readonly ILog _log;
-        private string _output;
 
         /// <summary>
         /// 
@@ -891,22 +913,11 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
             _log = log;
         }
 
-        public string ConsoleOutput
-        {
-            get
-            {
-                return _output;
-            }
-            set
-            {
-                _output = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
-            }
-        }
+        public ObservableCollection<string> ConsoleOutput { get; } = [];
 
         public void Dispose()
         {
-            ConsoleOutput = string.Empty;
+            ConsoleOutput.Clear();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -921,14 +932,31 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
             _log?.Info(message);
         }
 
+        const int MaxLines = 1000;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="loggingEvent"></param>
         protected override void Append(LoggingEvent loggingEvent)
         {
-            ConsoleOutput = ConsoleOutput + loggingEvent.RenderedMessage + Environment.NewLine;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
+            Append(loggingEvent.RenderedMessage);
+        }
+
+        internal void Append(string message)
+        {
+            lock (this)
+            {
+                Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    if (ConsoleOutput.Count > MaxLines)
+                    {
+                        ConsoleOutput.RemoveAt(MaxLines);
+                    }
+                    ConsoleOutput.Insert(0, message);
+                }, DispatcherPriority.Render);
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ConsoleOutput)));
+            }
         }
     }
 
@@ -948,6 +976,28 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     private void ConsoleOutput_SelectionChanged(object sender, RoutedEventArgs e)
     {
         _oldCaret = ((TextBox)sender).CaretIndex;
+    }
+
+    private void ConsoleOutput_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if(sender is ListView listView)
+        {
+            // If the user wants to copy
+            if (e.Key == System.Windows.Input.Key.C && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                StringBuilder builder = new();
+                foreach(var item in listView.SelectedItems)
+                {
+                    builder.Append(item.ToString());
+                    builder.Append(Environment.NewLine);
+                }
+                Clipboard.SetText(builder.ToString());
+            }
+            if(e.Key == Key.Escape)
+            {
+                listView.SelectedItems.Clear();
+            }
+        }
     }
 }
 
