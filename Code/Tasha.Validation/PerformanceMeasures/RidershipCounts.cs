@@ -27,6 +27,7 @@ using XTMF;
 
 namespace Tasha.Validation.PerformanceMeasures;
 
+[ModuleInformation(Description = "This module gets the number of riders that board at least one time for each of the operators that we want to consider.")]
 public class RidershipCounts : IEmmeTool
 {
     private const string ToolName = "tmg.analysis.transit.strategy_analysis.volume_per_operator";
