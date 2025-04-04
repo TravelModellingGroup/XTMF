@@ -21,8 +21,8 @@ namespace TMG.Emme;
 
 public class ModellerControllerParameter
 {
-    internal string Name;
-    internal string Value;
+    public readonly string Name;
+    public readonly string Value;
 
     public ModellerControllerParameter(string name, string value)
     {

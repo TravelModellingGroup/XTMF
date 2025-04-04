@@ -485,8 +485,6 @@ class XTMFBridge:
         try:
             #figure out how long the macro's name is
             macroName = self.ReadString()
-            if not self.EnsureModellerToolExists(macroName):
-                return
 
             # Read in the parameters from XTMF (This needs to happen first so we don't get out of sync).
             if useBinaryParameters:
@@ -496,7 +494,11 @@ class XTMFBridge:
                 parameterList = [self.ReadString() for p in range(0, numberOfParameters)]
             else:
                 parameterString = self.ReadString()
-                
+
+            # Do the check here instead of right when we got the macroName to make sure that XTMF has
+            # finished writing all of its data to the stream.
+            if not self.EnsureModellerToolExists(macroName):
+                return              
             
             # Now we can create the tool
             tool = self.CreateTool(macroName)
