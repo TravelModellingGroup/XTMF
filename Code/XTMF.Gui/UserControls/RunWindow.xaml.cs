@@ -68,7 +68,6 @@ public partial class RunWindow : UserControl, INotifyPropertyChanged, IDisposabl
     private readonly DispatcherTimer _timer;
     private readonly bool _windows7OrAbove;
 
-    private int _consoleLength;
     private volatile bool _isActive;
     private volatile bool _isFinished;
 

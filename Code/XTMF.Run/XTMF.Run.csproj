@@ -24,6 +24,7 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
 		<OutputPath>..\..\..\XTMF32\</OutputPath>
 		<Optimize>true</Optimize>
+		<PlatformTarget>x86</PlatformTarget>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
 		<OutputPath>..\..\..\XTMF-Dev\</OutputPath>
