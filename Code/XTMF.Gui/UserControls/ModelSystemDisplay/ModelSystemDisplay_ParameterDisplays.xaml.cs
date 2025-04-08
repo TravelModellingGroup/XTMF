@@ -83,7 +83,7 @@ public partial class ModelSystemDisplay
     /// <param name="e"></param>
     private void QuickParameterDisplaySearchBackButton_OnClick(object sender, RoutedEventArgs e)
     {
-        ToggleQuickParameterDisplaySearch();
+        SetQuickParaemterDisplaySearch(true);
     }
 
     private void ModuleParameterBackButton_Click(object sender, RoutedEventArgs e)
@@ -180,7 +180,7 @@ public partial class ModelSystemDisplay
     private void ToggleQuickParameterDisplaySearch()
     {
         var isVisable = IsQuickParameterDisplayOpen();
-        SetQuickParaemterDisplaySearch(!isVisable);
+        SetQuickParaemterDisplaySearch(isVisable);
         if (!isVisable)
         {
             QuickParameterFilterBox.Box.Text = "";
