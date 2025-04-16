@@ -1130,7 +1130,8 @@ public sealed class V4LocationChoice : ILocationChoiceModel
         }
 
         // If estimation mode is being used then there is a shared temp space.
-        // so we can't load in parallel.  Even if we could the loading already has a lot of parallelism.
+        // So we can't load in parallel.  Even if we could, loading a single model
+        // already has a lot of parallelism.
         if (EstimationMode)
         {
             MarketModel.Load();
