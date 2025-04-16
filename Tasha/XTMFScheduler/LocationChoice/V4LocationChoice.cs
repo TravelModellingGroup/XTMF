@@ -27,6 +27,7 @@ using TMG.Functions;
 using System.Numerics;
 using System.Collections.Concurrent;
 using Tasha.EMME;
+using System.Threading;
 
 namespace Tasha.XTMFScheduler.LocationChoice;
 
@@ -474,6 +475,13 @@ public sealed class V4LocationChoice : ILocationChoiceModel
             return ret;
         }
 
+        /// <summary>
+        /// Can not be called in parallel
+        /// </summary>
+        /// <param name="timePeriod"></param>
+        /// <param name="zones"></param>
+        /// <param name="timePeriodParameters"></param>
+        /// <returns></returns>
         internal float[] GenerateEstimationLogsums(TimePeriod timePeriod, IZone[] zones, TimePeriodParameters timePeriodParameters)
         {
             var zones2 = zones.Length * zones.Length;
@@ -715,6 +723,7 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                     }
                 });
             }
+
             if (Parent.EstimationMode)
             {
                 for (int i = 0; i < Parent.TimePeriods.Length; i++)
@@ -1119,12 +1128,24 @@ public sealed class V4LocationChoice : ILocationChoiceModel
         {
             ValidDestinations = Root.ZoneSystem.ZoneArray.GetFlatData().Select(zone => ValidDestinationZones.Contains(zone.ZoneNumber)).ToArray();
         }
-        // We can load all of the location choice models in parallel.
-        Parallel.Invoke(
-            () => MarketModel.Load(),
-            () => OtherModel.Load(),
-            () => WorkBasedBusinessModel.Load()
-            );
+
+        // If estimation mode is being used then there is a shared temp space.
+        // So we can't load in parallel.  Even if we could, loading a single model
+        // already has a lot of parallelism.
+        if (EstimationMode)
+        {
+            MarketModel.Load();
+            OtherModel.Load();
+            WorkBasedBusinessModel.Load();
+        }
+        else
+        {
+            Parallel.Invoke(
+                () => MarketModel.Load(),
+                () => OtherModel.Load(),
+                () => WorkBasedBusinessModel.Load()
+                );
+        }
     }
 
     public bool RuntimeValidation(ref string error)
