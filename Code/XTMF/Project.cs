@@ -257,10 +257,6 @@ public sealed partial class Project : IProject
         bool ret;
         try
         {
-            if (!Directory.Exists(dirName))
-            {
-                Directory.CreateDirectory(dirName);
-            }
             if (((Configuration)_Configuration).DivertSaveRequests)
             {
                 ret = true;
@@ -268,7 +264,10 @@ public sealed partial class Project : IProject
             }
             else
             {
-
+                if (!Directory.Exists(dirName))
+                {
+                    Directory.CreateDirectory(dirName);
+                }
                 ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
                 if (_ClonedFrom != null)
                 {
