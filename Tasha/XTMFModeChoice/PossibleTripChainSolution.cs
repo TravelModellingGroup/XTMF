@@ -23,50 +23,45 @@ namespace Tasha.XTMFModeChoice;
 
 public sealed class PossibleTripChainSolution
 {
+    public byte[] PickedModes;
+
+    private Action<Random, ITripChain>[] _tourData;
+
     public float U;
 
-    private float TourDependentUtility;
+    private float _systematicUtility;    
 
-    private ModeChoiceTripData[] BaseData;
-
-    private TourData TourData;
-
-    internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, byte[] solution, TourData tourData)
+    internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, byte[] solution, Action<Random, ITripChain>[] tourData, float tourDependentUtility)
     {
-        BaseData = baseTripData;
         var modes = new byte[solution.Length];
         for (int i = 0; i < modes.Length; i++)
         {
             modes[i] = solution[i];
+            _systematicUtility += baseTripData[i].V[solution[i]];
         }
-        if ( tourData != null )
-        {
-            TourData = tourData;
-            TourDependentUtility = TourData.TourUtilityModifiers;
-        }
+        _tourData = tourData;
+        _systematicUtility += tourDependentUtility;
         PickedModes = modes;
-        RegenerateU();
+        RegenerateU(baseTripData);
     }
 
     internal void PickSolution(Random random, ITripChain chain)
     {
-        if ( TourData == null ) return;
-        var onSolution = TourData.OnSolution;
-        for ( int i = 0; i < onSolution.Length; i++ )
+        if (_tourData is null) return;
+        for (int i = 0; i < _tourData.Length; i++)
         {
-            onSolution[i]?.Invoke(random, chain);
+            _tourData[i]?.Invoke(random, chain);
         }
     }
 
-    public byte[] PickedModes;
-
-    public void RegenerateU()
+    internal void RegenerateU(ModeChoiceTripData[] tripData)
     {
-        float total = 0;
-        for ( int i = 0; i < BaseData.Length; i++ )
+        float errorTotal = 0;
+        for (int i = 0; i < tripData.Length; i++)
         {
-            total += BaseData[i].V[PickedModes[i]] + BaseData[i].Error[PickedModes[i]];
+            var pickedMode = PickedModes[i];
+            errorTotal += tripData[i].Error[pickedMode];
         }
-        U = total + TourDependentUtility;
+        U = _systematicUtility + errorTotal;
     }
 }

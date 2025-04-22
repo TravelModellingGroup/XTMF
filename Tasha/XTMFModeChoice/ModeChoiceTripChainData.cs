@@ -63,7 +63,7 @@ public sealed class ModeChoiceTripChainData
         var possibleAssignments = PossibleAssignments;
         for (int i = 0; i < possibleAssignments.Count; i++)
         {
-            possibleAssignments[i].RegenerateU();
+            possibleAssignments[i].RegenerateU(tripData);
         }
     }
 
@@ -82,7 +82,7 @@ public sealed class ModeChoiceTripChainData
                 if (currentTrip.Feasible[j])
                 {
                     var value = (float)modes[j].CalculateV(trips[i]);
-                    if (!(float.IsNaN(value) | float.IsInfinity(value)))
+                    if (float.IsFinite(value))
                     {
                         currentTrip.V[j] = value;
                         anyModeFeasible = true;
@@ -151,7 +151,7 @@ public sealed class ModeChoiceTripChainData
         }
     }
 
-    internal void SelectBestPerVehicleType(ITashaMode[] modes, IVehicleType[] vehicleTypes)
+    internal void SelectBestPerVehicleType(int[] vehicleIndexForMode, IVehicleType[] vehicleTypes)
     {
         for (int i = 0; i < BestPossibleAssignmentForVehicleType.Length; i++)
         {
@@ -162,7 +162,7 @@ public sealed class ModeChoiceTripChainData
             for (int i = 0; i < PossibleAssignments.Count; i++)
             {
                 var assignment = PossibleAssignments[i];
-                if (modes[assignment.PickedModes[0]].RequiresVehicle != null)
+                if (vehicleIndexForMode[assignment.PickedModes[0]] >= 0)
                 {
                     var otherU = BestPossibleAssignmentForVehicleType[1] != null ? BestPossibleAssignmentForVehicleType[1].U : float.NegativeInfinity;
                     if (assignment.U > otherU)
@@ -182,16 +182,16 @@ public sealed class ModeChoiceTripChainData
         }
         else
         {
-            SelectBestPerVehicleTypeMultipleVehicles(modes, vehicleTypes);
+            SelectBestPerVehicleTypeMultipleVehicles(vehicleIndexForMode, vehicleTypes);
         }
     }
 
-    private void SelectBestPerVehicleTypeMultipleVehicles(ITashaMode[] modes, IVehicleType[] vehicleTypes)
+    private void SelectBestPerVehicleTypeMultipleVehicles(int[] vehicleIndexForMode, IVehicleType[] vehicleTypes)
     {
         for (int i = 0; i < PossibleAssignments.Count; i++)
         {
             var assignment = PossibleAssignments[i];
-            int vehicleType = Array.IndexOf(vehicleTypes, modes[assignment.PickedModes[0]].RequiresVehicle);
+            int vehicleType = vehicleIndexForMode[assignment.PickedModes[0]];
             var otherU = BestPossibleAssignmentForVehicleType[vehicleType + 1] != null ? BestPossibleAssignmentForVehicleType[vehicleType + 1].U : float.NegativeInfinity;
             if (assignment.U > otherU)
             {
@@ -233,7 +233,6 @@ public sealed class ModeChoiceTripChainData
                     if (level >= topLevel)
                     {
                         bool feasible = true;
-                        TourData tourData = null;
                         // make sure this chain is allowed
                         for (int j = 0; j < modes.Length; j++)
                         {
@@ -244,25 +243,25 @@ public sealed class ModeChoiceTripChainData
                                 break;
                             }
                         }
+
+                        float tourUtility = 0f;
+                        Action<Random, ITripChain>[] tourActions = null;
                         // if the modes think it is allowed calculate the tour level data
                         if (feasible)
                         {
+                            
                             for (int i = 0; i < chainLength; i++)
                             {
                                 if (tourDependentModes[possibleSolution[i]] != null)
                                 {
-                                    if (tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out float tourUtility, out Action<Random, ITripChain> onSelection))
+                                    if (tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out float tripTourUtility, out Action<Random, ITripChain> onSelection))
                                     {
-
-                                        if (tourData == null)
+                                        if(tourActions is null)
                                         {
-                                            tourData = new TourData(tourUtility, new Action<Random, ITripChain>[chainLength]);
+                                            tourActions = new Action<Random, ITripChain>[chainLength];
                                         }
-                                        else
-                                        {
-                                            tourData.TourUtilityModifiers += tourUtility;
-                                        }
-                                        tourData.OnSolution[i] = onSelection;
+                                        tourUtility += tripTourUtility;
+                                        tourActions[i] = onSelection;
                                     }
                                     else
                                     {
@@ -275,7 +274,7 @@ public sealed class ModeChoiceTripChainData
                         // if the tour level data thinks it is allowed, then it works and we can add it
                         if (feasible)
                         {
-                            possibleAssignments.Add(new PossibleTripChainSolution(TripData, possibleSolution, tourData));
+                            possibleAssignments.Add(new PossibleTripChainSolution(TripData, possibleSolution, tourActions, tourUtility));
                         }
                     }
                     else
