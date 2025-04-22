@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Tasha.Common;
 using XTMF;
@@ -81,6 +82,7 @@ public class ModeChoice : ITashaModeChoice
     }
 
     private float[] VarianceScale;
+    private int[] _requiresVehicle;
 
     public void IterationStarted(int currentIteration, int totalIterations)
     {
@@ -88,12 +90,9 @@ public class ModeChoice : ITashaModeChoice
         {
             module.IterationStarting(currentIteration, totalIterations);
         }
-
-        VarianceScale = new float[AllModes.Length];
-        for (int i = 0; i < VarianceScale.Length; i++)
-        {
-            VarianceScale[i] = (float)AllModes[i].VarianceScale;
-        }
+        var vehicleTypes = VehicleTypes;
+        _requiresVehicle = [.. AllModes.Select(mode => Array.IndexOf(vehicleTypes, mode.RequiresVehicle))];
+        VarianceScale = [.. AllModes.Select(mode => (float)mode.VarianceScale)];
     }
 
     [RunParameter("Max Trip Chain Size", 10, "The maximum trip chain size that will be processed.")]
@@ -250,6 +249,7 @@ public class ModeChoice : ITashaModeChoice
     private void AssignBestPerVehicle(IVehicleType[] list, ModeChoiceHouseholdData householdData)
     {
         var modes = NonSharedModes;
+        var requiresVehicle = _requiresVehicle;
         // Go through all of the possible assignments and get the best one per vehicle
         for (int i = 0; i < householdData.PersonData.Length; i++)
         {
@@ -260,7 +260,7 @@ public class ModeChoice : ITashaModeChoice
                 ITripChain tashaTripChain = tripChain.TripChain;
                 if (!(tashaTripChain.JointTrip && !tashaTripChain.JointTripRep))
                 {
-                    tripChain.SelectBestPerVehicleType(modes, list);
+                    tripChain.SelectBestPerVehicleType(requiresVehicle, list);
                 }
             }
         }

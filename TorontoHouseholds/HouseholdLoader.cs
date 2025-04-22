@@ -768,10 +768,11 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
                     break;
                 }
             }
-            if (loadnext)
-            {
-                h.Recycle();
-            }
+            // TODO: Why are we forcing a recycle here?
+            // if (loadnext)
+            // {
+            //     h.Recycle();
+            // }
             if (TelecommutingModel is not null)
             {
                 for (int i = 0; i < persons.Length; i++)
