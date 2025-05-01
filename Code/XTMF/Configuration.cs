@@ -218,6 +218,8 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
     public bool DivertSaveRequests { get; set; } = false;
     public bool IsLocalConfiguration => Path.GetFileName(ConfigurationFileName) == "LocalXTMFConfiguration.xml";
 
+    public bool ModulesLoaded { get; set; }
+
     public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> c = null)
     {
         lock (this)
@@ -962,7 +964,6 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
 
     private void LoadModules()
     {
-
         // load in the types from system
         LoadAssembly(typeof(float).GetType().Assembly);
         // Load the given base assembly
@@ -983,9 +984,9 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
         {
             var files = Directory.GetFiles(_ModuleDirectory, "*.dll");
             var excludedDlls = LoadExcludeList();
-            //Parallel.For(0, files.Length,
-            //(int i) =>
-            for (int i = 0; i < files.Length; i++)
+            Parallel.For(0, files.Length,
+            (int i) =>
+            //for (int i = 0; i < files.Length; i++)
             {
                 try
                 {
@@ -993,7 +994,7 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
                     
 
                     var name = Path.GetFileName(fileName);
-                    if (!excludedDlls.Contains(name))
+                    if (!excludedDlls.Contains(name, StringComparer.OrdinalIgnoreCase))
                     {
                         var fullPath = Path.GetFullPath(files[i]);
                         LoadAssembly(Assembly.LoadFrom(fullPath));
@@ -1004,8 +1005,9 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
                     Console.WriteLine("Error when trying to load assembly '" + Path.GetFileNameWithoutExtension(files[i]) + "'");
                     Console.WriteLine(e.Message);
                 }
-            }//);
+            });
         }
+        ModulesLoaded = true;
     }
 
     private List<string> LoadExcludeList()

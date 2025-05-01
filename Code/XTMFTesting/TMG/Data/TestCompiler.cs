@@ -250,6 +250,17 @@ public class TestCompiler
     }
 
     [TestMethod]
+    public void TestMultipleDivisions()
+    {
+        CompareScalar("A / B / C",
+        [
+            CreateScalarData("A", 1),
+            CreateScalarData("B", 2),
+            CreateScalarData("C", 3)
+        ], 0.16666667f);
+    }
+
+    [TestMethod]
     public void TestSubtractLHSVectorRHSMatrixHorizontal()
     {
         CompareMatrix("AsHorizontal(A) - B",

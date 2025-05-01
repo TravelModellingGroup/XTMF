@@ -76,8 +76,11 @@ public partial class App : Application
                 TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, EditorController.Runtime.Configuration.IsDisableTransitionAnimations);
                 xtmfMainWindow.UpdateRecentProjectsMenu();
                 xtmfMainWindow.Show();
-                Task.Run(() =>
+                if (!EditorController.Runtime.Configuration.ModulesLoaded)
                 {
+                    Task.Run(() =>
+                    {
+
                     EditorController.Runtime.Configuration.LoadModules(() =>
                     {
                         Dispatcher.BeginInvoke(new Action(() =>
@@ -86,7 +89,16 @@ public partial class App : Application
                             xtmfMainWindow.StatusDisplay.Text = "Ready";
                         }));
                     });
-                });
+                    });
+                }
+                else
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        xtmfMainWindow.IsEnabled = true;
+                        xtmfMainWindow.StatusDisplay.Text = "Ready";
+                    }));
+                }
             }));
         }, false);
        
