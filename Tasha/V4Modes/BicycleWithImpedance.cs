@@ -29,7 +29,8 @@ namespace Tasha.V4Modes;
 /// Provides the ability to ride a bike
 /// </summary>
 [ModuleInformation(Description =
-    @"This module is designed to implement the Bicycle mode for GTAModel V4.0+.")]
+    @"This module is designed to implement the Bicycle mode for GTAModel V4.0+ that now takes in an additional custom utility
+distance and travel times by given time period.")]
 public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
 {
     [RootModule]
