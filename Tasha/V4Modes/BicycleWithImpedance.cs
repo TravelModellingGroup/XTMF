@@ -29,8 +29,8 @@ namespace Tasha.V4Modes;
 /// Provides the ability to ride a bike
 /// </summary>
 [ModuleInformation(Description =
-    @"This module is designed to implement the Bicycle mode for GTAModel V4.0+ that now takes in an additional custom utility
-distance and travel times by given time period.")]
+    @"This module is designed to implement the Bicycle mode for GTAModel V4.0+ that now takes in an additional custom impedance,
+distance, and travel times by given time period.")]
 public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
 {
     [RootModule]
@@ -128,14 +128,14 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
         [SubModelInformation(Required = true, Description = "The distance, in meters, to go from the origin to destination.")]
         public IDataSource<SparseTwinIndex<float>> Distance;
 
-        [SubModelInformation(Required = true, Description = "Utility to go from the origin to destination.")]
-        public IDataSource<SparseTwinIndex<float>> Utility;
+        [SubModelInformation(Required = true, Description = "Impedance to go from the origin to destination.")]
+        public IDataSource<SparseTwinIndex<float>> Impedance;
 
         internal SparseTwinIndex<float> _travelTime;
 
         internal SparseTwinIndex<float> _distances;
 
-        internal SparseTwinIndex<float> _utility;
+        internal SparseTwinIndex<float> _impedance;
 
         public string Name { get; set; }
 
@@ -148,7 +148,7 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
             Parallel.Invoke(
                 () => _travelTime = GetMatrix(TravelTime),
                 () => _distances = GetMatrix(Distance),
-                () => _utility = GetMatrix(Utility)
+                () => _impedance = GetMatrix(Impedance)
             );
         }
 
@@ -156,7 +156,7 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
         {
             _travelTime = null;
             _distances = null;
-            _utility = null;
+            _impedance = null;
         }
 
         private static SparseTwinIndex<float> GetMatrix(IDataSource<SparseTwinIndex<float>> dataSource)
@@ -247,7 +247,7 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
         var o = _zoneSystem.GetFlatIndex(origin.ZoneNumber);
         var d = _zoneSystem.GetFlatIndex(destination.ZoneNumber);
         var periodData = GetData(startTime);
-        v += periodData._utility.GetFlatData()[o][d];
+        v += timeFactor * periodData._impedance.GetFlatData()[o][d];
         v += _customUtility?[o][d] ?? 0;
         if (o == d)
         {
