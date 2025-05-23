@@ -300,14 +300,23 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
     {
         if (selected != null)
         {
-            var invoke = InitiateModelSystemEditingSession;
-            if (invoke != null)
+            try
             {
-                var index = selected.RealIndex;
-                invoke(Session.EditModelSystem(index));
+                var invoke = InitiateModelSystemEditingSession;
+                if (invoke != null)
+                {
+                    var index = selected.RealIndex;
+                    invoke(Session.EditModelSystem(index));
+                }
+                ModelSystemsDataGrid.SelectedItem = null;
             }
-
-            ModelSystemsDataGrid.SelectedItem = null;
+            catch (Exception ex)
+            {
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    MessageBox.Show(ex.Message, "Error loading model system!", MessageBoxButton.OK, MessageBoxImage.Error);
+                }));
+            }
         }
     }
 
