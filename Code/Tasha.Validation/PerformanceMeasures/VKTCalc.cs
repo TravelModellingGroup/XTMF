@@ -29,8 +29,6 @@ namespace Tasha.Validation.PerformanceMeasures;
 
 public class VKTCalc : ISelfContainedModule
 {
-    [RootModule]
-    public ITashaRuntime Root;
 
     [RunParameter("Cost per Km", 0.153f, "What is the cost per km used in this model system?")]
     public float CostPerKm;
