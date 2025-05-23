@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2023 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -294,7 +294,8 @@
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
                                                     <materialDesign:PackIcon Grid.Column="0" Kind="FilterVariant" Margin="5 2 0 5"  Width="18" Height="18" Opacity="0.6"  />
-                                                    <my:FilterBox Grid.Column="1" Opacity="1.0" x:Name="ParameterFilterBox" FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="4 0 0 5"/>
+                                                    <my:FilterBox Grid.Column="1" Opacity="1.0" x:Name="ParameterFilterBox" Foreground="{DynamicResource MaterialDesignBody}"
+                                                                  FilterWatermark="Filter Parameters... (Ctrl+P)" Margin="4 0 0 5"/>
                                                 </Grid>
                                             </materialDesign:ColorZone>
                                         </Grid>
@@ -467,7 +468,7 @@
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
                                                     <materialDesign:PackIcon Grid.Column="0" Kind="FilterVariant" Margin="5 2 0 5"  Width="18" Height="18"  />
-                                                    <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" 
+                                                    <my:FilterBox Grid.Column="1" x:Name="QuickParameterFilterBox" Foreground="{DynamicResource MaterialDesignBody}"
                                                                    FilterWatermark="Filter Parameters... (Ctrl+Q)" Margin="4 0 0 5" />
                                                 </Grid>
                                             </materialDesign:ColorZone>
