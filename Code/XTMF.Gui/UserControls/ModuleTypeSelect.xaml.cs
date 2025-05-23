@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -37,6 +38,8 @@ public partial class ModuleTypeSelect : UserControl
     private readonly ModelSystemStructureModel _selectedModule;
 
     private readonly ModelSystemEditingSession _modelSystemSession;
+
+    private const int MinimumDurationToCancel = 400;
 
     private class Model : INotifyPropertyChanged
     {
@@ -201,16 +204,40 @@ public partial class ModuleTypeSelect : UserControl
 
     private void Close()
     {
+        // If nothing was selected make sure that we were not accidentally instantly dismissed
+        if (this.SelectedType is null && (DateTime.Now - _openedAt).TotalMilliseconds < MinimumDurationToCancel)
+        {
+            // Cancel the close
+            return;
+        }
         _host.CurrentSession.Close();
     }
+
+    private DateTime _openedAt;
 
     /// <summary>
     /// 
     /// </summary>
     /// <returns></returns>
-    public async Task<object> ShowAsync(bool allowClickToClose = true)
+    public async Task<object> ShowAsync(bool allowClickToClose = false)
     {
-        _host.CloseOnClickAway = allowClickToClose;
+        _openedAt = DateTime.Now;
+        _host.CloseOnClickAway = false;
+        var delayClickAway = Task.Run(() =>
+        {
+            Task.Delay(MinimumDurationToCancel)
+            .Wait();
+            Dispatcher.Invoke(new Action(() =>
+            {
+                var isVisible = Visibility == System.Windows.Visibility.Visible;
+                var isOpen = _host.IsOpen;
+                var hostContent = _host.DialogContent;
+                if (isVisible && isOpen && hostContent == this)
+                {
+                    _host.CloseOnClickAway = true;
+                }
+            }));
+        });
         var task = await _host.ShowDialog(this);
         return task;
     }
@@ -259,7 +286,7 @@ public partial class ModuleTypeSelect : UserControl
     /// <param name="e"></param>
     private void Display_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (!(Display.SelectedItem is Model selected))
+        if (Display.SelectedItem is not Model selected)
         {
             selected = GetFirstItem();
         }
@@ -294,8 +321,12 @@ public partial class ModuleTypeSelect : UserControl
     {
         if (Display.SelectedItem is Model selected && selected.Url != null)
         {
-            Process.Start(new ProcessStartInfo() { FileName = selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}"
-                , UseShellExecute = true });
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = selected.Url.StartsWith("http") ? selected.Url : $"http://{selected.Url}"
+                ,
+                UseShellExecute = true
+            });
         }
     }
 }
