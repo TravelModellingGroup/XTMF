@@ -156,11 +156,11 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             writer.Write("Iteration");
             for (int i = 0; i < Targets.Length; i++)
             {
-                writer.Write($",Target-{Targets[i].Name}");
+                writer.Write($",Error:{Targets[i].Name}");
             }
             for (int i = 0; i < Targets.Length; i++)
             {
-                writer.Write($",Value-{Targets[i].Name}");
+                writer.Write($",Value:{Targets[i].Name}");
             }
             writer.WriteLine();
         }

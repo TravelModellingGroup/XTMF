@@ -77,7 +77,7 @@ public sealed class AssignParameterOffset : ISelfContainedModule
 
         internal void Update(float offsetValue)
         {
-            ModelSystemReflection.AssignValue(_configuration, _parameter, BaseValue + offsetValue);
+            ModelSystemReflection.AssignValue(_configuration, _parameter, BaseValue + offsetValue, true);
         }
     }
 
