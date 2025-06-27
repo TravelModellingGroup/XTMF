@@ -122,7 +122,7 @@ public abstract class CalibrationTarget : IModule
     {
         foreach (var parameter in _parameters)
         {
-            ModelSystemReflection.AssignValue(_configuration, parameter, value);
+            ModelSystemReflection.AssignValue(_configuration, parameter, value, true);
         }
     }
 

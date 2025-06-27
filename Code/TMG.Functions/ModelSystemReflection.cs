@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Schema;
 using XTMF;
 namespace TMG.Functions;
 
@@ -149,7 +150,7 @@ public static class ModelSystemReflection
         return true;
     }
 
-    public static void AssignValue(IConfiguration config, IModuleParameter parameter, string value)
+    public static void AssignValue(IConfiguration config, IModuleParameter parameter, string value, bool includeLinkedParameters = false)
     {
         string error = null;
         object trueValue;
@@ -159,7 +160,7 @@ public static class ModelSystemReflection
         }
         if ((trueValue = ArbitraryParameterParser.ArbitraryParameterParse(parameter.Type, value, ref error)) != null)
         {
-            AssignValueNoTypeCheck(config, parameter, trueValue);
+            AssignValueNoTypeCheck(config, parameter, trueValue, includeLinkedParameters);
         }
         else
         {
@@ -167,16 +168,16 @@ public static class ModelSystemReflection
         }
     }
 
-    public static void AssignValue<T>(IConfiguration config, IModuleParameter parameter, T t)
+    public static void AssignValue<T>(IConfiguration config, IModuleParameter parameter, T t, bool includeLinkedParameters = false)
     {
         if (parameter.Type != typeof(T))
         {
             throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
         }
-        AssignValueNoTypeCheck(config, parameter, t);
+        AssignValueNoTypeCheck(config, parameter, t, includeLinkedParameters);
     }
 
-    private static void AssignValueNoTypeCheck<T>(IConfiguration config, IModuleParameter parameter, T t)
+    private static void AssignValueNoTypeCheck<T>(IConfiguration config, IModuleParameter parameter, T t, bool includeLinkedParameters = false)
     {
         var currentStructure = parameter.BelongsTo ?? throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The parameter doesn't belong to any module!");
         if (currentStructure.Module == null)
@@ -188,6 +189,25 @@ public static class ModelSystemReflection
                 return;
             }
             throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "The currentstructure.Module was null!");
+        }
+        if (includeLinkedParameters)
+        {
+            // If we are including linked parameters, we need to assign the value to all of them
+            if (GetLinkedParameter(config, parameter) is ILinkedParameter linkedParameter)
+            {
+                string error = null;
+                string tAsString = t.ToString();
+                // Set the linked parameter value
+                if (!linkedParameter.SetValue(tAsString, ref error))
+                {
+                    throw new XTMFRuntimeException(parameter.BelongsTo?.Module, "We were unable to assign the value of '" + t + "' to the linked parameter " + linkedParameter.Name + ": " + error);
+                }
+                // Assign all of the parameters' runtime values
+                foreach (var linkedParam in linkedParameter.Parameters)
+                {
+                    AssignValue(config, linkedParam, tAsString, false);
+                }
+            }
         }
         parameter.Value = t;
         var type = currentStructure.Module.GetType();
@@ -201,6 +221,56 @@ public static class ModelSystemReflection
             var field = type.GetProperty(parameter.VariableName);
             field.SetValue(currentStructure.Module, t, null);
         }
+    }
+
+    /// <summary>
+    /// Get the linked parameter for the given parameter if any one exists.
+    /// </summary>
+    /// <param name="config">The configuration for XTMF.</param>
+    /// <param name="parameter">The parameter to find the linked parameter.</param>
+    /// <returns>The linked parameter that contains this parameter, null otherwise.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if any parameter is null.</exception>
+    public static ILinkedParameter GetLinkedParameter(IConfiguration config, IModuleParameter parameter)
+    {
+        ArgumentNullException.ThrowIfNull(config, nameof(config));
+        ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
+
+        var projectLinkedParameters = GetLinkedParametersForActiveProject(config);
+        if (projectLinkedParameters is null)
+        {
+            return null;
+        }
+
+        // Search through all of the linked parameters to see if any contain the given parameter
+        foreach (var lpsForModelSystem in projectLinkedParameters)
+        {
+            if (lpsForModelSystem is null)
+            {
+                continue; // Skip null linked parameters
+            }
+            // Check if the linked parameter contains the parameter we are looking for
+            foreach (var linkedParameter in lpsForModelSystem)
+            {
+                if (linkedParameter?.Parameters.Contains(parameter) == true)
+                {
+                    return linkedParameter;
+                }
+            }
+        }
+
+        // If we didn't find any linked parameters containing the parameter, return null
+        return null;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="config"></param>
+    /// <returns></returns>
+    public static IReadOnlyList<List<ILinkedParameter>> GetLinkedParametersForActiveProject(IConfiguration config)
+    {
+        var project = config.ProjectRepository.ActiveProject;
+        return project?.LinkedParameters;
     }
 
     public static void AssignValueRunOnly<T>(IConfiguration config, IModuleParameter parameter, T t)
@@ -300,7 +370,7 @@ public static class ModelSystemReflection
         foreach (var ms in project.ModelSystemStructure)
         {
             // SKip model systems that are not loaded.
-            if(ms is null)
+            if (ms is null)
             {
                 continue;
             }
