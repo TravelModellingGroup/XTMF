@@ -28,6 +28,7 @@ using XTMF;
 
 namespace TMG.Frameworks.Data.Loading;
 
+[ModuleInformation(Description = "This module loads a zone system from the first dimension of an EMME Binary matrix file.")]
 public sealed class LoadZoneSystemFromEMMEMatrix : IZoneSystem
 {
     public SparseTwinIndex<float> Distances => throw new XTMFRuntimeException(this, "No distances are available.");
