@@ -71,7 +71,7 @@ public sealed class NetworkCalculatorFromCSV : IEmmeTool
         // TODO: In the future replace this with a tool that runs all of these at the same time.
         foreach (NetworkCalculationParameters parameters in ReadNetworkCalculations())
         {
-            if(!modeller.Run(this, _ToolName, CreateParmeters(parameters)))
+            if (!modeller.Run(this, _ToolName, CreateParmeters(parameters)))
             {
                 return false;
             }
@@ -81,7 +81,7 @@ public sealed class NetworkCalculatorFromCSV : IEmmeTool
 
     private string CreateParmeters(NetworkCalculationParameters parameters)
     {
-        return string.Join(" ", ScenarioNumber, (int)parameters.Domain, 
+        return string.Join(" ", ScenarioNumber, (int)parameters.Domain,
             AddQuotes(parameters.Expression),
             AddQuotes(parameters.NodeSelection),
             AddQuotes(parameters.LinkSelection),
@@ -123,17 +123,27 @@ public sealed class NetworkCalculatorFromCSV : IEmmeTool
             reader.Get(out string TransitLineSelection, 4);
             reader.Get(out string Domain, 5);
             reader.Get(out string Aggregation, 6);
-            yield return new NetworkCalculationParameters()
+            NetworkCalculationParameters toReturn;
+            try
             {
-                Expression = Expression,
-                NodeSelection = NodeSelection,
-                LinkSelection = LinkSelection,
-                TransitLineSelection = TransitLineSelection,
-                Domain = Enum.Parse<DomainTypes>(Domain),
-                Aggregation = Enum.Parse<AggregationType>(Aggregation),
-                Result = Result
-            };
+                toReturn = new NetworkCalculationParameters()
+                {
+                    Expression = Expression,
+                    NodeSelection = NodeSelection,
+                    LinkSelection = LinkSelection,
+                    TransitLineSelection = TransitLineSelection,
+                    Domain = Enum.Parse<DomainTypes>(Domain),
+                    Aggregation = Enum.Parse<AggregationType>(Aggregation),
+                    Result = Result
+                };
 
+            }
+            catch (Exception e)
+            {
+                throw new XTMFRuntimeException(this, e, $"In {Name} the CSV file '{CalculationFile.GetFilePath()}' has an error in the row: {reader.LineNumber} with the values: " +
+                    $"{Result}, {Expression}, {NodeSelection}, {LinkSelection}, {TransitLineSelection}, {Domain}, {Aggregation}\r\n{e.Message}");
+            }
+            yield return toReturn;
         }
     }
 
