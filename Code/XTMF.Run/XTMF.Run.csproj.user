@@ -4,6 +4,6 @@
     <StartArguments>-pipe DEBUG_MODEL_SYSTEM</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
-    <_LastSelectedProfileId>Y:\repos\TravelModellingGroup\XTMF\Code\XTMF.Run\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+    <_LastSelectedProfileId>C:\Users\James\source\repos\TravelModellingGroup\XTMF\Code\XTMF.Run\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
 </Project>
