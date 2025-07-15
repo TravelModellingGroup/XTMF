@@ -28,6 +28,7 @@ using System.IO.Compression;
 using Datastructure;
 using XTMF;
 using TMG.Input;
+using System.Globalization;
 
 namespace TMG.Emme.Utilities;
 
@@ -139,13 +140,20 @@ public sealed class ZoneSystemFromNWP : IZoneSystem, IDisposable
                                 var split = line.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
                                 if (split.Length < 3)
                                 {
-                                    throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.");
+                                    throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.  We expected there to be at least three columns, but found {split.Length}!");
                                 }
-                                if (!(int.TryParse(split[1], out int zoneNumber)
-                                    && float.TryParse(split[2], out float x)
-                                    && float.TryParse(split[3], out float y)))
+                                if(!int.TryParse(split[1], CultureInfo.InvariantCulture, out int zoneNumber))
                                 {
-                                    throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.");
+                                    throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones.  Unable to parse the zone number.");
+                                }
+                                if (!float.TryParse(split[2], CultureInfo.InvariantCulture, out float x))
+                                {
+                                    throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones. Unable to parse the x-coordinate.");
+                                }
+
+                                if (!float.TryParse(split[3], CultureInfo.InvariantCulture, out float y))
+                                {
+                                    throw new XTMFRuntimeException(this, $"Failed to load the line '{line}' when reading in zones. Unable to parse the y-coordinate.");
                                 }
                                 zones.Add(new Zone(zoneNumber, x, y));
                             }

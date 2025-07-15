@@ -66,7 +66,7 @@ public class V4ClienntEstimationSupplementalReport1 : ClientFileAggregation, IEm
 
         foreach (var cell in results.Split(','))
         {
-            retVal.Add(float.Parse(cell));
+            retVal.Add(float.Parse(cell, CultureInfo.InvariantCulture));
         }
 
         return retVal;

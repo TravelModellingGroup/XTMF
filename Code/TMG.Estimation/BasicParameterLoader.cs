@@ -18,10 +18,12 @@
 */
 using System;
 using System.Collections.Generic;
-using XTMF;
+using System.Globalization;
+using System.IO;
 using System.Xml;
 using TMG.Input;
-using System.IO;
+using XTMF;
+using static TMG.Functions.Utilities;
 
 namespace TMG.Estimation;
 
@@ -85,13 +87,13 @@ public class BasicParameterLoader : IDataSource<List<ParameterSetting>>
                 {
                     throw new XTMFRuntimeException(this, $"In {Name} The Maximum attribute was not defined in {child.OuterXml}!");
                 }
-                current.Minimum = float.Parse( minimumAttribute.InnerText);
-                current.Maximum = float.Parse( maximumAttribute.InnerText);
+                current.Minimum = ParseFloat(minimumAttribute.InnerText);
+                current.Maximum = ParseFloat(maximumAttribute.InnerText);
                 current.Current = current.Minimum;
                 XmlAttribute nullHypothesis;
                 if ( ( nullHypothesis = child.Attributes["NullHypothesis"] ) != null )
                 {
-                    current.NullHypothesis = float.Parse( nullHypothesis.InnerText );
+                    current.NullHypothesis = ParseFloat(nullHypothesis.InnerText);
                 }
                 parameters.Add( current );
             }

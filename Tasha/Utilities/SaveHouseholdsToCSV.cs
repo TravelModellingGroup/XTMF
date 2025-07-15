@@ -22,6 +22,7 @@ using Tasha.Common;
 using TMG.Input;
 using XTMF;
 using TMG;
+using TMG.Functions;
 
 namespace Tasha.Utilities;
 
@@ -44,8 +45,10 @@ public sealed class SaveHouseholdsToCSV : IPostHousehold, IDisposable
 
     public void Execute(ITashaHousehold household, int iteration)
     {
-        _writer.WriteLine($"{household.HouseholdId},{household.HomeZone.ZoneNumber},{household.ExpansionFactor}," +
-            $"{DwellingTypeToStr(household.DwellingType)},{household.Persons.Length},{household.Vehicles.Length},{household.IncomeClass}");
+        Span<char> buffer = stackalloc char[32];
+        _writer.Write($"{household.HouseholdId},{household.HomeZone.ZoneNumber},");
+        TMG.Functions.Utilities.Write(_writer, household.ExpansionFactor, buffer);
+        _writer.WriteLine($"{DwellingTypeToStr(household.DwellingType)},{household.Persons.Length},{household.Vehicles.Length},{household.IncomeClass}");
     }
 
     private string DwellingTypeToStr(DwellingType dwellingType)

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Xml;
 using TMG.Emme;
@@ -354,16 +355,16 @@ public class NetworkAi : INetworkEstimationAI
                 if (split.Length == dimensions + 4)
                 {
                     int offset = split.Length - 3;
-                    float rmse = float.Parse(split[offset + 0]);
-                    float mse = float.Parse(split[offset + 1]);
-                    float error = float.Parse(split[offset + 2]);
+                    float rmse = float.Parse(split[offset + 0], CultureInfo.InvariantCulture);
+                    float mse = float.Parse(split[offset + 1], CultureInfo.InvariantCulture);
+                    float error = float.Parse(split[offset + 2], CultureInfo.InvariantCulture);
                     float value = ErrorCombinationFunction(rmse, mse, error);
                     if (value < BestRunError)
                     {
                         BestRunError = value;
                         for (int i = 0; i < Kernel.Length; i++)
                         {
-                            Kernel[i].Current = float.Parse(split[i]);
+                            Kernel[i].Current = float.Parse(split[i], CultureInfo.InvariantCulture);
                         }
                     }
                 }
@@ -397,7 +398,7 @@ public class NetworkAi : INetworkEstimationAI
                                 if (Kernel[i].ParameterName == pName)
                                 {
 
-                                    Kernel[i].Current = float.Parse(attributes["Value"].InnerText);
+                                    Kernel[i].Current = float.Parse(attributes["Value"].InnerText, CultureInfo.InvariantCulture);
                                     break;
                                 }
                             }

@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -106,7 +107,7 @@ public class SaveAsCSVMatrix : ISaveODData<float>
                     for ( int j = 0; j < zones.Length; j++ )
                     {
                         zoneLines[i].Append( ',' );
-                        zoneLines[i].Append( data[j + offset] );
+                        zoneLines[i].Append(CultureInfo.InvariantCulture, $"{data[j + offset]}");
                     }
                 } );
             } );

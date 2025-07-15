@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System.Globalization;
 using System.Text;
 using Datastructure;
 // ReSharper disable CompareOfFloatsByEqualityOperator
@@ -204,9 +205,9 @@ public class ODCTesting
         {
             for (int j = 0; j < numberOfZones; j++)
             {
-                builder.AppendFormat("{0,7}", zones[i]);
-                builder.AppendFormat("{0,7} ", zones[j]);
-                builder.AppendFormat("{0,9}", data[i][j]);
+                builder.AppendFormat(CultureInfo.InvariantCulture, "{0,7}", zones[i]);
+                builder.AppendFormat(CultureInfo.InvariantCulture, "{0,7} ", zones[j]);
+                builder.AppendFormat(CultureInfo.InvariantCulture, "{0,9}", data[i][j]);
                 var size = builder.Length;
                 if (size >= buff.Length)
                 {
@@ -234,7 +235,7 @@ public class ODCTesting
                 builder.Append(',');
                 builder.Append(zones[j]);
                 builder.Append(',');
-                builder.Append(data[i][j]);
+                builder.Append(CultureInfo.InvariantCulture, $"{data[i][j]}");
                 var size = builder.Length;
                 if (size >= buff.Length)
                 {

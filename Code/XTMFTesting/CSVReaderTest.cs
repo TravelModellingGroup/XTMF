@@ -16,69 +16,73 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System.IO.Compression;
 using Datastructure;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO.Compression;
 
 namespace XTMF.Testing;
 
 [TestClass]
 public class CSVReaderTest
 {
-    private string[] TestCSVFileNames = ["CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv", "CSVTest6.csv.gz"];
+    private string[] TestCSVFileNames = ["CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv", "CSVTest5.csv", "CSVTest6.csv.gz", "CSVTest6-FR.csv.gz"];
 
     [TestInitialize]
     public void CreateTestEnvironment()
     {
-        if ( !IsEnvironmentLoaded() )
+        using (StreamWriter writer = new(TestCSVFileNames[0]))
         {
-            using ( StreamWriter writer = new( TestCSVFileNames[0] ) )
-            {
-                writer.WriteLine( "A,B,C,D,E" );
-                writer.WriteLine( "1,2,3,4,5" );
-                writer.WriteLine( "3,1,4,5,2" );
-                writer.WriteLine( "1.23,4.56,7.89,10.1112,0.1314" );
-            }
-            using ( StreamWriter writer = new( TestCSVFileNames[1] ) )
-            {
-                writer.WriteLine( "\"A\",\"B\",\"C\",\"D\",\"E\"" );
-                writer.WriteLine( "\"1\",\"2\",3,\"4\",5" );
-                writer.WriteLine( "3,1,\"4\",5,2" );
-                writer.WriteLine( "1.23,\"4.56\",7.89,10.1112,0.1314" );
-            }
-            using ( StreamWriter writer = new( TestCSVFileNames[2] ) )
-            {
-                writer.WriteLine( "A,B,C,D,E" );
-                writer.WriteLine( "1,2,3,4,5" );
-                writer.WriteLine( "3,1,4,5,2" );
-                writer.WriteLine( "1.23,4.56,7.89,10.1112,0.1314" );
-            }
-            using (StreamWriter writer = new(TestCSVFileNames[3]))
-            {
-                writer.WriteLine("A,B,C,D,E");
-                writer.WriteLine("1,2,3,4,5");
-                writer.WriteLine("3,1,4,5,2");
-                writer.Write("1.23,4.56,7.89,10.1112,0.1314");
-            }
-            using (StreamWriter writer = new(TestCSVFileNames[4]))
-            {
-                writer.WriteLine("A,B,C,D,E");
-                writer.WriteLine("\"abc\"\"1\",2,3,4,5");
-            }
-            using (StreamWriter writer = new(new GZipStream(File.Open(TestCSVFileNames[5], FileMode.Create, FileAccess.Write), CompressionMode.Compress)))
-            {
-                writer.WriteLine("A,B,C,D,E");
-                writer.WriteLine("1,2,3,4,5");
-                writer.WriteLine("3,1,4,5,2");
-                writer.WriteLine("1.23,4.56,7.89,10.1112,0.1314");
-            }
+            writer.WriteLine("A,B,C,D,E");
+            writer.WriteLine("1,2,3,4,5");
+            writer.WriteLine("3,1,4,5,2");
+            writer.WriteLine("1.23,4.56,7.89,10.1112,0.1314");
+        }
+        using (StreamWriter writer = new(TestCSVFileNames[1]))
+        {
+            writer.WriteLine("\"A\",\"B\",\"C\",\"D\",\"E\"");
+            writer.WriteLine("\"1\",\"2\",3,\"4\",5");
+            writer.WriteLine("3,1,\"4\",5,2");
+            writer.WriteLine("1.23,\"4.56\",7.89,10.1112,0.1314");
+        }
+        using (StreamWriter writer = new(TestCSVFileNames[2]))
+        {
+            writer.WriteLine("A,B,C,D,E");
+            writer.WriteLine("1,2,3,4,5");
+            writer.WriteLine("3,1,4,5,2");
+            writer.WriteLine("1.23,4.56,7.89,10.1112,0.1314");
+        }
+        using (StreamWriter writer = new(TestCSVFileNames[3]))
+        {
+            writer.WriteLine("A,B,C,D,E");
+            writer.WriteLine("1,2,3,4,5");
+            writer.WriteLine("3,1,4,5,2");
+            writer.Write("1.23,4.56,7.89,10.1112,0.1314");
+        }
+        using (StreamWriter writer = new(TestCSVFileNames[4]))
+        {
+            writer.WriteLine("A,B,C,D,E");
+            writer.WriteLine("\"abc\"\"1\",2,3,4,5");
+        }
+        using (StreamWriter writer = new(new GZipStream(File.Open(TestCSVFileNames[5], FileMode.Create, FileAccess.Write), CompressionMode.Compress)))
+        {
+            writer.WriteLine("A,B,C,D,E");
+            writer.WriteLine("1,2,3,4,5");
+            writer.WriteLine("1.23,4.56,7.89,10.1112,0.1314");
+        }
+        using (StreamWriter writer = new(new GZipStream(File.Open(TestCSVFileNames[6], FileMode.Create, FileAccess.Write), CompressionMode.Compress)))
+        {
+            writer.WriteLine("A,B,C,D,E");
+            writer.WriteLine("1,2,3,4,5");
+            writer.WriteLine("\"1,23\",\"4,56\",\"7.89\",\"10,1112\",\"0,1314\"");
         }
     }
 
     public bool IsEnvironmentLoaded()
     {
-        for ( int i = 0; i < TestCSVFileNames.Length; i++ )
+        for (int i = 0; i < TestCSVFileNames.Length; i++)
         {
-            if ( !File.Exists( TestCSVFileNames[i] ) ) return false;
+            if (!File.Exists(TestCSVFileNames[i])) return false;
         }
         return true;
     }
@@ -223,6 +227,78 @@ public class CSVReaderTest
         {
             reader.Get(out string s, i);
             Assert.AreEqual(new String((char)('A' + i), 1), s);
+        }
+    }
+
+    [TestMethod]
+    public void TestReadingFrenchCSV()
+    {
+        var originalCulture = Thread.CurrentThread.CurrentCulture;
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-ca");
+        try
+        {
+            using CsvReader reader = new(TestCSVFileNames[6]);
+            Span<float> expectedValues = [1.23f, 4.56f, 7.89f, 10.1112f, 0.1314f];
+            reader.LoadLine();
+            //"A,B,C,D,E"
+            for (int i = 0; i < 5; i++)
+            {
+                reader.Get(out string s, i);
+                Assert.AreEqual(new String((char)('A' + i), 1), s);
+            }
+            reader.LoadLine();
+            for (int i = 0; i < 5; i++)
+            {
+                reader.Get(out int n, i);
+                Assert.AreEqual(i + 1, n);
+            }
+            reader.LoadLine(out int columns);
+            Assert.AreEqual(5, columns);
+            for (int i = 0; i < 5; i++)
+            {
+                reader.Get(out float value, i);
+                Assert.AreEqual(expectedValues[i], value, 0.0001f, $"Value at index {i} did not match expected value.");
+            }
+        }
+        finally
+        {
+            Thread.CurrentThread.CurrentCulture = originalCulture;
+        }
+    }
+
+    [TestMethod]
+    public void TestReadingEnglishCSVWithFrenchLanguage()
+    {
+        var originalCulture = Thread.CurrentThread.CurrentCulture;
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-ca");
+        try
+        {
+            using CsvReader reader = new(TestCSVFileNames[5]);
+            Span<float> expectedValues = [1.23f, 4.56f, 7.89f, 10.1112f, 0.1314f];
+            reader.LoadLine();
+            //"A,B,C,D,E"
+            for (int i = 0; i < 5; i++)
+            {
+                reader.Get(out string s, i);
+                Assert.AreEqual(new String((char)('A' + i), 1), s);
+            }
+            reader.LoadLine();
+            for (int i = 0; i < 5; i++)
+            {
+                reader.Get(out int n, i);
+                Assert.AreEqual(i + 1, n);
+            }
+            reader.LoadLine(out int columns);
+            Assert.AreEqual(5, columns);
+            for (int i = 0; i < 5; i++)
+            {
+                reader.Get(out float value, i);
+                Assert.AreEqual(expectedValues[i], value, 0.0001f, $"Value at index {i} did not match expected value.");
+            }
+        }
+        finally
+        {
+            Thread.CurrentThread.CurrentCulture = originalCulture;
         }
     }
 }

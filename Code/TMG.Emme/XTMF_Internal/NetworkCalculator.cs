@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Globalization;
 using XTMF;
 using TMG.Emme;
 // ReSharper disable UnusedMember.Global
@@ -86,7 +87,7 @@ public sealed class NetworkCalculator : IEmmeTool
         {
             if (SumOfReport != null)
             {
-                if (float.TryParse(result, out float value))
+                if (float.TryParse(result, CultureInfo.InvariantCulture, out float value))
                 {
                     ISetableDataSource<float> dataSource = ((ISetableDataSource<float>)SumOfReport.GetDataSource());
                     if (!dataSource.Loaded)

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using TMG.Functions;
 using XTMF;
 
 namespace TMG.GTAModel;
@@ -260,19 +261,19 @@ public class ModeParameterDatabase : IModeParameterDatabase
                         : parameterMapping[i].Property.PropertyType;
                     if (t == typeof(float))
                     {
-                        parameterMapping[i].Values.Add(float.Parse(parameters[i]));
+                        parameterMapping[i].Values.Add(Utilities.ParseFloat(parameters[i]));
                     }
                     else if (t == typeof(double))
                     {
-                        parameterMapping[i].Values.Add(double.Parse(parameters[i]));
+                        parameterMapping[i].Values.Add(Utilities.ParseDouble(parameters[i]));
                     }
                     else if (t == typeof(bool))
                     {
-                        parameterMapping[i].Values.Add(bool.Parse(parameters[i]));
+                        parameterMapping[i].Values.Add(Utilities.ParseBool(parameters[i]));
                     }
                     else if (t == typeof(int))
                     {
-                        parameterMapping[i].Values.Add(int.Parse(parameters[i]));
+                        parameterMapping[i].Values.Add(Utilities.ParseInt(parameters[i]));
                     }
                 }
             }

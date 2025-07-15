@@ -17,11 +17,12 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using Datastructure;
 using TMG.Emme;
 using TMG.Estimation;
 using TMG.Input;
@@ -126,7 +127,7 @@ public class CalcRMSEofBoardingsAMPMWAW : IEmmeTool
                     + cellNumber + ".\r\nThe results were '" + pythonDictionary + "'.");
             }
             var lineId = pair[0].Replace("'", "").Trim();
-            float boardings = float.Parse(pair[1]);
+            float boardings = float.Parse(pair[1], CultureInfo.InvariantCulture);
             result[lineId] = boardings;
             cellNumber++;
         }

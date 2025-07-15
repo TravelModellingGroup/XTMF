@@ -20,6 +20,7 @@ using Datastructure;
 using System;
 using System.IO;
 using System.Linq;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -48,6 +49,7 @@ public sealed class SaveMultipleMatricesToCSV : ISelfContainedModule
         var zones = Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => z.ZoneNumber).ToArray();
         using var writer = new StreamWriter(SaveTo);
         writer.WriteLine(Header);
+        Span<char> buffer = stackalloc char[32];
         for (var i = 0; i < zones.Length; i++)
         {
             for (var j = 0; j < zones.Length; j++)
@@ -58,7 +60,7 @@ public sealed class SaveMultipleMatricesToCSV : ISelfContainedModule
                 for (var k = 0; k < flatData.Length; k++)
                 {
                     writer.Write(',');
-                    writer.Write(flatData[k][i][j]);
+                    Utilities.Write(writer, flatData[i][j][k], buffer);
                 }
                 writer.WriteLine();
             }

@@ -18,14 +18,15 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
-using TMG.Functions;
-using System.Threading;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.Frameworks.MultiRun;
@@ -633,7 +634,7 @@ public class MultiRunModelSystem : IModelSystemTemplate
     {
         var name = GetAttributeOrError(command, "Name", "The name of the variable was not given!\r\n" + command.OuterXml);
         var value = GetAttributeOrError(command, "Value", "The value to assign the variable was not given!\r\n" + command.OuterXml);
-        if (!float.TryParse(value, out float fValue))
+        if (!float.TryParse(value, CultureInfo.InvariantCulture, out float fValue))
         {
             throw new XTMFRuntimeException(this, $"In '{Name}' we were unable to extract the value of {value} into a number!\r\n{command.OuterXml}");
         }
@@ -646,7 +647,7 @@ public class MultiRunModelSystem : IModelSystemTemplate
         {
             return value;
         }
-        if (float.TryParse(name, out value))
+        if (float.TryParse(name, CultureInfo.InvariantCulture, out value))
         {
             return value;
         }

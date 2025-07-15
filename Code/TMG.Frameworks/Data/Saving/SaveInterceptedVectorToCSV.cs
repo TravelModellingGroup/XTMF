@@ -20,6 +20,7 @@ using Datastructure;
 using System;
 using System.IO;
 using System.Threading;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -61,11 +62,12 @@ public sealed class SaveInterceptedVectorToCSV : IDataSource<SparseArray<float>>
         // write header
         writer.WriteLine("TAZ,Value");
         // write data
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < flatData.Length; i++)
         {
             writer.Write(indexes[i]);
             writer.Write(',');
-            writer.WriteLine(flatData[i]);
+            Utilities.Write(writer, flatData[i], buffer);
         }
     }
 

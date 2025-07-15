@@ -26,6 +26,7 @@ using System.Xml;
 using Datastructure;
 using Tasha.Common;
 using TMG;
+using static TMG.Functions.Utilities;
 using TMG.Input;
 using XTMF;
 using XTMF.Networking;
@@ -767,8 +768,8 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
                 var childAttributes = child.Attributes;
                 if (childAttributes != null)
                 {
-                    current.Start = float.Parse(childAttributes["Start"].InnerText);
-                    current.Stop = float.Parse(childAttributes["Stop"].InnerText);
+                    current.Start = ParseFloat(childAttributes["Start"].InnerText);
+                    current.Stop = ParseFloat(childAttributes["Stop"].InnerText);
                     current.Current = current.Start;
                     if (child.HasChildNodes)
                     {

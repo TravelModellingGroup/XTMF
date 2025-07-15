@@ -17,7 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -307,7 +309,7 @@ public class OdcCreator
             {
                 if (data[i] == "") break;
 
-                Data[o][d][injectIndex + entry] = float.Parse(data[i]);
+                Data[o][d][injectIndex + entry] = FastParse.ParseFloat(data[i]);
                 HasData[o][d] = true;
                 entry++;
             }

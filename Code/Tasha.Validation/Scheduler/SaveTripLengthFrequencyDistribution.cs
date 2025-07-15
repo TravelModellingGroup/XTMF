@@ -92,6 +92,7 @@ public sealed class SaveTripLengthFrequencyDistribution : ISelfContainedModule
         // Save the results to file
         try
         {
+            Span<char> buffer = stackalloc char[32];
             using var writer = new StreamWriter(SaveTo);
             writer.WriteLine("Min,Max,Value");
             writer.Write("intrazonal,0,");
@@ -102,7 +103,7 @@ public sealed class SaveTripLengthFrequencyDistribution : ISelfContainedModule
                 writer.Write(',');
                 writer.Write((i + 1) * Stride);
                 writer.Write(',');
-                writer.WriteLine(bins[i]);
+                TMG.Functions.Utilities.WriteLine(writer, bins[i], buffer);
             }
             writer.Write(Stride * bins.Length);
             writer.Write(",inf,");

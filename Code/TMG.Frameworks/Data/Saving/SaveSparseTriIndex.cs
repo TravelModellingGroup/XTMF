@@ -18,9 +18,11 @@
 */
 using Datastructure;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -114,7 +116,7 @@ public sealed class SaveSparseTriIndex : ISelfContainedModule
             for (int i = 0; i < data.Length; i++)
             {
                 b.Append(',');
-                b.Append(data[i]);
+                b.Append(CultureInfo.InvariantCulture, $"{data[i]}");
             }
             return b.ToString();
         }
@@ -137,6 +139,7 @@ public sealed class SaveSparseTriIndex : ISelfContainedModule
     {
         using var writer = new StreamWriter(BuildFileName(layerIndex));
         writer.WriteLine("Origin,Destination,Value");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < flatData.Length; i++)
         {
             for (int j = 0; j < flatData[i].Length; j++)
@@ -145,7 +148,7 @@ public sealed class SaveSparseTriIndex : ISelfContainedModule
                 writer.Write(',');
                 writer.Write(destinations[j]);
                 writer.Write(',');
-                writer.WriteLine(flatData[i][j]);
+                Utilities.WriteLine(writer, flatData[i][j], buffer);
             }
         }
     }

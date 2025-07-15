@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using XTMF;
 
@@ -568,7 +569,7 @@ public abstract class Expression : AstNode
             error = "We were unable to read in a value at position " + start;
             return false;
         }
-        if (float.TryParse(value, out float f))
+        if (float.TryParse(value, CultureInfo.InvariantCulture, out float f))
         {
             // if we can read it in as a floating point number
             ex = new Literal(index, f);

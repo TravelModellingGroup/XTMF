@@ -20,6 +20,7 @@ using Datastructure;
 using System;
 using System.IO;
 using System.Threading;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -81,6 +82,7 @@ public sealed class SaveInterceptedMatrixToCSV : IDataSource<SparseTwinIndex<flo
             writer.Write(indexes[i]);
         }
         writer.WriteLine();
+        Span<char> buffer = stackalloc char[32];
         // write data
         for (int i = 0; i < flatData.Length; i++)
         {
@@ -88,7 +90,7 @@ public sealed class SaveInterceptedMatrixToCSV : IDataSource<SparseTwinIndex<flo
             for (int j = 0; j < flatData[i].Length; j++)
             {
                 writer.Write(',');
-                writer.Write(flatData[i][j]);
+                Utilities.Write(writer, flatData[i][j], buffer);
             }
             writer.WriteLine();
         }
@@ -101,6 +103,7 @@ public sealed class SaveInterceptedMatrixToCSV : IDataSource<SparseTwinIndex<flo
         using var writer = new StreamWriter(SaveTo);
         // write header
         writer.WriteLine("O,D,Value");
+        Span<char> buffer = stackalloc char[32];
         // write data
         for (int i = 0; i < flatData.Length; i++)
         {
@@ -110,7 +113,7 @@ public sealed class SaveInterceptedMatrixToCSV : IDataSource<SparseTwinIndex<flo
                 writer.Write(',');
                 writer.Write(indexes[j]);
                 writer.Write(',');
-                writer.WriteLine(flatData[i][j]);
+                Utilities.WriteLine(writer, flatData[i][j], buffer);
             }
         }
     }
