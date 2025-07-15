@@ -17,14 +17,15 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml;
 using Tasha.Common;
+using Tasha.XTMFModeChoice;
 using TMG.Input;
 using XTMF;
-using Tasha.XTMFModeChoice;
 
 namespace Tasha.Estimation;
 
@@ -396,7 +397,7 @@ public class TestParameterSignificance : IPostHousehold
                 {
                     if (localParameters[j].Names[k] == header[i])
                     {
-                        if (!float.TryParse(parameters[i], out localParameters[j].Current))
+                        if (!float.TryParse(parameters[i], CultureInfo.InvariantCulture, out localParameters[j].Current))
                         {
                             throw new XTMFRuntimeException(this, "In '" + Name
                                 + "' we were unable to read in the parameter, '" + parameters[i]

@@ -19,6 +19,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -262,8 +263,20 @@ public class HostHouseholdLoader : IDataLoader<ITashaHousehold>
             }
             else
             {
-                writer.Write(o.GetType().FullName);
-                writer.Write(o.ToString());
+                var type = o.GetType();
+                writer.Write(type.FullName);
+                if (o is float f)
+                {
+                    writer.Write(f.ToString(CultureInfo.InvariantCulture));
+                }
+                else if (o is double d)
+                {
+                    writer.Write(d.ToString(CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    writer.Write(o.ToString());
+                }
             }
         }
     }

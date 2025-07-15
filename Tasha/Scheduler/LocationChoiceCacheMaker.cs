@@ -24,6 +24,7 @@ using System.Text;
 using Datastructure;
 using TMG;
 using XTMF;
+using static TMG.Functions.Utilities;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
@@ -506,14 +507,14 @@ public class LocationChoiceCacheMaker : ITravelDemandModel
             {
                 for (int j = 0; j <= 6; j++)
                 {
-                    parArray[i, j] = float.Parse(workParams[i][j]);
+                    parArray[i, j] = ParseFloat(workParams[i][j]);
                 }
             }
             else
             {
                 for (int j = 0; j <= 5; j++)
                 {
-                    parArray[i, j] = float.Parse(workParams[i][j]);
+                    parArray[i, j] = ParseFloat(workParams[i][j]);
                 }
             }
         }
@@ -522,18 +523,18 @@ public class LocationChoiceCacheMaker : ITravelDemandModel
 
         for (int j = 0; j < 5; j++)
         {
-            parArray2[0, j] = float.Parse(MAP[j]);
-            parArray2[2, j] = float.Parse(MOP[j]);
+            parArray2[0, j] = ParseFloat(MAP[j]);
+            parArray2[2, j] = ParseFloat(MOP[j]);
         }
 
         for (int j = 0; j < 6; j++)
         {
-            parArray2[1, j] = float.Parse(MBP[j]);
+            parArray2[1, j] = ParseFloat(MBP[j]);
         }
 
         for (int j = 0; j < MMP.Length; j++)
         {
-            parArray2[3, j] = float.Parse(MMP[j]);
+            parArray2[3, j] = ParseFloat(MMP[j]);
         }
 
         parArray2[3, 16] = MMMaxDist1;

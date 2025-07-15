@@ -28,6 +28,7 @@ using TMG;
 using XTMF;
 using XTMF.Networking;
 using System.Threading.Tasks;
+using System.Globalization;
 // ReSharper disable InconsistentNaming
 
 namespace Tasha.Estimation;
@@ -228,11 +229,11 @@ public class EstimationHouseholdLoader : IDataLoader<ITashaHousehold>
                     break;
 
                 case "System.Single":
-                    att.Attach(name, float.Parse(text));
+                    att.Attach(name, float.Parse(text, CultureInfo.InvariantCulture));
                     break;
 
                 case "System.Int32":
-                    att.Attach(name, int.Parse(text));
+                    att.Attach(name, int.Parse(text, CultureInfo.InvariantCulture));
                     break;
             }
         }

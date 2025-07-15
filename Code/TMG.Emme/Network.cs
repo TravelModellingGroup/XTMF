@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -114,9 +115,9 @@ public class Network : IDisposable
                     {
                         node.IsCentroid = (parts[0].Length >= 2 && parts[0] == "a*");
                     }
-                    node.Number = int.Parse(parts[1 + offset]);
-                    node.X = float.Parse(parts[2 + offset]);
-                    node.Y = float.Parse(parts[3 + offset]);
+                    node.Number = int.Parse(parts[1 + offset], CultureInfo.InvariantCulture);
+                    node.X = float.Parse(parts[2 + offset], CultureInfo.InvariantCulture);
+                    node.Y = float.Parse(parts[3 + offset], CultureInfo.InvariantCulture);
                     if (numberOfParts > 4 + offset)
                     {
                         node.User1 = int.Parse(parts[4 + offset]);
@@ -125,7 +126,7 @@ public class Network : IDisposable
                             node.User2 = int.Parse(parts[5 + offset]);
                             if (numberOfParts > 6 + offset)
                             {
-                                node.NodeType = int.Parse(parts[6 + offset]);
+                                node.NodeType = int.Parse(parts[6 + offset], CultureInfo.InvariantCulture);
                                 node.Modified = false;
                                 if (parts.Length > 7 + offset)
                                 {
@@ -153,13 +154,13 @@ public class Network : IDisposable
                 {
                     var link = new Link(int.Parse(parts[1]), int.Parse(parts[2]))
                     {
-                        Length = float.Parse(parts[3]),
+                        Length = float.Parse(parts[3], CultureInfo.InvariantCulture),
                         Modes = parts[4].ToLower().ToCharArray(),
-                        LinkType = int.Parse(parts[5]),
-                        Lanes = float.Parse(parts[6]),
-                        Vdf = float.Parse(parts[7]),
-                        Speed = float.Parse(parts[9]),
-                        Capacity = float.Parse(parts[10]),
+                        LinkType = int.Parse(parts[5], CultureInfo.InvariantCulture),
+                        Lanes = float.Parse(parts[6], CultureInfo.InvariantCulture),
+                        Vdf = float.Parse(parts[7], CultureInfo.InvariantCulture),
+                        Speed = float.Parse(parts[9], CultureInfo.InvariantCulture),
+                        Capacity = float.Parse(parts[10], CultureInfo.InvariantCulture),
                         Modified = false
                     };
                     // We don't load [8]

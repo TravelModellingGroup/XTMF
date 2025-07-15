@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -208,7 +209,7 @@ public class NetworkEstimationTemplate : I4StepModel
                 TransitLine current = new();
                 string currentName;
                 current.Id = [(currentName = split[1])];
-                current.Bordings = float.Parse(split[0]);
+                current.Bordings = float.Parse(split[0], CultureInfo.InvariantCulture);
                 if (split.Length > 2)
                 {
                     current.Mode = split[2][0];
@@ -290,9 +291,9 @@ public class NetworkEstimationTemplate : I4StepModel
                         ParameterSetting current = new()
                         {
                             ParameterName = attributes["Name"].InnerText,
-                            MsNumber = int.Parse(attributes["MS"].InnerText),
-                            Start = float.Parse(attributes["Start"].InnerText),
-                            Stop = float.Parse(attributes["Stop"].InnerText)
+                            MsNumber = int.Parse(attributes["MS"].InnerText, CultureInfo.InvariantCulture),
+                            Start = float.Parse(attributes["Start"].InnerText, CultureInfo.InvariantCulture),
+                            Stop = float.Parse(attributes["Stop"].InnerText, CultureInfo.InvariantCulture)
                         };
                         current.Current = current.Start;
                         parameters.Add(current);

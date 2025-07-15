@@ -149,7 +149,7 @@ public class OdcCreator2<T>
             int entry = 0;
             for (int i = 2; i < data.Length; i++)
             {
-                position[injectIndex + entry] = float.Parse(data[i]);
+                position[injectIndex + entry] = FastParse.ParseFloat(data[i]);
                 entry++;
             }
         }

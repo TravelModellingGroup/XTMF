@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -547,11 +548,11 @@ public class ModeChoiceEstimationClient : ITashaRuntime
                     break;
 
                 case "System.Single":
-                    att.Attach(name, float.Parse(text));
+                    att.Attach(name, float.Parse(text, CultureInfo.InvariantCulture));
                     break;
 
                 case "System.Int32":
-                    att.Attach(name, int.Parse(text));
+                    att.Attach(name, int.Parse(text, CultureInfo.InvariantCulture));
                     break;
             }
         }

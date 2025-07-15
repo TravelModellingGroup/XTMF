@@ -17,11 +17,21 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Globalization;
 
 namespace Datastructure;
 
 public static class FastParse
 {
+    public static float ParseFloat(ReadOnlySpan<char> str)
+    {
+        if (!float.TryParse(str, out float value))
+        {
+            _ = float.TryParse(str, CultureInfo.InvariantCulture, out value);
+        }
+        return value;
+    }
+
     public static float ParseFixedFloat(string line, int offset, int length)
     {
         var start = offset + length;

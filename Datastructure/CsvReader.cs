@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -128,6 +129,7 @@ public sealed class CsvReader : IDisposable
     /// </summary>
     /// <param name="item">Where to put the data</param>
     /// <param name="pos">Which column to read from, 0 indexed</param>
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public void Get(out float item, int pos)
     {
         int first;

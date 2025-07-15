@@ -509,9 +509,9 @@ public class GeneticNetworkEstimationHost : I4StepModel, IDisposable
                     if (attributes != null)
                     {
                         current.ParameterName = attributes["Name"].InnerText;
-                        current.MsNumber = int.Parse(attributes["MS"].InnerText);
-                        current.Start = float.Parse(attributes["Start"].InnerText);
-                        current.Stop = float.Parse(attributes["Stop"].InnerText);
+                        current.MsNumber = int.Parse(attributes["MS"].InnerText, CultureInfo.InvariantCulture);
+                        current.Start = float.Parse(attributes["Start"].InnerText, CultureInfo.InvariantCulture);
+                        current.Stop = float.Parse(attributes["Stop"].InnerText, CultureInfo.InvariantCulture);
                         current.Current = current.Start;
                         parameters.Add(current);
                     }

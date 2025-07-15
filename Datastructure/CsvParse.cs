@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,127 +17,29 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Datastructure;
 
 internal static class CsvParse
 {
-    internal static float ParseFixedFloat(string line, int offset, int length)
+
+    internal static float ParseFloat(ReadOnlySpan<char> line)
     {
-        var start = offset + length;
-        var scientificNotation = false;
-        var exponent = 0;
-        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
+        if (!float.TryParse(line, out float value))
         {
-            if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
-            {
-                scientificNotation = true;
-                exponent = -ParseInt( line, start, offset + length );
-                // subtract
-                length -= ( offset + length ) - start + 2;
-                start -= 2;
-            }
-            else if ( start > 2 && ( line[start - 1] == '+' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
-            {
-                scientificNotation = true;
-                exponent = ParseInt( line, start, offset + length );
-                // subtract
-                length -= ( offset + length ) - start + 2;
-                start -= 2;
-            }
-            else
-            {
-                start--;
-            }
+            _ = float.TryParse(line, CultureInfo.InvariantCulture, out value);
         }
-        if ( scientificNotation )
-        {
-            return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
-        }
-        else
-        {
-            return ParseFloat( line, start, offset + length );
-        }
+        return value;
     }
 
-    internal static float ParseFixedFloat(StringBuilder line, int offset, int length)
-    {
-        var start = offset + length;
-        var scientificNotation = false;
-        var exponent = 0;
-        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
-        {
-            if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
-            {
-                scientificNotation = true;
-                exponent = -ParseInt( line, start, offset + length );
-                // subtract
-                length -= ( offset + length ) - start + 2;
-                start -= 2;
-            }
-            else if ( start > 2 && ( line[start - 1] == '+' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
-            {
-                scientificNotation = true;
-                exponent = ParseInt( line, start, offset + length );
-                // subtract
-                length -= ( offset + length ) - start + 2;
-                start -= 2;
-            }
-            else
-            {
-                start--;
-            }
-        }
-        if ( scientificNotation )
-        {
-            return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
-        }
-        else
-        {
-            return ParseFloat( line, start, offset + length );
-        }
-    }
-
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal static float ParseFixedFloat(char[] line, int offset, int length)
     {
-        var start = offset + length;
-        var scientificNotation = false;
-        var exponent = 0;
-        while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
-        {
-            if ( start > 2 && ( line[start - 2] == 'e' | line[start - 2] == 'E' ) )
-            {
-                if ( line[start - 1] == '-' )
-                {
-                    exponent = -ParseInt( line, start, offset + length );
-                }
-                else if ( line[start - 1] == '+' )
-                {
-                    exponent = ParseInt( line, start, offset + length );
-                }
-                else
-                {
-                    break;
-                }
-                scientificNotation = true;
-                // subtract
-                length = ( offset + length ) - start + 2;
-                start -= 2;
-            }
-            else
-            {
-                start--;
-            }
-        }
-        if ( scientificNotation )
-        {
-            return (float)Math.Pow( 10, exponent ) * ParseFloat( line, start, offset + length );
-        }
-        else
-        {
-            return ParseFloat( line, start, offset + length );
-        }
+        var buffer = line.AsSpan(offset, length);
+        return ParseFloat(buffer);
     }
 
     internal static int ParseFixedInt(string line, int offset, int length)
@@ -179,31 +81,8 @@ internal static class CsvParse
     /// <returns></returns>
     internal static float ParseFloat(string str, int indexFrom, int indexTo)
     {
-        var ival = 0;
-        float fval = 0;
-        var multiplyer = 0.1f;
-        int i;
-        char c;
-        var neg = str[indexFrom] == '-';
-        if ( neg ) indexFrom++;
-        for ( i = indexFrom; i < indexTo; i++ )
-        {
-            if ( ( c = str[i] ) == '.' )
-            {
-                break;
-            }
-            // Same as multiplying by 10
-            ival = ( ival << 1 ) + ( ival << 3 );
-            ival += c - '0';
-        }
-        for ( i++; i < indexTo; i++ )
-        {
-            var k = ( str[i] - '0' );
-            fval += k * multiplyer;
-            multiplyer *= 0.1f;
-        }
-        fval += ival;
-        return neg ? -fval : fval;
+        var buffer = str.AsSpan(indexFrom, indexTo - indexFrom);
+        return ParseFloat(buffer);
     }
 
     /// <summary>
@@ -215,31 +94,10 @@ internal static class CsvParse
     /// <returns></returns>
     internal static float ParseFloat(StringBuilder str, int indexFrom, int indexTo)
     {
-        var ival = 0;
-        float fval = 0;
-        var multiplyer = 0.1f;
-        int i;
-        char c;
-        var neg = str[indexFrom] == '-';
-        if ( neg ) indexFrom++;
-        for ( i = indexFrom; i < indexTo; i++ )
-        {
-            if ( ( c = str[i] ) == '.' )
-            {
-                break;
-            }
-            // Same as multiplying by 10
-            ival = ( ival << 1 ) + ( ival << 3 );
-            ival += c - '0';
-        }
-        for ( i++; i < indexTo; i++ )
-        {
-            var k = ( str[i] - '0' );
-            fval += k * multiplyer;
-            multiplyer *= 0.1f;
-        }
-        fval += ival;
-        return neg ? -fval : fval;
+        var length = indexTo - indexFrom;
+        Span<char> buffer = stackalloc char[length];
+        str.CopyTo(indexFrom, buffer, length);
+        return ParseFloat(buffer);
     }
 
     /// <summary>
@@ -251,31 +109,8 @@ internal static class CsvParse
     /// <returns></returns>
     internal static float ParseFloat(char[] str, int indexFrom, int indexTo)
     {
-        var ival = 0;
-        float fval = 0;
-        var multiplyer = 0.1f;
-        int i;
-        char c;
-        var neg = str[indexFrom] == '-';
-        if ( neg ) indexFrom++;
-        for ( i = indexFrom; i < indexTo; i++ )
-        {
-            if ( ( c = str[i] ) == '.' )
-            {
-                break;
-            }
-            // Same as multiplying by 10
-            ival = ( ival << 1 ) + ( ival << 3 );
-            ival += c - '0';
-        }
-        for ( i++; i < indexTo; i++ )
-        {
-            var k = ( str[i] - '0' );
-            fval += k * multiplyer;
-            multiplyer *= 0.1f;
-        }
-        fval += ival;
-        return neg ? -fval : fval;
+        var buffer = str.AsSpan(indexFrom, indexTo - indexFrom);
+        return ParseFloat(buffer);
     }
 
     /// <summary>

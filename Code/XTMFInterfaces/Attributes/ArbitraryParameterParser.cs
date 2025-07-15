@@ -123,8 +123,12 @@ public static class ArbitraryParameterParser
         {
             if (!float.TryParse(input, NumberStyles.Any, _numberFormat, out ret))
             {
-                error = $"Unable to parse '{input}' as a floating point number!";
-                return null;
+                if (!float.TryParse(input, NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
+                {
+                    // If we still can't parse it, return an error
+                    error = $"Unable to parse '{input}' as a floating point number!";
+                    return null;
+                }
             }
         }
         return ret;
@@ -136,8 +140,12 @@ public static class ArbitraryParameterParser
         {
             if (!double.TryParse(input, NumberStyles.Any, _numberFormat, out ret))
             {
-                error = $"Unable to parse '{input}' as a floating point number!";
-                return null;
+                if (!double.TryParse(input, NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
+                {
+                    // If we still can't parse it, return an error
+                    error = $"Unable to parse '{input}' as a floating point number!";
+                    return null;
+                }
             }
         }
         return ret;

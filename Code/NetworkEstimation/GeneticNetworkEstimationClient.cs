@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -193,7 +194,7 @@ public class GeneticNetworkEstimationClient : I4StepModel
                 TransitLine current = new();
                 string currentName;
                 current.Id = [(currentName = split[1])];
-                current.Bordings = float.Parse(split[0]);
+                current.Bordings = float.Parse(split[0], CultureInfo.InvariantCulture);
                 if (split.Length > 2)
                 {
                     current.Mode = split[2][0];
@@ -285,9 +286,9 @@ public class GeneticNetworkEstimationClient : I4StepModel
                     if (attributes != null)
                     {
                         current.ParameterName = attributes["Name"].InnerText;
-                        current.MsNumber = int.Parse(attributes["MS"].InnerText);
-                        current.Start = float.Parse(attributes["Start"].InnerText);
-                        current.Stop = float.Parse(attributes["Stop"].InnerText);
+                        current.MsNumber = int.Parse(attributes["MS"].InnerText, CultureInfo.InvariantCulture);
+                        current.Start = float.Parse(attributes["Start"].InnerText, CultureInfo.InvariantCulture);
+                        current.Stop = float.Parse(attributes["Stop"].InnerText, CultureInfo.InvariantCulture);
                     }
                     current.Current = current.Start;
                     parameters.Add(current);

@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -71,25 +72,25 @@ public class TransitLines
                     {
                         current.Id = [parts[0]];
                         current.Mode = parts[1][0];
-                        current.VehicalType = int.Parse( parts[2] );
-                        current.NumberOfVehicals = int.Parse( parts[3] );
-                        current.MinHdwy = float.Parse( parts[4] );
-                        current.Length = float.Parse( parts[5] );
-                        current.Time = float.Parse( parts[6] );
-                        current.Bordings = float.Parse( parts[7] );
-                        if ( !float.TryParse( parts[8], out current.KmTraveled ) )
+                        current.VehicalType = int.Parse( parts[2], CultureInfo.InvariantCulture);
+                        current.NumberOfVehicals = int.Parse( parts[3], CultureInfo.InvariantCulture);
+                        current.MinHdwy = float.Parse( parts[4], CultureInfo.InvariantCulture);
+                        current.Length = float.Parse( parts[5], CultureInfo.InvariantCulture);
+                        current.Time = float.Parse( parts[6], CultureInfo.InvariantCulture);
+                        current.Bordings = float.Parse( parts[7], CultureInfo.InvariantCulture);
+                        if ( !float.TryParse( parts[8], CultureInfo.InvariantCulture, out current.KmTraveled ) )
                         {
                             current.KmTraveled = float.PositiveInfinity;
                         }
-                        if ( float.TryParse( parts[9], out current.HoursTraveled ) )
+                        if ( float.TryParse( parts[9], CultureInfo.InvariantCulture, out current.HoursTraveled ) )
                         {
                             current.HoursTraveled = float.PositiveInfinity;
                         }
-                        current.LoadAverage = float.Parse( parts[10] );
-                        current.LoadMax = float.Parse( parts[11] );
-                        current.MaxVolume = float.Parse( parts[12] );
-                        current.OperationCosts = float.Parse( parts[13] );
-                        current.EnergyConsumption = float.Parse( parts[14] );
+                        current.LoadAverage = float.Parse( parts[10], CultureInfo.InvariantCulture);
+                        current.LoadMax = float.Parse( parts[11], CultureInfo.InvariantCulture);
+                        current.MaxVolume = float.Parse( parts[12], CultureInfo.InvariantCulture);
+                        current.OperationCosts = float.Parse( parts[13], CultureInfo.InvariantCulture);
+                        current.EnergyConsumption = float.Parse( parts[14], CultureInfo.InvariantCulture);
                         transitLines.Add( current );
                     }
                     catch

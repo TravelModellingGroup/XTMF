@@ -17,9 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System;
 using System.Collections.Generic;
-using Datastructure;
+using System.Globalization;
 using TMG.Emme;
 using TMG.Input;
 using XTMF;
@@ -71,7 +72,7 @@ public class CalcWmpe : IEmmeTool
         {
             var pair = cell.Split(':');
             var lineId = pair[0].Replace("'", "").Trim();
-            float boardings = float.Parse(pair[1]);
+            float boardings = float.Parse(pair[1], CultureInfo.InvariantCulture);
             result[lineId] = boardings;
         }
         return result;
