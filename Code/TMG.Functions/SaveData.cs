@@ -25,6 +25,7 @@ using Datastructure;
 using TMG.Input;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace TMG.Functions;
 
@@ -78,7 +79,7 @@ public static class SaveData
                         for (int j = 0; j < zones.Length; j++)
                         {
                             zoneLines[i].Append(',');
-                            zoneLines[i].Append(row[j]);
+                            zoneLines[i].Append(CultureInfo.InvariantCulture, $"{ row[j]}");
                         }
                     }
                 });
@@ -101,11 +102,12 @@ public static class SaveData
         var flatData = data.GetFlatData();
         var indexes = data.ValidIndexArray().Select(index => index.ToString()).ToArray();
         using StreamWriter writer = new(saveTo, false, Encoding.UTF8);
-        void WriteRecord(string zone, float value)
+        Span<char> buffer = stackalloc char[32];
+        void WriteRecord(string zone, float value, Span<char> buffer)
         {
             writer.Write(zone);
             writer.Write(',');
-            writer.WriteLine(value);
+            Utilities.WriteLine(writer, value, buffer);
         }
         writer.WriteLine("Zone,Value");
         if (skipZeros)
@@ -114,7 +116,7 @@ public static class SaveData
             {
                 if (flatData[i] != 0)
                 {
-                    WriteRecord(indexes[i], flatData[i]);
+                    WriteRecord(indexes[i], flatData[i], buffer);
                 }
             }
         }
@@ -122,7 +124,7 @@ public static class SaveData
         {
             for (int i = 0; i < flatData.Length; i++)
             {
-                WriteRecord(indexes[i], flatData[i]);
+                WriteRecord(indexes[i], flatData[i], buffer);
             }
         }
     }
@@ -136,13 +138,14 @@ public static class SaveData
     {
         var zoneNumbers = zones.Select(z => z.ZoneNumber.ToString()).ToArray();
         using StreamWriter writer = new(saveLocation, false, Encoding.UTF8);
-        void WriteRecord(string origin, string destination, float value)
+        Span<char> buffer = stackalloc char[32];
+        void WriteRecord(string origin, string destination, float value, Span<char> buffer)
         {
             writer.Write(origin);
             writer.Write(',');
             writer.Write(destination);
             writer.Write(',');
-            writer.WriteLine(value);
+            Utilities.WriteLine(writer, value, buffer);
         }
         writer.WriteLine("Origin,Destination,Data");
         for (int i = 0; i < data.Length; i++)
@@ -154,7 +157,7 @@ public static class SaveData
                 {
                     if (row[j] != 0)
                     {
-                        WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j]);
+                        WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j], buffer);
                     }
                 }
             }
@@ -162,7 +165,7 @@ public static class SaveData
             {
                 for (int j = 0; j < row.Length; j++)
                 {
-                    WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j]);
+                    WriteRecord(zoneNumbers[i], zoneNumbers[j], row[j], buffer);
                 }
             }
         }
@@ -177,13 +180,14 @@ public static class SaveData
     {
         using StreamWriter writer = new(saveLocation, false, Encoding.UTF8);
         writer.WriteLine("Origin,Destination,Data");
-        void WriteRecord(int origin, int destination, float value)
+        Span<char> buffer = stackalloc char[32];
+        void WriteRecord(int origin, int destination, float value, Span<char> buffer)
         {
             writer.Write(origin);
             writer.Write(',');
             writer.Write(destination);
             writer.Write(',');
-            writer.WriteLine(value);
+            Utilities.WriteLine(writer, value, buffer);
         }
         foreach (var o in matrix.ValidIndexes())
         {
@@ -194,7 +198,7 @@ public static class SaveData
                     var entry = matrix[o, d];
                     if (entry != 0.0)
                     {
-                        WriteRecord(o, d, entry);
+                        WriteRecord(o, d, entry, buffer);
                     }
                 }
             }
@@ -202,7 +206,7 @@ public static class SaveData
             {
                 foreach (var d in matrix.ValidIndexes(o))
                 {
-                    WriteRecord(o, d, matrix[o, d]);
+                    WriteRecord(o, d, matrix[o, d], buffer);
                 }
             }
         }
@@ -287,7 +291,7 @@ public static class SaveData
                 for (int j = 0; j < row.Length; j++)
                 {
                     strBuilder.Append(',');
-                    strBuilder.Append(row[j]);
+                    strBuilder.Append(CultureInfo.InvariantCulture, $"{row[j]}");
                 }
             }
             toWrite.Add(new SaveTask() { RowNumber = i + 1, Text = strBuilder.ToString() });
@@ -337,7 +341,7 @@ public static class SaveData
                     for (int j = 0; j < zones.Length; j++)
                     {
                         zoneLines[i].Append(',');
-                        zoneLines[i].Append(data[iOffset + j]);
+                        zoneLines[i].Append(CultureInfo.InvariantCulture, $"{data[iOffset + j]}");
                     }
                 });
             });

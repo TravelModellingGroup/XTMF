@@ -20,6 +20,7 @@ using System;
 using System.IO;
 using System.Linq;
 using TMG.Frameworks.Data.DataTypes;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -60,6 +61,7 @@ public class SaveLabeledDataToCSV<T> : ISelfContainedModule
         // now that we have the data save to to disk
         using var writer = new StreamWriter(SaveTo);
         writer.WriteLine("Label,Value");
+        Span<char> buffer = stackalloc char[32];
         // provide an optimized path for float
         if (typeof(T) == typeof(float))
         {
@@ -68,7 +70,7 @@ public class SaveLabeledDataToCSV<T> : ISelfContainedModule
             {
                 writer.Write(element.Key);
                 writer.Write(',');
-                writer.WriteLine(element.Value);
+                Utilities.WriteLine(writer, element.Value, buffer);
             }
         }
         else

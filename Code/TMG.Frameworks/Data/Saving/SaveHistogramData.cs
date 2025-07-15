@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2017-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -84,6 +85,7 @@ public class SaveHistogramData : ISelfContainedModule
                 }
             }
         }
+        Span<char> buffer = stackalloc char[32];
         using var writer = new StreamWriter(OutputFile);
         writer.WriteLine("Category,Amount");
         for (int i = 0; i < acc.Length; i++)
@@ -93,7 +95,7 @@ public class SaveHistogramData : ISelfContainedModule
             writer.Write(bins[i].ToString());
             writer.Write('"');
             writer.Write(',');
-            writer.WriteLine(acc[i]);
+            Utilities.WriteLine(writer, acc[i], buffer);    
         }
     }
 
