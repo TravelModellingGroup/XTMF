@@ -18,7 +18,9 @@
 */
 
 using System;
+using System.Globalization;
 using System.Reflection;
+using TMG.Functions;
 using TMG.ParameterDatabase;
 using XTMF;
 
@@ -76,12 +78,12 @@ public class ParameterLink : IParameterLink
         if (TypeIndex == 1)
         {
             // do float assignment
-            temp = float.Parse(value) * Multiplier;
+            temp = Utilities.ParseFloat(value) * Multiplier;
         }
         else if (TypeIndex == 2)
         {
             // do double assignment
-            temp = double.Parse(value) * Multiplier;
+            temp = Utilities.ParseDouble(value) * Multiplier;
         }
         else
         {
@@ -102,29 +104,29 @@ public class ParameterLink : IParameterLink
         }
     }
 
-    public void BlendedAssignment(string value, float ammount)
+    public void BlendedAssignment(string value, float amount)
     {
         var t = (Field != null ? Field.FieldType : Property.PropertyType);
         if (t == typeof(float))
         {
-            if (double.TryParse(value, out double temp))
+            if (Utilities.TryParse(value, out double temp))
             {
                 // do float assignment
-                CurrentBlendNumber += temp * ammount;
+                CurrentBlendNumber += temp * amount;
             }
         }
         else if (t == typeof(double))
         {
-            if (double.TryParse(value, out double temp))
+            if (Utilities.TryParse(value, out double temp))
             {
                 // do float assignment
-                CurrentBlendNumber += temp * ammount;
+                CurrentBlendNumber += temp * amount;
             }
         }
         else if (t == typeof(bool))
         {
             // take the "true'est value
-            if (bool.TryParse(value, out bool temp))
+            if (Utilities.TryParse(value, out bool temp))
             {
                 CurrentBlendBool = CurrentBlendBool | temp;
             }
