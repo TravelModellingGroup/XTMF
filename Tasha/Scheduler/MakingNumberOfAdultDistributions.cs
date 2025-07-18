@@ -475,6 +475,7 @@ public class MakingNumberOfAdultDistributions : ITashaRuntime
                 //NO HEADER
                 //DistributionID,NumberOfAdults,ExpandedSum,Probability,CDF
                 using StreamWriter writer = new(ResultFile.GetFilePath());
+                Span<char> buffer = stackalloc char[32];
                 for (int dist = 0; dist < combinedResults.Length; dist++)
                 {
                     var cdf = 0.0;
@@ -494,15 +495,15 @@ public class MakingNumberOfAdultDistributions : ITashaRuntime
                     {
                         var probability = combinedResults[dist][i] * factor;
                         cdf += probability;
-                        writer.Write(dist);
+                        TMG.Functions.Utilities.Write(writer, dist, buffer);
                         writer.Write(',');
-                        writer.Write(i);
+                        TMG.Functions.Utilities.Write(writer, i, buffer);
                         writer.Write(',');
-                        writer.Write(combinedResults[dist][i]);
+                        TMG.Functions.Utilities.Write(writer, combinedResults[dist][i], buffer);
                         writer.Write(',');
-                        writer.Write(combinedResults[dist][i] * factor);
+                        TMG.Functions.Utilities.Write(writer, combinedResults[dist][i] * factor, buffer);
                         writer.Write(',');
-                        writer.WriteLine(cdf);
+                        TMG.Functions.Utilities.WriteLine(writer, cdf, buffer);
                     }
                 }
             } );

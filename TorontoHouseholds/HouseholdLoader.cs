@@ -819,6 +819,7 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
             TripDump.WriteLine("HouseholdID,PersonID,TripChain,TripNumber,StartTime,ObservedMode,OriginRegion,DesitinationRegion,OriginPD,DestinationPD,OriginZone,DestinationZone,Activity,Expansion Factor");
         }
         var writer = TripDump;
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < h.Persons.Length; i++)
         {
             var person = (Person)h.Persons[i];
@@ -829,39 +830,39 @@ public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
                 {
                     var trip = (Trip)tc.Trips[k];
                     var obsMode = (ITashaMode)trip["ObservedMode"];
-                    writer.Write(h.HouseholdId);
+                    TMG.Functions.Utilities.Write(writer, h.HouseholdId, buffer);
                     writer.Write(',');
                     // person number
-                    writer.Write(i);
+                    TMG.Functions.Utilities.Write(writer, i, buffer);
                     writer.Write(',');
                     //trip chain number
-                    writer.Write(j);
+                    TMG.Functions.Utilities.Write(writer, j, buffer);
                     writer.Write(',');
                     // trip number
-                    writer.Write(k);
+                    TMG.Functions.Utilities.Write(writer, k, buffer);
                     writer.Write(',');
                     writer.Write(trip.TripStartTime);
                     writer.Write(',');
                     writer.Write(obsMode == null ? "NO_OBS" : obsMode.ModeName);
                     writer.Write(',');
                     //region
-                    writer.Write(trip.OriginalZone.RegionNumber);
+                    TMG.Functions.Utilities.Write(writer, trip.OriginalZone.RegionNumber, buffer);
                     writer.Write(',');
-                    writer.Write(trip.DestinationZone.RegionNumber);
+                    TMG.Functions.Utilities.Write(writer, trip.DestinationZone.RegionNumber, buffer);
                     writer.Write(',');
                     //pd
-                    writer.Write(trip.OriginalZone.PlanningDistrict);
+                    TMG.Functions.Utilities.Write(writer, trip.OriginalZone.PlanningDistrict, buffer);
                     writer.Write(',');
-                    writer.Write(trip.DestinationZone.PlanningDistrict);
+                    TMG.Functions.Utilities.Write(writer, trip.DestinationZone.PlanningDistrict, buffer);
                     writer.Write(',');
                     //zone
-                    writer.Write(trip.OriginalZone.ZoneNumber);
+                    TMG.Functions.Utilities.Write(writer, trip.OriginalZone.ZoneNumber, buffer);
                     writer.Write(',');
-                    writer.Write(trip.DestinationZone.ZoneNumber);
+                    TMG.Functions.Utilities.Write(writer, trip.DestinationZone.ZoneNumber, buffer);
                     writer.Write(',');
                     writer.Write(Enum.GetName(typeof(Activity), trip.Purpose));
                     writer.Write(',');
-                    writer.WriteLine(person.ExpansionFactor);
+                    TMG.Functions.Utilities.WriteLine(writer, person.ExpansionFactor, buffer);
                 }
             }
         }

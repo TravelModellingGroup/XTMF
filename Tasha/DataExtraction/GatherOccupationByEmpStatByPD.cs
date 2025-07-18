@@ -118,6 +118,7 @@ public class GatherOccupationByEmpStatByPD : ISelfContainedModule
     /// <param name="empCode">The empStat code to dump</param>
     private void WriteData(StreamWriter writer, SparseArray<float[]> splitData, char empCode)
     {
+        Span<char> buffer = stackalloc char[32];
         var data = splitData.GetFlatData();
         for ( int i = 0; i < data.Length; i++ )
         {
@@ -128,10 +129,10 @@ public class GatherOccupationByEmpStatByPD : ISelfContainedModule
                 var pdStr = string.Concat( empCode, ",", splitData.GetFlatIndex( i ), "," );
                 for ( int j = 0; j < row.Length; j++ )
                 {
-                    writer.Write( pdStr );
-                    writer.Write( j + 1 );
+                    writer.Write(pdStr);
+                    TMG.Functions.Utilities.Write(writer, j + 1, buffer);
                     writer.Write( ',' );
-                    writer.WriteLine( row[j] );
+                    TMG.Functions.Utilities.WriteLine(writer, row[j], buffer);
                 }
             }
         }

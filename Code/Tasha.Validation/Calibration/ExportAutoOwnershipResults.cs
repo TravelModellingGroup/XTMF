@@ -98,19 +98,20 @@ public sealed class ExportAutoOwnershipResults : IPostHousehold
         {
             return;
         }
+        Span<char> buffer = stackalloc char[32];
         using var writer = new StreamWriter(SaveTo);
         writer.WriteLine("ZoneNumber," + string.Join(',', Enumerable.Range(0, (MaxVehicles + 1) * 2).Select(i => $"Auto-{((i & 1) == 0 ? "Ground" : "Apartment")}-{i >> 1}")) + ",AdditionalCars");
         var flatZones = _zones.GetFlatData();
         for (var i = 0; i < flatZones.Length; i++)
         {
-            writer.Write(flatZones[i].ZoneNumber);
+            TMG.Functions.Utilities.Write(writer, flatZones[i].ZoneNumber, buffer);
             for (var j = 0; j < (MaxVehicles + 1) * 2; j++)
             {
                 writer.Write(',');
-                writer.Write(_autoCounts[(i * (MaxVehicles + 1) * 2) + j]);
+                TMG.Functions.Utilities.Write(writer, _autoCounts[(i * (MaxVehicles + 1) * 2) + j], buffer);
             }
             writer.Write(',');
-            writer.WriteLine(_householdsWithAdditionalCars[i]);
+            TMG.Functions.Utilities.WriteLine(writer, _householdsWithAdditionalCars[i], buffer);
         }
     }
 

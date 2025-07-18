@@ -87,14 +87,15 @@ public class ModeSplit : IPostHousehold
     {
         using (var writer = new StreamWriter(OutputFileLocation, true))
         {
+            Span<char> buffer = stackalloc char[32];
             writer.Write("Iteration: ");
-            writer.WriteLine(iteration);
+            TMG.Functions.Utilities.Write(writer, iteration, buffer);
             writer.WriteLine("Mode,ExpandedTrips");
             for (int i = 0; i < Modes.Length; i++)
             {
                 writer.Write(Modes[i].ModeName);
                 writer.Write(',');
-                writer.WriteLine(Counts[i]);
+                TMG.Functions.Utilities.WriteLine(writer, Counts[i], buffer);
             }
         }
         for (int i = 0; i < Counts.Length; i++)

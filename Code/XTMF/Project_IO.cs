@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -543,7 +544,7 @@ public sealed partial class Project : IProject
             writer.WriteAttributeString("Name", lp.Name);
             if (lp.Value != null)
             {
-                writer.WriteAttributeString("Value", lp.Value.ToString());
+                writer.WriteAttributeString("Value", lp.Value.ToString(CultureInfo.InvariantCulture));
             }
             foreach (var reference in lp.Parameters)
             {

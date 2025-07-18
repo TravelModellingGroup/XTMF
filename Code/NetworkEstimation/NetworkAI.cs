@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 using TMG.Emme;
+using TMG.Functions;
 using XTMF;
 
 namespace TMG.NetworkEstimation;
@@ -251,11 +252,12 @@ public class NetworkAi : INetworkEstimationAI
             ParameterVolatility[i] = absmeandiff;
         }
         using StreamWriter writer = new("Volatility.csv", true);
-        writer.Write(ParameterVolatility[0]);
+        Span<char> buffer = stackalloc char[32];
+        Utilities.Write(writer, ParameterVolatility[0], buffer);
         for (int i = 1; i < dimensions; i++)
         {
             writer.Write(',');
-            writer.Write(ParameterVolatility[i]);
+            Utilities.Write(writer, ParameterVolatility[i], buffer);
         }
         writer.WriteLine();
     }

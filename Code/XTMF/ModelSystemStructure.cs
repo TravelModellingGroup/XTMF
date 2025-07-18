@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -1676,7 +1677,7 @@ public class ModelSystemStructure : IModelSystemStructure2
         }
         else
         {
-            writer.WriteAttributeString("TIndex", lookup[s.Type].ToString());
+            writer.WriteAttributeString("TIndex", lookup[s.Type].ToString(CultureInfo.InvariantCulture));
         }
         if (s.ParentFieldType == null)
         {
@@ -1684,7 +1685,7 @@ public class ModelSystemStructure : IModelSystemStructure2
         }
         else
         {
-            writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
+            writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString(CultureInfo.InvariantCulture));
         }
         writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
         if (s.IsMetaModule)
@@ -1721,8 +1722,47 @@ public class ModelSystemStructure : IModelSystemStructure2
                 {
                     writer.WriteAttributeString("FriendlyName", p.Name);
                 }
-                writer.WriteAttributeString("TIndex", lookup[param.Type ?? param.Value.GetType()].ToString());
-                writer.WriteAttributeString("Value", param.Value == null ? String.Empty : param.Value.ToString());
+                writer.WriteAttributeString("TIndex", lookup[param.Type ?? param.Value.GetType()].ToString(CultureInfo.InvariantCulture));
+                if (param.Value is float f)
+                {
+                    writer.WriteAttributeString("Value", f.ToString(CultureInfo.InvariantCulture));
+                }
+                else if(param.Value is double d)
+                {
+                    writer.WriteAttributeString("Value", d.ToString(CultureInfo.InvariantCulture));
+                }
+                else if (param.Value is int i)
+                {
+                    writer.WriteAttributeString("Value", i.ToString(CultureInfo.InvariantCulture));
+                }
+                else if (param.Value is long l)
+                {
+                    writer.WriteAttributeString("Value", l.ToString(CultureInfo.InvariantCulture));
+                }
+                else if (param.Value is bool b)
+                {
+                    writer.WriteAttributeString("Value", b ? "true" : "false");
+                }
+                else if(param.Value is uint u)
+                {
+                    writer.WriteAttributeString("Value", u.ToString(CultureInfo.InvariantCulture));
+                }
+                else if (param.Value is ulong ul)
+                {
+                    writer.WriteAttributeString("Value", ul.ToString(CultureInfo.InvariantCulture));
+                }
+                else if (param.Value is DateTime dt)
+                {
+                    writer.WriteAttributeString("Value", dt.ToString("o", CultureInfo.InvariantCulture));
+                }
+                else if (param.Value is TimeSpan ts)
+                {
+                    writer.WriteAttributeString("Value", ts.ToString("c", CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    writer.WriteAttributeString("Value", param.Value == null ? String.Empty : param.Value.ToString());
+                }
                 if (param.QuickParameter)
                 {
                     writer.WriteAttributeString("QuickParameter", "true");

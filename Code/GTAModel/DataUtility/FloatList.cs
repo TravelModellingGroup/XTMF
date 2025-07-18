@@ -20,6 +20,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace TMG.GTAModel.DataUtility;
@@ -213,9 +214,9 @@ public class FloatList : IList<float>
     public override string ToString()
     {
         var builder = new StringBuilder();
-        for ( var i = 0; i < Values.Length; i++ )
+        for ( var i = 0; i < Values.Length; i++)
         {
-            builder.Append( Values[i] );
+            builder.Append(CultureInfo.InvariantCulture, $"{Values[i]}");
             builder.Append( ',' );
         }
         return builder.ToString( 0, builder.Length - 1 );

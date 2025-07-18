@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using Datastructure;
 using TMG.Emme;
+using TMG.Functions;
 using XTMF;
 using static System.String;
 
@@ -157,19 +158,20 @@ public class RegionErrorTally : IErrorTally
                     }
                 }
             }
+            Span<char> buffer = stackalloc char[32];
             for (int i = 0; i < numberOfModesFirstLetters; i++)
             {
                 if (RegionPercentError)
                 {
-                    writer.Write(Math.Abs(aggPredToMode[i] - aggTtsToMode[i]) / aggTtsToMode[i]);
+                    Utilities.Write(writer, Math.Abs(aggPredToMode[i] - aggTtsToMode[i]) / aggTtsToMode[i], buffer);
                 }
                 else
                 {
-                    writer.Write(aggPredToMode[i] - aggTtsToMode[i]);
+                    Utilities.Write(writer, aggPredToMode[i] - aggTtsToMode[i], buffer);
                 }
                 writer.Write(',');
             }
-            writer.WriteLine(finalError);
+            Utilities.WriteLine(writer, finalError, buffer);
         }
         return finalError;
     }

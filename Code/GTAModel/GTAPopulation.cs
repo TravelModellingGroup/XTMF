@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -233,7 +234,7 @@ public class GTAPopulation : IPopulation
                     builder.Append( ',' );
                     builder.Append( person.DriversLicense ? 1 : 0 );
                     builder.Append( ',' );
-                    builder.Append( person.ExpansionFactor );
+                    builder.Append(CultureInfo.InvariantCulture, $"{person.ExpansionFactor}");
                     builder.AppendLine();
                 }
                 flatOutput[i] = builder;

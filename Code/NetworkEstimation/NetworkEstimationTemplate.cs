@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using TMG.Emme;
+using TMG.Functions;
 using XTMF;
 using XTMF.Networking;
 
@@ -304,20 +305,21 @@ public class NetworkEstimationTemplate : I4StepModel
         Parameters = [.. parameters];
     }
 
-    private void PrintSummery(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
+    private void PrintSummary(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
     {
         using StreamWriter writer = new("LineSummery" + (SummeryNumber++) + ".csv");
         writer.WriteLine("Truth,Predicted,Error,Error^2,EmmeLines");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < aggToTruth.Length; i++)
         {
             float error = aggToTruth[i] - Truth[i].Bordings;
-            writer.Write(Truth[i].Bordings);
+            Utilities.Write(writer, Truth[i].Bordings, buffer);
             writer.Write(',');
-            writer.Write(aggToTruth[i]);
+            Utilities.Write(writer, aggToTruth[i], buffer);
             writer.Write(',');
-            writer.Write(error);
+            Utilities.Write(writer, error, buffer);
             writer.Write(',');
-            writer.Write(error * error);
+            Utilities.Write(writer, error * error, buffer);
             for (int j = 0; j < Truth[i].Id.Length; j++)
             {
                 writer.Write(',');
@@ -330,7 +332,7 @@ public class NetworkEstimationTemplate : I4StepModel
         writer.WriteLine("Orphans");
         foreach (var orphan in orphans)
         {
-            writer.Write(orphan.Value);
+            Utilities.Write(writer, orphan.Value, buffer);
             writer.Write(',');
             writer.WriteLine(orphan.Key);
         }
@@ -393,7 +395,7 @@ public class NetworkEstimationTemplate : I4StepModel
     private void SaveBordingData(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
     {
         File.Copy(MacroOutputFile, "Best-" + Path.GetFileName(MacroOutputFile), true);
-        PrintSummery(aggToTruth, orphans);
+        PrintSummary(aggToTruth, orphans);
     }
 
     private void SaveEvaluation(ParameterSetting[] param, float value, double rmse, double mabs, double terror)
@@ -436,20 +438,21 @@ public class NetworkEstimationTemplate : I4StepModel
             writer.WriteLine();
         }
         FirstRun = false;
-        writer.Write(param[0].Current);
+        Span<char> buffer = stackalloc char[64];
+        Utilities.Write(writer, param[0].Current, buffer);
         for (int i = 1; i < param.Length; i++)
         {
             writer.Write(',');
-            writer.Write(param[i].Current);
+            Utilities.Write(writer, param[i].Current, buffer);
         }
         writer.Write(',');
-        writer.Write(value);
+        Utilities.Write(writer, value, buffer);
         writer.Write(',');
-        writer.Write(rmse);
+        Utilities.Write(writer, rmse, buffer);
         writer.Write(',');
-        writer.Write(mabs);
+        Utilities.Write(writer, mabs, buffer);
         writer.Write(',');
-        writer.WriteLine(terror);
+        Utilities.WriteLine(writer, terror, buffer);
     }
 
     private void SetupInputFiles(ParameterSetting[] param)
@@ -461,10 +464,12 @@ public class NetworkEstimationTemplate : I4StepModel
          */
         using StreamWriter writer = new(MacroInputFile);
         writer.WriteLine("t matrices");
+        Span<char> buffer = stackalloc char[32];
         foreach (var p in param)
         {
             writer.WriteLine($"m ms{p.MsNumber} {p.ParameterName}");
-            writer.WriteLine($" all all: {p.Current}");
+            writer.Write($" all all: ");
+            Utilities.WriteLine(writer, p.Current, buffer);
         }
     }
 }

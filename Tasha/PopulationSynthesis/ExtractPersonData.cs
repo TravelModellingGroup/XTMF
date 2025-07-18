@@ -146,12 +146,13 @@ public class ExtractPersonData : IPostHousehold
         {
             using StreamWriter writer = new(self.SaveFile.GetFileName());
             WriterHeader(writer);
+            Span<char> buffer = stackalloc char[32];
             for (int entry = 0; entry < EntryList.Count; entry++)
             {
                 var personType = EntryList[entry];
-                writer.Write(personType.PlaningDistrict);
+                TMG.Functions.Utilities.Write(writer, personType.PlaningDistrict, buffer);
                 writer.Write(',');
-                writer.Write(personType.AgeCat);
+                TMG.Functions.Utilities.Write(writer, personType.AgeCat, buffer);
                 writer.Write(',');
                 writer.Write(personType.Female ? 'F' : 'M');
                 writer.Write(',');
@@ -195,7 +196,7 @@ public class ExtractPersonData : IPostHousehold
                         break;
                 }
                 writer.Write(',');
-                writer.WriteLine(personType.ExpansionFactor);
+                TMG.Functions.Utilities.WriteLine(writer, personType.ExpansionFactor, buffer);
             }
         }
 

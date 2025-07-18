@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TMG.Functions;
 using XTMF;
 
 namespace TMG.GTAModel.Analysis;
@@ -168,15 +169,16 @@ public class CalculateDistanceTravelled : ISelfContainedModule
             regionAttractionDistances, regionAttractionSum, regionProductionSum, productionZoneDistances,
             attractionZoneDistances, zoneProductionSum, zoneAttractionSum );
         using StreamWriter writer = new(DistanceTravelledFileName);
+        Span<char> buffer = stackalloc char[32];
         writer.WriteLine("Region Data");
         writer.WriteLine("Region Number,Production Distance Average,Attraction Distance Average");
         for (int i = 0; i < regionProductionDistances.Length; i++)
         {
             writer.Write(regionNumbers[i]);
             writer.Write(',');
-            writer.Write(regionProductionDistances[i]);
+            Utilities.Write(writer, regionProductionDistances[i], buffer);
             writer.Write(',');
-            writer.Write(regionAttractionDistances[i]);
+            Utilities.Write(writer, regionAttractionDistances[i], buffer);
             writer.WriteLine();
         }
         writer.WriteLine();
@@ -189,9 +191,9 @@ public class CalculateDistanceTravelled : ISelfContainedModule
         {
             writer.Write(zones[i].ZoneNumber);
             writer.Write(',');
-            writer.Write(productionZoneDistances[i]);
+            Utilities.Write(writer, productionZoneDistances[i], buffer);
             writer.Write(',');
-            writer.Write(attractionZoneDistances[i]);
+            Utilities.Write(writer, attractionZoneDistances[i], buffer);
             writer.WriteLine();
         }
     }

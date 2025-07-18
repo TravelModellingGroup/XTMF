@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using TMG.Functions;
 using XTMF;
 using XTMF.Networking;
 
@@ -141,14 +142,15 @@ public class NetworkEstimationServer : IModelSystemTemplate
             var set = result as float[];
             if ( set == null || set.Length == 0 ) return;
             var length = set.Length;
+            Span<char> buffer = stackalloc char[32];
             lock ( this )
             {
                 using StreamWriter writer = new(ParameterEvaluationFile, true);
-                writer.Write(set[0]);
+                Utilities.Write(writer, set[0], buffer);
                 for (int i = 0; i < length; i++)
                 {
                     writer.Write(',');
-                    writer.Write(set[i]);
+                    Utilities.Write(writer, set[i], buffer);
                 }
                 writer.WriteLine();
             }

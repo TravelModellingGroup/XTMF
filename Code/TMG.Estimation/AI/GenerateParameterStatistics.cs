@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 namespace TMG.Estimation.AI;
@@ -181,19 +182,20 @@ public class GenerateParameterStatistics : IEstimationAI
         var baseRho = GetRho(baseValue, zeroValue);
         using var writer = new StreamWriter(ReportFile);
         writer.WriteLine("ParameterName,Coefficient,Fitness,Rho^2,DeltaRho^2");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 2; i < jobs.Count; i++)
         {
             var withoutParameterValue = jobs[i].Value;
             var rho = GetRho(withoutParameterValue, zeroValue);
             writer.Write(parameters[i - 2].Names[0]);
             writer.Write(',');
-            writer.Write(jobs[1].Parameters[i - 2].Current);
+            Functions.Utilities.Write(writer, jobs[1].Parameters[i - 2].Current, buffer);
             writer.Write(',');
-            writer.Write(withoutParameterValue);
+            Functions.Utilities.Write(writer, withoutParameterValue, buffer);
             writer.Write(',');
-            writer.Write(rho);
+            Functions.Utilities.Write(writer, rho, buffer);
             writer.Write(',');
-            writer.WriteLine(rho - baseRho);
+            Functions.Utilities.WriteLine(writer, rho - baseRho, buffer);
         }
     }
 

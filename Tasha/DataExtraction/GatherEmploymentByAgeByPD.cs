@@ -102,6 +102,7 @@ public class GatherEmploymentByAgeByPD : ISelfContainedModule
 
     private void SaveData(SparseArray<float>[] pdData, int ageCat)
     {
+        Span<char> buffer = stackalloc char[32];
         var pdIndexes = pdData[0].ValidIndexArray();
         using var writer = new StreamWriter(OutputFileName.GetFilePath(), ageCat != 0);
         if (ageCat == 0)
@@ -113,13 +114,13 @@ public class GatherEmploymentByAgeByPD : ISelfContainedModule
             var pdArray = pdData[empStat];
             for (int j = 0; j < pdIndexes.Length; j++)
             {
-                writer.Write(pdIndexes[j]);
+                TMG.Functions.Utilities.Write(writer, pdIndexes[j], buffer);
                 writer.Write(',');
-                writer.Write(empStat);
+                TMG.Functions.Utilities.Write(writer, empStat, buffer);
                 writer.Write(',');
-                writer.Write(ageCat);
+                TMG.Functions.Utilities.Write(writer, ageCat, buffer);
                 writer.Write(',');
-                writer.WriteLine(pdArray[pdIndexes[j]]);
+                TMG.Functions.Utilities.WriteLine(writer, pdArray[pdIndexes[j]], buffer);
             }
         }
     }

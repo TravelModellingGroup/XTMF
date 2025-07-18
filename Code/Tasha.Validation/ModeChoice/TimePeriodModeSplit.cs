@@ -176,7 +176,8 @@ public class TimePeriodModeSplit : IPostHousehold
             counts[i] = TimePeriods.Sum(period => period.Counts.Sum((type) => type.Value[i]));
         }
         IterationTotals.Add(counts);
-        using(var writer = new StreamWriter(OutputFileLocation, true))
+        Span<char> buffer = stackalloc char[32];
+        using (var writer = new StreamWriter(OutputFileLocation, true))
         {
             writer.Write("Iteration: ");
             writer.WriteLine(iteration);
@@ -200,11 +201,11 @@ public class TimePeriodModeSplit : IPostHousehold
                     foreach(var key in TimePeriods[j].Counts.Keys)
                     {
                         writer.Write(',');
-                        writer.Write(TimePeriods[j].Counts[key][i]);
+                        TMG.Functions.Utilities.Write(writer, TimePeriods[j].Counts[key][i], buffer);
                     }
                 }
                 writer.Write(',');
-                writer.WriteLine(counts[i]);
+                TMG.Functions.Utilities.WriteLine(writer, counts[i], buffer);
             }
             if(iteration >= Root.TotalIterations - 1)
             {
@@ -220,15 +221,15 @@ public class TimePeriodModeSplit : IPostHousehold
                 for(int it = 0; it < IterationTotals.Count; it++)
                 {
                     var row = IterationTotals[it];
-                    writer.Write((it + 1));
+                    TMG.Functions.Utilities.Write(writer, (it + 1), buffer);
                     for(int i = 0; i < row.Length; i++)
                     {
                         writer.Write(',');
-                        writer.Write(row[i]);
+                        TMG.Functions.Utilities.Write(writer, row[i], buffer);
                     }
                     writer.Write(',');
                     writer.Write(',');
-                    writer.WriteLine(row.Sum());
+                    TMG.Functions.Utilities.WriteLine(writer, row.Sum(), buffer);
                 }
             }
         }

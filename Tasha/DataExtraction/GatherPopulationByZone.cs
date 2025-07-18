@@ -82,6 +82,7 @@ public class GatherPopulationByZone : ISelfContainedModule
 
     private void WritePopulation(float[] population, SparseArray<IZone> zones)
     {
+        Span<char> buffer = stackalloc char[32];
         var flatZones = zones.GetFlatData();
         using var writer = new StreamWriter(OutputFile.GetFilePath());
         writer.WriteLine("Zone,Population");
@@ -89,7 +90,7 @@ public class GatherPopulationByZone : ISelfContainedModule
         {
             writer.Write(flatZones[i].ZoneNumber);
             writer.Write(',');
-            writer.WriteLine(population[i]);
+            TMG.Functions.Utilities.WriteLine(writer, population[i], buffer);
         }
     }
 

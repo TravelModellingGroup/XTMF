@@ -77,17 +77,18 @@ public class GetBestParameters : ISelfContainedModule
             }
         }
         writer.WriteLine();
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < best.Length; i++)
         {
             writer.Write(best[i].Generation);
             writer.Write(',');
-            writer.Write(best[i].Job.Value);
+            Functions.Utilities.Write(writer, best[i].Job.Value, buffer);
             for (int j = 0; j < best[i].Job.Parameters.Length; j++)
             {
                 for (int k = 0; k < best[i].Job.Parameters[j].Names.Length; k++)
                 {
                     writer.Write(',');
-                    writer.Write(best[i].Job.Parameters[j].Current);
+                    Functions.Utilities.Write(writer, best[i].Job.Parameters[j].Current, buffer);
                 }
             }
             writer.WriteLine();

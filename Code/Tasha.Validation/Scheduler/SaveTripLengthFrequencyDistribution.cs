@@ -96,18 +96,18 @@ public sealed class SaveTripLengthFrequencyDistribution : ISelfContainedModule
             using var writer = new StreamWriter(SaveTo);
             writer.WriteLine("Min,Max,Value");
             writer.Write("intrazonal,0,");
-            writer.WriteLine(intrazonal);
+            TMG.Functions.Utilities.WriteLine(writer, intrazonal, buffer);
             for (int i = 0; i < bins.Length; i++)
             {
-                writer.Write(i * Stride);
+                TMG.Functions.Utilities.Write(writer, i * Stride, buffer);
                 writer.Write(',');
-                writer.Write((i + 1) * Stride);
+                TMG.Functions.Utilities.Write(writer, (i + 1) * Stride, buffer);
                 writer.Write(',');
                 TMG.Functions.Utilities.WriteLine(writer, bins[i], buffer);
             }
-            writer.Write(Stride * bins.Length);
+            TMG.Functions.Utilities.Write(writer, Stride * bins.Length, buffer);
             writer.Write(",inf,");
-            writer.WriteLine(pastBins);
+            TMG.Functions.Utilities.WriteLine(writer, pastBins, buffer);
         }
         catch(IOException e)
         {

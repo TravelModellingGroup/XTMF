@@ -159,6 +159,7 @@ public class ExtractObservedDemandToPD : IPostHousehold
             writer.WriteLine();
             //The main body of the loop is going to end the line
             //write body
+            Span<char> buffer = stackalloc char[32];
             for (int mode = 0; mode < Demand.Length; mode++)
             {
                 writer.WriteLine(Parent.Modes[mode].ModeName);
@@ -183,7 +184,7 @@ public class ExtractObservedDemandToPD : IPostHousehold
                             }
                         }
                         writer.Write(',');
-                        writer.Write(row[j]);
+                        TMG.Functions.Utilities.Write(writer, row[j], buffer);
                     }
                     writer.WriteLine();
                 }

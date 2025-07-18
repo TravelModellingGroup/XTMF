@@ -143,6 +143,7 @@ GROUP BY [{0}].[{1}], [{3}].[SchoolZone];",
             }
         }
         var flatResult = result.GetFlatData();
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(OutputFileName.GetFilePath()))
         {
             writer.WriteLine("HomeZone,SchoolZone,People");
@@ -154,11 +155,11 @@ GROUP BY [{0}].[{1}], [{3}].[SchoolZone];",
                 {
                     if (row[j] > 0)
                     {
-                        writer.Write(iAsString);
+                        TMG.Functions.Utilities.Write(writer, iAsString, buffer);
                         writer.Write(',');
-                        writer.Write(flatZones[j].ZoneNumber);
+                        TMG.Functions.Utilities.Write(writer, flatZones[j].ZoneNumber, buffer);
                         writer.Write(',');
-                        writer.WriteLine(row[j]);
+                        TMG.Functions.Utilities.WriteLine(writer, row[j], buffer);
                     }
                 }
             }
@@ -228,7 +229,7 @@ GROUP BY [{3}].[{0}];",
                 }
                 else
                 {
-                    writer.WriteLine(flatPdStudents[i] / pop);
+                    TMG.Functions.Utilities.WriteLine(writer, flatPdStudents[i] / pop, buffer);
                 }
             }
         }

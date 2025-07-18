@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System.Globalization;
 using TMG.Frameworks.Data.Loading;
 using TMG.Input;
 
@@ -38,6 +39,7 @@ public class TestLoadODDataFromCSV
                     data[i, j] = i;
                 }
             }
+            Span<char> buffer = stackalloc char[32];
             using (var writer = new StreamWriter(tempFile))
             {
                 writer.Write("origin\\destination");
@@ -53,7 +55,7 @@ public class TestLoadODDataFromCSV
                     for (int j = 0; j < data.GetLength(1); j++)
                     {
                         writer.Write(',');
-                        writer.Write(data[i, j]);
+                        global::TMG.Functions.Utilities.Write(writer, data[i, j], buffer);
                     }
                     writer.WriteLine();
                 }
@@ -112,7 +114,7 @@ public class TestLoadODDataFromCSV
                         writer.Write(',');
                         writer.Write(j);
                         writer.Write(',');
-                        writer.WriteLine(data[i, j]);
+                        writer.WriteLine(data[i, j].ToString(CultureInfo.InvariantCulture));
                     }
                 }
             }
@@ -171,7 +173,7 @@ public class TestLoadODDataFromCSV
                         writer.Write(',');
                         writer.Write(j);
                         writer.Write(',');
-                        writer.WriteLine(data[i, j]);
+                        writer.WriteLine(data[i, j].ToString(CultureInfo.InvariantCulture));
                     }
                 }
             }
@@ -228,7 +230,7 @@ public class TestLoadODDataFromCSV
                     {
                         writer.Write(i);
                         writer.Write(',');
-                        writer.WriteLine(data[i, 0]);
+                        writer.WriteLine(data[i, 0].ToString(CultureInfo.InvariantCulture));
                     }
                 }
             }
@@ -289,7 +291,7 @@ public class TestLoadODDataFromCSV
                     {
                         writer.Write(i);
                         writer.Write(',');
-                        writer.WriteLine(data[i, 0]);
+                        writer.WriteLine(data[i, 0].ToString(CultureInfo.InvariantCulture));
                     }
                 }
             }

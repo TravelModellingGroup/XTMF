@@ -128,13 +128,14 @@ public sealed class PoRPoS : IPreIteration
             {
                 using var writer = new StreamWriter(SaveFactors);
                 writer.WriteLine("Zone,Factor");
+                Span<char> buffer = stackalloc char[32];
                 foreach (var zoneFactor in from element in factors
                                            orderby element.Key ascending
                                            select new { Zone = zones[element.Key].ZoneNumber, Factor = element.Value })
                 {
-                    writer.Write(zoneFactor.Zone);
+                    TMG.Functions.Utilities.Write(writer, zoneFactor.Zone, buffer);
                     writer.Write(',');
-                    writer.WriteLine(zoneFactor.Factor);
+                    TMG.Functions.Utilities.WriteLine(writer, zoneFactor.Factor, buffer);
                 }
             }
         }

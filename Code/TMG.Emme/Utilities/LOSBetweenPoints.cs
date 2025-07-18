@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 namespace TMG.Emme.Utilities;
@@ -119,6 +120,7 @@ public class LOSBetweenPoints : IEmmeTool
 
         internal void SaveResults(List<int> nodesToExplore)
         {
+            Span<char> buffer = stackalloc char[32];
             using (var writer = new StreamWriter(SaveTo))
             {
                 writer.Write("Origin\\Destination");
@@ -134,7 +136,7 @@ public class LOSBetweenPoints : IEmmeTool
                     for (int j = 0; j < Data[i].Length; j++)
                     {
                         writer.Write(',');
-                        writer.Write(Data[i][j]);
+                        Functions.Utilities.Write(writer, Data[i][j], buffer);
                     }
                     writer.WriteLine();
                 }

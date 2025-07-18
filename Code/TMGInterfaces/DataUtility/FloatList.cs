@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace TMG.DataUtility;
@@ -207,7 +208,7 @@ public sealed class FloatList : IList<float>
         StringBuilder builder = new();
         for ( int i = 0; i < Values.Length; i++ )
         {
-            builder.Append( Values[i] );
+            builder.Append(CultureInfo.InvariantCulture, $"{Values[i]}");
             builder.Append( ',' );
         }
         return builder.ToString( 0, builder.Length - 1 );

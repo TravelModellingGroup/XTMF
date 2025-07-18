@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -42,6 +43,7 @@ public sealed class OutputAccessStationModel : ISelfContainedModule
         using var writer = new StreamWriter(OutputFile);
         //output the header
         var validIndex = data.ValidIndexArray();
+        Span<char> buffer = stackalloc char[32];
         writer.WriteLine("Origin,Destination,AccessStation[0],AccessStation[1],AccessStation[2],AccessStation[3],AccessStation[4],Utility[0],Utility[1],Utility[2],Utility[3],Utility[4],Logsum");
         for (int o = 0; o < validIndex.Length; o++)
         {
@@ -67,9 +69,9 @@ public sealed class OutputAccessStationModel : ISelfContainedModule
                 {
                     // make sure this zone is used
                     writer.Write(',');
-                    var ammount = zones[i] == null ? 0.0f : utils[i];
-                    writer.Write(ammount);
-                    total += ammount;
+                    var amount = zones[i] == null ? 0.0f : utils[i];
+                    Utilities.Write(writer, amount, buffer);
+                    total += amount;
                 }
                 writer.Write(',');
                 writer.WriteLine(Math.Log(total));

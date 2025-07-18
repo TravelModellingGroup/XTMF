@@ -26,6 +26,7 @@ using TMG;
 using Datastructure;
 using System.Runtime.CompilerServices;
 using System.IO;
+using System.Globalization;
 
 namespace Tasha.Validation.TripExtraction;
 
@@ -148,10 +149,11 @@ public class ExtractAccessStationOD : IPostHouseholdIteration
     public void IterationFinished(int iteration, int totalIterations)
     {
         var results = Results;
-        var zoneNumbers = Zones.GetFlatData().Select(z => z.ZoneNumber.ToString()).ToArray();
-        var stationIndexStr = StationIndex.Select(z => z.ToString()).ToArray();
+        var zoneNumbers = Zones.GetFlatData().Select(z => z.ZoneNumber.ToString(CultureInfo.InvariantCulture)).ToArray();
+        var stationIndexStr = StationIndex.Select(z => z.ToString(CultureInfo.InvariantCulture)).ToArray();
         using var writer = new StreamWriter(SaveTo);
         writer.WriteLine("Station,Origin,Destination,Trips");
+        Span<char> buffer = stackalloc char[32];
         for (int sIndex = 0; sIndex < results.Length; sIndex++)
         {
             for (int o = 0; o < results[sIndex].Length; o++)
@@ -166,7 +168,7 @@ public class ExtractAccessStationOD : IPostHouseholdIteration
                         writer.Write(',');
                         writer.Write(zoneNumbers[d]);
                         writer.Write(',');
-                        writer.WriteLine(results[sIndex][o][d]);
+                        TMG.Functions.Utilities.WriteLine(writer, results[sIndex][o][d], buffer);
                     }
                 }
             }

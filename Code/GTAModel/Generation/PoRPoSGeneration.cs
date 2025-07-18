@@ -233,6 +233,7 @@ public class PoRPoSGeneration : DemographicCategoryGeneration
             {
                 writer.WriteLine("Age,Employment,Occupation,Mobility,Total");
             }
+            Span<char> buffer = stackalloc char[32];
             writer.Write(AgeCategoryRange.ToString());
             writer.Write(',');
             writer.Write(EmploymentStatusCategory.ToString());
@@ -241,7 +242,7 @@ public class PoRPoSGeneration : DemographicCategoryGeneration
             writer.Write(',');
             writer.Write(Mobility.ToString());
             writer.Write(',');
-            writer.WriteLine(totalProduction);
+            Functions.Utilities.WriteLine(writer, totalProduction, buffer);
         }
     }
 }

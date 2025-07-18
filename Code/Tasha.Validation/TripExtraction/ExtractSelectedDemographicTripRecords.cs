@@ -106,15 +106,16 @@ public class ExtractSelectedDemographicTripRecords : IPostHouseholdIteration, ID
     private void SaveTrip(ITrip trip, int householdNumber, int personNumber, int tripNumber, int numberOfWorkTrips, int numberOfTripsInTour)
     {
         var writer = Writer;
-        writer.Write(householdNumber);
+        Span<char> buffer = stackalloc char[32];
+        TMG.Functions.Utilities.Write(writer, householdNumber, buffer);
         writer.Write(',');
-        writer.Write(personNumber);
+        TMG.Functions.Utilities.Write(writer, personNumber, buffer);
         writer.Write(',');
-        writer.Write(tripNumber);
+        TMG.Functions.Utilities.Write(writer, tripNumber, buffer);
         writer.Write(',');
-        writer.Write(trip.OriginalZone.ZoneNumber);
+        TMG.Functions.Utilities.Write(writer, trip.OriginalZone.ZoneNumber, buffer);
         writer.Write(',');
-        writer.Write(trip.DestinationZone.ZoneNumber);
+        TMG.Functions.Utilities.Write(writer, trip.DestinationZone.ZoneNumber, buffer);
         writer.Write(',');
         writer.Write(GetPurposeName(trip.Purpose));
         writer.Write(',');
@@ -122,16 +123,16 @@ public class ExtractSelectedDemographicTripRecords : IPostHouseholdIteration, ID
         writer.Write(',');
         writer.Write(trip.ActivityStartTime);
         writer.Write(',');
-        writer.Write(GetTripDistance(trip));
+        TMG.Functions.Utilities.Write(writer, GetTripDistance(trip), buffer);
         writer.Write(',');
-        writer.Write(numberOfWorkTrips);
+        TMG.Functions.Utilities.Write(writer, numberOfWorkTrips, buffer);
         writer.Write(',');
-        writer.Write(numberOfTripsInTour);
+        TMG.Functions.Utilities.Write(writer, numberOfTripsInTour, buffer);
         var modesChosen = trip.ModesChosen;
         for (int i = 0; i < AllModes.Length; i++)
         {
             writer.Write(',');
-            writer.Write(modesChosen.Count(m => m == AllModes[i]));
+            TMG.Functions.Utilities.Write(writer, modesChosen.Count(m => m == AllModes[i]), buffer);
         }
         writer.WriteLine();
     }

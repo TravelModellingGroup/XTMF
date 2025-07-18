@@ -209,6 +209,7 @@ public sealed class ModeSplitsByPersonAttributes : IPostHouseholdIteration
             var occString = Root.Occupations.Select(o => Enum.GetName(typeof(Occupation), o)).ToArray();
             var empString = Root.EmploymentStatuses.Select(e => Enum.GetName(typeof(TTSEmploymentStatus), e)).ToArray();
             var modeString = allModes.Select(m => m.ModeName).ToArray();
+            Span<char> buffer = stackalloc char[32];
             for (int ageCat = 0; ageCat < Root.AgeRanges.Count; ageCat++)
             {
                 for (int occCat = 0; occCat < Root.Occupations.Length; occCat++)
@@ -226,7 +227,7 @@ public sealed class ModeSplitsByPersonAttributes : IPostHouseholdIteration
                             writer.Write(',');
                             writer.Write(modeString[mode]);
                             writer.Write(',');
-                            writer.WriteLine(DataStorage[offset + mode]);
+                            TMG.Functions.Utilities.WriteLine(writer, DataStorage[offset + mode], buffer);
                         }
                     }
                 }

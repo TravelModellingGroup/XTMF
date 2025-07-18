@@ -38,6 +38,7 @@ public class ValidateAges : ISelfContainedModule
         var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
         var ageRates = Root.Demographics.AgeRates.GetFlatData();
         var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
+        Span<char> buffer = stackalloc char[32];
         using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
         {
             writer.WriteLine( "Zone,AgeCategory,Persons" );
@@ -48,11 +49,11 @@ public class ValidateAges : ISelfContainedModule
                 var zoneNumber = zones[i].ZoneNumber;
                 for ( int age = 0; age < rates.Length; age++ )
                 {
-                    writer.Write( zoneNumber );
+                    Functions.Utilities.Write(writer, zoneNumber, buffer);
                     writer.Write( ',' );
-                    writer.Write( ageCategories[age] );
+                    Functions.Utilities.Write(writer, ageCategories[age], buffer);
                     writer.Write( ',' );
-                    writer.WriteLine( pop * rates[age] );
+                    Functions.Utilities.WriteLine(writer, pop * rates[age], buffer);
                 }
                 // Update our progress
                 Progress = (float)i / zones.Length;

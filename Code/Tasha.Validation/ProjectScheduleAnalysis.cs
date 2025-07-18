@@ -132,11 +132,12 @@ public class ProjectScheduleAnalysis : IPostScheduler
     {
         using StreamWriter writer = new(file);
         writer.WriteLine("Bin,Data");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < data.Length; i++)
         {
-            writer.Write(i);
+            TMG.Functions.Utilities.Write(writer, i, buffer);
             writer.Write(',');
-            writer.WriteLine(data[i]);
+            TMG.Functions.Utilities.WriteLine(writer, data[i], buffer);
         }
     }
 

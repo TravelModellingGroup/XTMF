@@ -21,6 +21,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using Tasha.Common;
+using TMG.Functions;
 using XTMF;
 
 namespace Tasha.Modes;
@@ -230,14 +231,15 @@ public class ModeErrorMatrix : IPostHousehold
             }
             writer.WriteLine( "{0:0.##}%", 100 * ( correctTotal / (float)total ) );
 
+            Span<char> buffer = stackalloc char[32];
             if ( ComputeFitness )
             {
                 writer.Write( "Value," );
-                writer.WriteLine( Fitness );
+                TMG.Functions.Utilities.WriteLine(writer, Fitness, buffer);
                 writer.Write( "ZeroParam," );
-                writer.WriteLine( ZeroParamFitness );
+                TMG.Functions.Utilities.WriteLine(writer, ZeroParamFitness, buffer);
                 writer.Write( "Rho^2," );
-                writer.WriteLine( 1 - ( Fitness / ZeroParamFitness ) );
+                TMG.Functions.Utilities.WriteLine(writer, 1 - ( Fitness / ZeroParamFitness ), buffer);
                 // 2 lines of blank
                 var numberOfModes = Modes.Count;
                 writer.WriteLine( "\r\n" );
@@ -260,13 +262,13 @@ public class ModeErrorMatrix : IPostHousehold
                     writer.Write( ',' );
                     writer.Write( t.Mode );
                     writer.Write( ',' );
-                    writer.Write( t.Distance );
+                    TMG.Functions.Utilities.Write(writer, t.Distance, buffer);
                     writer.Write( ',' );
-                    writer.Write( t.HasTravelTime );
+                    TMG.Functions.Utilities.Write(writer, t.HasTravelTime, buffer);
                     writer.Write( ',' );
-                    writer.Write( t.OrginZone );
+                    TMG.Functions.Utilities.Write(writer, t.OrginZone, buffer);
                     writer.Write( ',' );
-                    writer.WriteLine( t.DestZone );
+                    TMG.Functions.Utilities.WriteLine(writer, t.DestZone, buffer);
                 }
             }
         }

@@ -221,6 +221,7 @@ public class GravityOptimization : IEstimationAI
         var generation = Root.CurrentIteration;
         var exists = File.Exists(StarLog);
         using StreamWriter writer = new(StarLog, true);
+        Span<char> buffer = stackalloc char[32];
         if (!exists)
         {
             writer.Write("Generation,Star,Mass");
@@ -240,14 +241,14 @@ public class GravityOptimization : IEstimationAI
             writer.Write(',');
             writer.Write(Stars[i].StarNumber);
             writer.Write(',');
-            writer.Write(Stars[i].CurrentMass);
+            Functions.Utilities.Write(writer, Stars[i].CurrentMass, buffer);
             var position = Stars[i].Position;
             for (int j = 0; j < position.Length; j++)
             {
                 for (int k = 0; k < Parameters[j].Names.Length; k++)
                 {
                     writer.Write(',');
-                    writer.Write(Stars[i].Position[j]);
+                    Functions.Utilities.Write(writer, position[j], buffer);
                 }
             }
             writer.WriteLine();

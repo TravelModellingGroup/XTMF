@@ -41,6 +41,7 @@ public class ValidateStudents : ISelfContainedModule
         var studentRates = Root.Demographics.SchoolRates.GetFlatData();
         var employmentRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
         var employmentCategories = Root.Demographics.EmploymentStatus.GetFlatData();
+        Span<char> buffer = stackalloc char[32];
         using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
         {
             writer.WriteLine( "Zone,AgeCategory,EmpStat,Persons" );
@@ -57,13 +58,13 @@ public class ValidateStudents : ISelfContainedModule
                     var stuEmpRate = studentRate[age];
                     for ( int emp = 0; emp < stuEmpRate.Length; emp++ )
                     {
-                        writer.Write( zoneNumber );
+                        Functions.Utilities.Write(writer, zoneNumber, buffer);
                         writer.Write( ',' );
-                        writer.Write( ageCategories[age] );
+                        Functions.Utilities.Write(writer, ageCategories[age], buffer);
                         writer.Write( ',' );
-                        writer.Write( employmentCategories[emp] );
+                        Functions.Utilities.Write(writer, employmentCategories[emp], buffer);
                         writer.Write( ',' );
-                        writer.WriteLine( stuEmpRate[emp] * agePop * empRate[age][emp] );
+                        Functions.Utilities.WriteLine(writer, stuEmpRate[emp] * agePop * empRate[age][emp], buffer);
                     }
                 }
                 // Update our progress

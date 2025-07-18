@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -95,20 +96,21 @@ public class ReportODSums : ISelfContainedModule
     private void ProcessDataSource(string dataTag, IDataSource<SparseTwinIndex<float>> dataSource, StreamWriter writer,
         ref double globalIntrazonals, ref double globalSum, ref double globalInternalExternal, ref double globalExternalInternal)
     {
+        Span<char> buffer = stackalloc char[32];
         dataSource.LoadData();
         Sum(dataSource.GiveData().GetFlatData(), out float total, out float intrazonals, out float ie, out float ei);
         dataSource.UnloadData();
         writer.Write( dataTag );
         writer.Write( ',' );
-        writer.Write( total );
+        Utilities.Write(writer, total, buffer); 
         writer.Write( ',' );
-        writer.Write( intrazonals );
+        Utilities.Write(writer, intrazonals, buffer);
         writer.Write( ',' );
-        writer.Write( total - intrazonals );
+        Utilities.Write(writer, total - intrazonals, buffer);
         writer.Write( ',' );
-        writer.Write( ie );
+        Utilities.Write(writer, ie, buffer);
         writer.Write( ',' );
-        writer.WriteLine( ei );
+        Utilities.WriteLine(writer, ei, buffer);
         globalIntrazonals += intrazonals;
         globalSum += total;
         globalInternalExternal += ie;

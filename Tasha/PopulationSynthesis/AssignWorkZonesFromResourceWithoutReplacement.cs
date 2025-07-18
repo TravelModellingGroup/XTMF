@@ -296,6 +296,7 @@ public class AssignWorkZonesFromResourceWithoutReplacement : ICalculation<ITasha
 
             private void SaveHouseholdCategoryRecords()
             {
+                Span<char> buffer = stackalloc char[32];
                 if (SaveWorkerCategory != null && WorkerResults != null)
                 {
                     var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
@@ -306,11 +307,11 @@ public class AssignWorkZonesFromResourceWithoutReplacement : ICalculation<ITasha
                         var zoneNumber = zones[i].ZoneNumber;
                         for (int cat = 0; cat < WorkerResults.Length; cat++)
                         {
-                            writer.Write(zoneNumber);
+                            TMG.Functions.Utilities.Write(writer, zoneNumber, buffer);
                             writer.Write(',');
-                            writer.Write(cat + 1);
+                            TMG.Functions.Utilities.Write(writer, cat + 1, buffer);
                             writer.Write(',');
-                            writer.WriteLine(WorkerResults[cat][i]);
+                            TMG.Functions.Utilities.WriteLine(writer, WorkerResults[cat][i], buffer);
                         }
                     }
                 }

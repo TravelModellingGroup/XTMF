@@ -119,7 +119,8 @@ public class ZonalModeSplits : IPostHouseholdIteration
         using (StreamWriter writer = new(SaveLocation))
         {
             writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
-            for(int m = 0; m < Data.Length; m++)
+            Span<char> buffer = stackalloc char[256];
+            for (int m = 0; m < Data.Length; m++)
             {
                 string modeName = Modes[m].ModeName + ",";
                 var oRow = Data[m];
@@ -132,11 +133,11 @@ public class ZonalModeSplits : IPostHouseholdIteration
                         {
                             // this includes the comma already
                             writer.Write(modeName);
-                            writer.Write(zones[o]);
+                            TMG.Functions.Utilities.Write(writer, zones[o], buffer);
                             writer.Write(',');
-                            writer.Write(zones[d]);
+                            TMG.Functions.Utilities.Write(writer, zones[d], buffer);
                             writer.Write(',');
-                            writer.WriteLine(dRow[d]);
+                            TMG.Functions.Utilities.WriteLine(writer, dRow[d], buffer);
                         }
                     }
                 }

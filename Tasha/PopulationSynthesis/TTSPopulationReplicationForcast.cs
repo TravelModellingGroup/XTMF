@@ -304,13 +304,14 @@ public class TTSPopulationReplicationForcast : IPostHousehold
     {
         using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerForceDirectory));
         writer.WriteLine("Zone,Persons");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < workers.Length; i++)
         {
             if (workers[i] > 0)
             {
-                writer.Write(zones[i].ZoneNumber);
+                TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                 writer.Write(',');
-                writer.WriteLine(workers[i]);
+                TMG.Functions.Utilities.WriteLine(writer, workers[i], buffer);
             }
         }
     }
@@ -319,6 +320,7 @@ public class TTSPopulationReplicationForcast : IPostHousehold
     {
         using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
         writer.WriteLine("Zone,WorkerCategory,Persons");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < workers.Length; i++)
         {
             var factor = 1.0f / workers[i].Sum();
@@ -334,11 +336,11 @@ public class TTSPopulationReplicationForcast : IPostHousehold
             {
                 if (workers[i][cat] > 0)
                 {
-                    writer.Write(zones[i].ZoneNumber);
+                    TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                     writer.Write(',');
-                    writer.Write(cat + 1);
+                    TMG.Functions.Utilities.Write(writer, cat + 1, buffer);
                     writer.Write(',');
-                    writer.WriteLine(workers[i][cat]);
+                    TMG.Functions.Utilities.WriteLine(writer, workers[i][cat], buffer);
                 }
             }
         }
@@ -414,6 +416,7 @@ public class TTSPopulationReplicationForcast : IPostHousehold
         {
             householdID = 1;
             writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone,ExpansionFactor");
+            Span<char> buffer = stackalloc char[32];
             for (int i = 0; i < results.Length; i++)
             {
                 var households = pds[i].Households;
@@ -425,11 +428,11 @@ public class TTSPopulationReplicationForcast : IPostHousehold
                     for (int j = 0; j < persons.Length; j++)
                     {
                         totalPerson++;
-                        writer.Write(householdID);
+                        TMG.Functions.Utilities.Write(writer, householdID, buffer);
                         writer.Write(',');
-                        writer.Write((j + 1));
+                        TMG.Functions.Utilities.Write(writer, (j + 1), buffer);
                         writer.Write(',');
-                        writer.Write(persons[j].Age);
+                        TMG.Functions.Utilities.Write(writer, persons[j].Age, buffer);
                         writer.Write(',');
                         writer.Write(persons[j].Female ? "F," : "M,");
                         writer.Write(persons[j].Licence ? "Y," : "N,");
@@ -566,7 +569,7 @@ public class TTSPopulationReplicationForcast : IPostHousehold
                         // we don't save employment or school zone
                         if (IsExternal(workZone))
                         {
-                            writer.Write(workZone.ZoneNumber);
+                            TMG.Functions.Utilities.Write(writer, workZone.ZoneNumber, buffer);
                         }
                         else
                         {
@@ -575,14 +578,14 @@ public class TTSPopulationReplicationForcast : IPostHousehold
                         writer.Write(',');
                         if (IsExternal(schoolZone))
                         {
-                            writer.Write(schoolZone.ZoneNumber);
+                            TMG.Functions.Utilities.Write(writer, schoolZone.ZoneNumber, buffer);
                         }
                         else
                         {
                             writer.Write('0');
                         }
                         writer.Write(',');
-                        writer.WriteLine(persons[j].ExpansionFactor);
+                        TMG.Functions.Utilities.WriteLine(writer, persons[j].ExpansionFactor, buffer);
                     }
                     householdID++;
                 }
@@ -620,6 +623,7 @@ public class TTSPopulationReplicationForcast : IPostHousehold
         int householdID = 1;
         using var writer = new StreamWriter(HouseholdFile);
         writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles,IncomeLevel");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < results.Length; i++)
         {
             var households = pds[i].Households;
@@ -631,15 +635,15 @@ public class TTSPopulationReplicationForcast : IPostHousehold
                 writer.Write(',');
                 writer.Write(zones[zone]);
                 writer.Write(",");
-                writer.Write(_invHouseholdExpansion);
+                TMG.Functions.Utilities.Write(writer, _invHouseholdExpansion, buffer);
                 writer.Write(",");
-                writer.Write((int)household.DwellingType);
+                TMG.Functions.Utilities.Write(writer, (int)household.DwellingType, buffer);
                 writer.Write(',');
-                writer.Write(household.Persons.Length);
+                TMG.Functions.Utilities.Write(writer, household.Persons.Length, buffer);
                 writer.Write(',');
-                writer.Write(household.Vehicles.Length);
+                TMG.Functions.Utilities.Write(writer, household.Vehicles.Length, buffer);
                 writer.Write(',');
-                writer.WriteLine(household.IncomeClass);
+                TMG.Functions.Utilities.WriteLine(writer, household.IncomeClass, buffer);
                 householdID++;
             }
         }

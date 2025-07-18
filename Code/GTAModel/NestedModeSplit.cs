@@ -189,6 +189,7 @@ public class NestedModeSplit : IInteractiveModeSplit
         {
             if ( split.Result != null )
             {
+                Span<char> buffer = stackalloc char[32];
                 using StreamWriter writer = new(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
                 var header = true;
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
@@ -210,7 +211,7 @@ public class NestedModeSplit : IInteractiveModeSplit
                     for (int j = 0; j < zones.Length; j++)
                     {
                         writer.Write(',');
-                        writer.Write(data[i * zones.Length + j]);
+                        Utilities.Write(writer, data[i * zones.Length + j], buffer);
                     }
                     writer.WriteLine();
                 }

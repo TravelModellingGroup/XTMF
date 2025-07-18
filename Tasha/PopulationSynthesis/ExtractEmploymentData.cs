@@ -175,6 +175,7 @@ public class ExtractEmploymentData : IPostHousehold
 
     private void WriteTotalEmployment()
     {
+        Span<char> buffer = stackalloc char[32];
         if (TotalEmploymentByZone == null)
         {
             return;
@@ -186,7 +187,7 @@ public class ExtractEmploymentData : IPostHousehold
         {
             if (!ExternalPDs.Contains(flatZones[i].PlanningDistrict))
             {
-                writer.Write(flatZones[i].ZoneNumber);
+                TMG.Functions.Utilities.Write(writer, flatZones[i].ZoneNumber, buffer);
                 writer.Write(',');
                 var acc = 0.0f;
                 for (int emp = 0; emp < _zonalEmployment.Length; emp++)
@@ -196,7 +197,7 @@ public class ExtractEmploymentData : IPostHousehold
                         acc += _zonalEmployment[emp][occ][i];
                     }
                 }
-                writer.WriteLine(acc);
+                TMG.Functions.Utilities.WriteLine(writer, acc, buffer);
             }
         }
     }
@@ -222,6 +223,7 @@ public class ExtractEmploymentData : IPostHousehold
         {
             return;
         }
+        Span<char> buffer = stackalloc char[32];
         var results = ComputeEmpOccRates();
         string dir = EmpOccRateDir;
         EnsureDirectory(dir);
@@ -239,9 +241,9 @@ public class ExtractEmploymentData : IPostHousehold
                         ? results[_pds.GetFlatIndex(zones[i].PlanningDistrict)] : results[i])[emp * 4 + occ];
                     if (value > 0.0)
                     {
-                        writer.Write(zoneNumber);
+                        TMG.Functions.Utilities.Write(writer, zoneNumber, buffer);
                         writer.Write(',');
-                        writer.WriteLine(value);
+                        TMG.Functions.Utilities.WriteLine(writer, value, buffer);
                     }
                 }
             }
@@ -317,6 +319,7 @@ public class ExtractEmploymentData : IPostHousehold
         {
             return;
         }
+        Span<char> buffer = stackalloc char[32];
         string dir = WorkAtHomeRateDir;
         EnsureDirectory(dir);
         var zones = _zones.GetFlatData();
@@ -344,9 +347,9 @@ public class ExtractEmploymentData : IPostHousehold
                         var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
                         if (totals[index] > 0)
                         {
-                            writer.Write(zones[i].ZoneNumber);
+                            TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                             writer.Write(',');
-                            writer.WriteLine(wah[index] / totals[index]);
+                            TMG.Functions.Utilities.WriteLine(writer, wah[index] / totals[index], buffer);
                         }
                     }
                 }
@@ -359,7 +362,7 @@ public class ExtractEmploymentData : IPostHousehold
                         var value = total <= 0.0f ? 0 : _zonalEmployment[emp + 2][occ][i] / total;
                         if (total > 0.0f)
                         {
-                            writer.Write(zones[i].ZoneNumber);
+                            TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                             writer.Write(',');
                             writer.WriteLine();
                         }
@@ -381,6 +384,7 @@ public class ExtractEmploymentData : IPostHousehold
         string dir = ExternalRateDir;
         EnsureDirectory(dir);
         var zones = _zones.GetFlatData();
+        Span<char> buffer = stackalloc char[32];
         for (int emp = 0; emp < 2; emp++)
         {
             for (int occ = 0; occ < 4; occ++)
@@ -413,9 +417,9 @@ public class ExtractEmploymentData : IPostHousehold
                         var index = _pds.GetFlatIndex(zones[i].PlanningDistrict);
                         if (totals[index] > 0)
                         {
-                            writer.Write(zones[i].ZoneNumber);
+                            TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                             writer.Write(',');
-                            writer.WriteLine(external[index] / totals[index]);
+                            TMG.Functions.Utilities.WriteLine(writer, external[index] / totals[index], buffer);
                         }
                     }
                 }
@@ -443,9 +447,9 @@ public class ExtractEmploymentData : IPostHousehold
                         }
                         if (total > 0)
                         {
-                            writer.Write(zones[workZone].ZoneNumber);
+                            TMG.Functions.Utilities.Write(writer, zones[workZone].ZoneNumber, buffer);
                             writer.Write(',');
-                            writer.WriteLine(external / total);
+                            TMG.Functions.Utilities.WriteLine(writer, external / total, buffer);
                         }
                     }
                 }
@@ -462,6 +466,7 @@ public class ExtractEmploymentData : IPostHousehold
         {
             return;
         }
+        Span<char> buffer = stackalloc char[32];
         string dir = ObservedLinkRateDir;
         var zones = _zones.GetFlatData();
         for (int emp = 0; emp < 2; emp++)
@@ -485,11 +490,11 @@ public class ExtractEmploymentData : IPostHousehold
                                     var value = _zonalWorkerCategories[emp][occ][homeZone][workZone][k];
                                     if (value > 0.0f)
                                     {
-                                        writer.Write(zones[homeZone].ZoneNumber);
+                                        TMG.Functions.Utilities.Write(writer, zones[homeZone].ZoneNumber, buffer);
                                         writer.Write(',');
-                                        writer.Write(zones[workZone].ZoneNumber);
+                                        TMG.Functions.Utilities.Write(writer, zones[workZone].ZoneNumber, buffer);
                                         writer.Write(',');
-                                        writer.WriteLine(value);
+                                        TMG.Functions.Utilities.WriteLine(writer, value, buffer);
                                     }
                                 }
                             }
@@ -512,6 +517,7 @@ public class ExtractEmploymentData : IPostHousehold
         string dir = WorkerCategoryDir;
         EnsureDirectory(dir);
         var zones = _zones.GetFlatData();
+        Span<char> buffer = stackalloc char[32];
         for (int emp = 0; emp < 2; emp++)
         {
             for (int occ = 0; occ < 4; occ++)
@@ -522,7 +528,6 @@ public class ExtractEmploymentData : IPostHousehold
                 {
                     if (!ExternalPDs.Contains(zones[homeZone].PlanningDistrict))
                     {
-
                         float wc0 = 0.0f, wc1 = 0.0f, wc2 = 0.0f;
                         for (int workZone = 0; workZone < zones.Length; workZone++)
                         {
@@ -540,15 +545,27 @@ public class ExtractEmploymentData : IPostHousehold
                             var zi = zones[homeZone].ZoneNumber;
                             if (wc0 > 0.0f)
                             {
-                                writer.Write(zi); writer.Write(','); writer.Write(1); writer.Write(','); writer.WriteLine(wc0 / total);
+                                TMG.Functions.Utilities.Write(writer, zi, buffer);
+                                writer.Write(',');
+                                TMG.Functions.Utilities.Write(writer, 1, buffer);
+                                writer.Write(',');
+                                TMG.Functions.Utilities.WriteLine(writer, wc0 / total, buffer);
                             }
                             if (wc1 > 0.0f)
                             {
-                                writer.Write(zi); writer.Write(','); writer.Write(2); writer.Write(','); writer.WriteLine(wc1 / total);
+                                TMG.Functions.Utilities.Write(writer, zi, buffer);
+                                writer.Write(',');
+                                TMG.Functions.Utilities.Write(writer, 2, buffer);
+                                writer.Write(',');
+                                TMG.Functions.Utilities.WriteLine(writer, wc1 / total, buffer);
                             }
                             if (wc2 > 0.0f)
                             {
-                                writer.Write(zi); writer.Write(','); writer.Write(3); writer.Write(','); writer.WriteLine(wc2 / total);
+                                TMG.Functions.Utilities.Write(writer, zi, buffer);
+                                writer.Write(',');
+                                TMG.Functions.Utilities.Write(writer, 3, buffer);
+                                writer.Write(',');
+                                TMG.Functions.Utilities.WriteLine(writer, wc2 / total, buffer);
                             }
                         }
                     }
@@ -569,6 +586,7 @@ public class ExtractEmploymentData : IPostHousehold
         string dir = ZonalResidenceDir;
         EnsureDirectory(dir);
         var zones = _zones.GetFlatData();
+        Span<char> buffer = stackalloc char[32];
         for (int emp = 0; emp < 2; emp++)
         {
             for (int occ = 0; occ < 4; occ++)
@@ -579,9 +597,9 @@ public class ExtractEmploymentData : IPostHousehold
                 {
                     if (!ExternalPDs.Contains(zones[i].PlanningDistrict))
                     {
-                        writer.Write(zones[i].ZoneNumber);
+                        TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                         writer.Write(',');
-                        writer.WriteLine(_zonalResidence[emp][occ][i]);
+                        TMG.Functions.Utilities.WriteLine(writer, _zonalResidence[emp][occ][i], buffer);
                     }
                 }
             }

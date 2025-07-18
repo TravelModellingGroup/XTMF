@@ -44,6 +44,7 @@ public class ExtractWorkers : ISelfContainedModule
         var flatWorkerData = workerData.GetFlatData();
         using StreamWriter writer = new(OututFile.GetFilePath());
         writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < flatWorkerData.Length; i++)
         {
             foreach (var validI in flatWorkerData[i].ValidIndexes())
@@ -52,19 +53,19 @@ public class ExtractWorkers : ISelfContainedModule
                 {
                     foreach (var validK in flatWorkerData[i].ValidIndexes(validI, validJ))
                     {
-                        writer.Write(flatZones[i].ZoneNumber);
+                        Functions.Utilities.Write(writer, flatZones[i].ZoneNumber, buffer);
                         writer.Write(',');
-                        writer.Write(flatZones[i].PlanningDistrict);
+                        Functions.Utilities.Write(writer, flatZones[i].PlanningDistrict, buffer);
                         writer.Write(',');
-                        writer.Write(flatZones[i].RegionNumber);
+                        Functions.Utilities.Write(writer, flatZones[i].RegionNumber, buffer);
                         writer.Write(',');
-                        writer.Write(validI);
+                        Functions.Utilities.Write(writer, validI, buffer);
                         writer.Write(',');
-                        writer.Write(validJ);
+                        Functions.Utilities.Write(writer, validJ, buffer);
                         writer.Write(',');
-                        writer.Write(validK);
+                        Functions.Utilities.Write(writer, validK, buffer);
                         writer.Write(',');
-                        writer.WriteLine(flatWorkerData[i][validI, validJ, validK]);
+                        Functions.Utilities.WriteLine(writer, flatWorkerData[i][validI, validJ, validK], buffer);
                     }
                 }
             }

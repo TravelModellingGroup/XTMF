@@ -190,6 +190,7 @@ public class InversedPurpose : IPurpose
             using StreamWriter writer = new(Path.Combine(directoryName, modeNode.ModeName + ".csv"));
             var header = true;
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            Span<char> buffer = stackalloc char[32];
             for (int i = 0; i < zones.Length; i++)
             {
                 if (header)
@@ -208,7 +209,7 @@ public class InversedPurpose : IPurpose
                 for (int j = 0; j < zones.Length; j++)
                 {
                     writer.Write(',');
-                    writer.Write(row == null ? 0 : row[j]);
+                    Utilities.Write(writer, row == null ? 0 : row[j], buffer);
                 }
                 writer.WriteLine();
             }

@@ -17,12 +17,13 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -334,13 +335,14 @@ public class ValidateDistribution : ISelfContainedModule
             writer.Write(iNumber);
         }
         writer.WriteLine();
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < flatAggregation.Length; i++)
         {
             writer.Write(getValue(flatAggregation[i]));
             for (int j = 0; j < data[i].Length; j++)
             {
                 writer.Write(',');
-                writer.Write(data[i][j]);
+                Utilities.Write(writer, data[i][j], buffer);
             }
             writer.WriteLine();
         }

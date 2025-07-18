@@ -117,7 +117,7 @@ public class TestLabeledData
                     writer.Write(',');
                     writer.Write((char)('a' + i));
                     writer.Write(',');
-                    writer.WriteLine(1.0f);
+                    writer.WriteLine("1.0");
                 }
             }
             // now that our data files have been created create the aggregation

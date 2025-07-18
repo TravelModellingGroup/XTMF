@@ -66,23 +66,24 @@ public class TripChainSizeVSDailyTrips : IPostHousehold
 
     public void IterationFinished(int iteration)
     {
+        Span<char> buffer = stackalloc char[32];
         using StreamWriter writer = new(OutputLocation);
         //write header
         writer.Write("TripChainSize\\DailyTripCount");
         for (int i = 0; i < Results.Length; i++)
         {
             writer.Write(',');
-            writer.Write(i);
+            TMG.Functions.Utilities.Write(writer, i, buffer);
         }
         writer.WriteLine();
         // for each row
         for (int i = 0; i < Results.Length; i++)
         {
-            writer.Write(i);
+            TMG.Functions.Utilities.Write(writer, i, buffer);
             for (int j = 0; j < Results[i].Length; j++)
             {
                 writer.Write(',');
-                writer.Write(Results[i][j]);
+                TMG.Functions.Utilities.Write(writer, Results[i][j], buffer);
             }
             writer.WriteLine();
         }

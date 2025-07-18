@@ -234,6 +234,7 @@ public class ModeErrorMatrix : IPostHousehold
         var correctTotal = 0.0f;
         var columnTotals = new float[numModes];
         var total = 0.0f;
+        Span<char> buffer = stackalloc char[32];
         using (StreamWriter writer = new(FileName))
         {
             // print the header
@@ -253,7 +254,7 @@ public class ModeErrorMatrix : IPostHousehold
                 {
                     var val = Observations[i][j];
                     writer.Write(',');
-                    writer.Write(val);
+                    TMG.Functions.Utilities.Write(writer, val, buffer);
                     columnTotals[i] += val;
                     rowTotal += val;
                     if (i == j)
@@ -263,15 +264,15 @@ public class ModeErrorMatrix : IPostHousehold
                     total += val;
                 }
                 writer.Write(',');
-                writer.WriteLine(rowTotal);
+                TMG.Functions.Utilities.WriteLine(writer, rowTotal, buffer);
             }
             writer.Write("Column Total,");
             for (int i = 0; i < numModes; i++)
             {
-                writer.Write(columnTotals[i]);
+                TMG.Functions.Utilities.Write(writer, columnTotals[i], buffer);
                 writer.Write(',');
             }
-            writer.WriteLine(correctTotal);
+            TMG.Functions.Utilities.WriteLine(writer, correctTotal, buffer);
 
             // NOW COMPUTE THE %
             writer.Write("Pred\\Real%");
@@ -289,15 +290,15 @@ public class ModeErrorMatrix : IPostHousehold
                 for (int i = 0; i < numModes; i++)
                 {
                     writer.Write(',');
-                    writer.Write("{0:0.##}%", 100 * ((Observations[i][j]) / total));
+                    TMG.Functions.Utilities.Write(writer, 100 * ((Observations[i][j]) / total), "{0:0.##}%", buffer);
                     rowTotal += Observations[i][j];
                 }
-                writer.WriteLine(",{0:0.##}%", 100 * (rowTotal / total));
+                TMG.Functions.Utilities.WriteLine(writer, 100 * (rowTotal / total), ",{0:0.##}%", buffer);
             }
             writer.Write("Column Total,");
             for (int i = 0; i < numModes; i++)
             {
-                writer.Write("{0:0.##}%", 100 * (columnTotals[i] / total));
+                TMG.Functions.Utilities.Write(writer, 100 * (columnTotals[i] / total), "{0:0.##}%", buffer);
                 writer.Write(',');
             }
             writer.WriteLine("{0:0.##}%", 100 * (correctTotal / total));
@@ -305,11 +306,11 @@ public class ModeErrorMatrix : IPostHousehold
             if (ComputeFitness)
             {
                 writer.Write("Value,");
-                writer.WriteLine(Fitness);
+                TMG.Functions.Utilities.WriteLine(writer, Fitness, buffer);
                 writer.Write("ZeroParam,");
-                writer.WriteLine(ZeroParamFitness);
+                TMG.Functions.Utilities.WriteLine(writer, ZeroParamFitness, buffer);
                 writer.Write("Rho^2,");
-                writer.WriteLine(1 - (Fitness / ZeroParamFitness));
+                TMG.Functions.Utilities.WriteLine(writer, 1 - (Fitness / ZeroParamFitness), buffer);
                 // 2 lines of blank
                 var numberOfModes = Modes.Count;
                 writer.WriteLine("\r\n");
@@ -318,29 +319,29 @@ public class ModeErrorMatrix : IPostHousehold
                 {
                     writer.Write(Modes[i].ModeName);
                     writer.Write(',');
-                    writer.WriteLine(BadTrips[i]);
+                    TMG.Functions.Utilities.WriteLine(writer, BadTrips[i], buffer);
                 }
                 writer.WriteLine("Missing Trips");
-                writer.WriteLine(MissingTrips);
-                writer.WriteLine("Invaid Trips");
+                TMG.Functions.Utilities.WriteLine(writer, MissingTrips, buffer);
+                writer.WriteLine("Invalid Trips");
                 writer.WriteLine("HHLD,Person,Trip#,Mode,Distance,HasTravelTime,OriginZone,DestZone");
                 while (BadTripsQueue.TryDequeue(out BadTripEntry t))
                 {
-                    writer.Write(t.HHLD);
+                    TMG.Functions.Utilities.Write(writer, t.HHLD, buffer);
                     writer.Write(',');
-                    writer.Write(t.PersonID);
+                    TMG.Functions.Utilities.Write(writer, t.PersonID, buffer);
                     writer.Write(',');
-                    writer.Write(t.TripID);
+                    TMG.Functions.Utilities.Write(writer, t.TripID, buffer);
                     writer.Write(',');
-                    writer.Write(t.Mode);
+                    TMG.Functions.Utilities.Write(writer, t.Mode, buffer);
                     writer.Write(',');
-                    writer.Write(t.Distance);
+                    TMG.Functions.Utilities.Write(writer, t.Distance, buffer);
                     writer.Write(',');
-                    writer.Write(t.HasTravelTime);
+                    TMG.Functions.Utilities.Write(writer, t.HasTravelTime, buffer);
                     writer.Write(',');
-                    writer.Write(t.OrginZone);
+                    TMG.Functions.Utilities.Write(writer, t.OrginZone, buffer);
                     writer.Write(',');
-                    writer.WriteLine(t.DestZone);
+                    TMG.Functions.Utilities.WriteLine(writer, t.DestZone, buffer);
                 }
             }
         }

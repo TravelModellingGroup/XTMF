@@ -18,8 +18,10 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -123,6 +125,7 @@ public class LocalEstimationHost : IEstimationHost
 
     private void SaveResultsToDisk()
     {
+        Span<char> buffer = stackalloc char[32];
         while (true)
         {
             try
@@ -150,14 +153,14 @@ public class LocalEstimationHost : IEstimationHost
                     var currentJob = CurrentJobs[i];
                     writer.Write(CurrentIteration);
                     writer.Write(',');
-                    writer.Write(currentJob.Value);
+                    TMG.Functions.Utilities.Write(writer, currentJob.Value, buffer);
                     for (int j = 0; j < currentJob.Parameters.Length; j++)
                     {
                         for (int k = 0; k < Parameters[j].Names.Length; k++)
                         {
                             writer.Write(',');
                             // this uses the i th value since they are all the same
-                            writer.Write(currentJob.Parameters[j].Current);
+                            TMG.Functions.Utilities.Write(writer, currentJob.Parameters[j].Current, buffer);
                         }
                     }
                     writer.WriteLine();
