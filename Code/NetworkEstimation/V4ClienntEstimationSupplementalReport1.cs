@@ -38,12 +38,12 @@ public class V4ClienntEstimationSupplementalReport1 : ClientFileAggregation, IEm
         foreach (var f in modelResults)
         {
             builder.Append(',');
-            builder.Append(f);
+            builder.Append(CultureInfo.InvariantCulture, $"{f}");
         }
         foreach (var val in Root.CurrentTask.ParameterValues)
         {
             builder.Append(',');
-            builder.Append(val.ToString(CultureInfo.InvariantCulture));
+            builder.Append(CultureInfo.InvariantCulture, $"{val}");
         }
         builder.AppendLine();
 

@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -47,8 +48,8 @@ public sealed class MatrixAnalysis : IEmmeTool, ISelfContainedModule
 
     private void SaveData(float[][] aggData, string[] aggregationHeaders)
     {
-
         using StreamWriter writer = new(OutputFile);
+        Span<char> buffer = stackalloc char[32];
         if (ThirdNormalizedForm)
         {
             writer.WriteLine("From,To,Value");
@@ -57,11 +58,11 @@ public sealed class MatrixAnalysis : IEmmeTool, ISelfContainedModule
                 var row = aggData[i];
                 for (int j = 0; j < aggregationHeaders.Length; j++)
                 {
-                    writer.Write(aggregationHeaders[i]);
+                    Functions.Utilities.Write(writer, aggregationHeaders[i], buffer);
                     writer.Write(',');
-                    writer.Write(aggregationHeaders[j]);
+                    Functions.Utilities.Write(writer, aggregationHeaders[j], buffer);
                     writer.Write(',');
-                    writer.WriteLine(row[j]);
+                    Functions.Utilities.WriteLine(writer, row[j], buffer);
                 }
             }
         }
@@ -81,14 +82,15 @@ public sealed class MatrixAnalysis : IEmmeTool, ISelfContainedModule
             writer.Write(aggregationHeaders[i]);
         }
         writer.WriteLine();
-        for(int i = 0; i < aggregationHeaders.Length; i++)
+        Span<char> buffer = stackalloc char[32];
+        for (int i = 0; i < aggregationHeaders.Length; i++)
         {
             writer.Write(aggregationHeaders[i]);
             var row = aggData[i];
             for(int j = 0; j < row.Length; j++)
             {
                 writer.Write(',');
-                writer.Write(row[j]);
+                TMG.Functions.Utilities.Write(writer, row[j], buffer);
             }
             writer.WriteLine();
         }

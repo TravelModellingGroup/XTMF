@@ -30,6 +30,7 @@ using static TMG.Functions.Utilities;
 using TMG.Input;
 using XTMF;
 using XTMF.Networking;
+using TMG.Functions;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha;
@@ -857,6 +858,7 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
         {
             var run = Population[index];
             bool writeHeader = !File.Exists(EvaluationFile);
+            Span<char> buffer = stackalloc char[32];
             while (true)
             {
                 try
@@ -879,13 +881,13 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
                     }
                     writer.Write(CurrentIteration);
                     writer.Write(',');
-                    writer.Write(run.Value);
+                    Write(writer, run.Value, buffer);
                     for (int i = 0; i < run.Parameters.Length; i++)
                     {
                         for (int j = 0; j < run.Parameters[i].Names.Length; j++)
                         {
                             writer.Write(',');
-                            writer.Write(run.Parameters[i].Current);
+                            Write(writer, run.Parameters[i].Current, buffer);
                         }
                     }
                     writer.WriteLine();
@@ -908,6 +910,7 @@ public class ModeChoiceEstimationHost : ITashaRuntime, IDisposable
     {
         var keys = att.Keys.ToList();
         writer.Write(keys.Count);
+        Span<char> buffer = stackalloc char[128];
         foreach (var key in keys)
         {
             writer.Write(key);

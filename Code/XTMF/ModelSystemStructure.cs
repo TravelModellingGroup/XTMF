@@ -1751,6 +1751,14 @@ public class ModelSystemStructure : IModelSystemStructure2
                 {
                     writer.WriteAttributeString("Value", ul.ToString(CultureInfo.InvariantCulture));
                 }
+                else if (param.Value is DateTime dt)
+                {
+                    writer.WriteAttributeString("Value", dt.ToString("o", CultureInfo.InvariantCulture));
+                }
+                else if (param.Value is TimeSpan ts)
+                {
+                    writer.WriteAttributeString("Value", ts.ToString("c", CultureInfo.InvariantCulture));
+                }
                 else
                 {
                     writer.WriteAttributeString("Value", param.Value == null ? String.Empty : param.Value.ToString());

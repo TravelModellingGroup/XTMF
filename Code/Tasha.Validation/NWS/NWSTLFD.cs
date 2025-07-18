@@ -171,6 +171,7 @@ public class NWSTLFD : IPostHousehold
 
     public void IterationFinished(int iteration)
     {
+        Span<char> buffer = stackalloc char[32];
         using var writer = new StreamWriter(SaveTo);
         var bins = _abb.NumberOfBins;
         WriteHeader(writer);
@@ -178,39 +179,39 @@ public class NWSTLFD : IPostHousehold
         // intrazonal
         writer.Write("intrazonal,0");
         writer.Write(',');
-        writer.Write(_abb.Intrazonal);
+        TMG.Functions.Utilities.Write(writer, _abb.Intrazonal, buffer);
         writer.Write(',');
-        writer.Write(_hbm.Intrazonal);
+        TMG.Functions.Utilities.Write(writer, _hbm.Intrazonal, buffer);
         writer.Write(',');
-        writer.Write(_hbo.Intrazonal);
+        TMG.Functions.Utilities.Write(writer, _hbo.Intrazonal, buffer);
         writer.Write(',');
-        writer.WriteLine(_nhb.Intrazonal);
+        TMG.Functions.Utilities.WriteLine(writer, _nhb.Intrazonal, buffer);
         // bins
         for (int i = 0; i < bins; i++)
         {
-            writer.Write(from);
+            TMG.Functions.Utilities.Write(writer, from, buffer);
             writer.Write(',');
-            writer.Write(from + StepSize);
+            TMG.Functions.Utilities.Write(writer, from + StepSize, buffer);
             writer.Write(',');
-            writer.Write(_abb.Bins[i]);
+            TMG.Functions.Utilities.Write(writer, _abb.Bins[i], buffer);
             writer.Write(',');
-            writer.Write(_hbm.Bins[i]);
+            TMG.Functions.Utilities.Write(writer, _hbm.Bins[i], buffer);
             writer.Write(',');
-            writer.Write(_hbo.Bins[i]);
+            TMG.Functions.Utilities.Write(writer, _hbo.Bins[i], buffer);
             writer.Write(',');
-            writer.WriteLine(_nhb.Bins[i]);
+            TMG.Functions.Utilities.WriteLine(writer, _nhb.Bins[i], buffer);
             from += StepSize;
         }
         // over last bin
-        writer.Write(from);
+        TMG.Functions.Utilities.Write(writer, from, buffer);
         writer.Write(",inf,");
-        writer.Write(_abb.BeyondMax);
+        TMG.Functions.Utilities.Write(writer, _abb.BeyondMax, buffer);
         writer.Write(',');
-        writer.Write(_hbm.BeyondMax);
+        TMG.Functions.Utilities.Write(writer, _hbm.BeyondMax, buffer);
         writer.Write(',');
-        writer.Write(_hbo.BeyondMax);
+        TMG.Functions.Utilities.Write(writer, _hbo.BeyondMax, buffer);
         writer.Write(',');
-        writer.WriteLine(_nhb.BeyondMax);
+        TMG.Functions.Utilities.WriteLine(writer, _nhb.BeyondMax, buffer);
     }
 
     private void WriteHeader(StreamWriter writer)

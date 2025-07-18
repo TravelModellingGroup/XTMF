@@ -592,12 +592,13 @@ public class BlendedDemographicCategoryLogsumDistribution : IDemographicDistribu
         }
         var startOfLine = Root.CurrentIteration + "," + CurrentMultiSetIndex + ",";
         var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < attraction.Length; i++)
         {
             writer.Write(startOfLine);
-            writer.Write(zones[i].ZoneNumber);
+            Utilities.Write(writer, zones[i].ZoneNumber, buffer);
             writer.Write(',');
-            writer.WriteLine(attraction[i]);
+            Utilities.WriteLine(writer, attraction[i], buffer);
         }
     }
 

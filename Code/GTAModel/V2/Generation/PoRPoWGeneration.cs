@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 // ReSharper disable InconsistentNaming
@@ -331,13 +332,15 @@ public class PoRPoWGeneration : DemographicCategoryGeneration
             // if we are the first thing to generate, then write the header as well
             writer.WriteLine("Zone,Age,Employment,Occupation,Production,Attraction");
         }
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < flatAttractions.Length; i++)
         {
             writer.Write(attractions.GetSparseIndex(i));
             writer.Write(categoryData);
-            writer.Write(flatProduction[i]);
             writer.Write(',');
-            writer.WriteLine(flatAttractions[i]);
+            Utilities.Write(writer, flatProduction[i], buffer);
+            writer.Write(',');
+            Utilities.WriteLine(writer, flatAttractions[i], buffer);
         }
     }
 
@@ -358,19 +361,20 @@ public class PoRPoWGeneration : DemographicCategoryGeneration
             {
                 writer.WriteLine("Age,Employment,Occupation,Production,Attraction,WAH,IntraZonal");
             }
+            Span<char> buffer = stackalloc char[32];
             writer.Write(AgeCategoryRange.ToString());
             writer.Write(',');
             writer.Write(EmploymentStatusCategory.ToString());
             writer.Write(',');
             writer.Write(OccupationCategory.ToString());
             writer.Write(',');
-            writer.Write(totalProduction);
+            Utilities.Write(writer, totalProduction, buffer);
             writer.Write(',');
-            writer.Write(totalAttraction);
+            Utilities.Write(writer, totalAttraction, buffer);
             writer.Write(',');
-            writer.Write(WorkAtHomeTotal);
+            Utilities.Write(writer, WorkAtHomeTotal, buffer);
             writer.Write(',');
-            writer.WriteLine(WorkIntrazonalTotal);
+            Utilities.WriteLine(writer, WorkIntrazonalTotal, buffer);
         }
     }
 }

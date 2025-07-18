@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 // ReSharper disable CompareOfFloatsByEqualityOperator
@@ -293,11 +294,12 @@ public class PoRPoWGeneration : DemographicCategoryGeneration
             // if we are the first thing to generate, then write the header as well
             writer.WriteLine("Zone,Age,Employment,Occupation,Mobility,Attraction");
         }
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < flatAttractions.Length; i++)
         {
             writer.Write(attractions.GetSparseIndex(i));
             writer.Write(categoryData);
-            writer.WriteLine(flatAttractions[i]);
+            Utilities.WriteLine(writer, flatAttractions[i], buffer);
         }
     }
 
@@ -318,6 +320,7 @@ public class PoRPoWGeneration : DemographicCategoryGeneration
             {
                 writer.WriteLine("Age,Employment,Occupation,Mobility,Production,Attraction,WAH");
             }
+            Span<char> buffer = stackalloc char[32];
             writer.Write(AgeCategoryRange.ToString());
             writer.Write(',');
             writer.Write(EmploymentStatusCategory.ToString());
@@ -326,11 +329,11 @@ public class PoRPoWGeneration : DemographicCategoryGeneration
             writer.Write(',');
             writer.Write(Mobility.ToString());
             writer.Write(',');
-            writer.Write(totalProduction);
+            Utilities.Write(writer, totalProduction, buffer);
             writer.Write(',');
-            writer.Write(totalAttraction);
+            Utilities.Write(writer, totalAttraction, buffer);
             writer.Write(',');
-            writer.WriteLine(WorkAtHomeTotal);
+            Utilities.WriteLine(writer, WorkAtHomeTotal, buffer);
         }
     }
 }

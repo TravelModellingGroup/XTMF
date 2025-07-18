@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -419,14 +420,14 @@ public sealed class EstimationHost : IEstimationHost, IDisposable
         StringBuilder toWrite = new();
         toWrite.Append( CurrentIteration );
         toWrite.Append( ',' );
-        toWrite.Append( currentJob.Value );
+        toWrite.Append(CultureInfo.InvariantCulture, $"{currentJob.Value}");
         for ( int i = 0; i < currentJob.Parameters.Length; i++ )
         {
             for ( int j = 0; j < Parameters[i].Names.Length; j++ )
             {
                 toWrite.Append( ',' );
                 // this uses the i th value since they are all the same
-                toWrite.Append( currentJob.Parameters[i].Current );
+                toWrite.Append(CultureInfo.InvariantCulture, $"{currentJob.Parameters[i].Current}");
             }
         }
         while ( true )

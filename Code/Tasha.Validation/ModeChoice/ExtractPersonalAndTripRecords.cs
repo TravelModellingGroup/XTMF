@@ -1163,24 +1163,25 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
     private void ProcessHouseholdRecords()
     {
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(HouseholdRecords))
         {
             writer.WriteLine("household_id,home_zone,weight,persons,dwelling_type,vehicles,income_class");
             foreach (var household in _householdRecordQueue.GetConsumingEnumerable())
             {
-                writer.Write(household.HouseholdID);
+                TMG.Functions.Utilities.Write(writer, household.HouseholdID, buffer);
                 writer.Write(',');
-                writer.Write(household.HomeZone);
+                TMG.Functions.Utilities.Write(writer, household.HomeZone, buffer);
                 writer.Write(',');
-                writer.Write(household.ExpansionFactor);
+                TMG.Functions.Utilities.Write(writer, household.ExpansionFactor, buffer);
                 writer.Write(',');
-                writer.Write(household.NumberOfPersons);
+                TMG.Functions.Utilities.Write(writer, household.NumberOfPersons, buffer);
                 writer.Write(',');
-                writer.Write(household.DwellingType);
+                TMG.Functions.Utilities.Write(writer, household.DwellingType, buffer);
                 writer.Write(',');
-                writer.Write(household.NumberOfVehicles);
+                TMG.Functions.Utilities.Write(writer, household.NumberOfVehicles, buffer);
                 writer.Write(',');
-                writer.WriteLine(household.IncomeClass);
+                TMG.Functions.Utilities.WriteLine(writer, household.IncomeClass, buffer);
             }
         }
         if (CompressResults)
@@ -1191,6 +1192,7 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
     private void ProcessPersonRecords()
     {
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(PersonRecords))
         {
             writer.Write("household_id,person_id,age,sex,license,transit_pass,employment_status,occupation,free_parking" +
@@ -1206,11 +1208,11 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
             }
             foreach (var person in _personRecordQueue.GetConsumingEnumerable())
             {
-                writer.Write(person.HouseholdID);
+                TMG.Functions.Utilities.Write(writer, person.HouseholdID, buffer);
                 writer.Write(',');
-                writer.Write(person.PersonID);
+                TMG.Functions.Utilities.Write(writer, person.PersonID, buffer);
                 writer.Write(',');
-                writer.Write(person.Age);
+                TMG.Functions.Utilities.Write(writer, person.Age, buffer);
                 writer.Write(',');
                 writer.Write(person.Sex);
                 writer.Write(',');
@@ -1226,11 +1228,11 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
                 writer.Write(',');
                 writer.Write(person.StudentStatus);
                 writer.Write(',');
-                writer.Write(person.WorkZone);
+                TMG.Functions.Utilities.Write(writer, person.WorkZone, buffer);
                 writer.Write(',');
-                writer.Write(person.SchoolZone);
+                TMG.Functions.Utilities.Write(writer, person.SchoolZone, buffer);
                 writer.Write(',');
-                writer.Write(person.ExpFactor);
+                TMG.Functions.Utilities.Write(writer, person.ExpFactor, buffer);
                 if(writeTelecommuting)
                 {
                     writer.Write(',');
@@ -1247,30 +1249,31 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
     private void ProcessTripRecords()
     {
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(TripRecords))
         {
             writer.WriteLine("household_id,person_id,trip_id,o_act,o_zone,d_act,d_zone,weight,JointTourRep,JointTourRepTripId");
             foreach (var trip in _tripRecordQueue.GetConsumingEnumerable())
             {
-                writer.Write(trip.HouseholdID);
+                TMG.Functions.Utilities.Write(writer, trip.HouseholdID, buffer);
                 writer.Write(',');
-                writer.Write(trip.PersonID);
+                TMG.Functions.Utilities.Write(writer, trip.PersonID, buffer);
                 writer.Write(',');
-                writer.Write(trip.TripID);
+                TMG.Functions.Utilities.Write(writer, trip.TripID, buffer);
                 writer.Write(',');
                 writer.Write(trip.OriginActivity);
                 writer.Write(',');
-                writer.Write(trip.OriginZone);
+                TMG.Functions.Utilities.Write(writer, trip.OriginZone, buffer);
                 writer.Write(',');
                 writer.Write(trip.DestinationActivity);
                 writer.Write(',');
-                writer.Write(trip.DestinationZone);
+                TMG.Functions.Utilities.Write(writer, trip.DestinationZone, buffer);
                 writer.Write(',');
-                writer.Write(trip.ExpFactor);
+                TMG.Functions.Utilities.Write(writer, trip.ExpFactor, buffer);
                 writer.Write(',');
-                writer.Write(trip.JointTourRep);
+                TMG.Functions.Utilities.Write(writer, trip.JointTourRep, buffer);
                 writer.Write(',');
-                writer.WriteLine(trip.JointTourRepTripId);
+                TMG.Functions.Utilities.WriteLine(writer, trip.JointTourRepTripId, buffer);
             }
         }
         if (CompressResults)
@@ -1281,24 +1284,25 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
     private void ProcessModeRecords()
     {
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(TripModeRecords))
         {
             writer.WriteLine("household_id,person_id,trip_id,mode,o_depart,d_arrive,weight");
             foreach (var mode in _modeRecordQueue.GetConsumingEnumerable())
             {
-                writer.Write(mode.HouseholdID);
+                TMG.Functions.Utilities.Write(writer, mode.HouseholdID, buffer);
                 writer.Write(',');
-                writer.Write(mode.PersonID);
+                TMG.Functions.Utilities.Write(writer, mode.PersonID, buffer);
                 writer.Write(',');
-                writer.Write(mode.TripID);
+                TMG.Functions.Utilities.Write(writer, mode.TripID, buffer);
                 writer.Write(',');
                 writer.Write(mode.Mode);
                 writer.Write(',');
                 if (ExportTimesAsMinutes)
                 {
-                    writer.Write(mode.OriginDeparture.ToMinutes());
+                    TMG.Functions.Utilities.Write(writer, mode.OriginDeparture.ToMinutes(), buffer);
                     writer.Write(',');
-                    writer.Write(mode.DestinationArrivalTime.ToMinutes());
+                    TMG.Functions.Utilities.Write(writer, mode.DestinationArrivalTime.ToMinutes(), buffer);
                 }
                 else
                 {
@@ -1308,7 +1312,7 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
                 }
                 writer.Write(',');
-                writer.WriteLine(mode.Weight);
+                TMG.Functions.Utilities.WriteLine(writer, mode.Weight, buffer);
             }
         }
         if (CompressResults)
@@ -1319,22 +1323,23 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
     private void ProcessStationRecords()
     {
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(TripStationRecords))
         {
             writer.WriteLine("household_id,person_id,trip_id,station,direction,weight,mode");
             foreach (var station in _stationRecordQueue.GetConsumingEnumerable())
             {
-                writer.Write(station.HouseholdID);
+                TMG.Functions.Utilities.Write(writer, station.HouseholdID, buffer);
                 writer.Write(',');
-                writer.Write(station.PersonID);
+                TMG.Functions.Utilities.Write(writer, station.PersonID, buffer);
                 writer.Write(',');
-                writer.Write(station.TripID);
+                TMG.Functions.Utilities.Write(writer, station.TripID, buffer);
                 writer.Write(',');
-                writer.Write(station.StationID);
+                TMG.Functions.Utilities.Write(writer, station.StationID, buffer);
                 writer.Write(',');
                 writer.Write(station.ToTransit ? "auto2transit" : "transit2auto");
                 writer.Write(',');
-                writer.Write(station.Weight);
+                TMG.Functions.Utilities.Write(writer, station.Weight, buffer);
                 writer.Write(',');
                 writer.WriteLine(station.Mode);
             }
@@ -1347,22 +1352,23 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
 
     private void ProcessFacilitatePassengerRecords()
     {
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(FacilitatePassengerRecords))
         {
             writer.WriteLine("household_id,passenger_id,passenger_trip_id,driver_id,driver_trip_id,weight");
             foreach (var passengerTrip in _facilitatePassengerRecordQueue.GetConsumingEnumerable())
             {
-                writer.Write(passengerTrip.HouseholdID);
+                TMG.Functions.Utilities.Write(writer, passengerTrip.HouseholdID, buffer);
                 writer.Write(',');
-                writer.Write(passengerTrip.PassengerID);
+                TMG.Functions.Utilities.Write(writer, passengerTrip.PassengerID, buffer);
                 writer.Write(',');
-                writer.Write(passengerTrip.PassengerTripID);
+                TMG.Functions.Utilities.Write(writer, passengerTrip.PassengerTripID, buffer);
                 writer.Write(',');
-                writer.Write(passengerTrip.DriverID);
+                TMG.Functions.Utilities.Write(writer, passengerTrip.DriverID, buffer);
                 writer.Write(',');
-                writer.Write(passengerTrip.DriverTripID);
+                TMG.Functions.Utilities.Write(writer, passengerTrip.DriverTripID, buffer);
                 writer.Write(',');
-                writer.WriteLine(passengerTrip.Weight);
+                TMG.Functions.Utilities.Write(writer, passengerTrip.Weight, buffer);
             }
         }
         if (CompressResults)

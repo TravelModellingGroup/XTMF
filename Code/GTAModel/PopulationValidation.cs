@@ -17,13 +17,15 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Datastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
 using System.Threading.Tasks;
-using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 using Range = Datastructure.Range;
@@ -184,6 +186,7 @@ public class PopulationValidation : ITravelDemandModel
             writer.Write(Demographics.EmploymentStatus[emp]);
         }
         writer.WriteLine("Population");
+        Span<char> buffer = stackalloc char[32];
         foreach (var zone in zoneArray.ValidIndexies())
         {
             var data = employmentStatusDist[zone];
@@ -209,10 +212,10 @@ public class PopulationValidation : ITravelDemandModel
                     }
                     res -= Demographics.EmploymentStatusRates[zone][validAges[ageCat], validEmploymentStatus[e]];
                     writer.Write(',');
-                    writer.Write(res * population);
+                    Utilities.Write(writer, res * population, buffer);
                 }
                 writer.Write(',');
-                writer.WriteLine(population);
+                Utilities.WriteLine(writer, population, buffer);
             }
         }
     }
@@ -307,6 +310,7 @@ public class PopulationValidation : ITravelDemandModel
             writer.Write(Demographics.AgeCategories[ageCat]);
         }
         writer.WriteLine(",Synthetic Population, Given Population");
+        Span<char> buffer = stackalloc char[32];
         foreach (var zone in zoneArray.ValidIndexies())
         {
             var total = 0f;
@@ -321,17 +325,18 @@ public class PopulationValidation : ITravelDemandModel
             for (int a = 0; a < agesLength; a++)
             {
                 writer.Write(',');
-                writer.Write((zoneDist[validAges[a]]) - Demographics.AgeRates[zone, validAges[a]] * population);
+                Utilities.Write(writer, (zoneDist[validAges[a]]) - Demographics.AgeRates[zone, validAges[a]] * population, buffer);
             }
             writer.Write(',');
-            writer.Write(total);
+            Utilities.Write(writer, total, buffer);
             writer.Write(',');
-            writer.WriteLine(zoneArray[zone].Population);
+            Utilities.WriteLine(writer, zoneArray[zone].Population, buffer);
         }
     }
 
     private void ValidateDriversLicense()
     {
+        Span<char> buffer = stackalloc char[32];
         if (!DriversLicenseReportFile.ContainsFileName()) return;
         var zones = ZoneSystem.ZoneArray.GetFlatData();
         var numberOfLicenses = new float[zones.Length];
@@ -343,11 +348,11 @@ public class PopulationValidation : ITravelDemandModel
         {
             writer.Write(zones[i].ZoneNumber);
             writer.Write(',');
-            writer.Write(expectedNumberOfLicenses[i]);
+            Utilities.Write(writer, expectedNumberOfLicenses[i], buffer);
             writer.Write(',');
-            writer.Write(numberOfLicenses[i]);
+            Utilities.Write(writer, numberOfLicenses[i], buffer);
             writer.Write(',');
-            writer.Write(expectedNumberOfLicenses[i] - numberOfLicenses[i]);
+            Utilities.Write(writer, expectedNumberOfLicenses[i] - numberOfLicenses[i], buffer);
             writer.WriteLine();
         }
     }
@@ -399,6 +404,7 @@ public class PopulationValidation : ITravelDemandModel
             writer.Write(',');
         }
         writer.WriteLine("Population");
+        Span<char> buffer = stackalloc char[32];
         foreach (var employmentStatus in Demographics.EmploymentStatus.ValidIndexies())
         {
             if (employmentStatus == UnemployedEmploymentStatus) continue;
@@ -433,16 +439,16 @@ public class PopulationValidation : ITravelDemandModel
                             writer.Write(',');
                             writer.Write(employmentStatus);
                             writer.Write(',');
-                            writer.Write(result * population);
+                            Utilities.Write(writer, result * population, buffer);
                         }
                         else
                         {
                             writer.Write(',');
-                            writer.Write(result * population);
+                            Utilities.Write(writer, result * population, buffer);
                         }
                     }
                     writer.Write(',');
-                    writer.WriteLine(population);
+                    Utilities.WriteLine(writer, population, buffer);
                 }
             }
         }

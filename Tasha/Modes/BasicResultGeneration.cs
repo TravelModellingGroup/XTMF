@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -104,13 +105,13 @@ public sealed class BasicResultGeneration : IPostHousehold, IDisposable
                         builder.Append(',');
                         builder.Append((trip.ModesChosen == null || trip.ModesChosen.Length <= i || trip.ModesChosen[i] == null) ? "NONE" : trip.ModesChosen[i].ModeName);
                         builder.Append(',');
-                        builder.Append(expansionFactor);
+                        builder.Append(CultureInfo.InvariantCulture, $"{expansionFactor}");
                         builder.Append(',');
                         builder.Append((trip.TripStartTime.Hours * 100 + (trip.TripStartTime.Minutes / 30) * 30));
                         builder.Append(',');
-                        builder.Append(StraightLineDistance(trip.OriginalZone, trip.DestinationZone));
+                        builder.Append(CultureInfo.InvariantCulture, $"{StraightLineDistance(trip.OriginalZone, trip.DestinationZone)}");
                         builder.Append(',');
-                        builder.Append(ManhattanDistance(trip.OriginalZone, trip.DestinationZone));
+                        builder.Append(CultureInfo.InvariantCulture, $"{ManhattanDistance(trip.OriginalZone, trip.DestinationZone)}");
                         builder.AppendLine();
                     }
                 }

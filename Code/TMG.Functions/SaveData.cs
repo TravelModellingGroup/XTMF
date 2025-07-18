@@ -79,7 +79,7 @@ public static class SaveData
                         for (int j = 0; j < zones.Length; j++)
                         {
                             zoneLines[i].Append(',');
-                            zoneLines[i].Append(CultureInfo.InvariantCulture, $"{ row[j]}");
+                            zoneLines[i].Append(CultureInfo.InvariantCulture, $"{row[j]}");
                         }
                     }
                 });

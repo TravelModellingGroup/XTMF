@@ -80,13 +80,14 @@ public class DemographicSummery : IPostHousehold
         }
         using StreamWriter writer = new(OutputFileName.GetFilePath());
         writer.WriteLine("AgeRange,ExpandedPersons");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < AgeSets.Count; i++)
         {
-            writer.Write(AgeSets[i].Start);
+            TMG.Functions.Utilities.Write(writer, AgeSets[i].Start, buffer);
             writer.Write('-');
-            writer.Write(AgeSets[i].Stop);
+            TMG.Functions.Utilities.Write(writer, AgeSets[i].Stop, buffer);
             writer.Write(',');
-            writer.WriteLine(AgeSetCount[i]);
+            TMG.Functions.Utilities.WriteLine(writer, AgeSetCount[i], buffer);
         }
     }
 

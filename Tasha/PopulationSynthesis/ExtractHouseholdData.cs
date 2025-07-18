@@ -149,19 +149,20 @@ public class ExtractHouseholdData : IPostHousehold
         {
             using StreamWriter writer = new(root.SaveFile.GetFileName());
             WriteHeader(root, writer);
+            Span<char> buffer = stackalloc char[32];
             for (int i = 0; i < EntryList.Count; i++)
             {
                 var entry = EntryList[i];
-                writer.Write(entry.PlanningDistrict);
+                TMG.Functions.Utilities.Write(writer, entry.PlanningDistrict, buffer);
                 writer.Write(',');
                 for (int j = 0; j < entry.AgeCategoryCount.Length; j++)
                 {
-                    writer.Write(entry.AgeCategoryCount[j]);
+                    TMG.Functions.Utilities.Write(writer, entry.AgeCategoryCount[j], buffer);
                     writer.Write(',');
                 }
-                writer.Write(entry.NumberOfCars);
+                TMG.Functions.Utilities.Write(writer, entry.NumberOfCars, buffer);
                 writer.Write(',');
-                writer.WriteLine(entry.ExpandedTotal);
+                TMG.Functions.Utilities.WriteLine(writer, entry.ExpandedTotal, buffer);
             }
         }
 

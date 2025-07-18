@@ -176,6 +176,7 @@ public class StartTimeDistributions : IPostHousehold, IPostHouseholdIteration
         writer.WriteLine();
         Time thirtyMinutes = new() { Minutes = 30 };
         Time currentTime = new();
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < NumberOfTimeBins; i++)
         {
             writer.Write(currentTime);
@@ -185,7 +186,7 @@ public class StartTimeDistributions : IPostHousehold, IPostHouseholdIteration
                 for (int j = 0; j < purposeData.Length; j++)
                 {
                     writer.Write(',');
-                    writer.Write(purposeData[j]);
+                    TMG.Functions.Utilities.Write(writer, purposeData[j], buffer);
                 }
             }
             writer.WriteLine();

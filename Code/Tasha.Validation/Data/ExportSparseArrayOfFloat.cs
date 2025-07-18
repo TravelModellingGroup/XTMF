@@ -52,11 +52,12 @@ public class ExportSparseArrayOfFloat : IPostIteration, IPostRun
         var data = sparse.GetFlatData();
         using StreamWriter writer = new(OutputFile);
         writer.WriteLine("SparseIndex,Value");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < data.Length; i++)
         {
-            writer.Write(sparse.GetSparseIndex(i));
+            TMG.Functions.Utilities.Write(writer, sparse.GetSparseIndex(i), buffer);
             writer.Write(',');
-            writer.WriteLine(data[i]);
+            TMG.Functions.Utilities.WriteLine(writer, data[i], buffer);
         }
     }
 

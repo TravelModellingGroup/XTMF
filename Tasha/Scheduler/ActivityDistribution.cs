@@ -83,18 +83,19 @@ internal static class ActivityDistribution
     {
         var zones = zoneArray.GetFlatData();
         string csvFileName = Path.GetTempFileName();
+        Span<char> buffer = stackalloc char[256];
         using ( StreamWriter writer = new( csvFileName ) )
         {
             writer.WriteLine( "Zone,Retail Level,Other Level,Work Level" );
             for ( int i = 0; i < zones.Length; i++ )
             {
-                writer.Write( zones[i].ZoneNumber );
+                TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                 writer.Write( ',' );
-                writer.Write( zones[i].RetailActivityLevel );
+                TMG.Functions.Utilities.Write(writer, zones[i].RetailActivityLevel, buffer);
                 writer.Write( ',' );
-                writer.Write( zones[i].OtherActivityLevel );
+                TMG.Functions.Utilities.Write(writer, zones[i].OtherActivityLevel, buffer);
                 writer.Write( ',' );
-                writer.WriteLine( zones[i].WorkActivityLevel );
+                TMG.Functions.Utilities.WriteLine(writer, zones[i].WorkActivityLevel, buffer);
             }
         }
         SparseZoneCreator creator = new( zones.Last().ZoneNumber + 1, 3 );

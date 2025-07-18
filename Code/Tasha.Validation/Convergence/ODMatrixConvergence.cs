@@ -113,6 +113,7 @@ public sealed class ODMatrixConvergence : IPostIteration, ISelfContainedModule, 
 
     private void RecordData(int iterationNumber)
     {
+        Span<char> buffer = stackalloc char[32];
         var first = FirstMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
         var second = SecondMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
         float value = 0.0f;
@@ -125,9 +126,9 @@ public sealed class ODMatrixConvergence : IPostIteration, ISelfContainedModule, 
                 value = GetMax(first, second);
                 break;
         }
-        Writer.Write(iterationNumber + 1);
+        TMG.Functions.Utilities.Write(Writer, iterationNumber + 1, buffer);
         Writer.Write(',');
-        Writer.Write(value);
+        TMG.Functions.Utilities.Write(Writer, value, buffer);
         if (SumFirst)
         {
             var sum = 0.0f;
@@ -136,7 +137,7 @@ public sealed class ODMatrixConvergence : IPostIteration, ISelfContainedModule, 
                 sum += VectorHelper.Sum(first[i], 0, first[i].Length);
             }
             Writer.Write(',');
-            Writer.Write(sum);
+            TMG.Functions.Utilities.Write(Writer, sum, buffer);
         }
         Writer.WriteLine();
     }

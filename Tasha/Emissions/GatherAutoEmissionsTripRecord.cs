@@ -305,6 +305,7 @@ public class GatherAutoEmissionsTripRecord : IPostHouseholdIteration
 
     public void IterationFinished(int iteration, int totalIterations)
     {
+        Span<char> buffer = stackalloc char[32];
         using (var writer = new StreamWriter(SaveTo))
         {
             writer.WriteLine("HomeZone,Origin,Destination,StartHour,ExpandedPersons");
@@ -316,15 +317,15 @@ public class GatherAutoEmissionsTripRecord : IPostHouseholdIteration
                                  select rec)
             {
                 var index = entry.Key;
-                writer.Write(index.Home.ZoneNumber);
+                TMG.Functions.Utilities.Write(writer, index.Home.ZoneNumber, buffer);
                 writer.Write(',');
-                writer.Write(index.Origin.ZoneNumber);
+                TMG.Functions.Utilities.Write(writer, index.Origin.ZoneNumber, buffer);
                 writer.Write(',');
-                writer.Write(index.Destination.ZoneNumber);
+                TMG.Functions.Utilities.Write(writer, index.Destination.ZoneNumber, buffer);
                 writer.Write(',');
-                writer.Write(index.StartHour);
+                TMG.Functions.Utilities.Write(writer, index.StartHour, buffer);
                 writer.Write(',');
-                writer.WriteLine(entry.Value);
+                TMG.Functions.Utilities.WriteLine(writer, entry.Value, buffer);
             }
         }
         Data.Clear();

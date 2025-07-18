@@ -90,13 +90,14 @@ public sealed class UpdatePopulationRatesByZone : IPostHousehold, IDisposable
 
     private void WritePersonData(ITashaHousehold household, ITashaPerson person, int workerCategory)
     {
+        Span<char> buffer = stackalloc char[32];
         var zoneArray = Root.ZoneSystem.ZoneArray;
         var zone = zoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
-        Writer.Write(household.HouseholdId);
+        TMG.Functions.Utilities.Write(Writer, household.HouseholdId, buffer);
         Writer.Write(',');
-        Writer.Write(person.Id);
+        TMG.Functions.Utilities.Write(Writer, person.Id, buffer);
         Writer.Write(',');
-        Writer.Write(person.Age);
+        TMG.Functions.Utilities.Write(Writer, person.Age, buffer);
         Writer.Write(',');
         Writer.Write(person.Female ? "F," : "M,");
         Writer.Write(person.Licence ? "Y," : "N,");
@@ -213,7 +214,7 @@ public sealed class UpdatePopulationRatesByZone : IPostHousehold, IDisposable
         // we don't save employment or school zone
         if (IsExternal(workZone))
         {
-            Writer.Write(workZone.ZoneNumber);
+            TMG.Functions.Utilities.Write(Writer, workZone.ZoneNumber, buffer);
         }
         else
         {
@@ -222,14 +223,14 @@ public sealed class UpdatePopulationRatesByZone : IPostHousehold, IDisposable
         Writer.Write(',');
         if (IsExternal(schoolZone))
         {
-            Writer.Write(schoolZone.ZoneNumber);
+            TMG.Functions.Utilities.Write(Writer, schoolZone.ZoneNumber, buffer);
         }
         else
         {
             Writer.Write('0');
         }
         Writer.Write(',');
-        Writer.WriteLine(person.ExpansionFactor);
+        TMG.Functions.Utilities.WriteLine(Writer, person.ExpansionFactor, buffer);
     }
 
     private string BuildFileName(Occupation occ, TTSEmploymentStatus empStat)
@@ -272,13 +273,14 @@ public sealed class UpdatePopulationRatesByZone : IPostHousehold, IDisposable
     {
         using StreamWriter writer = new(BuildFileName(occupation, empStat));
         writer.WriteLine("Zone,Persons");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < workers.Length; i++)
         {
             if (workers[i] > 0)
             {
-                writer.Write(zones[i].ZoneNumber);
+                TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                 writer.Write(',');
-                writer.WriteLine(workers[i]);
+                TMG.Functions.Utilities.WriteLine(writer, workers[i], buffer);
             }
         }
     }
@@ -314,6 +316,7 @@ public sealed class UpdatePopulationRatesByZone : IPostHousehold, IDisposable
     {
         using StreamWriter writer = new(BuildFileName(occupation, empStat, WorkerCategoryDirectory));
         writer.WriteLine("Zone,WorkerCategory,Persons");
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < workers.Length; i++)
         {
             var factor = 1.0f / workers[i].Sum();
@@ -329,11 +332,11 @@ public sealed class UpdatePopulationRatesByZone : IPostHousehold, IDisposable
             {
                 if (workers[i][cat] > 0)
                 {
-                    writer.Write(zones[i].ZoneNumber);
+                    TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                     writer.Write(',');
-                    writer.Write(cat + 1);
+                    TMG.Functions.Utilities.Write(writer, cat + 1, buffer);
                     writer.Write(',');
-                    writer.WriteLine(workers[i][cat]);
+                    TMG.Functions.Utilities.WriteLine(writer, workers[i][cat], buffer);
                 }
             }
         }

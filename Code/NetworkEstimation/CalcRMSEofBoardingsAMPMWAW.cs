@@ -220,11 +220,12 @@ public class CalcRMSEofBoardingsAMPMWAW : IEmmeTool
     {
         using StreamWriter writer = new(location);
         writer.WriteLine("Line,Boardings");
+        Span<char> buffer = stackalloc char[32];
         foreach (var set in periodData)
         {
             writer.Write(set.Key);
             writer.Write(',');
-            writer.WriteLine(set.Value);
+            Functions.Utilities.WriteLine(writer, set.Value, buffer);
         }
     }
 

@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 namespace TMG.Estimation.AI;
@@ -187,12 +188,13 @@ public class GenerateParameterTStatistics : IEstimationAI
         var zeroValue = jobs[0].Value;
         var baseValue = jobs[1].Value;
         using var writer = new StreamWriter(ReportFile);
+        Span<char> buffer = stackalloc char[32];
         writer.WriteLine("Fitness,ZeroFitness,Rho^2");
-        writer.Write(baseValue);
+        Functions.Utilities.Write(writer, baseValue, buffer);
         writer.Write(',');
-        writer.Write(zeroValue);
+        Functions.Utilities.Write(writer, zeroValue, buffer);
         writer.Write(',');
-        writer.WriteLine(GetRho(baseValue, zeroValue));
+        Functions.Utilities.WriteLine(writer, GetRho(baseValue, zeroValue), buffer);
         writer.WriteLine("ParameterName,Coefficient,LeftCoefficient,RightCoefficient,LeftFitness,RightFitness,SecondDerivative,t-statistic");
         for (int i = 0; i < parameters.Count; i++)
         {
@@ -203,19 +205,19 @@ public class GenerateParameterTStatistics : IEstimationAI
             writer.Write(parameters[i].Names[0]);
             writer.Write('"');
             writer.Write(',');
-            writer.Write(current);
+            Functions.Utilities.Write(writer, current, buffer);
             writer.Write(',');
-            writer.Write(jobs[offset].Parameters[i].Current);
+            Functions.Utilities.Write(writer, jobs[offset].Parameters[i].Current, buffer);
             writer.Write(',');
-            writer.Write(jobs[offset + 1].Parameters[i].Current);
+            Functions.Utilities.Write(writer, jobs[offset + 1].Parameters[i].Current, buffer);
             writer.Write(',');
-            writer.Write(jobs[offset].Value);
+            Functions.Utilities.Write(writer, jobs[offset].Value, buffer);
             writer.Write(',');
-            writer.Write(jobs[offset + 1].Value);
+            Functions.Utilities.Write(writer, jobs[offset + 1].Value, buffer);
             writer.Write(',');
-            writer.Write(secondDerivative);
+            Functions.Utilities.Write(writer, secondDerivative, buffer);
             writer.Write(',');
-            writer.WriteLine(ComputeTStatistic(current, secondDerivative));
+            Functions.Utilities.WriteLine(writer, ComputeTStatistic(current, secondDerivative), buffer);
         }
     }
 

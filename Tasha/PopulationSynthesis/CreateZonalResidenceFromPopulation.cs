@@ -128,13 +128,14 @@ public sealed class CreateZonalResidenceFromPopulation : IPostHousehold
         var zones = _zones.GetFlatData();
         try
         {
+            Span<char> buffer = stackalloc char[32];
             using var writer = new StreamWriter(location);
             writer.WriteLine("Zone,Workers");
             for (int i = 0; i < data.Length; i++)
             {
-                writer.Write(zones[i].ZoneNumber);
+                TMG.Functions.Utilities.Write(writer, zones[i].ZoneNumber, buffer);
                 writer.Write(',');
-                writer.WriteLine(data[i]);
+                TMG.Functions.Utilities.WriteLine(writer, data[i], buffer);
             }
         }
         catch(IOException e)

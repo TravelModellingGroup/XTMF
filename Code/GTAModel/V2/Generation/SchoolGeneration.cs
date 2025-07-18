@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -108,15 +109,14 @@ public class SchoolGeneration : IDemographicCategoryGeneration
             {
                 writer.WriteLine("Age,Zone,Production");
             }
-
+            Span<char> buffer = stackalloc char[32];
             for (int i = 0; i < zones.Length; i++)
             {
                 writer.Write(Age);
                 writer.Write(',');
                 writer.Write(zones[i].ZoneNumber);
                 writer.Write(',');
-                writer.Write(prod[i]);
-                writer.WriteLine();
+                Utilities.WriteLine(writer, prod[i], buffer);
             }
         }
     }

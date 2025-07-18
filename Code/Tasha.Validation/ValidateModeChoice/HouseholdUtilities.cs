@@ -58,6 +58,7 @@ public class HouseholdUtilities : IPostHouseholdIteration
             {
                 var writeHeader = !File.Exists(OutputFile);
                 using StreamWriter writer = new(OutputFile, true);
+                Span<char> buffer = stackalloc char[32];
                 if (writeHeader)
                 {
                     writer.WriteLine("HouseholdID,HouseholdIteration,Household Utility");
@@ -65,11 +66,11 @@ public class HouseholdUtilities : IPostHouseholdIteration
                 var util = Utilities[household.HouseholdId];
                 for (int i = 0; i < util.Length; i++)
                 {
-                    writer.Write(household.HouseholdId);
+                    TMG.Functions.Utilities.Write(writer, household.HouseholdId, buffer);
                     writer.Write(',');
-                    writer.Write(i);
+                    TMG.Functions.Utilities.Write(writer, i, buffer);
                     writer.Write(',');
-                    writer.WriteLine(util[i]);
+                    TMG.Functions.Utilities.WriteLine(writer, util[i], buffer);
                 }
             }
         }

@@ -135,19 +135,20 @@ public class ComputeStationCapacityFactor : IPostIteration
             var currentFraction = iteration > 0 ? iteration / (1.0f + iteration) : 1.0f;
             using var writer = new StreamWriter(CapacityFactorOutput);
             writer.WriteLine("Zone,Factor,Demand,Capacity");
+            Span<char> buffer = stackalloc char[32];
             for (int i = 0; i < accessStationCounts.Length; i++)
             {
                 float stationCapacity = capacity[zoneIndexForStation[i]];
                 if (ComputeStationCapacityFactor(previousFraction, currentFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out float capacityFactor))
                 {
                     CapacityFactors[i] = capacityFactor;
-                    writer.Write(zones[zoneIndexForStation[i]].ZoneNumber);
+                    TMG.Functions.Utilities.Write(writer, zones[zoneIndexForStation[i]].ZoneNumber, buffer);
                     writer.Write(',');
-                    writer.Write(capacityFactor);
+                    TMG.Functions.Utilities.Write(writer, capacityFactor, buffer);
                     writer.Write(',');
-                    writer.Write(accessStationCounts[i]);
+                    TMG.Functions.Utilities.Write(writer, accessStationCounts[i], buffer);
                     writer.Write(',');
-                    writer.WriteLine(CapacityMultiplier * stationCapacity);
+                    TMG.Functions.Utilities.WriteLine(writer, CapacityMultiplier * stationCapacity, buffer);
                 }
                 else
                 {

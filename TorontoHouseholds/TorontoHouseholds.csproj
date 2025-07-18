@@ -54,6 +54,7 @@
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Code\TMG.Functions\TMG.Functions.csproj" />
 		<ProjectReference Include="..\Code\TMGInterfaces\TMGInterfaces.csproj" />
 		<ProjectReference Include="..\Code\XTMFInterfaces\XTMFInterfaces.csproj" />
 		<ProjectReference Include="..\Datastructure\Datastructure.csproj" />

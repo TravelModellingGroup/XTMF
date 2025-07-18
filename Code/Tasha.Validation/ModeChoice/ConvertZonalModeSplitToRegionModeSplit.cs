@@ -68,6 +68,7 @@ public class ConvertZonalModeSplitToRegionModeSplit : IPostIteration
         var regionNumbers = regions.ValidIndexArray();
         using StreamWriter writer = new(RegionModeSplitFile);
         writer.WriteLine("Mode,Origin,Destination,ExpandedTrips");
+        Span<char> buffer = stackalloc char[32];
         for (int m = 0; m < data.Length; m++)
         {
             string modeName = modes[m].ModeName + ",";
@@ -81,11 +82,11 @@ public class ConvertZonalModeSplitToRegionModeSplit : IPostIteration
                     {
                         // this includes the comma already
                         writer.Write(modeName);
-                        writer.Write(regionNumbers[o]);
+                        TMG.Functions.Utilities.Write(writer, regionNumbers[o], buffer);
                         writer.Write(',');
-                        writer.Write(regionNumbers[d]);
+                        TMG.Functions.Utilities.Write(writer, regionNumbers[d], buffer);
                         writer.Write(',');
-                        writer.WriteLine(dRow[d]);
+                        TMG.Functions.Utilities.WriteLine(writer, dRow[d], buffer);
                     }
                 }
             }
