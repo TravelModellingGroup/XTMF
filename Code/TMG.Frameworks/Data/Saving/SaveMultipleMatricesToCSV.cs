@@ -60,7 +60,7 @@ public sealed class SaveMultipleMatricesToCSV : ISelfContainedModule
                 for (var k = 0; k < flatData.Length; k++)
                 {
                     writer.Write(',');
-                    Utilities.Write(writer, flatData[i][j][k], buffer);
+                    Utilities.Write(writer, flatData[k][i][j], buffer);
                 }
                 writer.WriteLine();
             }
