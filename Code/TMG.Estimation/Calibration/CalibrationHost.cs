@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -165,13 +166,16 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             writer.WriteLine();
         }
         writer.Write(iteration);
+        Span<char> buffer = stackalloc char[32];
         for (int i = 0; i < Targets.Length; i++)
         {
-            writer.Write($",{Targets[i].ReportTargetDistance()}");
+            writer.Write(',');
+            TMG.Functions.Utilities.Write(writer, Targets[i].ReportTargetDistance(), buffer);
         }
         for (int i = 0; i < Targets.Length; i++)
         {
-            writer.Write($",{current[i].Current}");
+            writer.Write(',');
+            TMG.Functions.Utilities.Write(writer, current[i].Current, buffer);
         }
         writer.WriteLine();
 
