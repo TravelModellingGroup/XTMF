@@ -1,11 +1,14 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Helpers;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace XTMF.Gui;
 
@@ -17,6 +20,11 @@ public partial class App : Application
     private MainWindow xtmfMainWindow;
 
     public const String APP_ID = "TMG.Xtmf";
+    
+    private void SetupXTMF()
+    {
+        EditorController.SetupRuntime();
+    }
 
     /// <summary>
     /// 
@@ -28,7 +36,6 @@ public partial class App : Application
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-
                 var colourOptions = ThemeHelper.ColourOptions;
                 if (EditorController.Runtime.Configuration.PrimaryColour != null)
                 {
@@ -72,7 +79,6 @@ public partial class App : Application
 
                 }
 
-                
                 TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, EditorController.Runtime.Configuration.IsDisableTransitionAnimations);
                 xtmfMainWindow.UpdateRecentProjectsMenu();
                 xtmfMainWindow.Show();
@@ -112,12 +118,16 @@ public partial class App : Application
     /// <param name="e"></param>
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
+        SetupXTMF();
         DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
-
-        xtmfMainWindow = new MainWindow();
         RegisterEditorController(e);
+        xtmfMainWindow = new MainWindow();
+        SetupXTMFErrorCallbacks(xtmfMainWindow);
+    }
 
-      
+    private void SetupXTMFErrorCallbacks(MainWindow xtmfMainWindow)
+    {
+        EditorController.SetupXTMFCallbacks(xtmfMainWindow);
     }
 
     /// <summary>

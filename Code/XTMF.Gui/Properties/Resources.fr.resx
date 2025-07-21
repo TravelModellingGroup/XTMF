@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,107 +117,103 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MainWindow_ParseCommandLineArgs_Invalid_path_passed_with_configuration_argument_" xml:space="preserve">
-    <value>Invalid path passed with configuration argument.</value>
-  </data>
   <data name="Xtmf_Major_Version" xml:space="preserve">
     <value>1.6</value>
-    <comment>XTMF Major Version</comment>
   </data>
   <data name="DirectorySettings" xml:space="preserve">
-    <value>Directory Settings</value>
+    <value>Paramètres du répertoire</value>
   </data>
   <data name="ProjectDirectory" xml:space="preserve">
-    <value>Project Directory</value>
+    <value>Répertoire du projet</value>
   </data>
   <data name="ModelSystemDirectory" xml:space="preserve">
-    <value>Model System Directory</value>
+    <value>Répertoire du système de modèle</value>
   </data>
   <data name="NetworkSettings" xml:space="preserve">
-    <value>Network Settings</value>
+    <value>Paramètres réseau</value>
   </data>
   <data name="HostNetworkingPort" xml:space="preserve">
-    <value>Host Networking Port</value>
+    <value>Port réseau de l'hôte</value>
   </data>
   <data name="Appearance" xml:space="preserve">
-    <value>Appearance</value>
+    <value>Apparence</value>
   </data>
   <data name="PrimaryColour" xml:space="preserve">
-    <value>Primary Colour</value>
+    <value>Couleur principale</value>
   </data>
   <data name="AccentColour" xml:space="preserve">
-    <value>Accent Colour</value>
+    <value>Couleur d'accent</value>
   </data>
   <data name="UseDarkTheme" xml:space="preserve">
-    <value>Use Dark Theme</value>
+    <value>Utiliser le thème sombre</value>
   </data>
   <data name="DisableAnimationTransitions" xml:space="preserve">
-    <value>Disable Animation Transitions</value>
+    <value>Désactiver les transitions d'animation</value>
   </data>
   <data name="Advanced" xml:space="preserve">
-    <value>Advanced</value>
+    <value>Avancé</value>
   </data>
   <data name="ConfigFileLoadedFrom" xml:space="preserve">
-    <value>Configuration file loaded from: </value>
+    <value>Fichier de configuration chargé depuis : </value>
   </data>
   <data name="LocalHostButtonName_Create" xml:space="preserve">
-    <value>Create Local XTMF Configuration</value>
+    <value>Créer la configuration locale XTMF</value>
   </data>
   <data name="LocalHostButtonName_Delete" xml:space="preserve">
-    <value>Delete Local XTMF Configuration</value>
+    <value>Supprimer la configuration locale XTMF</value>
   </data>
   <data name="FrameworkTitle" xml:space="preserve">
-    <value>eXtensible Travel Modelling Framework</value>
+    <value>Cadre de modélisation des déplacements extensible</value>
   </data>
   <data name="FrameworkSubtitle" xml:space="preserve">
-    <value>&lt;Insert Your Model Here/&gt;</value>
+    <value>&lt;Insérez votre modèle ici/&gt;</value>
   </data>
   <data name="ProjectsLabel" xml:space="preserve">
-    <value>Projects</value>
+    <value>Projets</value>
   </data>
   <data name="CreateProjectLabel" xml:space="preserve">
-    <value>Create a new project</value>
+    <value>Créer un nouveau projet</value>
   </data>
   <data name="OpenProjectLabel" xml:space="preserve">
-    <value>Open Project</value>
+    <value>Ouvrir un projet</value>
   </data>
   <data name="RecentProjectsLabel" xml:space="preserve">
-    <value>Recent Projects</value>
+    <value>Projets récents</value>
   </data>
   <data name="NewProjectLabel" xml:space="preserve">
-    <value>New Project</value>
+    <value>Nouveau projet</value>
   </data>
   <data name="WorkspaceLabel" xml:space="preserve">
-    <value>Workspace</value>
+    <value>Espace de travail</value>
   </data>
   <data name="SchedulerLabel" xml:space="preserve">
-    <value>Scheduler</value>
+    <value>Planificateur</value>
   </data>
   <data name="LaunchRemoteLabel" xml:space="preserve">
-    <value>Launch Remote</value>
+    <value>Lancer à distance</value>
   </data>
   <data name="SettingsLabel" xml:space="preserve">
-    <value>Settings</value>
+    <value>Paramètres</value>
   </data>
   <data name="UpdateXtmfLabel" xml:space="preserve">
-    <value>Update XTMF</value>
+    <value>Mettre à jour XTMF</value>
   </data>
   <data name="HelpLabel" xml:space="preserve">
-    <value>Help</value>
+    <value>Aide</value>
   </data>
   <data name="DocumentationLabel" xml:space="preserve">
     <value>Documentation</value>
   </data>
   <data name="AboutLabel" xml:space="preserve">
-    <value>About XTMF</value>
+    <value>À propos de XTMF</value>
   </data>
   <data name="RunModelLabel" xml:space="preserve">
-    <value>Run Model (F5)</value>
+    <value>Exécuter le modèle (F5)</value>
   </data>
   <data name="RunModelTooltip" xml:space="preserve">
-    <value>Press F5 to run the currently viewed model system.</value>
+    <value>Appuyez sur F5 pour exécuter le modèle actuellement affiché.</value>
   </data>
   <data name="ClickHereLabel" xml:space="preserve">
-    <value>Click here</value>
+    <value>Cliquez ici</value>
   </data>
 </root>

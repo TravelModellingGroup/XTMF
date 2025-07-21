@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -49,6 +49,9 @@ using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using UserControl = System.Windows.Controls.UserControl;
+using System.Resources;
+using System.Globalization;
+using System.Threading;
 
 namespace XTMF.Gui;
 
@@ -57,7 +60,6 @@ namespace XTMF.Gui;
 /// </summary>
 public partial class MainWindow : MetroWindow
 {
-    private const string UpdateProgram = "XTMF.Update2.exe";
 
     // Using a DependencyProperty as the backing store for EditingDisplayModel.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty EditingDisplayModelProperty =
@@ -79,6 +81,7 @@ public partial class MainWindow : MetroWindow
 
     public MainWindow()
     {
+        Us = this;
         ViewModelBase = new ViewModelBase();
         EditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
         ThemeController = new ThemeController(GetConfigurationFilePath());
@@ -86,7 +89,6 @@ public partial class MainWindow : MetroWindow
         // I am changing the code here with a comment
         //do you see any console window
         Loaded += MainWindow_Loaded;
-        Us = this;
         SchedulerWindow = new SchedulerWindow();
         ViewDockPanel.DataContext = ViewModelBase;
         ContentControl.DataContext = ViewModelBase;
@@ -958,4 +960,5 @@ public partial class MainWindow : MetroWindow
         OpenModelSystem();
         MenuToggleButton.IsChecked = false;
     }
+
 }

@@ -19,7 +19,10 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
+using System.Resources;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -39,6 +42,12 @@ using XTMF.Gui.Helpers;
 /// </summary>
 public partial class SettingsPage : UserControl
 {
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(SettingsPage).Assembly);
+    public static void SetLanguage(string cultureName)
+    {
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo(cultureName);
+    }
+
     private Configuration Configuration => EditorController.Runtime.Configuration;
 
     public SettingsPage()
@@ -75,9 +84,23 @@ public partial class SettingsPage : UserControl
 
         public bool DisableTransitions { get; set; }
 
+        public string UILanguage { get; set; }
+
+        public string DirectorySettings => ResManager.GetString("DirectorySettings");
+        public string ProjectDirectoryLabel => ResManager.GetString("ProjectDirectory");
+        public string ModelSystemDirectoryLabel => ResManager.GetString("ModelSystemDirectory");
+        public string NetworkSettings => ResManager.GetString("NetworkSettings");
+        public string HostNetworkingPortLabel => ResManager.GetString("HostNetworkingPort");
+        public string Appearance => ResManager.GetString("Appearance");
+        public string PrimaryColourLabel => ResManager.GetString("PrimaryColour");
+        public string AccentColourLabel => ResManager.GetString("AccentColour");
+        public string UseDarkThemeLabel => ResManager.GetString("UseDarkTheme");
+        public string DisableAnimationTransitionsLabel => ResManager.GetString("DisableAnimationTransitions");
+        public string Advanced => ResManager.GetString("Advanced");
+        public string ConfigFileLoadedFrom => ResManager.GetString("ConfigFileLoadedFrom");
         public string LocalHostButtonName => Configuration.IsLocalConfiguration ?
-            "Delete Local XTMF Configuration" :
-            "Create Local XTMF Configuration";
+            ResManager.GetString("LocalHostButtonName_Delete") :
+            ResManager.GetString("LocalHostButtonName_Create");
 
         public string ProjectDirectory
         {
@@ -142,6 +165,24 @@ public partial class SettingsPage : UserControl
             }
         }
 
+        public IEnumerable<string> AvailableLanguages { get; } = new List<string> { "en", "fr" };
+        private string _selectedLanguage;
+        public string SelectedLanguage
+        {
+            get => _selectedLanguage ?? Configuration.UILanguage;
+            set
+            {
+                if (_selectedLanguage != value)
+                {
+                    _selectedLanguage = value;
+                    Configuration.UILanguage = UILanguage = value;
+                    SettingsPage.SetLanguage(value);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedLanguage)));
+                    Save();
+                }
+            }
+        }
+
         private Configuration Configuration => EditorController.Runtime.Configuration;
 
         /// <summary>
@@ -176,6 +217,8 @@ public partial class SettingsPage : UserControl
             IsDarkTheme = Configuration.IsDarkTheme;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDarkTheme)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LocalHostButtonName)));
+            SelectedLanguage = Configuration.UILanguage;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedLanguage)));
         }
 
         /// <summary>
@@ -198,6 +241,7 @@ public partial class SettingsPage : UserControl
             _projectDirectory = Configuration.ProjectDirectory;
             _modelSystemDirectory = Configuration.ModelSystemDirectory;
             _hostPort = Configuration.HostPort;
+            _selectedLanguage = Configuration.UILanguage;
             Configuration.PropertyChanged += Configuration_PropertyChanged;
             if (Configuration.PrimaryColour != null)
             {
@@ -209,6 +253,7 @@ public partial class SettingsPage : UserControl
             }
             IsDarkTheme = Configuration.IsDarkTheme;
             DisableTransitions = Configuration.IsDisableTransitionAnimations;
+            UILanguage = Configuration.UILanguage;
         }
 
         /// <summary>
@@ -221,6 +266,10 @@ public partial class SettingsPage : UserControl
             ProjectDirectory = Configuration.ProjectDirectory;
             ModelSystemDirectory = Configuration.ModelSystemDirectory;
             HostPort = Configuration.HostPort;
+            if (e.PropertyName == nameof(Configuration.UILanguage))
+            {
+                SelectedLanguage = Configuration.UILanguage;
+            }
         }
 
         /// <summary>
