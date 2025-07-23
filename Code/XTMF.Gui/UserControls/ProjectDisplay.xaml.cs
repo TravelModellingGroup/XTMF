@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -56,8 +57,9 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
 
     public ProjectDisplay()
     {
-        InitializeComponent();
+        DataContext = this;
         Loaded += ProjectDisplay_Loaded;
+        InitializeComponent();
         // ContextMenu.PlacementTarget = ModelSystemDisplay;
     }
 
@@ -927,6 +929,7 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
 
                 ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
             });
+
         }
 
         internal void RefreshModelSystems()
@@ -1101,4 +1104,26 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
             }
         }
     }
+
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(ProjectDisplay).Assembly);
+    public string CreateNewModelSystemLabel => ResManager.GetString("CreateNewModelSystemLabel");
+    public string OpenProjectDirectoryLabel => ResManager.GetString("OpenProjectDirectoryLabel");
+    public string ImportModelSystemLabel => ResManager.GetString("ImportModelSystemLabel");
+    public string ImportModelSystemFromFileLabel => ResManager.GetString("ImportModelSystemFromFileLabel");
+    public string RefreshPreviousRunsLabel => ResManager.GetString("RefreshPreviousRunsLabel");
+    public string SearchModulesLabel => ResManager.GetString("SearchModulesLabel");
+    public string ModelSystemsLabel => ResManager.GetString("ModelSystemsLabel");
+    public string ModelSystemColumnLabel => ResManager.GetString("ModelSystemColumnLabel");
+    public string LastModifiedColumnLabel => ResManager.GetString("LastModifiedColumnLabel");
+    public string RenameModelSystemLabel => ResManager.GetString("RenameModelSystemLabel");
+    public string DeleteModelSystemLabel => ResManager.GetString("DeleteModelSystemLabel");
+    public string SaveModelSystemAsLabel => ResManager.GetString("SaveModelSystemAsLabel");
+    public string ExportModelSystemAsLabel => ResManager.GetString("ExportModelSystemAsLabel");
+    public string CopyModelSystemLabel => ResManager.GetString("CopyModelSystemLabel");
+    public string PasteAsNewModelSystemLabel => ResManager.GetString("PasteAsNewModelSystemLabel");
+    public string PreviousRunsLabel => ResManager.GetString("PreviousRunsLabel");
+    public string SearchPreviousRunsLabel => ResManager.GetString("SearchPreviousRunsLabel");
+    public string OpenResultsLabel => ResManager.GetString("OpenResultsLabel");
+    public string DeletePreviousRunLabel => ResManager.GetString("DeletePreviousRunLabel");
+
 }

@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -28,7 +28,8 @@
              mc:Ignorable="d" 
              Focusable="True" SnapsToDevicePixels="True"
              Background="{DynamicResource MaterialDesignPaper}"
-             d:DesignHeight="400" d:DesignWidth="800">
+             d:DesignHeight="400" d:DesignWidth="800"
+             x:Name="projectDisplay">
     <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True" Name="RootDialogHost">
         <Grid>
             <Grid.RowDefinitions>
@@ -44,7 +45,7 @@
                     <StackPanel>
                         <StackPanel Name="CreateNewModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="CreateNewModelSystemStackPanel_MouseLeftButtonUp">
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Create new model system" 
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="{Binding CreateNewModelSystemLabel, ElementName=projectDisplay}" 
                                    VerticalAlignment="Center" Opacity="1.0"/>
                             </Border>
                             <Button Click="NewModelSystem_Click"  >
@@ -54,7 +55,7 @@
                         <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="StackPanel_MouseLeftButtonUp">
 
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Open Project Directory" 
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="{Binding OpenProjectDirectoryLabel, ElementName=projectDisplay}" 
                                    VerticalAlignment="Center" Opacity="1.0"/>
                             </Border>
                             <Button Click="ButtonBase_OnClick" >
@@ -64,7 +65,7 @@
 
                         <StackPanel Name="ImportModelSystemStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemStackPanel_MouseLeftButtonUp">
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System" 
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="{Binding ImportModelSystemLabel, ElementName=projectDisplay}" 
                                    VerticalAlignment="Center" Opacity="1.0"/>
                             </Border>
                             <Button   Name="ImportButton" Click="ImportButton_OnClick" >
@@ -74,7 +75,7 @@
 
                         <StackPanel Name="ImportModelSystemFileStackPanel"   HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="ImportModelSystemFileStackPanel_MouseLeftButtonUp">
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Import Model System From File" 
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="{Binding ImportModelSystemFromFileLabel, ElementName=projectDisplay}" 
                                    VerticalAlignment="Center" Opacity="1.0"/>
                             </Border>
                             <Button  Name="ImportFromFileButton" Click="ImportFromFileButton_OnClick" >
@@ -84,7 +85,7 @@
 
                         <StackPanel Name="RefreshRunsStackPanel"  HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}" MouseLeftButtonUp="RefreshRunsStackPanel_MouseLeftButtonUp" >
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="Refresh previous runs" 
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" Content="{Binding RefreshPreviousRunsLabel, ElementName=projectDisplay}"
                                    VerticalAlignment="Center" Opacity="1.0"/>
                             </Border>
                             <Button Name="RefreshPastRunsButton" Click="RefreshPastRunsButton_OnClick" >
@@ -124,7 +125,7 @@
                                     <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                         <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                     </Button>
-                                    <my:FilterBox Grid.Column="1" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
+                                    <my:FilterBox Grid.Column="1" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="{Binding SearchModulesLabel, ElementName=projectDisplay}" />
                                     <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2" />
                                 </Grid>
                             </materialDesign:ColorZone>
@@ -134,7 +135,7 @@
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"  Width="Auto"
                         ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                         Background="{DynamicResource MaterialDesignPaper}" Grid.Row="1" LastChildFill="True" VerticalAlignment="Stretch" >
-                                <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
+                                <Label Content="{Binding ModelSystemsLabel, ElementName=projectDisplay}" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Margin="5,5,0,5"/>
                                 <DataGrid Background="Transparent" PreviewKeyDown="ModelSystemsDataGrid_OnPreviewKeyDown" KeyDown="ModelSystemsDataGrid_OnKeyDown" Focusable="True" VerticalContentAlignment="Center" Name="ModelSystemsDataGrid"  MouseDoubleClick="ModelSystemDisplay_OnMouseDoubleClick" VerticalAlignment="Stretch" 
                             PreviewMouseLeftButtonDown="ModelSystemDisplay_OnPreviewMouseLeftButtonDown"   Margin="0 8 0 0" ItemsSource="{Binding Items3}" CanUserSortColumns="True" CanUserAddRows="False" AutoGenerateColumns="False"
                                   materialDesign:DataGridAssist.CellPadding="13 8 8 8" materialDesign:DataGridAssist.ColumnHeaderPadding="8" Width="Auto" HorizontalContentAlignment="Stretch"
@@ -199,7 +200,7 @@
                                         </Style>
                                     </DataGrid.RowStyle>
                                     <DataGrid.Columns>
-                                        <DataGridTemplateColumn Header="Model System" CanUserSort="True">
+                                        <DataGridTemplateColumn Header="{Binding ModelSystemColumnLabel, ElementName=projectDisplay}" CanUserSort="True">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <xtmf:ListViewControl Background="Transparent" IconKind="CubeOutline" TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch" IsPathIcon="False" VerticalAlignment="Center" VerticalContentAlignment="Center"
@@ -211,7 +212,7 @@
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
-                                        <DataGridTemplateColumn Header="Last Modified" CanUserSort="True" >
+                                        <DataGridTemplateColumn Header="{Binding LastModifiedColumnLabel, ElementName=projectDisplay}" CanUserSort="True" >
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Vertical" VerticalAlignment="Center">
@@ -224,32 +225,32 @@
                                     </DataGrid.Columns>
                                     <DataGrid.ContextMenu>
                                         <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}">
-                                            <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
+                                            <MenuItem Header="{Binding RenameModelSystemLabel, ElementName=projectDisplay}" Click="RenameModelSystem_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource RefreshIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
+                                            <MenuItem Header="{Binding DeleteModelSystemLabel, ElementName=projectDisplay}" Click="DeleteModelSystem_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource CancelIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
+                                            <MenuItem Header="{Binding SaveModelSystemAsLabel, ElementName=projectDisplay}" Click="SaveModelSystemAs_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource SaveIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
+                                            <MenuItem Header="{Binding ExportModelSystemAsLabel, ElementName=projectDisplay}" Click="ExportModelSystemAs_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource SaveIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Copy Model System (Ctrl+C)" Click="CopyModelSystem_Click">
+                                            <MenuItem Header="{Binding CopyModelSystemLabel, ElementName=projectDisplay}" Click="CopyModelSystem_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource CopyIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Paste As New Model System (Ctrl+V)" Click="PasteModelSystem_OnClick"
+                                            <MenuItem Header="{Binding PasteAsNewModelSystemLabel, ElementName=projectDisplay}" Click="PasteModelSystem_OnClick"
                                                     IsEnabled="{Binding DataContext.IsCanPasteModelSystem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource PasteIcon}" />
@@ -269,7 +270,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <DockPanel Grid.Row="1" FlowDirection="LeftToRight" Width="Auto" >
-                            <Label Content="Previous Runs" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,0,5"/>
+                            <Label Content="{Binding PreviousRunsLabel, ElementName=projectDisplay}" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,0,5"/>
                         </DockPanel>
                         <materialDesign:ColorZone Grid.Row="0" Width="Auto"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1"
                                               Margin="12 12 12 12"
@@ -283,7 +284,7 @@
                                 <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                                     <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                 </Button>
-                                <my:FilterBox Grid.Column="1" x:Name="FilterPastRunsBox" />
+                                <my:FilterBox Grid.Column="1" x:Name="FilterPastRunsBox" FilterWatermark="{Binding SearchPreviousRunsLabel, ElementName=projectDisplay}" />
                                 <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2" />
                             </Grid>
                         </materialDesign:ColorZone>
@@ -315,12 +316,12 @@
                             </ListBox.ItemTemplate>
                             <ListBox.ContextMenu>
                                 <ContextMenu Name="PreviousRunContextMenu">
-                                    <MenuItem Header="Open Results" Click="OpenPreviousRun_Click">
+                                    <MenuItem Header="{Binding OpenResultsLabel, ElementName=projectDisplay}" Click="OpenPreviousRun_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource OpenIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="Delete" Click="DeletePreviousRun_Click">
+                                    <MenuItem Header="{Binding DeletePreviousRunLabel, ElementName=projectDisplay}" Click="DeletePreviousRun_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource CancelIcon}" />
                                         </MenuItem.Icon>

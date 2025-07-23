@@ -237,4 +237,85 @@
   <data name="CreateNewProjectLabel" xml:space="preserve">
     <value>Créer un nouveau projet</value>
   </data>
+  <data name="RenameProjectDialogTitle" xml:space="preserve">
+    <value>Renommer le projet</value>
+  </data>
+  <data name="UnableToRenameProject" xml:space="preserve">
+    <value>Impossible de renommer le projet</value>
+  </data>
+  <data name="ChangeDescriptionDialogTitle" xml:space="preserve">
+    <value>Changer la description</value>
+  </data>
+  <data name="UnableToDeleteProject" xml:space="preserve">
+    <value>Impossible de supprimer le projet</value>
+  </data>
+  <data name="CloneProjectDialogTitle" xml:space="preserve">
+    <value>Cloner le projet sous ?</value>
+  </data>
+  <data name="UnableToCloneProject" xml:space="preserve">
+    <value>Impossible de cloner le projet</value>
+  </data>
+  <data name="DeleteProjectConfirm" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer le projet '{0}' ? Cette action est irréversible !</value>
+  </data>
+  <data name="DeleteProjectDialogTitle" xml:space="preserve">
+    <value>Supprimer le projet</value>
+  </data>
+  <data name="CreateNewModelSystemLabel" xml:space="preserve">
+    <value>Créer un nouveau système de modèle</value>
+  </data>
+  <data name="OpenProjectDirectoryLabel" xml:space="preserve">
+    <value>Ouvrir le répertoire du projet</value>
+  </data>
+  <data name="ImportModelSystemLabel" xml:space="preserve">
+    <value>Importer un système de modèle</value>
+  </data>
+  <data name="ImportModelSystemFromFileLabel" xml:space="preserve">
+    <value>Importer un système de modèle depuis un fichier</value>
+  </data>
+  <data name="RefreshPreviousRunsLabel" xml:space="preserve">
+    <value>Rafraîchir les exécutions précédentes</value>
+  </data>
+  <data name="SearchModulesLabel" xml:space="preserve">
+    <value>Rechercher des modules... (Ctrl+E)</value>
+  </data>
+  <data name="ModelSystemsLabel" xml:space="preserve">
+    <value>Systèmes de modèle</value>
+  </data>
+  <data name="ModelSystemColumnLabel" xml:space="preserve">
+    <value>Système de modèle</value>
+  </data>
+  <data name="LastModifiedColumnLabel" xml:space="preserve">
+    <value>Dernière modification</value>
+  </data>
+  <data name="RenameModelSystemLabel" xml:space="preserve">
+    <value>Renommer le système de modèle (F2)</value>
+  </data>
+  <data name="DeleteModelSystemLabel" xml:space="preserve">
+    <value>Supprimer le système de modèle (Del)</value>
+  </data>
+  <data name="SaveModelSystemAsLabel" xml:space="preserve">
+    <value>Enregistrer le système de modèle sous</value>
+  </data>
+  <data name="ExportModelSystemAsLabel" xml:space="preserve">
+    <value>Exporter le système de modèle sous (Ctrl+S)</value>
+  </data>
+  <data name="CopyModelSystemLabel" xml:space="preserve">
+    <value>Copier le système de modèle (Ctrl+C)</value>
+  </data>
+  <data name="PasteAsNewModelSystemLabel" xml:space="preserve">
+    <value>Coller comme nouveau système de modèle (Ctrl+V)</value>
+  </data>
+  <data name="PreviousRunsLabel" xml:space="preserve">
+    <value>Exécutions précédentes</value>
+  </data>
+  <data name="SearchPreviousRunsLabel" xml:space="preserve">
+    <value>Rechercher les exécutions précédentes...</value>
+  </data>
+  <data name="OpenResultsLabel" xml:space="preserve">
+    <value>Ouvrir les résultats</value>
+  </data>
+  <data name="DeletePreviousRunLabel" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
 </root>
