@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Resources;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -35,6 +36,15 @@ public partial class ProjectsDisplay : UserControl
 {
     private XTMFRuntime Runtime;
 
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(ProjectsDisplay).Assembly);
+    public string SearchLabel => ResManager.GetString("SearchLabel");
+    public string RenameProjectLabel => ResManager.GetString("RenameProjectLabel");
+    public string ChangeDescriptionLabel => ResManager.GetString("ChangeDescriptionLabel");
+    public string NewProjectLabel => ResManager.GetString("NewProjectLabel");
+    public string CloneProjectLabel => ResManager.GetString("CloneProjectLabel");
+    public string DeleteProjectLabel => ResManager.GetString("DeleteProjectLabel");
+    public string CreateNewProjectLabel => ResManager.GetString("CreateNewProjectLabel");
+
     /// <summary>
     /// 
     /// </summary>
@@ -43,6 +53,7 @@ public partial class ProjectsDisplay : UserControl
     {
         InitializeComponent();
         Runtime = runtime;
+        DataContext = this;
         var projectRepository = ((ProjectRepository)runtime.Configuration.ProjectRepository);
         projectRepository.ReloadRepository();
         Loaded += ProjectsDisplay_Loaded;

@@ -216,4 +216,25 @@
   <data name="ClickHereLabel" xml:space="preserve">
     <value>Cliquez ici</value>
   </data>
+  <data name="SearchLabel" xml:space="preserve">
+    <value>Rechercher... (Ctrl+E)</value>
+  </data>
+  <data name="RenameProjectLabel" xml:space="preserve">
+    <value>Renommer le projet (F2)</value>
+  </data>
+  <data name="ChangeDescriptionLabel" xml:space="preserve">
+    <value>Changer la description (Maj+F2)</value>
+  </data>
+  <data name="NewProjectLabel" xml:space="preserve">
+    <value>Nouveau projet (Ctrl+N)</value>
+  </data>
+  <data name="CloneProjectLabel" xml:space="preserve">
+    <value>Cloner le projet (Ctrl+C)</value>
+  </data>
+  <data name="DeleteProjectLabel" xml:space="preserve">
+    <value>Supprimer le projet (Del)</value>
+  </data>
+  <data name="CreateNewProjectLabel" xml:space="preserve">
+    <value>Créer un nouveau projet</value>
+  </data>
 </root>

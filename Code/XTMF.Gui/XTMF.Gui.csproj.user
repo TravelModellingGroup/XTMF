@@ -23,6 +23,9 @@
     <StartArguments>--remote-host</StartArguments>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.fr.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>

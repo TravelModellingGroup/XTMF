@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -57,7 +57,7 @@
                     <Button Grid.Column="0" Style="{DynamicResource MaterialDesignToolButton}">
                         <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                     </Button>
-                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
+                    <my:FilterBox Grid.Column="1" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="{Binding SearchLabel}" />
                     <Button Style="{DynamicResource MaterialDesignToolButton}" Grid.Column="2"/>
                 </Grid>
             </materialDesign:ColorZone>
@@ -65,28 +65,28 @@
                   x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">
+                        <MenuItem Header="{Binding RenameProjectLabel}" Click="Rename_Click">
                             <MenuItem.Icon>
                                 <ContentControl Template="{DynamicResource RefreshIcon}" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Change _Description (Shift+F2)" Click="ChangeDescription_Click">
+                        <MenuItem Header="{Binding ChangeDescriptionLabel}" Click="ChangeDescription_Click">
                             <MenuItem.Icon>
                                 <ContentControl Template="{DynamicResource EditIcon}" />
                             </MenuItem.Icon>
                         </MenuItem>
                         <Separator />
-                        <MenuItem Header="_New Project (Ctrl+N)" Click="NewProject_Click">
+                        <MenuItem Header="{Binding NewProjectLabel}" Click="NewProject_Click">
                             <MenuItem.Icon>
                                 <ContentControl Template="{DynamicResource NewIcon}" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="_Clone Project (Ctrl+C)" Click="Clone_Click">
+                        <MenuItem Header="{Binding CloneProjectLabel}" Click="Clone_Click">
                             <MenuItem.Icon>
                                 <ContentControl Template="{DynamicResource CopyIcon}" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="_Delete Project (Del)" Click="Delete_Click">
+                        <MenuItem Header="{Binding DeleteProjectLabel}" Click="Delete_Click">
                             <MenuItem.Icon>
                                 <ContentControl Template="{DynamicResource CancelIcon}" />
                             </MenuItem.Icon>
@@ -114,7 +114,7 @@
                     <StackPanel>
                         <StackPanel HorizontalAlignment="Right"   Orientation="Horizontal"  Style="{DynamicResource BorderHoverStyle}">
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Create New project" Opacity="1.0"/>
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="{Binding CreateNewProjectLabel}" Opacity="1.0"/>
                             </Border>
                             <Button Click="NewProject_Click">
                                 <local:PackIconOverlap IconKind="Folder" IconKindMinor="Plus" Foreground="{DynamicResource PrimaryHueDarkBrush}"
@@ -123,7 +123,7 @@
                         </StackPanel>
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Rename Project" Opacity="1.0"/>
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="{Binding RenameProjectLabel}" Opacity="1.0"/>
                             </Border>
                             <Button Click="Rename_Click" >
                                 <materialDesign:PackIcon Foreground="{DynamicResource PrimaryHueDarkBrush}" Kind="Refresh" />
@@ -132,7 +132,7 @@
 
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Clone Project" Opacity="1.0"></Label>
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="{Binding CloneProjectLabel}" Opacity="1.0"></Label>
                             </Border>
 
                             <Button Click="Clone_Click" >
@@ -143,7 +143,7 @@
 
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Style="{DynamicResource BorderHoverStyle}">
                             <Border Margin="0 0 5 0"  Height="28" CornerRadius="5" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="Delete Project" Opacity="1.0"/>
+                                <Label Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" VerticalAlignment="Center" Content="{Binding DeleteProjectLabel}" Opacity="1.0"/>
                             </Border>
 
                             <Button Click="Delete_Click" >
