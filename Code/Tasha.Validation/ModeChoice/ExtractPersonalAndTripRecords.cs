@@ -1368,7 +1368,7 @@ public sealed class ExtractPersonalAndTripRecords : IPostHouseholdIteration, IDi
                 writer.Write(',');
                 TMG.Functions.Utilities.Write(writer, passengerTrip.DriverTripID, buffer);
                 writer.Write(',');
-                TMG.Functions.Utilities.Write(writer, passengerTrip.Weight, buffer);
+                TMG.Functions.Utilities.WriteLine(writer, passengerTrip.Weight, buffer);
             }
         }
         if (CompressResults)
