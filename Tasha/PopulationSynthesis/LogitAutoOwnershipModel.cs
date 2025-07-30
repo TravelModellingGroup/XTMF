@@ -22,14 +22,16 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using Tasha.Common;
 using TMG;
+using TMG.Functions;
 using XTMF;
 
 namespace Tasha.PopulationSynthesis;
 
 [ModuleInformation(Description = "This module is designed to produce a discrete number of vehicles when constructing a house.")]
-public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
+public sealed class LogitAutoOwnershipModel : IEstimableCalculation<ITashaHousehold, int>
 {
 
     [ModuleInformation(Description = "Gives the systematic utility for choosing these number of cars for a given household.")]
@@ -125,22 +127,19 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         internal float GetUtility(ref NodeData nodeData)
         {
+            var vLicense = GetLookup(DriverLicenses, nodeData.DriverLicenses);
+            float vIncome = GetLookup(Incomes, nodeData.IncomeClass);
+            float vDwelling = GetLookup(Dwelling, nodeData.DwellingType);
             var v = (_zoneUtility?.GetFlatData()[nodeData.FlatTAZ]) ?? 0f;
-
-            // TODO: Find the specification for the rest of the parameters
-            v += Constant
-                + (B_DriverLicenses * nodeData.DriverLicenses)
-                + (B_FTWorkers * nodeData.FTWorkers)
-                + GetLookup(DriverLicenses, nodeData.DriverLicenses)
-                + GetLookup(Incomes, nodeData.IncomeClass)
-                + GetLookup(Dwelling, nodeData.DwellingType)
-                + B_PopulationDensity * nodeData.PopulationDensity
-                ;
-
+            // Group the variables together to break the dependency chain
+            var p1 = MathF.FusedMultiplyAdd(B_DriverLicenses, nodeData.DriverLicenses, Constant);
+            var p2 = MathF.FusedMultiplyAdd(B_FTWorkers, nodeData.FTWorkers, vLicense);
+            var p3 = MathF.FusedMultiplyAdd(B_PopulationDensity, nodeData.PopulationDensity, vDwelling);
+            v = (v + vIncome) + p1 + (p2 + p3);
             return v;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         private static float GetLookup(Category[] categories, int index)
         {
             foreach (var cat in categories)
@@ -157,7 +156,7 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         internal void Unload()
         {
             _zoneUtility = null!;
-            ZoneBasedUtility.UnloadData();
+            ZoneBasedUtility?.UnloadData();
         }
 
         public bool RuntimeValidation(ref string error)
@@ -253,12 +252,32 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         var ret = new float[flatZones.Length];
         for (int i = 0; i < ret.Length; i++)
         {
-            ret[i] = MathF.Log(flatZones[i].Population + 1);
+            ret[i] = flatZones[i].Population + 1.0f;
         }
+        VectorHelper.Log(ret, 0, ret, 0, ret.Length);
         return ret;
     }
 
     public int ProduceResult(ITashaHousehold data)
+    {
+        // Note: The number of auto nodes will be very small so this is safe
+        Span<float> ev = stackalloc float[Nodes.Length];
+        double total = ComputeUtilities(data, ev);
+        var pop = _random.NextSingle() * (float)total;
+        // We don't need to test the last option
+        for (int i = 0; i < Nodes.Length - 1; i++)
+        {
+            pop -= ev[i];
+            if (pop <= 0)
+            {
+                return Nodes[i].NumberOfVehicles;
+            }
+        }
+        // If we run into rounding issues, round it to be in the final bin.
+        return Nodes[^1].NumberOfVehicles;
+    }
+
+    private double ComputeUtilities(ITashaHousehold data, Span<float> ev)
     {
         var flatHouseholdZone = _zones.GetFlatIndex(data.HomeZone.ZoneNumber);
         // Make sure that the household zone is valid
@@ -282,25 +301,28 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
             DwellingType = (int)data.DwellingType,
         };
 
-        // Note: The number of auto nodes will be very small so this is safe
-        Span<float> ev = stackalloc float[Nodes.Length];
+
         double total = 0.0;
         for (int i = 0; i < Nodes.Length; i++)
         {
             total += (ev[i] = MathF.Exp(Nodes[i].GetUtility(ref nodeData)));
         }
-        var pop = _random.NextSingle() * (float)total;
-        // We don't need to test the last option
-        for (int i = 0; i < Nodes.Length - 1; i++)
+
+        return total;
+    }
+
+    public float Estimate(ITashaHousehold input, int expectedResult)
+    {
+        Span<float> ev = stackalloc float[Nodes.Length];
+        var total = ComputeUtilities(input, ev);
+        for (int i = 0; Nodes.Length > i; i++)
         {
-            pop -= ev[i];
-            if (pop <= 0)
+            if (Nodes[i].NumberOfVehicles == expectedResult)
             {
-                return Nodes[i].NumberOfVehicles;
+                return (float)(ev[i] / total);
             }
         }
-        // If we run into rounding issues, round it to be in the final bin.
-        return Nodes[^1].NumberOfVehicles;
+        return ev[^-1]; // If we didn't find the expected result, return the last one.
     }
 
     private (float aivtt, float tptt, float distance) GetAverageWorkSchool(int flatHomeZone, ITashaPerson[] persons)
@@ -311,9 +333,9 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         foreach (var person in persons)
         {
             var personValues = GetPersonWorkSchool(flatHomeZone, person);
-            ret = (ret.aivtt + personValues.aivtt * normalize,
-                ret.tptt + personValues.tptt * normalize,
-                ret.distance + personValues.distance * normalize);
+            ret = (MathF.FusedMultiplyAdd(personValues.aivtt, normalize, ret.aivtt),
+                MathF.FusedMultiplyAdd(personValues.tptt, normalize, ret.tptt),
+                MathF.FusedMultiplyAdd(personValues.distance, normalize, ret.distance));
         }
         return ret;
     }
@@ -417,4 +439,5 @@ public sealed class LogitAutoOwnershipModel : ICalculation<ITashaHousehold, int>
         }
         return true;
     }
+
 }
