@@ -229,7 +229,7 @@ public static class Utilities
         }
         else
         {
-            writer.Write(data.ToString(CultureInfo.InvariantCulture));
+            writer.WriteLine(data.ToString(format.ToString(), CultureInfo.InvariantCulture));
         }
     }
 
@@ -436,7 +436,7 @@ public static class Utilities
         }
         else
         {
-            writer.WriteLine(data.ToString(CultureInfo.InvariantCulture));
+            writer.WriteLine(data.ToString(format.ToString(), CultureInfo.InvariantCulture));
         }
     }
 

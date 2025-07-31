@@ -287,21 +287,22 @@ public class ModeErrorMatrix : IPostHousehold
             {
                 float rowTotal = 0;
                 writer.Write(Modes[j].ModeName);
+                writer.Write(',');
                 for (int i = 0; i < numModes; i++)
                 {
+                    TMG.Functions.Utilities.Write(writer, Observations[i][j] / total, "P2", buffer);
                     writer.Write(',');
-                    TMG.Functions.Utilities.Write(writer, 100 * ((Observations[i][j]) / total), "{0:0.##}%", buffer);
                     rowTotal += Observations[i][j];
                 }
-                TMG.Functions.Utilities.WriteLine(writer, 100 * (rowTotal / total), ",{0:0.##}%", buffer);
+                TMG.Functions.Utilities.WriteLine(writer, rowTotal / total, "P2", buffer);
             }
             writer.Write("Column Total,");
             for (int i = 0; i < numModes; i++)
             {
-                TMG.Functions.Utilities.Write(writer, 100 * (columnTotals[i] / total), "{0:0.##}%", buffer);
+                TMG.Functions.Utilities.Write(writer, columnTotals[i] / total, "P2", buffer);
                 writer.Write(',');
             }
-            writer.WriteLine("{0:0.##}%", 100 * (correctTotal / total));
+            TMG.Functions.Utilities.WriteLine(writer, correctTotal / total, "P2", buffer);
 
             if (ComputeFitness)
             {
