@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    Version 2.0
+    This file provides Spanish translations for XTMF.Gui resources.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Xtmf_Major_Version" xml:space="preserve">
+    <value>1.6</value>
+  </data>
+  <data name="DirectorySettings" xml:space="preserve">
+    <value>Configuración de directorio</value>
+  </data>
+  <data name="ProjectDirectory" xml:space="preserve">
+    <value>Directorio del proyecto</value>
+  </data>
+  <data name="ModelSystemDirectory" xml:space="preserve">
+    <value>Directorio del sistema de modelos</value>
+  </data>
+  <data name="NetworkSettings" xml:space="preserve">
+    <value>Configuración de red</value>
+  </data>
+  <data name="HostNetworkingPort" xml:space="preserve">
+    <value>Puerto de red del host</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Apariencia</value>
+  </data>
+  <data name="PrimaryColour" xml:space="preserve">
+    <value>Color primario</value>
+  </data>
+  <data name="AccentColour" xml:space="preserve">
+    <value>Color de acento</value>
+  </data>
+  <data name="UseDarkTheme" xml:space="preserve">
+    <value>Usar tema oscuro</value>
+  </data>
+  <data name="DisableAnimationTransitions" xml:space="preserve">
+    <value>Desactivar transiciones de animación</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Avanzado</value>
+  </data>
+  <data name="ConfigFileLoadedFrom" xml:space="preserve">
+    <value>Archivo de configuración cargado desde: </value>
+  </data>
+  <data name="LocalHostButtonName_Create" xml:space="preserve">
+    <value>Crear configuración local de XTMF</value>
+  </data>
+  <data name="LocalHostButtonName_Delete" xml:space="preserve">
+    <value>Eliminar configuración local de XTMF</value>
+  </data>
+  <data name="FrameworkTitle" xml:space="preserve">
+    <value>Marco extensible de modelado de viajes</value>
+  </data>
+  <data name="FrameworkSubtitle" xml:space="preserve">
+    <value>&lt;Inserte su modelo aquí/&gt;</value>
+  </data>
+  <data name="ProjectsLabel" xml:space="preserve">
+    <value>Proyectos</value>
+  </data>
+  <data name="CreateProjectLabel" xml:space="preserve">
+    <value>Crear un nuevo proyecto</value>
+  </data>
+  <data name="OpenProjectLabel" xml:space="preserve">
+    <value>Abrir proyecto</value>
+  </data>
+  <data name="RecentProjectsLabel" xml:space="preserve">
+    <value>Proyectos recientes</value>
+  </data>
+  <data name="NewProjectLabel" xml:space="preserve">
+    <value>Nuevo proyecto</value>
+  </data>
+  <data name="WorkspaceLabel" xml:space="preserve">
+    <value>Espacio de trabajo</value>
+  </data>
+  <data name="SchedulerLabel" xml:space="preserve">
+    <value>Programador</value>
+  </data>
+  <data name="LaunchRemoteLabel" xml:space="preserve">
+    <value>Iniciar remoto</value>
+  </data>
+  <data name="SettingsLabel" xml:space="preserve">
+    <value>Configuraciones</value>
+  </data>
+  <data name="UpdateXtmfLabel" xml:space="preserve">
+    <value>Actualizar XTMF</value>
+  </data>
+  <data name="HelpLabel" xml:space="preserve">
+    <value>Ayuda</value>
+  </data>
+  <data name="DocumentationLabel" xml:space="preserve">
+    <value>Documentación</value>
+  </data>
+  <data name="AboutLabel" xml:space="preserve">
+    <value>Acerca de XTMF</value>
+  </data>
+  <data name="RunModelLabel" xml:space="preserve">
+    <value>Ejecutar modelo (F5)</value>
+  </data>
+  <data name="RunModelTooltip" xml:space="preserve">
+    <value>Presione F5 para ejecutar el sistema de modelos actualmente mostrado.</value>
+  </data>
+  <data name="ClickHereLabel" xml:space="preserve">
+    <value>Haga clic aquí</value>
+  </data>
+  <data name="SearchLabel" xml:space="preserve">
+    <value>Buscar... (Ctrl+E)</value>
+  </data>
+  <data name="RenameProjectLabel" xml:space="preserve">
+    <value>Renombrar proyecto (F2)</value>
+  </data>
+  <data name="ChangeDescriptionLabel" xml:space="preserve">
+    <value>Cambiar descripción (Shift+F2)</value>
+  </data>
+  <data name="NewProjectLabel" xml:space="preserve">
+    <value>Nuevo proyecto (Ctrl+N)</value>
+  </data>
+  <data name="CloneProjectLabel" xml:space="preserve">
+    <value>Clonar proyecto (Ctrl+C)</value>
+  </data>
+  <data name="DeleteProjectLabel" xml:space="preserve">
+    <value>Eliminar proyecto (Del)</value>
+  </data>
+  <data name="CreateNewProjectLabel" xml:space="preserve">
+    <value>Crear nuevo proyecto</value>
+  </data>
+  <data name="RenameProjectDialogTitle" xml:space="preserve">
+    <value>Renombrar proyecto</value>
+  </data>
+  <data name="UnableToRenameProject" xml:space="preserve">
+    <value>No se puede renombrar el proyecto</value>
+  </data>
+  <data name="ChangeDescriptionDialogTitle" xml:space="preserve">
+    <value>Cambiar descripción</value>
+  </data>
+  <data name="UnableToDeleteProject" xml:space="preserve">
+    <value>No se puede eliminar el proyecto</value>
+  </data>
+  <data name="CloneProjectDialogTitle" xml:space="preserve">
+    <value>¿Clonar proyecto como?</value>
+  </data>
+  <data name="UnableToCloneProject" xml:space="preserve">
+    <value>No se puede clonar el proyecto</value>
+  </data>
+  <data name="DeleteProjectConfirm" xml:space="preserve">
+    <value>¿Está seguro de que desea eliminar el proyecto '{0}'? ¡Esta acción no se puede deshacer!</value>
+  </data>
+  <data name="DeleteProjectDialogTitle" xml:space="preserve">
+    <value>Eliminar proyecto</value>
+  </data>
+  <data name="CreateNewModelSystemLabel" xml:space="preserve">
+    <value>Crear nuevo sistema de modelos</value>
+  </data>
+  <data name="OpenProjectDirectoryLabel" xml:space="preserve">
+    <value>Abrir directorio del proyecto</value>
+  </data>
+  <data name="ImportModelSystemLabel" xml:space="preserve">
+    <value>Importar sistema de modelos</value>
+  </data>
+  <data name="ImportModelSystemFromFileLabel" xml:space="preserve">
+    <value>Importar sistema de modelos desde archivo</value>
+  </data>
+  <data name="RefreshPreviousRunsLabel" xml:space="preserve">
+    <value>Actualizar ejecuciones anteriores</value>
+  </data>
+  <data name="SearchModulesLabel" xml:space="preserve">
+    <value>Buscar módulos... (Ctrl+E)</value>
+  </data>
+  <data name="ModelSystemsLabel" xml:space="preserve">
+    <value>Sistemas de modelos</value>
+  </data>
+  <data name="ModelSystemColumnLabel" xml:space="preserve">
+    <value>Sistema de modelos</value>
+  </data>
+  <data name="LastModifiedColumnLabel" xml:space="preserve">
+    <value>Última modificación</value>
+  </data>
+  <data name="RenameModelSystemLabel" xml:space="preserve">
+    <value>Renombrar sistema de modelos (F2)</value>
+  </data>
+  <data name="DeleteModelSystemLabel" xml:space="preserve">
+    <value>Eliminar sistema de modelos (Del)</value>
+  </data>
+  <data name="SaveModelSystemAsLabel" xml:space="preserve">
+    <value>Guardar sistema de modelos como</value>
+  </data>
+  <data name="ExportModelSystemAsLabel" xml:space="preserve">
+    <value>Exportar sistema de modelos como (Ctrl+S)</value>
+  </data>
+  <data name="CopyModelSystemLabel" xml:space="preserve">
+    <value>Copiar sistema de modelos (Ctrl+C)</value>
+  </data>
+  <data name="PasteAsNewModelSystemLabel" xml:space="preserve">
+    <value>Pegar como nuevo sistema de modelos (Ctrl+V)</value>
+  </data>
+  <data name="PreviousRunsLabel" xml:space="preserve">
+    <value>Ejecuciones anteriores</value>
+  </data>
+  <data name="SearchPreviousRunsLabel" xml:space="preserve">
+    <value>Buscar ejecuciones anteriores...</value>
+  </data>
+  <data name="OpenResultsLabel" xml:space="preserve">
+    <value>Abrir resultados</value>
+  </data>
+  <data name="DeletePreviousRunLabel" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+</root>

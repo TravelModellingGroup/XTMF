@@ -165,7 +165,7 @@ public partial class SettingsPage : UserControl
             }
         }
 
-        public IEnumerable<string> AvailableLanguages { get; } = new List<string> { "en", "fr" };
+        public IEnumerable<string> AvailableLanguages { get; } = new List<string> { "en", "fr", "es" };
         private string _selectedLanguage;
         public string SelectedLanguage
         {
