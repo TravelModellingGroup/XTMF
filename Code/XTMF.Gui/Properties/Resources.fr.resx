@@ -318,4 +318,46 @@
   <data name="DeletePreviousRunLabel" xml:space="preserve">
     <value>Supprimer</value>
   </data>
+  <data name="RenameModelSystemDialogTitle" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="CloneModelSystemDialogTitle" xml:space="preserve">
+    <value>Cloner le système de modèle sous ?</value>
+  </data>
+  <data name="UnableToRenameModelSystem" xml:space="preserve">
+    <value>Impossible de renommer le système de modèle</value>
+  </data>
+  <data name="UnableToCloneModelSystem" xml:space="preserve">
+    <value>Impossible de cloner le système de modèle</value>
+  </data>
+  <data name="DeleteModelSystemConfirm" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer le système de modèle '{0}' ? Cette action est irréversible !</value>
+  </data>
+  <data name="DeleteModelSystemDialogTitle" xml:space="preserve">
+    <value>Supprimer le système de modèle</value>
+  </data>
+  <data name="UnableToDeleteModelSystem" xml:space="preserve">
+    <value>Impossible de supprimer le système de modèle</value>
+  </data>
+  <data name="UnableToExportModelSystem" xml:space="preserve">
+    <value>Impossible d'exporter le système de modèle</value>
+  </data>
+  <data name="NewModelSystemButtonLabel" xml:space="preserve">
+    <value>Nouveau système de modèle</value>
+  </data>
+  <data name="ImportModelSystemButtonLabel" xml:space="preserve">
+    <value>Importer un système de modèle</value>
+  </data>
+  <data name="RenameModelSystemButtonLabel" xml:space="preserve">
+    <value>Renommer le système de modèle</value>
+  </data>
+  <data name="CloneModelSystemButtonLabel" xml:space="preserve">
+    <value>Cloner le système de modèle</value>
+  </data>
+  <data name="DeleteModelSystemButtonLabel" xml:space="preserve">
+    <value>Supprimer le système de modèle</value>
+  </data>
+  <data name="ExportModelSystemButtonLabel" xml:space="preserve">
+    <value>Exporter le système de modèle</value>
+  </data>
 </root>

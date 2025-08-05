@@ -264,4 +264,46 @@
   <data name="DeletePreviousRunLabel" xml:space="preserve">
     <value>Eliminar</value>
   </data>
+  <data name="RenameModelSystemDialogTitle" xml:space="preserve">
+    <value>Renombrar</value>
+  </data>
+  <data name="CloneModelSystemDialogTitle" xml:space="preserve">
+    <value>¿Clonar sistema de modelos como?</value>
+  </data>
+  <data name="UnableToRenameModelSystem" xml:space="preserve">
+    <value>No se puede renombrar el sistema de modelos</value>
+  </data>
+  <data name="UnableToCloneModelSystem" xml:space="preserve">
+    <value>No se puede clonar el sistema de modelos</value>
+  </data>
+  <data name="DeleteModelSystemConfirm" xml:space="preserve">
+    <value>¿Está seguro de que desea eliminar el sistema de modelos '{0}'? ¡Esta acción no se puede deshacer!</value>
+  </data>
+  <data name="DeleteModelSystemDialogTitle" xml:space="preserve">
+    <value>Eliminar sistema de modelos</value>
+  </data>
+  <data name="UnableToDeleteModelSystem" xml:space="preserve">
+    <value>No se puede eliminar el sistema de modelos</value>
+  </data>
+  <data name="UnableToExportModelSystem" xml:space="preserve">
+    <value>No se puede exportar el sistema de modelos</value>
+  </data>
+  <data name="NewModelSystemButtonLabel" xml:space="preserve">
+    <value>Nuevo sistema de modelos</value>
+  </data>
+  <data name="ImportModelSystemButtonLabel" xml:space="preserve">
+    <value>Importar sistema de modelos</value>
+  </data>
+  <data name="RenameModelSystemButtonLabel" xml:space="preserve">
+    <value>Renombrar sistema de modelos</value>
+  </data>
+  <data name="CloneModelSystemButtonLabel" xml:space="preserve">
+    <value>Clonar sistema de modelos</value>
+  </data>
+  <data name="DeleteModelSystemButtonLabel" xml:space="preserve">
+    <value>Eliminar sistema de modelos</value>
+  </data>
+  <data name="ExportModelSystemButtonLabel" xml:space="preserve">
+    <value>Exportar sistema de modelos</value>
+  </data>
 </root>
