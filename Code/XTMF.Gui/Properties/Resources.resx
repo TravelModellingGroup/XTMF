@@ -439,4 +439,16 @@
   <data name="ErrorInformationCopiedMessage" xml:space="preserve">
     <value>Error information copied to clipboard</value>
   </data>
+  <data name="ServerAddressHint" xml:space="preserve">
+    <value>Server Address</value>
+  </data>
+  <data name="PortNumberHint" xml:space="preserve">
+    <value>Port Number</value>
+  </data>
+  <data name="LaunchRemoteClientButton" xml:space="preserve">
+    <value>Launch Remote Client</value>
+  </data>
+  <data name="LaunchRemoteClientWindowTitle" xml:space="preserve">
+    <value>Launch Remote Client</value>
+  </data>
 </root>

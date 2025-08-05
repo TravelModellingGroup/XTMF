@@ -438,4 +438,16 @@
   <data name="ErrorInformationCopiedMessage" xml:space="preserve">
     <value>Informations d'erreur copiées dans le presse-papier</value>
   </data>
+  <data name="ServerAddressHint" xml:space="preserve">
+    <value>Adresse du serveur</value>
+  </data>
+  <data name="PortNumberHint" xml:space="preserve">
+    <value>Numéro de port</value>
+  </data>
+  <data name="LaunchRemoteClientButton" xml:space="preserve">
+    <value>Lancer le client distant</value>
+  </data>
+  <data name="LaunchRemoteClientWindowTitle" xml:space="preserve">
+    <value>Lancer le client distant</value>
+  </data>
 </root>

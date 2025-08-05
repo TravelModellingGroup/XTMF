@@ -811,7 +811,8 @@ public partial class MainWindow : MetroWindow
     private void LaunchRemoteMenuItem_OnSelected(object sender, RoutedEventArgs e)
     {
         var remoteWindow = new LaunchRemoteClientWindow();
-        SetDisplayActive(remoteWindow, "Launch Remote Client");
+        var resManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(MainWindow).Assembly);
+        SetDisplayActive(remoteWindow, resManager.GetString("LaunchRemoteClientWindowTitle"));
         MenuToggleButton.IsChecked = false;
         Keyboard.Focus(remoteWindow);
         MenuToggleButton.IsChecked = false;

@@ -384,4 +384,16 @@
   <data name="ErrorInformationCopiedMessage" xml:space="preserve">
     <value>Información de error copiada al portapapeles</value>
   </data>
+  <data name="ServerAddressHint" xml:space="preserve">
+    <value>Dirección del servidor</value>
+  </data>
+  <data name="PortNumberHint" xml:space="preserve">
+    <value>Número de puerto</value>
+  </data>
+  <data name="LaunchRemoteClientButton" xml:space="preserve">
+    <value>Iniciar cliente remoto</value>
+  </data>
+  <data name="LaunchRemoteClientWindowTitle" xml:space="preserve">
+    <value>Iniciar cliente remoto</value>
+  </data>
 </root>

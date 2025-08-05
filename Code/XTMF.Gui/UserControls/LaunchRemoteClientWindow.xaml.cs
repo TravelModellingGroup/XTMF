@@ -25,6 +25,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Resources;
+using System.Globalization;
 
 namespace XTMF.Gui.UserControls;
 
@@ -35,10 +37,17 @@ public partial class LaunchRemoteClientWindow : UserControl
 {
     #pragma warning disable CS0649
     internal Action<object> RequestClose;
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(LaunchRemoteClientWindow).Assembly);
+
+    // Localized strings for UI elements
+    public string ServerAddressHint => ResManager.GetString("ServerAddressHint");
+    public string PortNumberHint => ResManager.GetString("PortNumberHint");
+    public string LaunchRemoteClientButton => ResManager.GetString("LaunchRemoteClientButton");
 
     public LaunchRemoteClientWindow()
     {
         InitializeComponent();
+        DataContext = this; // Set DataContext for localized string bindings
         Loaded += LaunchRemoteClientWindow_Loaded;
     }
 
