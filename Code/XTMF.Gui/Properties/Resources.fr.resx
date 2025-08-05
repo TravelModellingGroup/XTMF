@@ -360,4 +360,82 @@
   <data name="ExportModelSystemButtonLabel" xml:space="preserve">
     <value>Exporter le système de modèle</value>
   </data>
+  <data name="CancelRunMenuItem" xml:space="preserve">
+    <value>Annuler l'exécution</value>
+  </data>
+  <data name="MoveUpInQueueMenuItem" xml:space="preserve">
+    <value>Remonter dans la file d'attente</value>
+  </data>
+  <data name="MoveDownInQueueMenuItem" xml:space="preserve">
+    <value>Descendre dans la file d'attente</value>
+  </data>
+  <data name="StartTimeLabel" xml:space="preserve">
+    <value>Heure de début</value>
+  </data>
+  <data name="ElapsedTimeLabel" xml:space="preserve">
+    <value>Temps écoulé</value>
+  </data>
+  <data name="NoRunSelectedLabel" xml:space="preserve">
+    <value>Aucune exécution actuellement sélectionnée.</value>
+  </data>
+  <data name="CopyToClipboardLabel" xml:space="preserve">
+    <value>Copier dans le presse-papier</value>
+  </data>
+  <data name="CloseLabel" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="ActiveRunsLabel" xml:space="preserve">
+    <value>Exécutions actives</value>
+  </data>
+  <data name="FinishedRunsLabel" xml:space="preserve">
+    <value>Exécutions terminées</value>
+  </data>
+  <data name="ClearRunsLabel" xml:space="preserve">
+    <value>Effacer les exécutions</value>
+  </data>
+  <data name="CopyLabel" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="RunOutputLabel" xml:space="preserve">
+    <value>Sortie d'exécution</value>
+  </data>
+  <data name="ClearRunLabel" xml:space="preserve">
+    <value>Effacer l'exécution</value>
+  </data>
+  <data name="ShowStacktraceLabel" xml:space="preserve">
+    <value>Afficher la trace de la pile</value>
+  </data>
+  <data name="RemoveRunFromListLabel" xml:space="preserve">
+    <value>Supprimer l'exécution de la liste</value>
+  </data>
+  <data name="DirectoryDoesNotExistMessage" xml:space="preserve">
+    <value>{0} n'existe pas !</value>
+  </data>
+  <data name="DelayedRunStatus" xml:space="preserve">
+    <value>Exécution différée</value>
+  </data>
+  <data name="RuntimeExceptionStatus" xml:space="preserve">
+    <value>Exception d'exécution survenue.</value>
+  </data>
+  <data name="ValidationErrorStatus" xml:space="preserve">
+    <value>Erreur de validation survenue</value>
+  </data>
+  <data name="RunFinishedSuccessfullyStatus" xml:space="preserve">
+    <value>Exécution terminée avec succès.</value>
+  </data>
+  <data name="ModelSystemRunFinishedNotification" xml:space="preserve">
+    <value>Exécution du système de modèle terminée ({0})</value>
+  </data>
+  <data name="ModelSystemRunFinishedBalloon" xml:space="preserve">
+    <value>{0} a terminé son exécution.</value>
+  </data>
+  <data name="ModelSystemRunExceptionBalloon" xml:space="preserve">
+    <value>{0} a rencontré une exception d'exécution.</value>
+  </data>
+  <data name="ModelSystemValidationExceptionBalloon" xml:space="preserve">
+    <value>{0} a rencontré une exception de validation.</value>
+  </data>
+  <data name="ErrorInformationCopiedMessage" xml:space="preserve">
+    <value>Informations d'erreur copiées dans le presse-papier</value>
+  </data>
 </root>

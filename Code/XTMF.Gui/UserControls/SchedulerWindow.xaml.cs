@@ -14,7 +14,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+    along with XTMF.  If not, see <http://www.gnu.org/licenses"/>.
 */
 
 using System;
@@ -37,6 +37,8 @@ using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using ListView = System.Windows.Controls.ListView;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
+using System.Resources;
+using System.Globalization;
 
 namespace XTMF.Gui.UserControls;
 
@@ -46,9 +48,36 @@ namespace XTMF.Gui.UserControls;
 public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
 {
     private FrameworkElement _activeContent;
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(SchedulerWindow).Assembly);
+
+    // Localized strings for UI elements
+    public string NoRunSelectedLabel => ResManager.GetString("NoRunSelectedLabel");
+    public string CopyToClipboardLabel => ResManager.GetString("CopyToClipboardLabel");
+    public string CloseLabel => ResManager.GetString("CloseLabel");
+    public string ActiveRunsLabel => ResManager.GetString("ActiveRunsLabel");
+    public string FinishedRunsLabel => ResManager.GetString("FinishedRunsLabel");
+    public string ClearRunsLabel => ResManager.GetString("ClearRunsLabel");
+    public string CopyLabel => ResManager.GetString("CopyLabel");
+    public string StartTimeLabel => ResManager.GetString("StartTimeLabel");
+    public string ElapsedTimeLabel => ResManager.GetString("ElapsedTimeLabel");
+    public string RunOutputLabel => ResManager.GetString("RunOutputLabel");
+    public string ClearRunLabel => ResManager.GetString("ClearRunLabel");
+    public string ShowStacktraceLabel => ResManager.GetString("ShowStacktraceLabel");
+    public string RemoveRunFromListLabel => ResManager.GetString("RemoveRunFromListLabel");
+    public string DirectoryDoesNotExistMessage => ResManager.GetString("DirectoryDoesNotExistMessage");
+    public string DelayedRunStatus => ResManager.GetString("DelayedRunStatus");
+    public string RuntimeExceptionStatus => ResManager.GetString("RuntimeExceptionStatus");
+    public string ValidationErrorStatus => ResManager.GetString("ValidationErrorStatus");
+    public string RunFinishedSuccessfullyStatus => ResManager.GetString("RunFinishedSuccessfullyStatus");
+    public string ModelSystemRunFinishedNotification => ResManager.GetString("ModelSystemRunFinishedNotification");
+    public string ModelSystemRunFinishedBalloon => ResManager.GetString("ModelSystemRunFinishedBalloon");
+    public string ModelSystemRunExceptionBalloon => ResManager.GetString("ModelSystemRunExceptionBalloon");
+    public string ModelSystemValidationExceptionBalloon => ResManager.GetString("ModelSystemValidationExceptionBalloon");
+    public string ErrorInformationCopiedMessage => ResManager.GetString("ErrorInformationCopiedMessage");
 
     public SchedulerWindow()
     {
+        DataContext = this; // Set DataContext for localized string bindings
         InitializeComponent();
         ActiveRunContent.DataContext = Resources["DefaultDisplay"];
     }
@@ -115,7 +144,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
             ActiveContent = run;
             var itemDisplayModel = new SchedulerRunItemDisplayModel(run, this)
             {
-                StatusText = "Delayed Run",
+                StatusText = DelayedRunStatus,
                 StartTime = delayedStartTime.ToString("MM/dd/yyyy H:mm")
             };
             ScheduledRuns.Items.Add(itemDisplayModel);
@@ -192,7 +221,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
         }
         else
         {
-            MessageBox.Show(item.RunWindow.Run.RunDirectory + " does not exist!");
+            MessageBox.Show(String.Format(DirectoryDoesNotExistMessage, item.RunWindow.Run.RunDirectory));
         }
     }
 
@@ -228,7 +257,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
         {
             var menuItem = new MenuItem
             {
-                Header = "Remove run from list"
+                Header = RemoveRunFromListLabel
             };
             Dispatcher.Invoke(() => { menu.Items.Clear(); });
             menuItem.Click += (o, args) =>
@@ -342,7 +371,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
             : $"Module: {errorDataContext?.ModelSystemName}\r\n" +
               $"Description:\r\n {errorDataContext?.Description} " +
               $"\r\nStack Trace:\r\n{errorDataContext?.StackTrace}");
-        MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Error information copied to clipboard",
+        MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue(ErrorInformationCopiedMessage,
             "SCHEDULER",
             () => MainWindow.Us.ShowSchedulerWindow());
     }
@@ -464,6 +493,15 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private string _statusText = string.Empty;
 
+        private static ResourceManager ResManager = new ("XTMF.Gui.Properties.Resources", typeof(SchedulerRunItem).Assembly);
+
+        // Localized strings for UI elements
+        public string CancelRunMenuItem => ResManager.GetString("CancelRunMenuItem");
+        public string MoveUpInQueueMenuItem => ResManager.GetString("MoveUpInQueueMenuItem");
+        public string MoveDownInQueueMenuItem => ResManager.GetString("MoveDownInQueueMenuItem");
+        public string StartTimeLabel => ResManager.GetString("StartTimeLabel");
+        public string ElapsedTimeLabel => ResManager.GetString("ElapsedTimeLabel");
+
         /// <summary>
         /// 
         /// </summary>
@@ -576,7 +614,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
         /// <param name="errorWithPath"></param>
         private void RuntimeError(ErrorWithPath errorWithPath)
         {
-            StatusText = "Runtime exception occurred.";
+            StatusText = _schedulerWindow.RuntimeExceptionStatus;
             _schedulerWindow.RemoveFromActiveRuns(this);
             Icon = PackIconKind.Alert;
             HasError = true;
@@ -587,7 +625,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
         /// <param name="errorWithPaths"></param>
         private void OnValidationError(List<ErrorWithPath> errorWithPaths)
         {
-            StatusText = "Validation error occurred";
+            StatusText = _schedulerWindow.ValidationErrorStatus;
             _schedulerWindow.RemoveFromActiveRuns(this);
             Icon = PackIconKind.Alert;
             HasError = true;
@@ -597,7 +635,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
         /// </summary>
         private void OnRuntimeError()
         {
-            XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a runtime exception.",
+            XtmfNotificationIcon.ShowNotificationBalloon(String.Format(_schedulerWindow.ModelSystemRunExceptionBalloon, Name),
                 () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
             Icon = PackIconKind.Exclamation;
             HasError = true;
@@ -608,7 +646,7 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
         /// </summary>
         private void OnRuntimeValidationError()
         {
-            XtmfNotificationIcon.ShowNotificationBalloon(Name + " encountered a validation exception.",
+            XtmfNotificationIcon.ShowNotificationBalloon(String.Format(_schedulerWindow.ModelSystemValidationExceptionBalloon, Name),
                 () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model system run exception");
             Icon = PackIconKind.AlertBox;
             HasError = true;
@@ -649,13 +687,13 @@ public partial class SchedulerWindow : UserControl, INotifyPropertyChanged
 
             if (runSuccess)
             {
-                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue("Model system run finished (" + Name + ")",
+                MainWindow.Us.GlobalStatusSnackBar.MessageQueue.Enqueue(String.Format(_schedulerWindow.ModelSystemRunFinishedNotification, Name),
                     "SCHEDULER",
                     () => MainWindow.Us.ShowSchedulerWindow());
-                XtmfNotificationIcon.ShowNotificationBalloon(Name + " has finished executing.",
+                XtmfNotificationIcon.ShowNotificationBalloon(String.Format(_schedulerWindow.ModelSystemRunFinishedBalloon, Name),
                     () => { MainWindow.Us.ShowSchedulerWindow(); }, "Model System Run Finished");
                 Icon = PackIconKind.CheckCircleOutline;
-                StatusText = "Run finished successfully.";
+                StatusText = _schedulerWindow.RunFinishedSuccessfullyStatus;
             }
         }
 

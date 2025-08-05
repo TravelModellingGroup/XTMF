@@ -361,4 +361,82 @@
   <data name="ExportModelSystemButtonLabel" xml:space="preserve">
     <value>Export Model System</value>
   </data>
+  <data name="CancelRunMenuItem" xml:space="preserve">
+    <value>Cancel run</value>
+  </data>
+  <data name="MoveUpInQueueMenuItem" xml:space="preserve">
+    <value>Move up in queue</value>
+  </data>
+  <data name="MoveDownInQueueMenuItem" xml:space="preserve">
+    <value>Move down in queue</value>
+  </data>
+  <data name="StartTimeLabel" xml:space="preserve">
+    <value>Start Time</value>
+  </data>
+  <data name="ElapsedTimeLabel" xml:space="preserve">
+    <value>Elapsed Time</value>
+  </data>
+  <data name="NoRunSelectedLabel" xml:space="preserve">
+    <value>No run currently selected.</value>
+  </data>
+  <data name="CopyToClipboardLabel" xml:space="preserve">
+    <value>Copy to Clipboard</value>
+  </data>
+  <data name="CloseLabel" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ActiveRunsLabel" xml:space="preserve">
+    <value>Active Runs</value>
+  </data>
+  <data name="FinishedRunsLabel" xml:space="preserve">
+    <value>Finished Runs</value>
+  </data>
+  <data name="ClearRunsLabel" xml:space="preserve">
+    <value>Clear Runs</value>
+  </data>
+  <data name="CopyLabel" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="RunOutputLabel" xml:space="preserve">
+    <value>Run output</value>
+  </data>
+  <data name="ClearRunLabel" xml:space="preserve">
+    <value>Clear run</value>
+  </data>
+  <data name="ShowStacktraceLabel" xml:space="preserve">
+    <value>Show Stacktrace</value>
+  </data>
+  <data name="RemoveRunFromListLabel" xml:space="preserve">
+    <value>Remove run from list</value>
+  </data>
+  <data name="DirectoryDoesNotExistMessage" xml:space="preserve">
+    <value>{0} does not exist!</value>
+  </data>
+  <data name="DelayedRunStatus" xml:space="preserve">
+    <value>Delayed Run</value>
+  </data>
+  <data name="RuntimeExceptionStatus" xml:space="preserve">
+    <value>Runtime exception occurred.</value>
+  </data>
+  <data name="ValidationErrorStatus" xml:space="preserve">
+    <value>Validation error occurred</value>
+  </data>
+  <data name="RunFinishedSuccessfullyStatus" xml:space="preserve">
+    <value>Run finished successfully.</value>
+  </data>
+  <data name="ModelSystemRunFinishedNotification" xml:space="preserve">
+    <value>Model system run finished ({0})</value>
+  </data>
+  <data name="ModelSystemRunFinishedBalloon" xml:space="preserve">
+    <value>{0} has finished executing.</value>
+  </data>
+  <data name="ModelSystemRunExceptionBalloon" xml:space="preserve">
+    <value>{0} encountered a runtime exception.</value>
+  </data>
+  <data name="ModelSystemValidationExceptionBalloon" xml:space="preserve">
+    <value>{0} encountered a validation exception.</value>
+  </data>
+  <data name="ErrorInformationCopiedMessage" xml:space="preserve">
+    <value>Error information copied to clipboard</value>
+  </data>
 </root>

@@ -306,4 +306,82 @@
   <data name="ExportModelSystemButtonLabel" xml:space="preserve">
     <value>Exportar sistema de modelos</value>
   </data>
+  <data name="CancelRunMenuItem" xml:space="preserve">
+    <value>Cancelar ejecución</value>
+  </data>
+  <data name="MoveUpInQueueMenuItem" xml:space="preserve">
+    <value>Subir en la cola</value>
+  </data>
+  <data name="MoveDownInQueueMenuItem" xml:space="preserve">
+    <value>Bajar en la cola</value>
+  </data>
+  <data name="StartTimeLabel" xml:space="preserve">
+    <value>Hora de inicio</value>
+  </data>
+  <data name="ElapsedTimeLabel" xml:space="preserve">
+    <value>Tiempo transcurrido</value>
+  </data>
+  <data name="NoRunSelectedLabel" xml:space="preserve">
+    <value>No hay ejecución seleccionada actualmente.</value>
+  </data>
+  <data name="CopyToClipboardLabel" xml:space="preserve">
+    <value>Copiar al portapapeles</value>
+  </data>
+  <data name="CloseLabel" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="ActiveRunsLabel" xml:space="preserve">
+    <value>Ejecuciones activas</value>
+  </data>
+  <data name="FinishedRunsLabel" xml:space="preserve">
+    <value>Ejecuciones terminadas</value>
+  </data>
+  <data name="ClearRunsLabel" xml:space="preserve">
+    <value>Limpiar ejecuciones</value>
+  </data>
+  <data name="CopyLabel" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="RunOutputLabel" xml:space="preserve">
+    <value>Salida de ejecución</value>
+  </data>
+  <data name="ClearRunLabel" xml:space="preserve">
+    <value>Limpiar ejecución</value>
+  </data>
+  <data name="ShowStacktraceLabel" xml:space="preserve">
+    <value>Mostrar seguimiento de pila</value>
+  </data>
+  <data name="RemoveRunFromListLabel" xml:space="preserve">
+    <value>Eliminar ejecución de la lista</value>
+  </data>
+  <data name="DirectoryDoesNotExistMessage" xml:space="preserve">
+    <value>¡{0} no existe!</value>
+  </data>
+  <data name="DelayedRunStatus" xml:space="preserve">
+    <value>Ejecución diferida</value>
+  </data>
+  <data name="RuntimeExceptionStatus" xml:space="preserve">
+    <value>Ocurrió una excepción en tiempo de ejecución.</value>
+  </data>
+  <data name="ValidationErrorStatus" xml:space="preserve">
+    <value>Ocurrió un error de validación</value>
+  </data>
+  <data name="RunFinishedSuccessfullyStatus" xml:space="preserve">
+    <value>Ejecución terminada exitosamente.</value>
+  </data>
+  <data name="ModelSystemRunFinishedNotification" xml:space="preserve">
+    <value>Ejecución del sistema de modelos terminada ({0})</value>
+  </data>
+  <data name="ModelSystemRunFinishedBalloon" xml:space="preserve">
+    <value>{0} ha terminado de ejecutarse.</value>
+  </data>
+  <data name="ModelSystemRunExceptionBalloon" xml:space="preserve">
+    <value>{0} encontró una excepción en tiempo de ejecución.</value>
+  </data>
+  <data name="ModelSystemValidationExceptionBalloon" xml:space="preserve">
+    <value>{0} encontró una excepción de validación.</value>
+  </data>
+  <data name="ErrorInformationCopiedMessage" xml:space="preserve">
+    <value>Información de error copiada al portapapeles</value>
+  </data>
 </root>
