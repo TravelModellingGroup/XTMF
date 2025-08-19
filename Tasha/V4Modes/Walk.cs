@@ -97,9 +97,6 @@ public sealed class Walk : ITashaMode, IIterationSensitive
     [RunParameter("WorkFlag", 0f, "Added to the utility if the trip's purpose is 'Primary Work, Secondary Work, or Work Based Business'.")]
     public float WorkFlag;
 
-    [RunParameter("TravelTimeFactor", 0.0f, "The factor for the distance walked")]
-    public float TravelTimeFactor;
-
     [RunParameter("YoungAdultFlag", 0.0f, "The constant factor for being a young adult")]
     public float YoungAdultFlag;
 
