@@ -86,6 +86,7 @@ public partial class SettingsPage : UserControl
 
         public string UILanguage { get; set; }
 
+        public string LanguageLabel => ResManager.GetString("LanguageLabel");
         public string DirectorySettings => ResManager.GetString("DirectorySettings");
         public string ProjectDirectoryLabel => ResManager.GetString("ProjectDirectory");
         public string ModelSystemDirectoryLabel => ResManager.GetString("ModelSystemDirectory");

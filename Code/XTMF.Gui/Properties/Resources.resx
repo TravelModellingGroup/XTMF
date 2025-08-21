@@ -182,7 +182,7 @@
     <value>Recent Projects</value>
   </data>
   <data name="NewProjectLabel" xml:space="preserve">
-    <value>New Project</value>
+    <value>New Project (Ctrl+N)</value>
   </data>
   <data name="WorkspaceLabel" xml:space="preserve">
     <value>Workspace</value>
@@ -225,9 +225,6 @@
   </data>
   <data name="ChangeDescriptionLabel" xml:space="preserve">
     <value>Change Description (Shift+F2)</value>
-  </data>
-  <data name="NewProjectLabel" xml:space="preserve">
-    <value>New Project (Ctrl+N)</value>
   </data>
   <data name="CloneProjectLabel" xml:space="preserve">
     <value>Clone Project (Ctrl+C)</value>
@@ -450,5 +447,8 @@
   </data>
   <data name="LaunchRemoteClientWindowTitle" xml:space="preserve">
     <value>Launch Remote Client</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Language</value>
   </data>
 </root>

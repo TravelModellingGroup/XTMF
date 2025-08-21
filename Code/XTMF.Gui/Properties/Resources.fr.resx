@@ -181,7 +181,7 @@
     <value>Projets récents</value>
   </data>
   <data name="NewProjectLabel" xml:space="preserve">
-    <value>Nouveau projet</value>
+    <value>Nouveau projet (Ctrl+N)</value>
   </data>
   <data name="WorkspaceLabel" xml:space="preserve">
     <value>Espace de travail</value>
@@ -224,9 +224,6 @@
   </data>
   <data name="ChangeDescriptionLabel" xml:space="preserve">
     <value>Changer la description (Maj+F2)</value>
-  </data>
-  <data name="NewProjectLabel" xml:space="preserve">
-    <value>Nouveau projet (Ctrl+N)</value>
   </data>
   <data name="CloneProjectLabel" xml:space="preserve">
     <value>Cloner le projet (Ctrl+C)</value>
@@ -449,5 +446,9 @@
   </data>
   <data name="LaunchRemoteClientWindowTitle" xml:space="preserve">
     <value>Lancer le client distant</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="LanguageLabel" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
 </root>
