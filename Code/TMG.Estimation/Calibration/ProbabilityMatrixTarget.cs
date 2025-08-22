@@ -123,6 +123,10 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     {
         _mask = Mask is not null ? GetValue(Mask).GetFlatData() : null;
         _targetProbability = GetValue(ObservedTotal, ObservedSelection);
+        if (_targetProbability < 0.0f || _targetProbability > 1.0f)
+        {
+            throw new XTMFRuntimeException(this, $"Target probability {_targetProbability} is not between 0 and 1 for {Name}!");
+        }
     }
 
     /// <summary>
@@ -132,6 +136,10 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     internal override void StoreRun(int runIndex)
     {
         _baseRunProbability = GetValue(ModelTotal, ModelSelection);
+        if (_baseRunProbability < 0.0f || _baseRunProbability > 1.0f)
+        {
+            throw new XTMFRuntimeException(this, $"Model probability {_baseRunProbability} is not between 0 and 1 for {Name}!");
+        }
     }
 
     private static SparseTwinIndex<float> GetValue(IDataSource<SparseTwinIndex<float>> source)

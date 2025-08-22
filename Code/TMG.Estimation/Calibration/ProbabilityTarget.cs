@@ -70,6 +70,10 @@ public sealed class ProbabilityTarget : CalibrationTarget
         TargetProbability.LoadData();
         _targetProbability = TargetProbability.GiveData();
         TargetProbability.UnloadData();
+        if (_targetProbability < 0.0f || _targetProbability > 1.0f)
+        {
+            throw new XTMFRuntimeException(this, $"Target probability {_targetProbability} is not between 0 and 1 for {Name}!");
+        }
     }
 
     internal override void StoreRun(int runIndex)
@@ -81,6 +85,10 @@ public sealed class ProbabilityTarget : CalibrationTarget
         ResultProbability.LoadData();
         _baseRunProbability = ResultProbability.GiveData();
         ResultProbability.UnloadData();
+        if (_baseRunProbability < 0.0f || _baseRunProbability > 1.0f)
+        {
+            throw new XTMFRuntimeException(this, $"Model probability {_baseRunProbability} is not between 0 and 1 for {Name}!");
+        }
     }
 
     internal override float ReportTargetDistance()
