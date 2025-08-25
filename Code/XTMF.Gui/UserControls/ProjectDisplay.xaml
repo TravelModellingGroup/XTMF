@@ -225,32 +225,32 @@
                                     </DataGrid.Columns>
                                     <DataGrid.ContextMenu>
                                         <ContextMenu Tag="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}">
-                                            <MenuItem Header="{Binding RenameModelSystemLabel, ElementName=projectDisplay}" Click="RenameModelSystem_Click">
+                                            <MenuItem x:Name="RenameMenuItem" Click="RenameModelSystem_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource RefreshIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="{Binding DeleteModelSystemLabel, ElementName=projectDisplay}" Click="DeleteModelSystem_Click">
+                                            <MenuItem x:Name="DeleteMenuItem" Click="DeleteModelSystem_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource CancelIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="{Binding SaveModelSystemAsLabel, ElementName=projectDisplay}" Click="SaveModelSystemAs_Click">
+                                            <MenuItem x:Name="SaveAsMenuItem" Click="SaveModelSystemAs_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource SaveIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="{Binding ExportModelSystemAsLabel, ElementName=projectDisplay}" Click="ExportModelSystemAs_Click">
+                                            <MenuItem x:Name="ExportMenuItem" Click="ExportModelSystemAs_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource SaveIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="{Binding CopyModelSystemLabel, ElementName=projectDisplay}" Click="CopyModelSystem_Click">
+                                            <MenuItem x:Name="CopyMenuItem" Click="CopyModelSystem_Click">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource CopyIcon}" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="{Binding PasteAsNewModelSystemLabel, ElementName=projectDisplay}" Click="PasteModelSystem_OnClick"
+                                            <MenuItem x:Name="PasteMenuItem" Click="PasteModelSystem_OnClick"
                                                     IsEnabled="{Binding DataContext.IsCanPasteModelSystem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                                 <MenuItem.Icon>
                                                     <ContentControl Template="{DynamicResource PasteIcon}" />
@@ -290,21 +290,20 @@
                         </materialDesign:ColorZone>
 
                         <ListView Grid.Row="2" x:Name="PastRunDisplay" Width="Auto" HorizontalAlignment="Stretch"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
-
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}"
+                                  ContextMenuOpening="PreviousRunContextMenu_ContextMenuOpening">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource XtmfListBoxItemNoDuration}">
                                     <EventSetter Event="RequestBringIntoView" Handler="EventSetter_OnHandler"></EventSetter>
                                 </Style>
                             </ListView.ItemContainerStyle>
 
-                            <ListBox.ItemsPanel>
-
+                            <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
                                 </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
+                            </ListView.ItemsPanel>
+                            <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <xtmf:ListViewControl TitleText="{Binding Name}" SubText="{Binding TimeStamp}" IsPackIconOverlap="True" MouseDoubleClick="PastRuns_MouseButton" IconKind="Timelapse" IsPathIcon="False">
                                         <xtmf:ListViewControl.PackIconOverlap>
@@ -313,21 +312,21 @@
 
                                     </xtmf:ListViewControl >
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
-                            <ListBox.ContextMenu>
+                            </ListView.ItemTemplate>
+                            <ListView.ContextMenu>
                                 <ContextMenu Name="PreviousRunContextMenu">
-                                    <MenuItem Header="{Binding OpenResultsLabel, ElementName=projectDisplay}" Click="OpenPreviousRun_Click">
+                                    <MenuItem x:Name="OpenResultsMenuItem" Click="OpenPreviousRun_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource OpenIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="{Binding DeletePreviousRunLabel, ElementName=projectDisplay}" Click="DeletePreviousRun_Click">
+                                    <MenuItem x:Name="DeletePreviousRunMenuItem" Click="DeletePreviousRun_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource CancelIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>
-                            </ListBox.ContextMenu>
+                            </ListView.ContextMenu>
                         </ListView>
                     </Grid>
                 </Grid>

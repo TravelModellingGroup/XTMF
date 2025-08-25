@@ -1103,6 +1103,57 @@ public partial class ProjectDisplay : UserControl, INotifyPropertyChanged, ITabC
                 fe.ContextMenu.IsOpen = false;
             }
         }
+        else
+        {
+            // Set localized headers for context menu items
+            if (e.Source is FrameworkElement element && element.ContextMenu != null)
+            {
+                foreach (MenuItem menuItem in element.ContextMenu.Items)
+                {
+                    switch (menuItem.Name)
+                    {
+                        case nameof(RenameMenuItem):
+                            menuItem.Header = RenameModelSystemLabel;
+                            break;
+                        case nameof(DeleteMenuItem):
+                            menuItem.Header = DeleteModelSystemLabel;
+                            break;
+                        case nameof(SaveAsMenuItem):
+                            menuItem.Header = SaveModelSystemAsLabel;
+                            break;
+                        case nameof(ExportMenuItem):
+                            menuItem.Header = ExportModelSystemAsLabel;
+                            break;
+                        case nameof(CopyMenuItem):
+                            menuItem.Header = CopyModelSystemLabel;
+                            break;
+                        case nameof(PasteMenuItem):
+                            menuItem.Header = PasteAsNewModelSystemLabel;
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void PreviousRunContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        // Set localized headers for previous run context menu items
+        if ((sender as FrameworkElement)?.ContextMenu is ContextMenu contextMenu)
+        {
+            foreach (MenuItem menuItem in contextMenu.Items)
+            {
+                switch (menuItem.Name)
+                {
+                    case nameof(OpenResultsMenuItem):
+                        menuItem.Header = OpenResultsLabel;
+                        break;
+                    case nameof(DeletePreviousRunMenuItem):
+                        menuItem.Header = DeletePreviousRunLabel;
+                        break;
+                }
+            }
+        }
     }
 
     private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(ProjectDisplay).Assembly);
