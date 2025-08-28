@@ -451,4 +451,22 @@
   <data name="LanguageLabel" xml:space="preserve">
     <value>Language</value>
   </data>
+  <data name="AboutDialogTitle" xml:space="preserve">
+    <value>About XTMF</value>
+  </data>
+  <data name="VersionLabel" xml:space="preserve">
+    <value>Version: </value>
+  </data>
+  <data name="BuildDateLabel" xml:space="preserve">
+    <value>Build Date: </value>
+  </data>
+  <data name="CreatedByLabel" xml:space="preserve">
+    <value>Created by the Travel Modelling Group</value>
+  </data>
+  <data name="LicenseLabel" xml:space="preserve">
+    <value>This software is Open-Source, copyrighted under the GPLv3 License.</value>
+  </data>
+  <data name="NumberOfModulesLabel" xml:space="preserve">
+    <value>Number of installed modules:</value>
+  </data>
 </root>

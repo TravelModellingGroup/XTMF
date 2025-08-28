@@ -448,7 +448,25 @@
     <value>Lancer le client distant</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="LanguageLabel" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="AboutDialogTitle" xml:space="preserve">
+    <value>À propos d'XTMF</value>
+  </data>
+  <data name="VersionLabel" xml:space="preserve">
+    <value>Version : </value>
+  </data>
+  <data name="BuildDateLabel" xml:space="preserve">
+    <value>Date de construction : </value>
+  </data>
+  <data name="CreatedByLabel" xml:space="preserve">
+    <value>Créé par le Travel Modelling Group</value>
+  </data>
+  <data name="LicenseLabel" xml:space="preserve">
+    <value>Ce logiciel est Open-Source, sous licence GPLv3.</value>
+  </data>
+  <data name="NumberOfModulesLabel" xml:space="preserve">
+    <value>Nombre de modules installés :</value>
   </data>
 </root>

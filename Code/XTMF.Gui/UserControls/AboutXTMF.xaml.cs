@@ -23,6 +23,8 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Resources;
+using System.Globalization;
 using XTMF.Gui.Controllers;
 using IOPath = System.IO.Path;
 
@@ -33,9 +35,20 @@ namespace XTMF.Gui.UserControls;
 /// </summary>
 public partial class AboutXTMF : Window
 {
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(AboutXTMF).Assembly);
+
+    // Localized strings for UI elements
+    public string AboutDialogTitle => ResManager.GetString("AboutDialogTitle");
+    public string VersionLabel => ResManager.GetString("VersionLabel");
+    public string BuildDateLabel => ResManager.GetString("BuildDateLabel");
+    public string CreatedByLabel => ResManager.GetString("CreatedByLabel");
+    public string LicenseLabel => ResManager.GetString("LicenseLabel");
+    public string NumberOfModulesLabel => ResManager.GetString("NumberOfModulesLabel");
+
     public AboutXTMF()
     {
         InitializeComponent();
+        DataContext = this; // Set DataContext for localized string bindings
         Owner = Application.Current.MainWindow;
         VersionBlock.Text = EditorController.Runtime.Configuration.XTMFVersion.ToString();
         BuildBlock.Text = EditorController.Runtime.Configuration.BuildDate;
