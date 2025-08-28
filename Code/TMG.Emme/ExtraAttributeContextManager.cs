@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using XTMF;
 
 namespace TMG.Emme;
@@ -123,7 +124,7 @@ public class ExtraAttributeContextManager : IEmmeTool
             for (int i = 0; i < createdAttributes.Length; i++)
             {
                 var attData = AttributesToCreate[i];
-                var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, false, ResetToDefault);
+                var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue.ToString(CultureInfo.InvariantCulture), false, ResetToDefault);
                 createdAttributes[i] = mc.Run(this, ToolName, args);
                 // ReSharper disable once PossibleLossOfFraction
                 _Progress = i /  createdAttributes.Length / numberOfTasks;
@@ -145,7 +146,7 @@ public class ExtraAttributeContextManager : IEmmeTool
                     if (createdAttributes[i])
                     {
                         var attData = AttributesToCreate[i];
-                        var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, true, ResetToDefault);
+                        var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue.ToString(CultureInfo.InvariantCulture), true, ResetToDefault);
                         mc.Run(this, ToolName, args);
                     }
                 }
