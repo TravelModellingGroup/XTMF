@@ -20,6 +20,7 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -132,13 +133,13 @@ public class TollAttributeRoadAssignment : IEmmeTool
                                 ("mf" + TravelTimeMatrixNumber),
                                 ("mf" + CostMatrixNumber),
                                 ("mf" + TollMatrixNumber),
-                                PeakHourFactor,
-                                LinkUnitCost,
-                                TollPerceptionFactor,
+                                PeakHourFactor.ToString(CultureInfo.InvariantCulture),
+                                LinkUnitCost.ToString(CultureInfo.InvariantCulture),
+                                TollPerceptionFactor.ToString(CultureInfo.InvariantCulture),
                                 MaxIterations,
-                                RelativeGap,
-                                BestRelativeGap,
-                                NormalizedGap,
+                                RelativeGap.ToString(CultureInfo.InvariantCulture),
+                                BestRelativeGap.ToString(CultureInfo.InvariantCulture),
+                                NormalizedGap.ToString(CultureInfo.InvariantCulture),
                                 HighPerformanceMode,
                                 runName,
                                 LinkTollAttribute,
