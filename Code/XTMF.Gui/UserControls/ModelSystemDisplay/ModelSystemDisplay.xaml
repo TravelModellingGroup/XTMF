@@ -216,7 +216,7 @@
                                 <Button ToolTip="{x:Static this:ModelSystemDisplayLocalization.ReloadModelSystemTooltip}" Click="ReloadModelSystemToolbarButton_Click" Name="ReloadModelSystemToolbarButton">
                                     <materialDesign:PackIcon Kind="Reload" Foreground="{DynamicResource PrimaryHueLightBrush}"/>
                                 </Button>
-                                <Grid Width="270" HorizontalAlignment="Left"   Margin="12 2 12 0" VerticalAlignment="Center">
+                                <Grid HorizontalAlignment="Left"   Margin="12 2 12 0" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />

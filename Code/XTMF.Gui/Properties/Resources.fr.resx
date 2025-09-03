@@ -679,4 +679,24 @@
   <data name="FieldIsRequiredMessage" xml:space="preserve"><value>Le champ est requis.</value></data>
   <data name="InvalidValueMessage" xml:space="preserve"><value>Valeur invalide</value></data>
   <data name="OkButtonLabel" xml:space="preserve"><value>OK</value></data>
+  <data name="NewLinkedParameterLabel" xml:space="preserve"><value>Nouveau paramètre lié</value></data>
+  <data name="RenameLinkedParameterMenuItem" xml:space="preserve"><value>Renommer (F2)</value></data>
+  <data name="DeleteLinkedParameterMenuItem" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="LinkedParametersHeaderLabel" xml:space="preserve"><value>Paramètres liés</value></data>
+  <data name="NameLabel" xml:space="preserve"><value>Nom</value></data>
+  <data name="ValueLabel" xml:space="preserve"><value>Valeur</value></data>
+  <data name="ModuleNameLabel" xml:space="preserve"><value>Nom du module</value></data>
+  <data name="ParameterNameLabel" xml:space="preserve"><value>Nom du paramètre</value></data>
+  <data name="UnlinkLabel" xml:space="preserve"><value>Dissocier</value></data>
+  <data name="DeleteLinkedParameterConfirm" xml:space="preserve"><value>Êtes-vous sûr de vouloir supprimer le paramètre lié sélectionné ?</value></data>
+  <data name="DeleteLinkedParameterDialogTitle" xml:space="preserve"><value>Confirmation de suppression [{0}]</value></data>
+  <data name="ErrorRemovingLinkedParameterMessage" xml:space="preserve"><value>Une erreur est survenue lors de la suppression d'un paramètre d'un paramètre lié !\r\n{0}</value></data>
+  <data name="ErrorRemovingLinkedParameterTitle" xml:space="preserve"><value>Erreur de suppression du paramètre</value></data>
+  <data name="ErrorSettingLinkedParameterValueMessage" xml:space="preserve"><value>Une erreur est survenue lors de l'attribution de la valeur '{0}' au paramètre lié !\r\n{1}</value></data>
+  <data name="ErrorSettingLinkedParameterValueTitle" xml:space="preserve"><value>Erreur de définition de la valeur</value></data>
+  <data name="FailedToCreateLinkedParameterTitle" xml:space="preserve"><value>Échec de la création du nouveau paramètre lié</value></data>
+  <data name="FailedToRemoveLinkedParameterTitle" xml:space="preserve"><value>Échec de la suppression du paramètre lié</value></data>
+  <data name="ConfirmUnlinkParameterMessage" xml:space="preserve"><value>Êtes-vous sûr de vouloir dissocier le paramètre sélectionné ?</value></data>
+  <data name="ConfirmUnlinkParameterDialogTitle" xml:space="preserve"><value>Confirmer la dissociation [{0}]</value></data>
+  <data name="CancelLabel" xml:space="preserve"><value>Annuler</value></data>
 </root>

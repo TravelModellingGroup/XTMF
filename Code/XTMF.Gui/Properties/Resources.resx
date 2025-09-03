@@ -258,4 +258,25 @@
   <data name="FieldIsRequiredMessage" xml:space="preserve"><value>Field is required.</value><comment>Validation message for required field</comment></data>
   <data name="InvalidValueMessage" xml:space="preserve"><value>Invalid Value</value><comment>Validation message for invalid input</comment></data>
   <data name="OkButtonLabel" xml:space="preserve"><value>OK</value><comment>Label for generic OK/Confirm button</comment></data>
+  <!-- LinkedParameterDisplay -->
+  <data name="NewLinkedParameterLabel" xml:space="preserve"><value>New Linked Parameter</value></data>
+  <data name="RenameLinkedParameterMenuItem" xml:space="preserve"><value>Rename (F2)</value></data>
+  <data name="DeleteLinkedParameterMenuItem" xml:space="preserve"><value>Delete</value></data>
+  <data name="LinkedParametersHeaderLabel" xml:space="preserve"><value>Linked Parameters</value></data>
+  <data name="NameLabel" xml:space="preserve"><value>Name</value></data>
+  <data name="ValueLabel" xml:space="preserve"><value>Value</value></data>
+  <data name="ModuleNameLabel" xml:space="preserve"><value>Module Name</value></data>
+  <data name="ParameterNameLabel" xml:space="preserve"><value>Parameter Name</value></data>
+  <data name="UnlinkLabel" xml:space="preserve"><value>Unlink</value></data>
+  <data name="DeleteLinkedParameterConfirm" xml:space="preserve"><value>Are you sure you wish to delete the selected linked parameter?</value></data>
+  <data name="DeleteLinkedParameterDialogTitle" xml:space="preserve"><value>Delete Confirmation [{0}]</value></data>
+  <data name="ErrorRemovingLinkedParameterMessage" xml:space="preserve"><value>There was an error trying to remove a parameter from a linked parameter!&#xD;&#xA;{0}</value></data>
+  <data name="ErrorRemovingLinkedParameterTitle" xml:space="preserve"><value>Error removing parameter</value></data>
+  <data name="ErrorSettingLinkedParameterValueMessage" xml:space="preserve"><value>There was an error assigning the value '{0}' to the linked parameter!&#xD;&#xA;{1}</value></data>
+  <data name="ErrorSettingLinkedParameterValueTitle" xml:space="preserve"><value>Error setting value</value></data>
+  <data name="FailedToCreateLinkedParameterTitle" xml:space="preserve"><value>Failed to create new Linked Parameter</value></data>
+  <data name="FailedToRemoveLinkedParameterTitle" xml:space="preserve"><value>Failed to remove Linked Parameter</value></data>
+  <data name="ConfirmUnlinkParameterMessage" xml:space="preserve"><value>Are you sure you wish to unlink the selected parameter?</value></data>
+  <data name="ConfirmUnlinkParameterDialogTitle" xml:space="preserve"><value>Confirm Unlink [{0}]</value></data>
+  <data name="CancelLabel" xml:space="preserve"><value>Cancel</value></data>
 </root>
