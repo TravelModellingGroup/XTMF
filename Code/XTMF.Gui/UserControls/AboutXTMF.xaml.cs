@@ -55,22 +55,6 @@ public partial class AboutXTMF : Window
         NumberOfModules.Text = EditorController.Runtime.Configuration.ModelRepository.Modules.Count.ToString();
     }
 
-    private string GetVersionText()
-    {
-        var assemblyLocation = Assembly.GetEntryAssembly().Location;
-        var licenseFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "license.txt");
-        var versionFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "version.txt");
-        try
-        {
-            using StreamReader reader = new(versionFile);
-            return reader.ReadLine();
-        }
-        catch
-        {
-            return "Unknown Version";
-        }
-    }
-
     private void TextBlock_MouseUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is TextBlock textBlock)
