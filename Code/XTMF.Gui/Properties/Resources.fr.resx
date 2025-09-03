@@ -676,4 +676,7 @@
   <data name="ModelSystemNameDialogTitle" xml:space="preserve"><value>Nom du système de modèle</value></data>
   <data name="SetLinkedParameterNameDialogTitle" xml:space="preserve"><value>Définir le nom du paramètre lié</value></data>
   <data name="NewLinkedParameterNameDialogTitle" xml:space="preserve"><value>Nouveau nom de paramètre lié</value></data>
+  <data name="FieldIsRequiredMessage" xml:space="preserve"><value>Le champ est requis.</value></data>
+  <data name="InvalidValueMessage" xml:space="preserve"><value>Valeur invalide</value></data>
+  <data name="OkButtonLabel" xml:space="preserve"><value>OK</value></data>
 </root>

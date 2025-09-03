@@ -735,4 +735,7 @@
   <data name="ModelSystemTabTitleFormat" xml:space="preserve">
     <value>Sistema de modelos - {0}</value>
   </data>
+  <data name="FieldIsRequiredMessage" xml:space="preserve"><value>El campo es obligatorio.</value></data>
+  <data name="InvalidValueMessage" xml:space="preserve"><value>Valor inválido</value></data>
+  <data name="OkButtonLabel" xml:space="preserve"><value>Aceptar</value></data>
 </root>

@@ -255,4 +255,7 @@
   <data name="ModelSystemTabTitleFormat" xml:space="preserve"><value>Model System - {0}</value><comment>Format for model system tab title (standalone)</comment></data>
   <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve"><value>{0} - {1}</value><comment>Format for model system tab title when editing within a project</comment></data>
   <data name="ProjectTabTitleFormat" xml:space="preserve"><value>Project - {0}</value><comment>Format for project tab title</comment></data>
+  <data name="FieldIsRequiredMessage" xml:space="preserve"><value>Field is required.</value><comment>Validation message for required field</comment></data>
+  <data name="InvalidValueMessage" xml:space="preserve"><value>Invalid Value</value><comment>Validation message for invalid input</comment></data>
+  <data name="OkButtonLabel" xml:space="preserve"><value>OK</value><comment>Label for generic OK/Confirm button</comment></data>
 </root>

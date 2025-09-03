@@ -42,6 +42,8 @@ public partial class StringRequestDialog : UserControl
 
     public string UserInput { get; set; }
 
+    public string OkButtonText { get; set; }
+
     private DialogSession _dialogSession;
 
     private DialogHost _host;
@@ -56,6 +58,7 @@ public partial class StringRequestDialog : UserControl
         QuestionText = question;
         DidComplete = false;
         UserInput = startingText;
+        OkButtonText = new System.Resources.ResourceManager("XTMF.Gui.Properties.Resources", typeof(StringRequestDialog).Assembly).GetString("OkButtonLabel") ?? "OK";
         InitializeComponent();
         // We clear the focus here to ensure that extra keys strokes before we gain keyboard focus don't go through.
         _returnFocusTo = Keyboard.FocusedElement;
@@ -185,17 +188,20 @@ public class ValidateString : ValidationRule
 
     public override ValidationResult Validate(object value, CultureInfo cultureInfo)
     {
+        var resMan = new System.Resources.ResourceManager("XTMF.Gui.Properties.Resources", typeof(ValidateString).Assembly);
+        var requiredMsg = resMan.GetString("FieldIsRequiredMessage") ?? "Field is required.";
+        var invalidMsg = resMan.GetString("InvalidValueMessage") ?? "Invalid Value";
         if (ValidationRule == null)
         {
             return string.IsNullOrWhiteSpace((value ?? "").ToString())
-                ? new ValidationResult(false, "Field is required.")
+                ? new ValidationResult(false, requiredMsg)
                 : ValidationResult.ValidResult;
         }
         else
         {
             return ValidationRule((string)value)
                 ? ValidationResult.ValidResult
-                : new ValidationResult(false, "Invalid Value");
+                : new ValidationResult(false, invalidMsg);
         }
     }
 }
@@ -203,8 +209,10 @@ public class NotEmptyValidationRule : ValidationRule
 {
     public override ValidationResult Validate(object value, CultureInfo cultureInfo)
     {
+        var resMan = new System.Resources.ResourceManager("XTMF.Gui.Properties.Resources", typeof(NotEmptyValidationRule).Assembly);
+        var requiredMsg = resMan.GetString("FieldIsRequiredMessage") ?? "Field is required.";
         return string.IsNullOrWhiteSpace((value ?? "").ToString())
-            ? new ValidationResult(false, "Field is required.")
+            ? new ValidationResult(false, requiredMsg)
             : ValidationResult.ValidResult;
     }
 }
