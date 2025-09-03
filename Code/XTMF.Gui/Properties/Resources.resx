@@ -242,10 +242,12 @@
   <data name="LinkedParametersMenuItem" xml:space="preserve"><value>Linked Parameters (Ctrl+L)</value></data>
   <data name="ExpandAllModulesMenuItem" xml:space="preserve"><value>Expand all Modules</value></data>
   <data name="CollapseAllModulesMenuItem" xml:space="preserve"><value>Collapse all Modules</value></data>
-  <data name="NoRequiredModulesMissingLabel" xml:space="preserve"><value>No required modules missing.</value><comment>ModelSystemDisplay popup</comment></data>
-  <data name="MissingRequiredModulesLabel" xml:space="preserve"><value>Missing Required Modules</value><comment>ModelSystemDisplay popup</comment></data>
-  <data name="DisabledModulesLabel" xml:space="preserve"><value>Disabled Modules</value><comment>ModelSystemDisplay popup</comment></data>
-  <!-- New globalization keys for tab titles and formats (MainWindow) -->
+  <data name="ProjectNameDialogTitle" xml:space="preserve"><value>Project Name</value><comment>Title/question for new project name input dialog</comment></data>
+  <data name="ModelSystemNameDialogTitle" xml:space="preserve"><value>Model System Name</value><comment>Title/question for new model system name input dialog</comment></data>
+  <data name="SetLinkedParameterNameDialogTitle" xml:space="preserve"><value>Set Linked Parameter Name</value><comment>Title for renaming a linked parameter</comment></data>
+  <data name="NewLinkedParameterNameDialogTitle" xml:space="preserve"><value>New Linked Parameter Name</value><comment>Title for creating a new linked parameter</comment></data>
+  <data name="StatusReady" xml:space="preserve"><value>Ready</value><comment>Status bar text when application is idle</comment></data>
+  <data name="StatusLoadingXTMF" xml:space="preserve"><value>Loading XTMF</value><comment>Status bar text while XTMF components are loading</comment></data>
   <data name="StartLabel" xml:space="preserve"><value>Start</value><comment>MainWindow tab title</comment></data>
   <data name="ProjectsDisplayLabel" xml:space="preserve"><value>Projects Display</value><comment>MainWindow tab title</comment></data>
   <data name="ModelSystemRunsLabel" xml:space="preserve"><value>Model System Runs</value><comment>Scheduler runs tab</comment></data>

@@ -268,7 +268,8 @@ public partial class LinkedParameterDisplay : UserControl
         if (Display.SelectedItem is LinkedParameterDisplayModel selected)
         {
             var selectedModuleControl = GetCurrentlySelectedControl();
-            var dialog = new StringRequestDialog(RootDialogHost, "Set LinkedParameter Name", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
+            var dialogTitle = new System.Resources.ResourceManager("XTMF.Gui.Properties.Resources", typeof(LinkedParameterDisplay).Assembly).GetString("SetLinkedParameterNameDialogTitle") ?? "Set Linked Parameter Name";
+            var dialog = new StringRequestDialog(RootDialogHost, dialogTitle, (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
             await dialog.ShowAsync();
             if(dialog.DidComplete)
             {
@@ -293,7 +294,8 @@ public partial class LinkedParameterDisplay : UserControl
     /// <param name="obj"></param>
     private async void NewLinkedParameter_Clicked()
     {
-        var dialog = new StringRequestDialog(RootDialogHost, "New LinkedParameter Name", (value) => !String.IsNullOrWhiteSpace(value), String.Empty);
+        var dialogTitle = new System.Resources.ResourceManager("XTMF.Gui.Properties.Resources", typeof(LinkedParameterDisplay).Assembly).GetString("NewLinkedParameterNameDialogTitle") ?? "New Linked Parameter Name";
+        var dialog = new StringRequestDialog(RootDialogHost, dialogTitle, (value) => !String.IsNullOrWhiteSpace(value), String.Empty);
         await dialog.ShowAsync();
 
         if (dialog.DidComplete)

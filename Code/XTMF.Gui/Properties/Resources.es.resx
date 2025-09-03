@@ -672,6 +672,57 @@
   <data name="ProjectTabTitleFormat" xml:space="preserve">
     <value>Proyecto - {0}</value>
   </data>
+  <data name="StatusReady" xml:space="preserve">
+    <value>Listo</value>
+  </data>
+  <data name="StatusLoadingXTMF" xml:space="preserve">
+    <value>Cargando XTMF</value>
+  </data>
+  <data name="StartLabel" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="ProjectsDisplayLabel" xml:space="preserve">
+    <value>Vista de proyectos</value>
+  </data>
+  <data name="ModelSystemRunsLabel" xml:space="preserve">
+    <value>Ejecuciones del sistema de modelos</value>
+  </data>
+  <data name="ProjectNameDialogTitle" xml:space="preserve">
+    <value>Nombre del proyecto</value>
+  </data>
+  <data name="ModelSystemNameDialogTitle" xml:space="preserve">
+    <value>Nombre del sistema de modelo</value>
+  </data>
+  <data name="SetLinkedParameterNameDialogTitle" xml:space="preserve">
+    <value>Definir nombre del parámetro vinculado</value>
+  </data>
+  <data name="NewLinkedParameterNameDialogTitle" xml:space="preserve">
+    <value>Nuevo nombre de parámetro vinculado</value>
+  </data>
+  <data name="NoRequiredModulesMissingLabel" xml:space="preserve">
+    <value>No faltan módulos requeridos.</value>
+  </data>
+  <data name="MissingRequiredModulesLabel" xml:space="preserve">
+    <value>Módulos requeridos faltantes</value>
+  </data>
+  <data name="DisabledModulesLabel" xml:space="preserve">
+    <value>Módulos deshabilitados</value>
+  </data>
+  <data name="DocumentationTabTitleFormat" xml:space="preserve">
+    <value>Documentación - {0}</value>
+  </data>
+  <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve">
+    <value>{0} - {1}</value>
+  </data>
+  <data name="ProjectTabTitleFormat" xml:space="preserve">
+    <value>Proyecto - {0}</value>
+  </data>
+  <data name="StatusReady" xml:space="preserve">
+    <value>Listo</value>
+  </data>
+  <data name="StatusLoadingXTMF" xml:space="preserve">
+    <value>Cargando XTMF</value>
+  </data>
   <data name="StartLabel" xml:space="preserve">
     <value>Inicio</value>
   </data>

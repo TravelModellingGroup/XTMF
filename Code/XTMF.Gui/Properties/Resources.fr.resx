@@ -663,25 +663,17 @@
   <data name="DisabledModulesLabel" xml:space="preserve">
     <value>Modules désactivés</value>
   </data>
-  <data name="StartLabel" xml:space="preserve">
-    <value>Démarrer</value>
-  </data>
-  <data name="ProjectsDisplayLabel" xml:space="preserve">
-    <value>Affichage des projets</value>
-  </data>
-  <data name="ModelSystemRunsLabel" xml:space="preserve">
-    <value>Exécutions du système de modèle</value>
-  </data>
-  <data name="ModelSystemTabTitleFormat" xml:space="preserve">
-    <value>Système de modèle - {0}</value>
-  </data>
-  <data name="DocumentationTabTitleFormat" xml:space="preserve">
-    <value>Documentation - {0}</value>
-  </data>
-  <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve">
-    <value>{0} - {1}</value>
-  </data>
-  <data name="ProjectTabTitleFormat" xml:space="preserve">
-    <value>Projet - {0}</value>
-  </data>
+  <data name="StatusReady" xml:space="preserve"><value>Prêt</value><comment>Statut prêt</comment></data>
+  <data name="StatusLoadingXTMF" xml:space="preserve"><value>Chargement de XTMF</value><comment>Statut chargement</comment></data>
+  <data name="StartLabel" xml:space="preserve"><value>Démarrer</value></data>
+  <data name="ProjectsDisplayLabel" xml:space="preserve"><value>Affichage des projets</value></data>
+  <data name="ModelSystemRunsLabel" xml:space="preserve"><value>Exécutions du système de modèle</value></data>
+  <data name="ModelSystemTabTitleFormat" xml:space="preserve"><value>Système de modèle - {0}</value></data>
+  <data name="DocumentationTabTitleFormat" xml:space="preserve"><value>Documentation - {0}</value></data>
+  <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve"><value>{0} - {1}</value></data>
+  <data name="ProjectTabTitleFormat" xml:space="preserve"><value>Projet - {0}</value></data>
+  <data name="ProjectNameDialogTitle" xml:space="preserve"><value>Nom du projet</value></data>
+  <data name="ModelSystemNameDialogTitle" xml:space="preserve"><value>Nom du système de modèle</value></data>
+  <data name="SetLinkedParameterNameDialogTitle" xml:space="preserve"><value>Définir le nom du paramètre lié</value></data>
+  <data name="NewLinkedParameterNameDialogTitle" xml:space="preserve"><value>Nouveau nom de paramètre lié</value></data>
 </root>

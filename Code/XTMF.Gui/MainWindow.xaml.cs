@@ -232,13 +232,13 @@ public partial class MainWindow : MetroWindow
     public void Reload()
     {
         IsEnabled = false;
-        StatusDisplay.Text = "Loading XTMF";
+        StatusDisplay.Text = ResManager.GetString("StatusLoadingXTMF") ?? "Loading XTMF";
         EditorController.Register(this, () =>
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 IsEnabled = true;
-                StatusDisplay.Text = "Ready";
+                StatusDisplay.Text = ResManager.GetString("StatusReady") ?? "Ready";
                 UpdateRecentProjectsMenu();
             }));
         });
@@ -251,7 +251,7 @@ public partial class MainWindow : MetroWindow
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         IsEnabled = false;
-        StatusDisplay.Text = "Loading XTMF";
+        StatusDisplay.Text = ResManager.GetString("StatusLoadingXTMF") ?? "Loading XTMF";
         Dispatcher.Invoke(() => { ExternalGrid.Focus(); });
         SetDisplayActive(new StartWindow(), ResManager.GetString("StartLabel") ?? "Start");
     }
@@ -382,7 +382,7 @@ public partial class MainWindow : MetroWindow
                     var projectFormat = ResManager.GetString("ProjectTabTitleFormat") ?? "Project - {0}";
                     SetDisplayActive(display, string.Format(projectFormat, projectSession.Name));
                     WorkspaceProjects.Add(projectSession.Project, display);
-                    SetStatusText("Ready");
+                    SetStatusText(ResManager.GetString("StatusReady") ?? "Ready");
                 }
             ));
         }
@@ -468,7 +468,7 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     public async void NewModelSystem(DialogHost host)
     {
-        var dialog = new StringRequestDialog(host, "Model System Name", ValidateName, null);
+        var dialog = new StringRequestDialog(host, ResManager.GetString("ModelSystemNameDialogTitle") ?? "Model System Name", ValidateName, null);
         var result = await dialog.ShowAsync();
         if (dialog.DidComplete)
         {
@@ -484,7 +484,7 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     public async void NewProject(DialogHost host)
     {
-        var dialog = new StringRequestDialog(host, "Project Name", ValidateName, null);
+        var dialog = new StringRequestDialog(host, ResManager.GetString("ProjectNameDialogTitle") ?? "Project Name", ValidateName, null);
         _isDialogOpen = true;
         var result = await dialog.ShowAsync();
 
