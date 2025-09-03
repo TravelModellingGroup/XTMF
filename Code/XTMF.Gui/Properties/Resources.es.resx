@@ -447,7 +447,6 @@
   <data name="LaunchRemoteClientWindowTitle" xml:space="preserve">
     <value>Iniciar cliente remoto</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="LanguageLabel" xml:space="preserve">
     <value>Idioma</value>
   </data>
@@ -663,5 +662,26 @@
   </data>
   <data name="DisabledModulesLabel" xml:space="preserve">
     <value>Módulos deshabilitados</value>
+  </data>
+  <data name="DocumentationTabTitleFormat" xml:space="preserve">
+    <value>Documentación - {0}</value>
+  </data>
+  <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve">
+    <value>{0} - {1}</value>
+  </data>
+  <data name="ProjectTabTitleFormat" xml:space="preserve">
+    <value>Proyecto - {0}</value>
+  </data>
+  <data name="StartLabel" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="ProjectsDisplayLabel" xml:space="preserve">
+    <value>Vista de proyectos</value>
+  </data>
+  <data name="ModelSystemRunsLabel" xml:space="preserve">
+    <value>Ejecuciones del sistema de modelos</value>
+  </data>
+  <data name="ModelSystemTabTitleFormat" xml:space="preserve">
+    <value>Sistema de modelos - {0}</value>
   </data>
 </root>

@@ -245,4 +245,12 @@
   <data name="NoRequiredModulesMissingLabel" xml:space="preserve"><value>No required modules missing.</value><comment>ModelSystemDisplay popup</comment></data>
   <data name="MissingRequiredModulesLabel" xml:space="preserve"><value>Missing Required Modules</value><comment>ModelSystemDisplay popup</comment></data>
   <data name="DisabledModulesLabel" xml:space="preserve"><value>Disabled Modules</value><comment>ModelSystemDisplay popup</comment></data>
+  <!-- New globalization keys for tab titles and formats (MainWindow) -->
+  <data name="StartLabel" xml:space="preserve"><value>Start</value><comment>MainWindow tab title</comment></data>
+  <data name="ProjectsDisplayLabel" xml:space="preserve"><value>Projects Display</value><comment>MainWindow tab title</comment></data>
+  <data name="ModelSystemRunsLabel" xml:space="preserve"><value>Model System Runs</value><comment>Scheduler runs tab</comment></data>
+  <data name="DocumentationTabTitleFormat" xml:space="preserve"><value>Documentation - {0}</value><comment>Format for documentation tab title</comment></data>
+  <data name="ModelSystemTabTitleFormat" xml:space="preserve"><value>Model System - {0}</value><comment>Format for model system tab title (standalone)</comment></data>
+  <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve"><value>{0} - {1}</value><comment>Format for model system tab title when editing within a project</comment></data>
+  <data name="ProjectTabTitleFormat" xml:space="preserve"><value>Project - {0}</value><comment>Format for project tab title</comment></data>
 </root>
