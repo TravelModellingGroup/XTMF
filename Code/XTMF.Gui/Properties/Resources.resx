@@ -469,4 +469,199 @@
   <data name="NumberOfModulesLabel" xml:space="preserve">
     <value>Number of installed modules:</value>
   </data>
+  <data name="SaveModelSystemTooltip" xml:space="preserve">
+    <value>Save Model System</value>
+  </data>
+  <data name="LinkedParametersTooltip" xml:space="preserve">
+    <value>Linked Parameters</value>
+  </data>
+  <data name="RunModelSystemTooltip" xml:space="preserve">
+    <value>Run Model System</value>
+  </data>
+  <data name="OpenProjectFolderTooltip" xml:space="preserve">
+    <value>Open Project Folder</value>
+  </data>
+  <data name="ReloadModelSystemTooltip" xml:space="preserve">
+    <value>Reload Model System</value>
+  </data>
+  <data name="SearchModulesTooltip" xml:space="preserve">
+    <value>Search Modules... (Ctrl+E)</value>
+  </data>
+  <data name="ToggleQuickParametersTooltip" xml:space="preserve">
+    <value>Toggle Quick Parameters Panel</value>
+  </data>
+  <data name="ToggleModuleParametersTooltip" xml:space="preserve">
+    <value>Toggle Module Parameters Panel</value>
+  </data>
+  <data name="ModuleParametersLabel" xml:space="preserve">
+    <value>Module Parameters</value>
+  </data>
+  <data name="FilterParametersTooltip" xml:space="preserve">
+    <value>Filter Parameters... (Ctrl+P)</value>
+  </data>
+  <data name="QuickParametersLabel" xml:space="preserve">
+    <value>Quick Parameters</value>
+  </data>
+  <data name="FilterQuickParametersTooltip" xml:space="preserve">
+    <value>Filter Parameters... (Ctrl+Q)</value>
+  </data>
+  <data name="ModuleDescriptionLabel" xml:space="preserve">
+    <value>Module Description</value>
+  </data>
+  <data name="NoDescriptionAvailable" xml:space="preserve">
+    <value>No description available.</value>
+  </data>
+  <data name="NoModuleSelected" xml:space="preserve">
+    <value>No module selected.</value>
+  </data>
+  <data name="ModelSystemRequirements" xml:space="preserve">
+    <value>Model System Requirements</value>
+  </data>
+  <data name="NoModuleCurrentlySelected" xml:space="preserve">
+    <value>No module currently selected.</value>
+  </data>
+  <data name="EnableModule" xml:space="preserve">
+    <value>Enable Module</value>
+  </data>
+  <data name="DisableModule" xml:space="preserve">
+    <value>Disable Module</value>
+  </data>
+  <data name="RemoveModuleFromList" xml:space="preserve">
+    <value>Remove module from list</value>
+  </data>
+  <data name="QuickParameterTooltip" xml:space="preserve">
+    <value>Quick Parameter</value>
+  </data>
+  <data name="SystemParameterTooltip" xml:space="preserve">
+    <value>System Parameter</value>
+  </data>
+  <data name="AssociatedModuleDisabledTooltip" xml:space="preserve">
+    <value>Associated module is disabled</value>
+  </data>
+  <data name="DisabledModulesTooltip" xml:space="preserve">
+    <value>Disabled Modules</value>
+  </data>
+  <data name="CopyParameterMenuItem" xml:space="preserve">
+    <value>Copy (Ctrl+N)</value>
+  </data>
+  <data name="RenameParameterMenuItem" xml:space="preserve">
+    <value>Rename        (F2)</value>
+  </data>
+  <data name="ResetParameterNameMenuItem" xml:space="preserve">
+    <value>Reset Name     </value>
+  </data>
+  <data name="HideParameterMenuItem" xml:space="preserve">
+    <value>Hide Parameter(Ctrl+H)</value>
+  </data>
+  <data name="ShowParameterMenuItem" xml:space="preserve">
+    <value>Show Parameter(Ctrl+Shift+H)</value>
+  </data>
+  <data name="CopyParametersToClipboardMenuItem" xml:space="preserve">
+    <value>Copy Parameters To Clipboard</value>
+  </data>
+  <data name="PasteFromSpreadsheetMenuItem" xml:space="preserve">
+    <value>Paste From Spreadsheet</value>
+  </data>
+  <data name="OpenFileMenuItem" xml:space="preserve">
+    <value>Open File  (Ctrl+O)</value>
+  </data>
+  <data name="OpenFileWithMenuItem" xml:space="preserve">
+    <value>Open File With</value>
+  </data>
+  <data name="OpenFileLocationMenuItem" xml:space="preserve">
+    <value>Open File Location</value>
+  </data>
+  <data name="SelectFileMenuItem" xml:space="preserve">
+    <value>Select File (Ctrl+F)</value>
+  </data>
+  <data name="SelectDirectoryMenuItem" xml:space="preserve">
+    <value>Select Directory (Ctrl+D)</value>
+  </data>
+  <data name="AssignLinkedParameterMenuItem" xml:space="preserve">
+    <value>Assign Linked Parameter (Ctrl+L)</value>
+  </data>
+  <data name="RecentLinkedParametersMenuItem" xml:space="preserve">
+    <value>Recent Linked Parameters</value>
+  </data>
+  <data name="RemoveFromLinkedParameterMenuItem" xml:space="preserve">
+    <value>Remove From Linked Parameter</value>
+  </data>
+  <data name="ResetToDefaultMenuItem" xml:space="preserve">
+    <value>Reset to Default</value>
+  </data>
+  <data name="CopyParameterNameMenuItem" xml:space="preserve">
+    <value>Copy Parameter Name (Ctrl+N)</value>
+  </data>
+  <data name="GoToModuleMenuItem" xml:space="preserve">
+    <value>Go To Module</value>
+  </data>
+  <data name="ParameterMenuItem" xml:space="preserve">
+    <value>Parameter</value>
+  </data>
+  <data name="OpenMenuItem" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="CopyModuleMenuItem" xml:space="preserve">
+    <value>Copy (Ctrl+C)</value>
+  </data>
+  <data name="CloneModuleMenuItem" xml:space="preserve">
+    <value>Clone (Ctrl+Shift+C)</value>
+  </data>
+  <data name="PasteModuleMenuItem" xml:space="preserve">
+    <value>Paste (Ctrl+V)</value>
+  </data>
+  <data name="RenameModuleMenuItem" xml:space="preserve">
+    <value>Rename (F2)</value>
+  </data>
+  <data name="EditDescriptionMenuItem" xml:space="preserve">
+    <value>Edit Description (Shift + F2)</value>
+  </data>
+  <data name="MetaModuleMenuItem" xml:space="preserve">
+    <value>Meta-Module</value>
+  </data>
+  <data name="ConvertToMetaModuleMenuItem" xml:space="preserve">
+    <value>Convert To  (Ctrl+Shift+M)</value>
+  </data>
+  <data name="SplitMetaModuleMenuItem" xml:space="preserve">
+    <value>Split(Ctrl+Shift+Alt+M)</value>
+  </data>
+  <data name="ModuleMenuItem" xml:space="preserve">
+    <value>Module (Ctrl+M)</value>
+  </data>
+  <data name="DisableModuleMenuItem" xml:space="preserve">
+    <value>Disable Module (Ctrl+D)</value>
+  </data>
+  <data name="RemoveModuleMenuItem" xml:space="preserve">
+    <value>Remove (Del)</value>
+  </data>
+  <data name="HelpMenuItem" xml:space="preserve">
+    <value>Help (F1)</value>
+  </data>
+  <data name="MoveMenuItem" xml:space="preserve">
+    <value>Move</value>
+  </data>
+  <data name="MoveUpMenuItem" xml:space="preserve">
+    <value>Up   (Ctrl+Shift+Up)</value>
+  </data>
+  <data name="MoveDownMenuItem" xml:space="preserve">
+    <value>Down (Ctrl+Shift+Down)</value>
+  </data>
+  <data name="LinkedParametersMenuItem" xml:space="preserve">
+    <value>Linked Parameters (Ctrl+L)</value>
+  </data>
+  <data name="ExpandAllModulesMenuItem" xml:space="preserve">
+    <value>Expand all Modules</value>
+  </data>
+  <data name="CollapseAllModulesMenuItem" xml:space="preserve">
+    <value>Collapse all Modules</value>
+  </data>
+  <data name="NoRequiredModulesMissingLabel" xml:space="preserve">
+    <value>No required modules missing.</value>
+  </data>
+  <data name="MissingRequiredModulesLabel" xml:space="preserve">
+    <value>Missing Required Modules</value>
+  </data>
+  <data name="DisabledModulesLabel" xml:space="preserve">
+    <value>Disabled Modules</value>
+  </data>
 </root>
