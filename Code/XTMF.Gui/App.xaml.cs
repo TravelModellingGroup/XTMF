@@ -47,7 +47,7 @@ public partial class App : Application
                     }
                     else
                     {
-                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), "Blue", EditorController.Runtime.Configuration.IsDarkTheme); ;
+                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), "Blue", EditorController.Runtime.Configuration.IsDarkTheme);
                     }
 
                 }
