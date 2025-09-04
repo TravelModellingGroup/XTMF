@@ -279,4 +279,49 @@
   <data name="ConfirmUnlinkParameterMessage" xml:space="preserve"><value>Are you sure you wish to unlink the selected parameter?</value></data>
   <data name="ConfirmUnlinkParameterDialogTitle" xml:space="preserve"><value>Confirm Unlink [{0}]</value></data>
   <data name="CancelLabel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="InvalidRunNameMessage" xml:space="preserve"><value>You have entered an invalid run name.</value></data>
+  <data name="InvalidRunNameTitle" xml:space="preserve"><value>Invalid run name entered</value></data>
+  <data name="RunNameExistsMessage" xml:space="preserve"><value>This run name has been previously used. Do you wish to delete the previous output?</value></data>
+  <data name="RunNameExistsTitle" xml:space="preserve"><value>Run Name Already Exists</value></data>
+  <data name="UnableToStartRunMessageFormat" xml:space="preserve"><value>Unable to start run.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToStartRunTitle" xml:space="preserve"><value>Unable to start run</value></data>
+  <data name="UnknownErrorMessage" xml:space="preserve"><value>UNKNOWN ERROR</value></data>
+  <data name="ReferencedModuleNotFoundMessage" xml:space="preserve"><value>Referenced module is unable to be found in the current state of the model system.</value></data>
+  <data name="ErrorDisplayingModuleTitle" xml:space="preserve"><value>Error Displaying Module</value></data>
+  <data name="UnsavedModelSystemWarning" xml:space="preserve"><value>The model system has not been saved, closing this window will discard the changes!</value></data>
+  <data name="AreYouSureTitle" xml:space="preserve"><value>Are you sure?</value></data>
+  <data name="FailedToCloseModelSystemTitle" xml:space="preserve"><value>Failed to close the model system.</value></data>
+  <data name="DisabledModulesCountFormat" xml:space="preserve"><value>{0} disabled modules</value></data>
+  <data name="FailedSetLinkedParameterTitle" xml:space="preserve"><value>Failed to set to Linked Parameter</value></data>
+  <data name="FailedRemoveLinkedParameterTitle" xml:space="preserve"><value>Failed to remove from Linked Parameter</value></data>
+  <data name="AllSelectedModulesSameTypeMessage" xml:space="preserve"><value>All selected modules must be for the same type.</value></data>
+  <data name="FailedAddModuleToCollectionTitle" xml:space="preserve"><value>Failed add module to collection</value></data>
+  <data name="SetModuleTypesCommandName" xml:space="preserve"><value>Set Module Types</value></data>
+  <data name="ModulesLabel" xml:space="preserve"><value>Modules</value></data>
+  <data name="NoModelLoadedLabel" xml:space="preserve"><value>No model loaded</value></data>
+  <data name="SaveModelSystemAsDialogTitle" xml:space="preserve"><value>Save Model System As?</value></data>
+  <data name="FailedToSaveMessageFormat" xml:space="preserve"><value>Failed to save.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToSaveTitle" xml:space="preserve"><value>Unable to Save</value></data>
+  <data name="SavingStatusText" xml:space="preserve"><value>Saving...</value></data>
+  <data name="FailedToSaveSnackBarFormat" xml:space="preserve"><value>Failed to Save &#xD;&#xA;{0}</value></data>
+  <data name="ModelSystemFinishedSavingMessage" xml:space="preserve"><value>Model system finished saving</value></data>
+  <data name="GenericErrorTitle" xml:space="preserve"><value>Error</value></data>
+  <data name="FailedToPasteMessageFormat" xml:space="preserve"><value>Failed to Paste.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToPasteTitle" xml:space="preserve"><value>Unable to Paste</value></data>
+  <data name="ChangeDescriptionDialogTitleSingle" xml:space="preserve"><value>Change Description</value></data>
+  <data name="ChangeDescriptionDialogTitleMultiple" xml:space="preserve"><value>Change Descriptions</value></data>
+  <data name="RenameModuleDialogTitleSingle" xml:space="preserve"><value>Rename Module</value></data>
+  <data name="RenameModuleDialogTitleMultiple" xml:space="preserve"><value>Rename Modules</value></data>
+  <data name="RenameModelSystemCommandName" xml:space="preserve"><value>Rename ModelSystem</value></data>
+  <data name="RemoveSelectedModulesCommandName" xml:space="preserve"><value>Remove Selected Modules</value></data>
+  <data name="UnableToResetParameterTitle" xml:space="preserve"><value>Unable to reset parameter</value></data>
+  <data name="NotEnoughSpaceToPasteMessage" xml:space="preserve"><value>There is not enough space to paste all of the entries.</value></data>
+  <data name="NoClipboardTextMessage" xml:space="preserve"><value>There was no text data in the clipboard to copy.</value></data>
+  <data name="RenameParameterDialogTitle" xml:space="preserve"><value>Rename Parameter</value></data>
+  <data name="UnableToSetParameterNameTitle" xml:space="preserve"><value>Unable to Set Parameter Name</value></data>
+  <data name="UnableToLoadTitle" xml:space="preserve"><value>Unable to Load</value></data>
+  <data name="UnableToRevertTitle" xml:space="preserve"><value>Unable to revert</value></data>
+  <data name="UnableToSetParameterTitle" xml:space="preserve"><value>Unable to Set Parameter</value></data>
+  <data name="UnableToLoadFileMessageFormat" xml:space="preserve"><value>Unable to load the file at '{0}'!</value></data>
+  <data name="UnableToSetParameterMessageFormat" xml:space="preserve"><value>We were unable to set the parameter '{0}' with the value '{1}'.&#xD;&#xA;{2}</value></data>
 </root>
