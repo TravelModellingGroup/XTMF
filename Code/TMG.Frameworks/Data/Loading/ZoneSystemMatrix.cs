@@ -43,6 +43,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
         IntraPDMatrix = 3,
         IntraRegionMatrix = 4,
         ZoneSystemDistanceMatrix = 5,
+        IntrazonalMatrix = 6,
     }
 
     [RunParameter("Matrix Type", MatrixType.StraightLineZoneDistance, "The type of data from the zone system to fill the matrix with.")]
@@ -74,6 +75,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
             MatrixType.IntraPDMatrix => ComputeIntraPDMatrix(zoneSystem),
             MatrixType.IntraRegionMatrix => ComputeIntraRegionMatrix(zoneSystem),
             MatrixType.ZoneSystemDistanceMatrix => CopyZoneSystemDistance(zoneSystem),
+            MatrixType.IntrazonalMatrix => ComputeIntrazonalMatrix(zoneSystem),
             _ => throw new XTMFRuntimeException(this, "Unknown Matrix Type!")
         };
     }
@@ -154,7 +156,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
                 var one = Vector512<float>.One;
                 var zero = Vector512<float>.Zero;
                 var iPD = Vector512.Create(pd[i]);
-                for (; j < flatRet[i].Length - Vector512<float>.Count; j += Vector512<float>.Count)
+                for (; j <= flatRet[i].Length - Vector512<float>.Count; j += Vector512<float>.Count)
                 {
                     var jPD = Vector512.LoadUnsafe(ref pd[j]);
                     var cmp = Vector512.Equals(iPD, jPD);
@@ -167,7 +169,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
                 var one = Vector256<float>.One;
                 var zero = Vector256<float>.Zero;
                 var iPD = Vector256.Create(pd[i]);
-                for (; j < flatRet[i].Length - Vector256<float>.Count; j += Vector256<float>.Count)
+                for (; j <= flatRet[i].Length - Vector256<float>.Count; j += Vector256<float>.Count)
                 {
                     var jPD = Vector256.LoadUnsafe(ref pd[j]);
                     var cmp = Vector256.Equals(iPD, jPD);
@@ -179,6 +181,19 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
             {
                 flatRet[i][j] = pd[i] == pd[j] ? 1.0f : 0.0f;
             }
+        }
+        return ret;
+    }
+
+    private SparseTwinIndex<float> ComputeIntrazonalMatrix(IZoneSystem zoneSystem)
+    {
+        var zones = zoneSystem.ZoneArray;
+        var flatZones = zones.GetFlatData();
+        var ret = zones.CreateSquareTwinArray<float>();
+        var flatRet = ret.GetFlatData();
+        for (int i = 0; i < flatRet.Length; i++)
+        {
+            flatRet[i][i] = 1.0f;
         }
         return ret;
     }
@@ -205,7 +220,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
                 var one = Vector512<float>.One;
                 var zero = Vector512<float>.Zero;
                 var iPD = Vector512.Create(region[i]);
-                for (; j < flatRet[i].Length - Vector512<float>.Count; j += Vector512<float>.Count)
+                for (; j <= flatRet[i].Length - Vector512<float>.Count; j += Vector512<float>.Count)
                 {
                     var jPD = Vector512.LoadUnsafe(ref region[j]);
                     var cmp = Vector512.Equals(iPD, jPD);
@@ -218,7 +233,7 @@ public sealed class ZoneSystemMatrix : IDataSource<SparseTwinIndex<float>>
                 var one = Vector256<float>.One;
                 var zero = Vector256<float>.Zero;
                 var iPD = Vector256.Create(region[i]);
-                for (; j < flatRet[i].Length - Vector256<float>.Count; j += Vector256<float>.Count)
+                for (; j <= flatRet[i].Length - Vector256<float>.Count; j += Vector256<float>.Count)
                 {
                     var jPD = Vector256.LoadUnsafe(ref region[j]);
                     var cmp = Vector256.Equals(iPD, jPD);
