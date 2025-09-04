@@ -28,9 +28,9 @@
              mc:Ignorable="d" Background="{DynamicResource MaterialDesignDarkBackground}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <materialDesign:Card Width="400" HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Background="{DynamicResource MaterialDesignCardBackground}">
-            <TextBox x:Name="Server" Margin="0.25cm,0.25cm,0.25cm,0.1cm" materialDesign:HintAssist.Hint="Server Address" PreviewKeyDown="Server_PreviewKeyDown"/>
-            <TextBox x:Name="Port" Margin="0.25cm" materialDesign:HintAssist.Hint="Port Number" PreviewKeyDown="Port_PreviewKeyDown" />
-            <Button Width="200" Margin="0 10 0 10"  Content="Launch Remote Client"  Click="ButtonBase_OnClick" />
+            <TextBox x:Name="Server" Margin="0.25cm,0.25cm,0.25cm,0.1cm" materialDesign:HintAssist.Hint="{Binding ServerAddressHint, RelativeSource={RelativeSource AncestorType=UserControl}}" PreviewKeyDown="Server_PreviewKeyDown"/>
+            <TextBox x:Name="Port" Margin="0.25cm" materialDesign:HintAssist.Hint="{Binding PortNumberHint, RelativeSource={RelativeSource AncestorType=UserControl}}" PreviewKeyDown="Port_PreviewKeyDown" />
+            <Button Width="200" Margin="0 10 0 10"  Content="{Binding LaunchRemoteClientButton, RelativeSource={RelativeSource AncestorType=UserControl}}"  Click="ButtonBase_OnClick" />
         </StackPanel>
     </materialDesign:Card>
 

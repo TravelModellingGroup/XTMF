@@ -18,6 +18,7 @@
 */
 using System;
 using System.ComponentModel;
+using System.Resources;
 
 namespace XTMF.Gui.Models;
 
@@ -64,4 +65,20 @@ public class ActiveEditingSessionDisplayModel : INotifyPropertyChanged
     internal virtual void Redo() => throw new InvalidOperationException();
 
     internal virtual void Undo() => throw new InvalidOperationException();
+
+    public string NewProjectLabel => ResManager.GetString("NewProjectLabel");
+    public string OpenProjectLabel => ResManager.GetString("OpenProjectLabel");
+    public string WorkspaceLabel => ResManager.GetString("WorkspaceLabel");
+    public string SchedulerLabel => ResManager.GetString("SchedulerLabel");
+    public string LaunchRemoteLabel => ResManager.GetString("LaunchRemoteLabel");
+    public string SettingsLabel => ResManager.GetString("SettingsLabel");
+    public string UpdateXtmfLabel => ResManager.GetString("UpdateXtmfLabel");
+    public string HelpLabel => ResManager.GetString("HelpLabel");
+    public string DocumentationLabel => ResManager.GetString("DocumentationLabel");
+    public string AboutLabel => ResManager.GetString("AboutLabel");
+    public string RunModelLabel => ResManager.GetString("RunModelLabel");
+    public string RunModelTooltip => ResManager.GetString("RunModelTooltip");
+    public string ClickHereLabel => ResManager.GetString("ClickHereLabel");
+
+    private static ResourceManager ResManager = new("XTMF.Gui.Properties.Resources", typeof(ActiveEditingSessionDisplayModel).Assembly);
 }

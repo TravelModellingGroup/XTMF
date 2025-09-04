@@ -18,9 +18,12 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace XTMF.Gui.Controllers;
 
@@ -39,27 +42,6 @@ internal static class EditorController
         {
             OpenWindows.Run((list) =>
            {
-               if (Runtime == null)
-               {
-                   Runtime = new XTMFRuntime();
-                   Runtime.RunController.ErrorLaunchingModel += (errorMessage) =>
-                   {
-                       window.Dispatcher.Invoke(() =>
-                       {
-                           MessageBox.Show(window, errorMessage, "Error running Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                       });
-                   };
-                   var loadError = ((Configuration)Runtime.Configuration).LoadError;
-                   window.Dispatcher.BeginInvoke(new Action(() =>
-                 {
-                     window.Title = "XTMF Version " + Runtime.Configuration.XTMFVersion.Major + "." +Runtime.Configuration.XTMFVersion.Minor;
-                     if (loadError != null)
-                     {
-                         MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
-                         Clipboard.SetText(loadError);
-                     }
-                 }));
-               }
                if (!list.Contains(window))
                {
                    list.Add(window);
@@ -88,4 +70,43 @@ internal static class EditorController
     internal static bool IsShiftDown() => (Keyboard.IsKeyDown(Key.LeftShift) | Keyboard.IsKeyDown(Key.RightShift));
 
     internal static bool IsAltDown() => (Keyboard.IsKeyDown(Key.LeftAlt) | Keyboard.IsKeyDown(Key.RightAlt));
+
+    internal static void SetupRuntime()
+    {
+        if (Runtime is null)
+        {
+            Runtime = new XTMFRuntime();
+        }
+        try
+        {
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(Runtime.Configuration.UILanguage);
+        }
+        catch (CultureNotFoundException)
+        {
+            // If the culture is not found, fallback to the default culture
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+        }
+    }
+
+    internal static void SetupXTMFCallbacks(MainWindow window)
+    {
+
+        Runtime.RunController.ErrorLaunchingModel += (errorMessage) =>
+        {
+            window.Dispatcher.Invoke(() =>
+            {
+                MessageBox.Show(window, errorMessage, "Error running Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+            });
+        };
+        var loadError = ((Configuration)Runtime.Configuration).LoadError;
+        window.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            window.Title = "XTMF Version " + Runtime.Configuration.XTMFVersion.Major + "." + Runtime.Configuration.XTMFVersion.Minor;
+            if (loadError != null)
+            {
+                MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
+                Clipboard.SetText(loadError);
+            }
+        }));
+    }
 }

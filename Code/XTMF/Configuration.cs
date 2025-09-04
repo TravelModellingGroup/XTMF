@@ -914,6 +914,15 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
                         }
                     }
                     break;
+                case "UILanguage":
+                    {
+                        var attribute = child.Attributes["Value"];
+                        if (attribute != null)
+                        {
+                            UILanguage = attribute.InnerText;
+                        }
+                        break;
+                    }
                 default:
                     {
                         var attribute = child.Attributes["Value"];
@@ -1066,6 +1075,37 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
             writer.WriteStartElement("HostPort");
             writer.WriteAttributeString("Value", HostPort.ToString());
             writer.WriteEndElement();
+            // Theme
+            writer.WriteStartElement("Theme");
+            writer.WriteAttributeString("Value", Theme);
+            writer.WriteEndElement();
+            // Dark theme
+            writer.WriteStartElement("IsDarkTheme");
+            writer.WriteAttributeString("Value", IsDarkTheme.ToString());
+            writer.WriteEndElement();
+            // Disable transition animations
+            writer.WriteStartElement("IsDisableTransitionAnimations");
+            writer.WriteAttributeString("Value", this.IsDisableTransitionAnimations.ToString());
+            writer.WriteEndElement();
+
+            if (PrimaryColour != null)
+            {
+                writer.WriteStartElement("PrimaryColour");
+                writer.WriteAttributeString("Value", PrimaryColour.ToString());
+                writer.WriteEndElement();
+            }
+
+            if (AccentColour != null)
+            {
+                writer.WriteStartElement("AccentColour");
+                writer.WriteAttributeString("Value", AccentColour.ToString());
+                writer.WriteEndElement();
+            }
+
+            writer.WriteStartElement("UILanguage");
+            writer.WriteAttributeString("Value", UILanguage);
+            writer.WriteEndElement();
+
             if (AdditionalSettings != null)
             {
                 if (AdditionalSettings.Count > 0)
@@ -1090,29 +1130,6 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
-            writer.WriteStartElement("Theme");
-            writer.WriteAttributeString("Value", Theme);
-            writer.WriteEndElement();
-            writer.WriteStartElement("IsDarkTheme");
-            writer.WriteAttributeString("Value", IsDarkTheme.ToString());
-            writer.WriteEndElement();
-            writer.WriteStartElement("IsDisableTransitionAnimations");
-            writer.WriteAttributeString("Value", this.IsDisableTransitionAnimations.ToString());
-            writer.WriteEndElement();
-
-            if (PrimaryColour != null)
-            {
-                writer.WriteStartElement("PrimaryColour");
-                writer.WriteAttributeString("Value", PrimaryColour.ToString());
-                writer.WriteEndElement();
-            }
-
-            if (AccentColour != null)
-            {
-                writer.WriteStartElement("AccentColour");
-                writer.WriteAttributeString("Value", AccentColour.ToString());
-                writer.WriteEndElement();
-            }
             //Finished writing all of the settings so we can finish the document now
             writer.WriteEndElement();
             writer.WriteEndDocument();
@@ -1148,5 +1165,18 @@ public sealed class Configuration : IConfiguration, IDisposable, INotifyProperty
         _CurrentHost = null;
         (_CurrentClient as IDisposable)?.Dispose();
         _CurrentClient = null;
+    }
+
+    public string UILanguage
+    {
+        get => AdditionalSettings.ContainsKey("UILanguage") ? AdditionalSettings["UILanguage"] : "en";
+        set
+        {
+            if (!AdditionalSettings.ContainsKey("UILanguage") || AdditionalSettings["UILanguage"] != value)
+            {
+                AdditionalSettings["UILanguage"] = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UILanguage)));
+            }
+        }
     }
 }

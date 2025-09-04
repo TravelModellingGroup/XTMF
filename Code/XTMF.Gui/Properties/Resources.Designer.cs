@@ -61,15 +61,6 @@ internal class Resources {
     }
     
     /// <summary>
-    ///   Looks up a localized string similar to Invalid path passed with configuration argument..
-    /// </summary>
-    internal static string MainWindow_ParseCommandLineArgs_Invalid_path_passed_with_configuration_argument_ {
-        get {
-            return ResourceManager.GetString("MainWindow_ParseCommandLineArgs_Invalid_path_passed_with_configuration_argument_", resourceCulture);
-        }
-    }
-    
-    /// <summary>
     ///   Looks up a localized string similar to 1.6.
     /// </summary>
     internal static string Xtmf_Major_Version {

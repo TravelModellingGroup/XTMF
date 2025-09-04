@@ -87,19 +87,16 @@
                                     </dragablz:TabablzControl.InterTabController>
                                 </dragablz:TabablzControl>
                             </dockablz:Layout>
-                            <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch"
-                       Grid.Row="2" Grid.ColumnSpan="3" Grid.Column="0">
+                            <StatusBar Background="{DynamicResource MaterialDesignPaper}" HorizontalAlignment="Stretch" Grid.Row="2" Grid.ColumnSpan="3" Grid.Column="0">
                                 <StatusBarItem HorizontalAlignment="Left">
                                     <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource MaterialDesignBody}" />
                                 </StatusBarItem>
                                 <StatusBarItem HorizontalAlignment="Left" Margin="-5,0,0,0" >
-                                    <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Foreground="{DynamicResource MaterialDesignBody}" Content="Click here"  ></Label>
+                                    <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Foreground="{DynamicResource MaterialDesignBody}" Content="{Binding ClickHereLabel}"  ></Label>
                                 </StatusBarItem>
                                 <StatusBarItem HorizontalAlignment="Right">
                                     <StackPanel Orientation="Horizontal">
-                                        <Label  x:Name="RunLabel" Content="Run Model (F5)" Foreground="{DynamicResource PrimaryHueMidBrush}"
-                               ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
-                               FontSize="14">
+                                        <Label  x:Name="RunLabel" Content="{Binding RunModelLabel}" Foreground="{DynamicResource PrimaryHueMidBrush}" ToolTip="{Binding RunModelTooltip}" Margin="0.25cm,0,0,0" FontSize="14">
                                         </Label>
                                     </StackPanel>
                                 </StatusBarItem>
@@ -111,70 +108,60 @@
                     <materialDesign:DrawerHost.LeftDrawerContent>
                         <StackPanel MinWidth="250" HorizontalAlignment="Left" VerticalAlignment="Top" >
                             <ListBox Name="XTMFWorkspaceListBox" SelectionChanged="XTMFWorkspaceListBox_OnSelectionChanged" >
-                                <ListBoxItem Padding="15 8 5 8" MouseUp="NewProjectButton_Click">New Project</ListBoxItem>
-                                <ListBoxItem Name="OpenProjectGlobalMenuItem" MouseUp="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">Open Project</ListBoxItem>
+                                <ListBoxItem Padding="15 8 5 8" MouseUp="NewProjectButton_Click">
+                                    <TextBlock Text="{Binding NewProjectLabel}" />
+                                </ListBoxItem>
+                                <ListBoxItem Name="OpenProjectGlobalMenuItem" MouseUp="OpenProjectGlobalMenuItem_OnSelected"  Padding="15 8 5 8">
+                                    <TextBlock Text="{Binding OpenProjectLabel}" />
+                                </ListBoxItem>
                             </ListBox>
                             <Separator Foreground="{DynamicResource MaterialDesignDivider}" />
-                            <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">Workspace</TextBlock>
+                            <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}" Text="{Binding WorkspaceLabel}" />
                             <ListBox Name="XtmfWorkspacesListBox" SelectionChanged="XtmfWorkspacesListBox_OnSelectionChanged">
                                 <ListBoxItem Selected="SchedulerMenuItem_OnSelected"  Name="SchedulerMenuItem" Padding="15 8 5 8">
                                     <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="Calendar" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0" />
-                                        <TextBlock>Scheduler</TextBlock>
+                                        <materialDesign:PackIcon Kind="Calendar" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock Text="{Binding SchedulerLabel}" />
                                     </StackPanel>
                                 </ListBoxItem>
                                 <ListBoxItem Selected="LaunchRemoteMenuItem_OnSelected"  Name="LaunchRemoteMenuItem" Padding="15 8 5 8">
                                     <StackPanel Orientation="Horizontal">
-
-                                        <materialDesign:PackIcon Kind="RouterWireless" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0" />
-                                        <TextBlock>Launch Remote</TextBlock>
+                                        <materialDesign:PackIcon Kind="RouterWireless" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock Text="{Binding LaunchRemoteLabel}" />
                                     </StackPanel>
                                 </ListBoxItem>
                             </ListBox>
                             <Separator Foreground="{DynamicResource MaterialDesignDivider}" />
-                            <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}">XTMF</TextBlock>
+                            <TextBlock Margin="10 8 5 8" Foreground="{DynamicResource MaterialDesignBodyLight}" Text="XTMF" />
                             <ListBox SelectionChanged="XTMFSideMenuListBox_OnSelectionChanged"  Name="XTMFSideMenuListBox" >
                                 <ListBoxItem Selected="SettingsMenuItem_OnSelected" Name="SettingsMenuItem" Padding="15 8 5 8">
                                     <StackPanel Orientation="Horizontal">
-
-                                        <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0" />
-                                        <TextBlock>Settings</TextBlock>
+                                        <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock Text="{Binding SettingsLabel}" />
                                     </StackPanel>
                                 </ListBoxItem>
                                 <ListBoxItem Selected="UpdateXtmfMenuItem_OnSelected" Name="UpdateXtmfMenuItem" Padding="15 8 5 8">
                                     <StackPanel Orientation="Horizontal">
-
-                                        <materialDesign:PackIcon Kind="Download" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0" />
-
-                                        <TextBlock>Update XTMF</TextBlock>
+                                        <materialDesign:PackIcon Kind="Download" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock Text="{Binding UpdateXtmfLabel}" />
                                     </StackPanel>
                                 </ListBoxItem>
                                 <ListBoxItem Selected="HelpMenuItem_OnSelected"  Padding="15 8 5 8" Name="HelpMenuItem" >
                                     <StackPanel Orientation="Horizontal">
-
-                                        <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16"   Margin="0 0 8 0" />
-                                        <TextBlock>Help</TextBlock>
+                                        <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16"   Margin="0 0 8 0" />
+                                        <TextBlock Text="{Binding HelpLabel}" />
                                     </StackPanel>
                                 </ListBoxItem>
                                 <ListBoxItem Selected="DocumentationMenuItem_OnSelected" Name="DocumentationMenuItem"  Padding="15 8 5 8">
                                     <StackPanel Orientation="Horizontal">
-
-                                        <materialDesign:PackIcon Kind="BookOpen" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0" />
-                                        <TextBlock>Documentation</TextBlock>
+                                        <materialDesign:PackIcon Kind="BookOpen" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock Text="{Binding DocumentationLabel}" />
                                     </StackPanel>
                                 </ListBoxItem>
                                 <ListBoxItem Selected="AboutMenuItem_OnSelected" Name="AboutMenuItem"  Padding="15 8 5 8">
                                     <StackPanel Orientation="Horizontal">
-
-                                        <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                         Width="16" Height="16" Margin="0 0 8 0" />
-                                        <TextBlock>About XTMF</TextBlock>
+                                        <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16" Margin="0 0 8 0" />
+                                        <TextBlock Text="{Binding AboutLabel}" />
                                     </StackPanel>
                                 </ListBoxItem>
                             </ListBox>

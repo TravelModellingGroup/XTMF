@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Xtmf_Major_Version" xml:space="preserve">
+    <value>1.6</value>
+  </data>
+  <data name="DirectorySettings" xml:space="preserve">
+    <value>Paramètres du répertoire</value>
+  </data>
+  <data name="ProjectDirectory" xml:space="preserve">
+    <value>Répertoire du projet</value>
+  </data>
+  <data name="ModelSystemDirectory" xml:space="preserve">
+    <value>Répertoire du système de modèle</value>
+  </data>
+  <data name="NetworkSettings" xml:space="preserve">
+    <value>Paramètres réseau</value>
+  </data>
+  <data name="HostNetworkingPort" xml:space="preserve">
+    <value>Port réseau de l'hôte</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Apparence</value>
+  </data>
+  <data name="PrimaryColour" xml:space="preserve">
+    <value>Couleur principale</value>
+  </data>
+  <data name="AccentColour" xml:space="preserve">
+    <value>Couleur d'accent</value>
+  </data>
+  <data name="UseDarkTheme" xml:space="preserve">
+    <value>Utiliser le thème sombre</value>
+  </data>
+  <data name="DisableAnimationTransitions" xml:space="preserve">
+    <value>Désactiver les transitions d'animation</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Avancé</value>
+  </data>
+  <data name="ConfigFileLoadedFrom" xml:space="preserve">
+    <value>Fichier de configuration chargé depuis : </value>
+  </data>
+  <data name="LocalHostButtonName_Create" xml:space="preserve">
+    <value>Créer la configuration locale XTMF</value>
+  </data>
+  <data name="LocalHostButtonName_Delete" xml:space="preserve">
+    <value>Supprimer la configuration locale XTMF</value>
+  </data>
+  <data name="FrameworkTitle" xml:space="preserve">
+    <value>Cadre de modélisation des déplacements extensible</value>
+  </data>
+  <data name="FrameworkSubtitle" xml:space="preserve">
+    <value>&lt;Insérez votre modèle ici/&gt;</value>
+  </data>
+  <data name="ProjectsLabel" xml:space="preserve">
+    <value>Projets</value>
+  </data>
+  <data name="CreateProjectLabel" xml:space="preserve">
+    <value>Créer un nouveau projet</value>
+  </data>
+  <data name="OpenProjectLabel" xml:space="preserve">
+    <value>Ouvrir un projet</value>
+  </data>
+  <data name="RecentProjectsLabel" xml:space="preserve">
+    <value>Projets récents</value>
+  </data>
+  <data name="NewProjectLabel" xml:space="preserve">
+    <value>Nouveau projet (Ctrl+N)</value>
+  </data>
+  <data name="WorkspaceLabel" xml:space="preserve">
+    <value>Espace de travail</value>
+  </data>
+  <data name="SchedulerLabel" xml:space="preserve">
+    <value>Planificateur</value>
+  </data>
+  <data name="LaunchRemoteLabel" xml:space="preserve">
+    <value>Lancer à distance</value>
+  </data>
+  <data name="SettingsLabel" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="UpdateXtmfLabel" xml:space="preserve">
+    <value>Mettre à jour XTMF</value>
+  </data>
+  <data name="HelpLabel" xml:space="preserve">
+    <value>Aide</value>
+  </data>
+  <data name="DocumentationLabel" xml:space="preserve">
+    <value>Documentation</value>
+  </data>
+  <data name="AboutLabel" xml:space="preserve">
+    <value>À propos de XTMF</value>
+  </data>
+  <data name="RunModelLabel" xml:space="preserve">
+    <value>Exécuter le modèle (F5)</value>
+  </data>
+  <data name="RunModelTooltip" xml:space="preserve">
+    <value>Appuyez sur F5 pour exécuter le modèle actuellement affiché.</value>
+  </data>
+  <data name="ClickHereLabel" xml:space="preserve">
+    <value>Cliquez ici</value>
+  </data>
+  <data name="SearchLabel" xml:space="preserve">
+    <value>Rechercher... (Ctrl+E)</value>
+  </data>
+  <data name="RenameProjectLabel" xml:space="preserve">
+    <value>Renommer le projet (F2)</value>
+  </data>
+  <data name="ChangeDescriptionLabel" xml:space="preserve">
+    <value>Changer la description (Maj+F2)</value>
+  </data>
+  <data name="CloneProjectLabel" xml:space="preserve">
+    <value>Cloner le projet (Ctrl+C)</value>
+  </data>
+  <data name="DeleteProjectLabel" xml:space="preserve">
+    <value>Supprimer le projet (Del)</value>
+  </data>
+  <data name="CreateNewProjectLabel" xml:space="preserve">
+    <value>Créer un nouveau projet</value>
+  </data>
+  <data name="RenameProjectDialogTitle" xml:space="preserve">
+    <value>Renommer le projet</value>
+  </data>
+  <data name="UnableToRenameProject" xml:space="preserve">
+    <value>Impossible de renommer le projet</value>
+  </data>
+  <data name="ChangeDescriptionDialogTitle" xml:space="preserve">
+    <value>Changer la description</value>
+  </data>
+  <data name="UnableToDeleteProject" xml:space="preserve">
+    <value>Impossible de supprimer le projet</value>
+  </data>
+  <data name="CloneProjectDialogTitle" xml:space="preserve">
+    <value>Cloner le projet sous ?</value>
+  </data>
+  <data name="UnableToCloneProject" xml:space="preserve">
+    <value>Impossible de cloner le projet</value>
+  </data>
+  <data name="DeleteProjectConfirm" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer le projet '{0}' ? Cette action est irréversible !</value>
+  </data>
+  <data name="DeleteProjectDialogTitle" xml:space="preserve">
+    <value>Supprimer le projet</value>
+  </data>
+  <data name="CreateNewModelSystemLabel" xml:space="preserve">
+    <value>Créer un nouveau système de modèle</value>
+  </data>
+  <data name="OpenProjectDirectoryLabel" xml:space="preserve">
+    <value>Ouvrir le répertoire du projet</value>
+  </data>
+  <data name="ImportModelSystemLabel" xml:space="preserve">
+    <value>Importer un système de modèle</value>
+  </data>
+  <data name="ImportModelSystemFromFileLabel" xml:space="preserve">
+    <value>Importer un système de modèle depuis un fichier</value>
+  </data>
+  <data name="RefreshPreviousRunsLabel" xml:space="preserve">
+    <value>Rafraîchir les exécutions précédentes</value>
+  </data>
+  <data name="SearchModulesLabel" xml:space="preserve">
+    <value>Rechercher des modules... (Ctrl+E)</value>
+  </data>
+  <data name="ModelSystemsLabel" xml:space="preserve">
+    <value>Systèmes de modèle</value>
+  </data>
+  <data name="ModelSystemColumnLabel" xml:space="preserve">
+    <value>Système de modèle</value>
+  </data>
+  <data name="LastModifiedColumnLabel" xml:space="preserve">
+    <value>Dernière modification</value>
+  </data>
+  <data name="RenameModelSystemLabel" xml:space="preserve">
+    <value>Renommer le système de modèle (F2)</value>
+  </data>
+  <data name="DeleteModelSystemLabel" xml:space="preserve">
+    <value>Supprimer le système de modèle (Del)</value>
+  </data>
+  <data name="SaveModelSystemAsLabel" xml:space="preserve">
+    <value>Enregistrer le système de modèle sous</value>
+  </data>
+  <data name="ExportModelSystemAsLabel" xml:space="preserve">
+    <value>Exporter le système de modèle sous (Ctrl+S)</value>
+  </data>
+  <data name="CopyModelSystemLabel" xml:space="preserve">
+    <value>Copier le système de modèle (Ctrl+C)</value>
+  </data>
+  <data name="PasteAsNewModelSystemLabel" xml:space="preserve">
+    <value>Coller comme nouveau système de modèle (Ctrl+V)</value>
+  </data>
+  <data name="PreviousRunsLabel" xml:space="preserve">
+    <value>Exécutions précédentes</value>
+  </data>
+  <data name="SearchPreviousRunsLabel" xml:space="preserve">
+    <value>Rechercher les exécutions précédentes...</value>
+  </data>
+  <data name="OpenResultsLabel" xml:space="preserve">
+    <value>Ouvrir les résultats</value>
+  </data>
+  <data name="DeletePreviousRunLabel" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="RenameModelSystemDialogTitle" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="CloneModelSystemDialogTitle" xml:space="preserve">
+    <value>Cloner le système de modèle sous ?</value>
+  </data>
+  <data name="UnableToRenameModelSystem" xml:space="preserve">
+    <value>Impossible de renommer le système de modèle</value>
+  </data>
+  <data name="UnableToCloneModelSystem" xml:space="preserve">
+    <value>Impossible de cloner le système de modèle</value>
+  </data>
+  <data name="DeleteModelSystemConfirm" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer le système de modèle '{0}' ? Cette action est irréversible !</value>
+  </data>
+  <data name="DeleteModelSystemDialogTitle" xml:space="preserve">
+    <value>Supprimer le système de modèle</value>
+  </data>
+  <data name="UnableToDeleteModelSystem" xml:space="preserve">
+    <value>Impossible de supprimer le système de modèle</value>
+  </data>
+  <data name="UnableToExportModelSystem" xml:space="preserve">
+    <value>Impossible d'exporter le système de modèle</value>
+  </data>
+  <data name="NewModelSystemButtonLabel" xml:space="preserve">
+    <value>Nouveau système de modèle</value>
+  </data>
+  <data name="ImportModelSystemButtonLabel" xml:space="preserve">
+    <value>Importer un système de modèle</value>
+  </data>
+  <data name="RenameModelSystemButtonLabel" xml:space="preserve">
+    <value>Renommer le système de modèle</value>
+  </data>
+  <data name="CloneModelSystemButtonLabel" xml:space="preserve">
+    <value>Cloner le système de modèle</value>
+  </data>
+  <data name="DeleteModelSystemButtonLabel" xml:space="preserve">
+    <value>Supprimer le système de modèle</value>
+  </data>
+  <data name="ExportModelSystemButtonLabel" xml:space="preserve">
+    <value>Exporter le système de modèle</value>
+  </data>
+  <data name="CancelRunMenuItem" xml:space="preserve">
+    <value>Annuler l'exécution</value>
+  </data>
+  <data name="MoveUpInQueueMenuItem" xml:space="preserve">
+    <value>Remonter dans la file d'attente</value>
+  </data>
+  <data name="MoveDownInQueueMenuItem" xml:space="preserve">
+    <value>Descendre dans la file d'attente</value>
+  </data>
+  <data name="StartTimeLabel" xml:space="preserve">
+    <value>Heure de début</value>
+  </data>
+  <data name="ElapsedTimeLabel" xml:space="preserve">
+    <value>Temps écoulé</value>
+  </data>
+  <data name="NoRunSelectedLabel" xml:space="preserve">
+    <value>Aucune exécution actuellement sélectionnée.</value>
+  </data>
+  <data name="CopyToClipboardLabel" xml:space="preserve">
+    <value>Copier dans le presse-papier</value>
+  </data>
+  <data name="CloseLabel" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="ActiveRunsLabel" xml:space="preserve">
+    <value>Exécutions actives</value>
+  </data>
+  <data name="FinishedRunsLabel" xml:space="preserve">
+    <value>Exécutions terminées</value>
+  </data>
+  <data name="ClearRunsLabel" xml:space="preserve">
+    <value>Effacer les exécutions</value>
+  </data>
+  <data name="CopyLabel" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="RunOutputLabel" xml:space="preserve">
+    <value>Sortie d'exécution</value>
+  </data>
+  <data name="ClearRunLabel" xml:space="preserve">
+    <value>Effacer l'exécution</value>
+  </data>
+  <data name="ShowStacktraceLabel" xml:space="preserve">
+    <value>Afficher la trace de la pile</value>
+  </data>
+  <data name="RemoveRunFromListLabel" xml:space="preserve">
+    <value>Supprimer l'exécution de la liste</value>
+  </data>
+  <data name="DirectoryDoesNotExistMessage" xml:space="preserve">
+    <value>{0} n'existe pas !</value>
+  </data>
+  <data name="DelayedRunStatus" xml:space="preserve">
+    <value>Exécution différée</value>
+  </data>
+  <data name="RuntimeExceptionStatus" xml:space="preserve">
+    <value>Exception d'exécution survenue.</value>
+  </data>
+  <data name="ValidationErrorStatus" xml:space="preserve">
+    <value>Erreur de validation survenue</value>
+  </data>
+  <data name="RunFinishedSuccessfullyStatus" xml:space="preserve">
+    <value>Exécution terminée avec succès.</value>
+  </data>
+  <data name="ModelSystemRunFinishedNotification" xml:space="preserve">
+    <value>Exécution du système de modèle terminée ({0})</value>
+  </data>
+  <data name="ModelSystemRunFinishedBalloon" xml:space="preserve">
+    <value>{0} a terminé son exécution.</value>
+  </data>
+  <data name="ModelSystemRunExceptionBalloon" xml:space="preserve">
+    <value>{0} a rencontré une exception d'exécution.</value>
+  </data>
+  <data name="ModelSystemValidationExceptionBalloon" xml:space="preserve">
+    <value>{0} a rencontré une exception de validation.</value>
+  </data>
+  <data name="ErrorInformationCopiedMessage" xml:space="preserve">
+    <value>Informations d'erreur copiées dans le presse-papier</value>
+  </data>
+  <data name="ServerAddressHint" xml:space="preserve">
+    <value>Adresse du serveur</value>
+  </data>
+  <data name="PortNumberHint" xml:space="preserve">
+    <value>Numéro de port</value>
+  </data>
+  <data name="LaunchRemoteClientButton" xml:space="preserve">
+    <value>Lancer le client distant</value>
+  </data>
+  <data name="LaunchRemoteClientWindowTitle" xml:space="preserve">
+    <value>Lancer le client distant</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="AboutDialogTitle" xml:space="preserve">
+    <value>À propos d'XTMF</value>
+  </data>
+  <data name="VersionLabel" xml:space="preserve">
+    <value>Version : </value>
+  </data>
+  <data name="BuildDateLabel" xml:space="preserve">
+    <value>Date de construction : </value>
+  </data>
+  <data name="CreatedByLabel" xml:space="preserve">
+    <value>Créé par le Travel Modelling Group</value>
+  </data>
+  <data name="LicenseLabel" xml:space="preserve">
+    <value>Ce logiciel est Open-Source, sous licence GPLv3.</value>
+  </data>
+  <data name="NumberOfModulesLabel" xml:space="preserve">
+    <value>Nombre de modules installés :</value>
+  </data>
+  <data name="SaveModelSystemTooltip" xml:space="preserve">
+    <value>Sauvegarder le système de modèle</value>
+  </data>
+  <data name="LinkedParametersTooltip" xml:space="preserve">
+    <value>Paramètres liés</value>
+  </data>
+  <data name="RunModelSystemTooltip" xml:space="preserve">
+    <value>Exécuter le système de modèle</value>
+  </data>
+  <data name="OpenProjectFolderTooltip" xml:space="preserve">
+    <value>Ouvrir le dossier du projet</value>
+  </data>
+  <data name="ReloadModelSystemTooltip" xml:space="preserve">
+    <value>Recharger le système de modèle</value>
+  </data>
+  <data name="SearchModulesTooltip" xml:space="preserve">
+    <value>Rechercher des modules... (Ctrl+E)</value>
+  </data>
+  <data name="ToggleQuickParametersTooltip" xml:space="preserve">
+    <value>Basculer le panneau des paramètres rapides</value>
+  </data>
+  <data name="ToggleModuleParametersTooltip" xml:space="preserve">
+    <value>Basculer le panneau des paramètres de module</value>
+  </data>
+  <data name="ModuleParametersLabel" xml:space="preserve">
+    <value>Paramètres de module</value>
+  </data>
+  <data name="FilterParametersTooltip" xml:space="preserve">
+    <value>Filtrer les paramètres... (Ctrl+P)</value>
+  </data>
+  <data name="QuickParametersLabel" xml:space="preserve">
+    <value>Paramètres rapides</value>
+  </data>
+  <data name="FilterQuickParametersTooltip" xml:space="preserve">
+    <value>Filtrer les paramètres... (Ctrl+Q)</value>
+  </data>
+  <data name="ModuleDescriptionLabel" xml:space="preserve">
+    <value>Description du module</value>
+  </data>
+  <data name="NoDescriptionAvailable" xml:space="preserve">
+    <value>Aucune description disponible.</value>
+  </data>
+  <data name="NoModuleSelected" xml:space="preserve">
+    <value>Aucun module sélectionné.</value>
+  </data>
+  <data name="ModelSystemRequirements" xml:space="preserve">
+    <value>Exigences du système de modèle</value>
+  </data>
+  <data name="NoModuleCurrentlySelected" xml:space="preserve">
+    <value>Aucun module actuellement sélectionné.</value>
+  </data>
+  <data name="EnableModule" xml:space="preserve">
+    <value>Activer le module</value>
+  </data>
+  <data name="DisableModule" xml:space="preserve">
+    <value>Désactiver le module</value>
+  </data>
+  <data name="RemoveModuleFromList" xml:space="preserve">
+    <value>Retirer le module de la liste</value>
+  </data>
+  <data name="QuickParameterTooltip" xml:space="preserve">
+    <value>Paramètre rapide</value>
+  </data>
+  <data name="SystemParameterTooltip" xml:space="preserve">
+    <value>Paramètre système</value>
+  </data>
+  <data name="AssociatedModuleDisabledTooltip" xml:space="preserve">
+    <value>Module associé désactivé</value>
+  </data>
+  <data name="DisabledModulesTooltip" xml:space="preserve">
+    <value>Modules désactivés</value>
+  </data>
+  <data name="CopyParameterMenuItem" xml:space="preserve">
+    <value>Copier (Ctrl+N)</value>
+  </data>
+  <data name="RenameParameterMenuItem" xml:space="preserve">
+    <value>Renommer        (F2)</value>
+  </data>
+  <data name="ResetParameterNameMenuItem" xml:space="preserve">
+    <value>Réinitialiser le nom     </value>
+  </data>
+  <data name="HideParameterMenuItem" xml:space="preserve">
+    <value>Masquer le paramètre(Ctrl+H)</value>
+  </data>
+  <data name="ShowParameterMenuItem" xml:space="preserve">
+    <value>Afficher le paramètre(Ctrl+Shift+H)</value>
+  </data>
+  <data name="CopyParametersToClipboardMenuItem" xml:space="preserve">
+    <value>Copier les paramètres dans le presse-papiers</value>
+  </data>
+  <data name="PasteFromSpreadsheetMenuItem" xml:space="preserve">
+    <value>Coller depuis la feuille de calcul</value>
+  </data>
+  <data name="OpenFileMenuItem" xml:space="preserve">
+    <value>Ouvrir le fichier  (Ctrl+O)</value>
+  </data>
+  <data name="OpenFileWithMenuItem" xml:space="preserve">
+    <value>Ouvrir le fichier avec</value>
+  </data>
+  <data name="OpenFileLocationMenuItem" xml:space="preserve">
+    <value>Ouvrir l'emplacement du fichier</value>
+  </data>
+  <data name="SelectFileMenuItem" xml:space="preserve">
+    <value>Sélectionner le fichier (Ctrl+F)</value>
+  </data>
+  <data name="SelectDirectoryMenuItem" xml:space="preserve">
+    <value>Sélectionner le répertoire (Ctrl+D)</value>
+  </data>
+  <data name="AssignLinkedParameterMenuItem" xml:space="preserve">
+    <value>Assigner un paramètre lié (Ctrl+L)</value>
+  </data>
+  <data name="RecentLinkedParametersMenuItem" xml:space="preserve">
+    <value>Paramètres liés récents</value>
+  </data>
+  <data name="RemoveFromLinkedParameterMenuItem" xml:space="preserve">
+    <value>Retirer du paramètre lié</value>
+  </data>
+  <data name="ResetToDefaultMenuItem" xml:space="preserve">
+    <value>Réinitialiser par défaut</value>
+  </data>
+  <data name="CopyParameterNameMenuItem" xml:space="preserve">
+    <value>Copier le nom du paramètre (Ctrl+N)</value>
+  </data>
+  <data name="GoToModuleMenuItem" xml:space="preserve">
+    <value>Aller au module</value>
+  </data>
+  <data name="ParameterMenuItem" xml:space="preserve">
+    <value>Paramètre</value>
+  </data>
+  <data name="OpenMenuItem" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="CopyModuleMenuItem" xml:space="preserve">
+    <value>Copier (Ctrl+C)</value>
+  </data>
+  <data name="CloneModuleMenuItem" xml:space="preserve">
+    <value>Cloner (Ctrl+Shift+C)</value>
+  </data>
+  <data name="PasteModuleMenuItem" xml:space="preserve">
+    <value>Coller (Ctrl+V)</value>
+  </data>
+  <data name="RenameModuleMenuItem" xml:space="preserve">
+    <value>Renommer (F2)</value>
+  </data>
+  <data name="EditDescriptionMenuItem" xml:space="preserve">
+    <value>Modifier la description (Shift + F2)</value>
+  </data>
+  <data name="MetaModuleMenuItem" xml:space="preserve">
+    <value>Méta-Module</value>
+  </data>
+  <data name="ConvertToMetaModuleMenuItem" xml:space="preserve">
+    <value>Convertir en  (Ctrl+Shift+M)</value>
+  </data>
+  <data name="SplitMetaModuleMenuItem" xml:space="preserve">
+    <value>Diviser(Ctrl+Shift+Alt+M)</value>
+  </data>
+  <data name="ModuleMenuItem" xml:space="preserve">
+    <value>Module (Ctrl+M)</value>
+  </data>
+  <data name="DisableModuleMenuItem" xml:space="preserve">
+    <value>Désactiver le module (Ctrl+D)</value>
+  </data>
+  <data name="RemoveModuleMenuItem" xml:space="preserve">
+    <value>Supprimer (Del)</value>
+  </data>
+  <data name="HelpMenuItem" xml:space="preserve">
+    <value>Aide (F1)</value>
+  </data>
+  <data name="MoveMenuItem" xml:space="preserve">
+    <value>Déplacer</value>
+  </data>
+  <data name="MoveUpMenuItem" xml:space="preserve">
+    <value>Haut   (Ctrl+Shift+Haut)</value>
+  </data>
+  <data name="MoveDownMenuItem" xml:space="preserve">
+    <value>Bas (Ctrl+Shift+Bas)</value>
+  </data>
+  <data name="LinkedParametersMenuItem" xml:space="preserve">
+    <value>Paramètres liés (Ctrl+L)</value>
+  </data>
+  <data name="ExpandAllModulesMenuItem" xml:space="preserve">
+    <value>Développer tous les modules</value>
+  </data>
+  <data name="CollapseAllModulesMenuItem" xml:space="preserve">
+    <value>Réduire tous les modules</value>
+  </data>
+  <data name="NoRequiredModulesMissingLabel" xml:space="preserve">
+    <value>Aucun module requis manquant.</value>
+  </data>
+  <data name="MissingRequiredModulesLabel" xml:space="preserve">
+    <value>Modules requis manquants</value>
+  </data>
+  <data name="DisabledModulesLabel" xml:space="preserve">
+    <value>Modules désactivés</value>
+  </data>
+  <data name="StatusReady" xml:space="preserve"><value>Prêt</value><comment>Statut prêt</comment></data>
+  <data name="StatusLoadingXTMF" xml:space="preserve"><value>Chargement de XTMF</value><comment>Statut chargement</comment></data>
+  <data name="StartLabel" xml:space="preserve"><value>Démarrer</value></data>
+  <data name="ProjectsDisplayLabel" xml:space="preserve"><value>Affichage des projets</value></data>
+  <data name="ModelSystemRunsLabel" xml:space="preserve"><value>Exécutions du système de modèle</value></data>
+  <data name="ModelSystemTabTitleFormat" xml:space="preserve"><value>Système de modèle - {0}</value></data>
+  <data name="DocumentationTabTitleFormat" xml:space="preserve"><value>Documentation - {0}</value></data>
+  <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve"><value>{0} - {1}</value></data>
+  <data name="ProjectTabTitleFormat" xml:space="preserve"><value>Projet - {0}</value></data>
+  <data name="ProjectNameDialogTitle" xml:space="preserve"><value>Nom du projet</value></data>
+  <data name="ModelSystemNameDialogTitle" xml:space="preserve"><value>Nom du système de modèle</value></data>
+  <data name="SetLinkedParameterNameDialogTitle" xml:space="preserve"><value>Définir le nom du paramètre lié</value></data>
+  <data name="NewLinkedParameterNameDialogTitle" xml:space="preserve"><value>Nouveau nom de paramètre lié</value></data>
+  <data name="FieldIsRequiredMessage" xml:space="preserve"><value>Le champ est requis.</value></data>
+  <data name="InvalidValueMessage" xml:space="preserve"><value>Valeur invalide</value></data>
+  <data name="OkButtonLabel" xml:space="preserve"><value>OK</value></data>
+  <data name="NewLinkedParameterLabel" xml:space="preserve"><value>Nouveau paramètre lié</value></data>
+  <data name="RenameLinkedParameterMenuItem" xml:space="preserve"><value>Renommer (F2)</value></data>
+  <data name="DeleteLinkedParameterMenuItem" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="LinkedParametersHeaderLabel" xml:space="preserve"><value>Paramètres liés</value></data>
+  <data name="NameLabel" xml:space="preserve"><value>Nom</value></data>
+  <data name="ValueLabel" xml:space="preserve"><value>Valeur</value></data>
+  <data name="ModuleNameLabel" xml:space="preserve"><value>Nom du module</value></data>
+  <data name="ParameterNameLabel" xml:space="preserve"><value>Nom du paramètre</value></data>
+  <data name="UnlinkLabel" xml:space="preserve"><value>Dissocier</value></data>
+  <data name="DeleteLinkedParameterConfirm" xml:space="preserve"><value>Êtes-vous sûr de vouloir supprimer le paramètre lié sélectionné ?</value></data>
+  <data name="DeleteLinkedParameterDialogTitle" xml:space="preserve"><value>Confirmation de suppression [{0}]</value></data>
+  <data name="ErrorRemovingLinkedParameterMessage" xml:space="preserve"><value>Une erreur est survenue lors de la suppression d'un paramètre d'un paramètre lié !\r\n{0}</value></data>
+  <data name="ErrorRemovingLinkedParameterTitle" xml:space="preserve"><value>Erreur de suppression du paramètre</value></data>
+  <data name="ErrorSettingLinkedParameterValueMessage" xml:space="preserve"><value>Une erreur est survenue lors de l'attribution de la valeur '{0}' au paramètre lié !\r\n{1}</value></data>
+  <data name="ErrorSettingLinkedParameterValueTitle" xml:space="preserve"><value>Erreur de définition de la valeur</value></data>
+  <data name="FailedToCreateLinkedParameterTitle" xml:space="preserve"><value>Échec de la création du nouveau paramètre lié</value></data>
+  <data name="FailedToRemoveLinkedParameterTitle" xml:space="preserve"><value>Échec de la suppression du paramètre lié</value></data>
+  <data name="ConfirmUnlinkParameterMessage" xml:space="preserve"><value>Êtes-vous sûr de vouloir dissocier le paramètre sélectionné ?</value></data>
+  <data name="ConfirmUnlinkParameterDialogTitle" xml:space="preserve"><value>Confirmer la dissociation [{0}]</value></data>
+  <data name="CancelLabel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="InvalidRunNameMessage" xml:space="preserve"><value>Vous avez saisi un nom d'exécution non valide.</value></data>
+  <data name="InvalidRunNameTitle" xml:space="preserve"><value>Nom d'exécution non valide</value></data>
+  <data name="RunNameExistsMessage" xml:space="preserve"><value>Ce nom d'exécution a déjà été utilisé. Souhaitez-vous supprimer la sortie précédente ?</value></data>
+  <data name="RunNameExistsTitle" xml:space="preserve"><value>Le nom d'exécution existe déjà</value></data>
+  <data name="UnableToStartRunMessageFormat" xml:space="preserve"><value>Impossible de démarrer l'exécution.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToStartRunTitle" xml:space="preserve"><value>Impossible de démarrer l'exécution</value></data>
+  <data name="UnknownErrorMessage" xml:space="preserve"><value>ERREUR INCONNUE</value></data>
+  <data name="ReferencedModuleNotFoundMessage" xml:space="preserve"><value>Le module référencé est introuvable dans l'état actuel du système de modèle.</value></data>
+  <data name="ErrorDisplayingModuleTitle" xml:space="preserve"><value>Erreur d'affichage du module</value></data>
+  <data name="UnsavedModelSystemWarning" xml:space="preserve"><value>Le système de modèle n'a pas été enregistré, fermer cette fenêtre annulera les modifications !</value></data>
+  <data name="AreYouSureTitle" xml:space="preserve"><value>Êtes-vous sûr ?</value></data>
+  <data name="FailedToCloseModelSystemTitle" xml:space="preserve"><value>Échec de la fermeture du système de modèle.</value></data>
+  <data name="DisabledModulesCountFormat" xml:space="preserve"><value>{0} modules désactivés</value></data>
+  <data name="FailedSetLinkedParameterTitle" xml:space="preserve"><value>Échec de la définition du paramètre lié</value></data>
+  <data name="FailedRemoveLinkedParameterTitle" xml:space="preserve"><value>Échec de la suppression du paramètre lié</value></data>
+  <data name="AllSelectedModulesSameTypeMessage" xml:space="preserve"><value>Tous les modules sélectionnés doivent être du même type.</value></data>
+  <data name="FailedAddModuleToCollectionTitle" xml:space="preserve"><value>Échec de l'ajout du module à la collection</value></data>
+  <data name="SetModuleTypesCommandName" xml:space="preserve"><value>Définir les types de module</value></data>
+  <data name="ModulesLabel" xml:space="preserve"><value>Modules</value></data>
+  <data name="NoModelLoadedLabel" xml:space="preserve"><value>Aucun modèle chargé</value></data>
+  <data name="SaveModelSystemAsDialogTitle" xml:space="preserve"><value>Enregistrer le système de modèle sous ?</value></data>
+  <data name="FailedToSaveMessageFormat" xml:space="preserve"><value>Échec de l'enregistrement.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToSaveTitle" xml:space="preserve"><value>Impossible d'enregistrer</value></data>
+  <data name="SavingStatusText" xml:space="preserve"><value>Enregistrement...</value></data>
+  <data name="FailedToSaveSnackBarFormat" xml:space="preserve"><value>Échec de l'enregistrement &#xD;&#xA;{0}</value></data>
+  <data name="ModelSystemFinishedSavingMessage" xml:space="preserve"><value>Enregistrement du système de modèle terminé</value></data>
+  <data name="GenericErrorTitle" xml:space="preserve"><value>Erreur</value></data>
+  <data name="FailedToPasteMessageFormat" xml:space="preserve"><value>Échec du collage.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToPasteTitle" xml:space="preserve"><value>Impossible de coller</value></data>
+  <data name="ChangeDescriptionDialogTitleSingle" xml:space="preserve"><value>Modifier la description</value></data>
+  <data name="ChangeDescriptionDialogTitleMultiple" xml:space="preserve"><value>Modifier les descriptions</value></data>
+  <data name="RenameModuleDialogTitleSingle" xml:space="preserve"><value>Renommer le module</value></data>
+  <data name="RenameModuleDialogTitleMultiple" xml:space="preserve"><value>Renommer les modules</value></data>
+  <data name="RenameModelSystemCommandName" xml:space="preserve"><value>Renommer le système de modèle</value></data>
+  <data name="RemoveSelectedModulesCommandName" xml:space="preserve"><value>Supprimer les modules sélectionnés</value></data>
+  <data name="UnableToResetParameterTitle" xml:space="preserve"><value>Impossible de réinitialiser le paramètre</value></data>
+  <data name="NotEnoughSpaceToPasteMessage" xml:space="preserve"><value>Il n'y a pas assez d'espace pour coller toutes les entrées.</value></data>
+  <data name="NoClipboardTextMessage" xml:space="preserve"><value>Aucune donnée texte dans le presse-papiers à copier.</value></data>
+  <data name="RenameParameterDialogTitle" xml:space="preserve"><value>Renommer le paramètre</value></data>
+  <data name="UnableToSetParameterNameTitle" xml:space="preserve"><value>Impossible de définir le nom du paramètre</value></data>
+  <data name="UnableToLoadTitle" xml:space="preserve"><value>Impossible de charger</value></data>
+  <data name="UnableToRevertTitle" xml:space="preserve"><value>Impossible de rétablir</value></data>
+  <data name="UnableToSetParameterTitle" xml:space="preserve"><value>Impossible de définir le paramètre</value></data>
+  <data name="UnableToLoadFileMessageFormat" xml:space="preserve"><value>Impossible de charger le fichier à l'emplacement '{0}' !</value></data>
+  <data name="UnableToSetParameterMessageFormat" xml:space="preserve"><value>Impossible de définir le paramètre '{0}' avec la valeur '{1}'.&#xD;&#xA;{2}</value></data>
+</root>

@@ -53,8 +53,8 @@
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <Button Style="{StaticResource MaterialDesignOutlinedSecondaryButton}" Margin="3,7,0,6" Grid.Column="1" Width="50" Name="ConfirmButton"
-                Click="ConfirmButton_Click">OK</Button>
+            <Button Style="{StaticResource MaterialDesignOutlinedSecondaryButton}" Margin="3,7,0,6" Grid.Column="1" Width="90" Name="ConfirmButton"
+                Click="ConfirmButton_Click" Content="{Binding OkButtonText}"/>
         </Grid>
     </Grid>
 </UserControl>

@@ -10,7 +10,7 @@
     <UserControl.Resources>
 
         <Border x:Key="DefaultDisplay" Background="{DynamicResource MaterialDesignPaper}"> 
-            <TextBlock Text="No run currently selected." HorizontalAlignment="Center" VerticalAlignment="Center"
+            <TextBlock Text="{Binding NoRunSelectedLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Center" VerticalAlignment="Center"
                        FontSize="32" Opacity="0.8" Style="{DynamicResource MaterialDesignSubheadingTextBlock}" />
         </Border>
     </UserControl.Resources>
@@ -28,7 +28,7 @@
                             <Hyperlink Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}" Tag="{Binding .}"
                                        Click="Hyperlink_OnClick">
                                 <materialDesign:PackIcon Kind="ContentCopy" />
-                                Copy to Clipboard
+                                <Run Text="{Binding CopyToClipboardLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneTime}" />
                             </Hyperlink>
                         </TextBlock>
                         <TextBlock HorizontalAlignment="Center" Margin="5 5 0 5">
@@ -36,7 +36,7 @@
                                        Style="{DynamicResource MaterialDesignBody1HyperlinkCustom}"
                                        Click="CloseDialogHyperLink_OnClick">
                                 <materialDesign:PackIcon Kind="Close" />
-                                Close
+                                <Run Text="{Binding CloseLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneTime}" />
                             </Hyperlink>
                         </TextBlock>
                     </StackPanel>
@@ -65,7 +65,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock Margin="10 10 5 10" Style="{DynamicResource MaterialDesignSubheadingTextBlock}"
                                    Foreground="{DynamicResource MaterialDesignColumnHeader}" Grid.Row="0"
-                                   Text="Active Runs" />
+                                   Text="{Binding ActiveRunsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         <ListView Grid.Row="1" Name="ScheduledRuns" SelectionChanged="ScheduledRuns_OnSelectionChanged"
                                   ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" PreviewKeyDown="ScheduledRunItemListItemContainer_OnKeyDown"
@@ -94,14 +94,14 @@
                             <TextBlock DockPanel.Dock="Left" Margin="10 10 5 10"
                                        Style="{DynamicResource MaterialDesignSubheadingTextBlock}"
                                        Foreground="{DynamicResource MaterialDesignColumnHeader}"
-                                       HorizontalAlignment="Right">
-                                Finished Runs
+                                       HorizontalAlignment="Right"
+                                       Text="{Binding FinishedRunsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}">
                             </TextBlock>
                             <Button Name="ClearAllRunsButton" Style="{DynamicResource MaterialDesignFlatButton}"
                                     DockPanel.Dock="Right" HorizontalAlignment="Right"
                                     Click="ClearAllRunsButton_OnClick">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock>Clear Runs</TextBlock>
+                                    <TextBlock Text="{Binding ClearRunsLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                                     <materialDesign:PackIcon Foreground="{DynamicResource SecondaryHueMidBrush}" 
                                         Kind="NotificationClearAll" />
                                 </StackPanel>
@@ -161,7 +161,7 @@
                                                                HorizontalAlignment="Stretch">
                                                         <TextBlock.ContextMenu>
                                                             <ContextMenu>
-                                                                <MenuItem  Header="Copy" Name="StatusTextCopyMenuItem" Click="StatusTextCopyMenuItem_OnClick"/>
+                                                                <MenuItem  Header="{Binding CopyLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" Name="StatusTextCopyMenuItem" Click="StatusTextCopyMenuItem_OnClick"/>
                                                             </ContextMenu>
                                                         </TextBlock.ContextMenu>
                                                     </TextBlock>
@@ -170,15 +170,15 @@
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="140" />
-                                                            <ColumnDefinition Width="110" />
-                                                            <ColumnDefinition Width="90" />
-                                                            <ColumnDefinition Width="90" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <Border BorderBrush="{DynamicResource MaterialDesignDivider}"
                                                                 BorderThickness="1 0 0 0" Margin="2 0 2 0"
                                                                 Grid.Column="0">
                                                             <StackPanel Orientation="Vertical" Margin="15 5 5 5">
-                                                                <TextBlock Text="Start Time"
+                                                                <TextBlock Text="{Binding StartTimeLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                            Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
                                                                 <TextBlock Text="{Binding StartTime}" FontSize="12"
                                                                            Style="{DynamicResource MaterialDesignBody1TextBlock}" />
@@ -188,7 +188,7 @@
                                                                 BorderThickness="1 0 0 0" Margin="2 0 2 0"
                                                                 Grid.Column="1">
                                                             <StackPanel Orientation="Vertical" Margin="10 5 5 5">
-                                                                <TextBlock Text="Elapsed Time"
+                                                                <TextBlock Text="{Binding ElapsedTimeLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                            Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
                                                                 <TextBlock Text="{Binding ElapsedTime}" FontSize="12"
                                                                            Style="{DynamicResource MaterialDesignBody1TextBlock}" />
@@ -198,7 +198,7 @@
                                                                 BorderThickness="1 0 0 0" Margin="2 0 2 0"
                                                                 Grid.Column="2">
                                                             <StackPanel Orientation="Vertical" Margin="10 5 5 5">
-                                                                <TextBlock Text="Run output"
+                                                                <TextBlock Text="{Binding RunOutputLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                            Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
                                                                 <Button
                                                                     Style="{DynamicResource MaterialDesignFlatButton}"
@@ -214,7 +214,7 @@
                                                                 BorderThickness="1 0 0 0" Margin="2 0 2 0"
                                                                 Grid.Column="3">
                                                             <StackPanel Orientation="Vertical" Margin="10 5 5 5">
-                                                                <TextBlock Text="Clear run"
+                                                                <TextBlock Text="{Binding ClearRunLabel, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                            Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
                                                                 <Button
                                                                     Style="{DynamicResource MaterialDesignFlatButton}"
@@ -273,8 +273,8 @@
                                                                             Tag="{Binding .}" Name="StackTraceGroup" >
                                                                 <TextBlock Cursor="Hand"
                                                                                HorizontalAlignment="Left"
-                                                                               VerticalAlignment="Center">
-                                                                        Show Stacktrace
+                                                                               VerticalAlignment="Center"
+                                                                               Text="{Binding ShowStacktraceLabel, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                                 </TextBlock>
                                                                 <materialDesign:PackIcon Margin="2,0,0,0" Kind="Magnify"
                                                                                      Foreground="{DynamicResource SecondaryHueMidBrush}"
@@ -290,8 +290,8 @@
                                                             <StackPanel Orientation="Horizontal"
                                                                             Tag="{Binding .}">
                                                                 <TextBlock Cursor="Hand"
-                                                                               x:Name="CopyErrorLink">
-                                                                        Copy
+                                                                               x:Name="CopyErrorLink"
+                                                                               Text="{Binding CopyLabel, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                                 </TextBlock>
                                                                 <materialDesign:PackIcon Kind="ContentCopy" Margin="2,0,0,0"
                                                                                      Foreground="{DynamicResource SecondaryHueMidBrush}"

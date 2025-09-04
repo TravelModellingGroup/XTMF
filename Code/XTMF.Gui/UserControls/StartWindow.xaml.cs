@@ -19,6 +19,9 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Resources;
+using System.Globalization;
+using System.Threading;
 
 namespace XTMF.Gui;
 
@@ -27,10 +30,18 @@ namespace XTMF.Gui;
 /// </summary>
 public partial class StartWindow : UserControl
 {
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(StartWindow).Assembly);
 
+    public string FrameworkTitle => ResManager.GetString("FrameworkTitle");
+    public string FrameworkSubtitle => ResManager.GetString("FrameworkSubtitle");
+    public string ProjectsLabel => ResManager.GetString("ProjectsLabel");
+    public string CreateProjectLabel => ResManager.GetString("CreateProjectLabel");
+    public string OpenProjectLabel => ResManager.GetString("OpenProjectLabel");
+    public string RecentProjectsLabel => ResManager.GetString("RecentProjectsLabel");
 
     public StartWindow()
     {
+        DataContext = this;
         InitializeComponent();
         MainWindow.Us.RecentProjectsUpdated += Us_RecentProjectsUpdated;
         if (MainWindow.Us.RuntimeAvailable)

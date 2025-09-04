@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -49,16 +49,12 @@ using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using UserControl = System.Windows.Controls.UserControl;
+using System.Resources;
 
 namespace XTMF.Gui;
 
-/// <summary>
-///     Interaction logic for MainWindow.xaml
-/// </summary>
 public partial class MainWindow : MetroWindow
 {
-    private const string UpdateProgram = "XTMF.Update2.exe";
-
     // Using a DependencyProperty as the backing store for EditingDisplayModel.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty EditingDisplayModelProperty =
         DependencyProperty.Register("EditingDisplayModel", typeof(ActiveEditingSessionDisplayModel),
@@ -77,8 +73,11 @@ public partial class MainWindow : MetroWindow
 
     public event EventHandler<EventArgs> ThemeChanged;
 
+    private static readonly ResourceManager ResManager = new("XTMF.Gui.Properties.Resources", typeof(MainWindow).Assembly);
+
     public MainWindow()
     {
+        Us = this;
         ViewModelBase = new ViewModelBase();
         EditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
         ThemeController = new ThemeController(GetConfigurationFilePath());
@@ -86,7 +85,6 @@ public partial class MainWindow : MetroWindow
         // I am changing the code here with a comment
         //do you see any console window
         Loaded += MainWindow_Loaded;
-        Us = this;
         SchedulerWindow = new SchedulerWindow();
         ViewDockPanel.DataContext = ViewModelBase;
         ContentControl.DataContext = ViewModelBase;
@@ -153,7 +151,7 @@ public partial class MainWindow : MetroWindow
         Keyboard.Focus(DockManager.SelectedContent as UserControl);
         if (DockManager.Items.Count == 0)
         {
-            SetDisplayActive(new StartWindow(), "Start");
+            SetDisplayActive(new StartWindow(), ResManager.GetString("StartLabel") ?? "Start");
         }
     }
 
@@ -164,19 +162,13 @@ public partial class MainWindow : MetroWindow
     /// <param name="args"></param>
     private void ClosingItemCallback(ItemActionCallbackArgs<TabablzControl> args)
     {
-        if ((args.DragablzItem.Content as TabItem)?.Content is ProjectDisplay)
+        if ((args.DragablzItem.Content as TabItem)?.Content is ProjectDisplay projectDisplay)
         {
-            var projectDisplay = (args.DragablzItem.Content as TabItem)?.Content as ProjectDisplay;
-            projectDisplay?.Model.Unload();
-            if (projectDisplay != null)
+            projectDisplay.Model.Unload();
+            if (projectDisplay.Session != null)
             {
-                //projectDisplay.Session.Dispose();
-                if (projectDisplay.Session != null)
-                {
-                    WorkspaceProjects.Remove(projectDisplay.Session?.Project);
-                    projectDisplay.Session.EndSession();
-                }
-
+                WorkspaceProjects.Remove(projectDisplay.Session.Project);
+                projectDisplay.Session.EndSession();
             }
         }
 
@@ -240,13 +232,13 @@ public partial class MainWindow : MetroWindow
     public void Reload()
     {
         IsEnabled = false;
-        StatusDisplay.Text = "Loading XTMF";
+        StatusDisplay.Text = ResManager.GetString("StatusLoadingXTMF") ?? "Loading XTMF";
         EditorController.Register(this, () =>
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 IsEnabled = true;
-                StatusDisplay.Text = "Ready";
+                StatusDisplay.Text = ResManager.GetString("StatusReady") ?? "Ready";
                 UpdateRecentProjectsMenu();
             }));
         });
@@ -259,9 +251,9 @@ public partial class MainWindow : MetroWindow
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         IsEnabled = false;
-        StatusDisplay.Text = "Loading XTMF";
+        StatusDisplay.Text = ResManager.GetString("StatusLoadingXTMF") ?? "Loading XTMF";
         Dispatcher.Invoke(() => { ExternalGrid.Focus(); });
-        SetDisplayActive(new StartWindow(), "Start");
+        SetDisplayActive(new StartWindow(), ResManager.GetString("StartLabel") ?? "Start");
     }
 
 
@@ -338,7 +330,8 @@ public partial class MainWindow : MetroWindow
                 }
                 if (!visible)
                 {
-                    SetDisplayActive(projectControl, "Project - " + project.Name);
+                    var format = ResManager.GetString("ProjectTabTitleFormat") ?? "Project - {0}";
+                    SetDisplayActive(projectControl, string.Format(format, project.Name));
                 }
             }
         }
@@ -363,7 +356,7 @@ public partial class MainWindow : MetroWindow
     {
         _projectsDisplay ??= new ProjectsDisplay(EditorController.Runtime);
 
-        SetDisplayActive(_projectsDisplay, "Projects Display");
+        SetDisplayActive(_projectsDisplay, ResManager.GetString("ProjectsDisplayLabel") ?? "Projects Display");
     }
 
     /// <summary>
@@ -382,12 +375,14 @@ public partial class MainWindow : MetroWindow
                     display.InitiateModelSystemEditingSession += editingSession => EditModelSystem(editingSession,
                         editingSession.PreviousRunName == null
                             ? null
-                            : editingSession.ProjectEditingSession.Name + " - " + editingSession.PreviousRunName);
+                            : string.Format(ResManager.GetString("ProjectModelSystemTabTitleFormat") ?? "{0} - {1}",
+                            editingSession.ProjectEditingSession.Name, editingSession.PreviousRunName));
+                    
 
-
-                    SetDisplayActive(display, projectSession.Name);
+                    var projectFormat = ResManager.GetString("ProjectTabTitleFormat") ?? "Project - {0}";
+                    SetDisplayActive(display, string.Format(projectFormat, projectSession.Name));
                     WorkspaceProjects.Add(projectSession.Project, display);
-                    SetStatusText("Ready");
+                    SetStatusText(ResManager.GetString("StatusReady") ?? "Ready");
                 }
             ));
         }
@@ -398,27 +393,15 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     public void OpenModelSystem()
     {
-        SetDisplayActive(new ModelSystemsDisplay(EditorController.Runtime), "Model Systems");
+        SetDisplayActive(new ModelSystemsDisplay(EditorController.Runtime), ResManager.GetString("ModelSystemsLabel") ?? "Model Systems");
     }
 
     public static string OpenFile(string title, KeyValuePair<string, string>[] extensions, bool alreadyExists)
     {
-        var filter = string.Join("|",
-            from element in extensions
-            select element.Key + "|*." + element.Value
-        );
+        var filter = string.Join("|", from element in extensions select element.Key + "|*." + element.Value);
         var dialog = alreadyExists
-            ? (FileDialog)new OpenFileDialog
-            {
-                Title = title,
-                Filter = filter
-            }
-            : new SaveFileDialog
-            {
-                Title = "Save As",
-                FileName = title,
-                Filter = filter
-            };
+            ? (FileDialog)new OpenFileDialog { Title = title, Filter = filter }
+            : new SaveFileDialog { Title = "Save As", FileName = title, Filter = filter };
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }
 
@@ -446,12 +429,10 @@ public partial class MainWindow : MetroWindow
 
     public void ImportModelSystem()
     {
-        var fileName = OpenFile("Import Model System",
-            [new KeyValuePair<string, string>("Model System File", "xml")], true);
+        var fileName = OpenFile("Import Model System", [new KeyValuePair<string, string>("Model System File", "xml")], true);
         string error = null;
         if (fileName != null)
         {
-            var msName = Path.GetFileName(fileName);
             if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, false, ref error))
             {
                 switch (MessageBox.Show(this, error + "\r\nWould you like to overwrite?",
@@ -487,7 +468,7 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     public async void NewModelSystem(DialogHost host)
     {
-        var dialog = new StringRequestDialog(host, "Model System Name", ValidateName, null);
+        var dialog = new StringRequestDialog(host, ResManager.GetString("ModelSystemNameDialogTitle") ?? "Model System Name", ValidateName, null);
         var result = await dialog.ShowAsync();
         if (dialog.DidComplete)
         {
@@ -503,7 +484,7 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     public async void NewProject(DialogHost host)
     {
-        var dialog = new StringRequestDialog(host, "Project Name", ValidateName, null);
+        var dialog = new StringRequestDialog(host, ResManager.GetString("ProjectNameDialogTitle") ?? "Project Name", ValidateName, null);
         _isDialogOpen = true;
         var result = await dialog.ShowAsync();
 
@@ -549,10 +530,21 @@ public partial class MainWindow : MetroWindow
                 ModelSystem = modelSystemSession.ModelSystemModel,
                 ContentGuid = Guid.NewGuid().ToString()
             };
-            var titleBarName = titleBar ?? (modelSystemSession.EditingProject
-                                   ? modelSystemSession.ProjectEditingSession.Name + " - " +
-                                     modelSystemSession.ModelSystemModel.Name
-                                   : "Model System - " + modelSystemSession.ModelSystemModel.Name);
+            string titleBarName;
+            if (titleBar is not null)
+            {
+                titleBarName = titleBar;
+            }
+            else if (modelSystemSession.EditingProject)
+            {
+                var format = ResManager.GetString("ProjectModelSystemTabTitleFormat") ?? "{0} - {1}";
+                titleBarName = string.Format(format, modelSystemSession.ProjectEditingSession.Name, modelSystemSession.ModelSystemModel.Name);
+            }
+            else
+            {
+                var format = ResManager.GetString("ModelSystemTabTitleFormat") ?? "Model System - {0}";
+                titleBarName = string.Format(format, modelSystemSession.ModelSystemModel.Name);
+            }
             SetDisplayActive(display, titleBarName);
             if (modelSystemSession.EditingProject)
             {
@@ -562,8 +554,8 @@ public partial class MainWindow : MetroWindow
                     {
                         if (tab.Content == display)
                         {
-                            tab.Header = modelSystemSession.ProjectEditingSession.Name + " - " +
-                                     modelSystemSession.ModelSystemModel.Name;
+                            var format = ResManager.GetString("ProjectModelSystemTabTitleFormat") ?? "{0} - {1}";
+                            tab.Header = string.Format(format, modelSystemSession.ProjectEditingSession.Name, modelSystemSession.ModelSystemModel.Name);
                         }
                     }
                 };
@@ -572,7 +564,6 @@ public partial class MainWindow : MetroWindow
             display.Focus();
             return display;
         }
-
         return null;
     }
 
@@ -611,7 +602,7 @@ public partial class MainWindow : MetroWindow
     {
         //create a new scheduler window if one does not exist
         SchedulerWindow.AddRun(runWindow);
-        SetDisplayActive(SchedulerWindow, "Model System Runs", false);
+        SetDisplayActive(SchedulerWindow, ResManager.GetString("ModelSystemRunsLabel") ?? "Model System Runs", false);
     }
 
     internal void AddDelayedRunToSchedulerWindow(RunWindow runWindow, DateTime delayedStartTime)
@@ -625,7 +616,7 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     public void ShowSchedulerWindow()
     {
-        SetDisplayActive(SchedulerWindow, "Scheduler", false);
+        SetDisplayActive(SchedulerWindow, ResManager.GetString("SchedulerLabel") ?? "Scheduler", false);
     }
 
     /// <summary>
@@ -657,7 +648,8 @@ public partial class MainWindow : MetroWindow
     /// <param name="documentationControl"></param>
     internal void NewHelpWindow(DocumentationControl documentationControl)
     {
-        SetDisplayActive(documentationControl, "Documentation - " + documentationControl.TypeNameText);
+        var format = ResManager.GetString("DocumentationTabTitleFormat") ?? "Documentation - {0}";
+        SetDisplayActive(documentationControl, string.Format(format, documentationControl.TypeNameText));
         Keyboard.Focus(documentationControl);
         documentationControl.Focus();
     }
@@ -678,7 +670,8 @@ public partial class MainWindow : MetroWindow
         {
             helpUI.SelectModuleContent(getHelpFor);
         }
-        SetDisplayActive(helpUI, "Help");
+        var helpTitle = ResManager.GetString("HelpLabel") ?? "Help";
+        SetDisplayActive(helpUI, helpTitle);
         Keyboard.Focus(helpUI);
     }
 
@@ -693,21 +686,17 @@ public partial class MainWindow : MetroWindow
         {
             if (display.Parent == null || !display.IsLoaded)
             {
-                if (ContentControl.DataContext is ViewModelBase)
+                if (ContentControl.DataContext is ViewModelBase vm)
                 {
-                    ((ViewModelBase)ContentControl.DataContext).ViewModelControl = display;
+                    vm.ViewModelControl = display;
                 }
-                var newTabItem = new TabItem
-                {
-                    Content = display,
-                    Header = title
-                };
+                var newTabItem = new TabItem { Content = display, Header = title };
                 DockManager.Items.Add(newTabItem);
                 if (display is IKeyShortcutHandler shortcutHandler)
                 {
-                    newTabItem.PreviewKeyDown += delegate (object sender, KeyEventArgs args)
+                    newTabItem.PreviewKeyDown += (_, args) =>
                     {
-                        shortcutHandler.HandleKeyPreviewDown(sender, args);
+                        shortcutHandler.HandleKeyPreviewDown(_, args);
                     };
                 }
             }
@@ -735,7 +724,7 @@ public partial class MainWindow : MetroWindow
     private void SettingsMenuItem_OnSelected(object sender, RoutedEventArgs e)
     {
         _settingsPage ??= new SettingsPage();
-        SetDisplayActive(_settingsPage, "Settings");
+        SetDisplayActive(_settingsPage, ResManager.GetString("SettingsLabel") ?? "Settings");
         MenuToggleButton.IsChecked = false;
     }
 
@@ -747,7 +736,7 @@ public partial class MainWindow : MetroWindow
     {
         _projectsDisplay ??= new ProjectsDisplay(EditorController.Runtime);
 
-        SetDisplayActive(_projectsDisplay, "Projects");
+        SetDisplayActive(_projectsDisplay, ResManager.GetString("ProjectsLabel") ?? "Projects");
         MenuToggleButton.IsChecked = false;
     }
 
@@ -767,11 +756,7 @@ public partial class MainWindow : MetroWindow
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void XTMFSideMenuListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        XTMFSideMenuListBox.UnselectAll();
-    }
-
+    private void XTMFSideMenuListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e) => XTMFSideMenuListBox.UnselectAll();
     /// <summary>
     /// </summary>
     /// <param name="sender"></param>
@@ -781,23 +766,18 @@ public partial class MainWindow : MetroWindow
         Process.Start(new ProcessStartInfo() { FileName = "https://tmg.utoronto.ca/doc/1.6/", UseShellExecute = true });
         MenuToggleButton.IsChecked = false;
     }
-
     /// <summary>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void XTMFWorkspaceListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        XTMFWorkspaceListBox.UnselectAll();
-    }
-
+    private void XTMFWorkspaceListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e) => XTMFWorkspaceListBox.UnselectAll();
     /// <summary>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     private void SchedulerMenuItem_OnSelected(object sender, RoutedEventArgs e)
     {
-        SetDisplayActive(SchedulerWindow, "Scheduler");
+        SetDisplayActive(SchedulerWindow, ResManager.GetString("SchedulerLabel") ?? "Scheduler");
         MenuToggleButton.IsChecked = false;
     }
 
@@ -809,10 +789,9 @@ public partial class MainWindow : MetroWindow
     private void LaunchRemoteMenuItem_OnSelected(object sender, RoutedEventArgs e)
     {
         var remoteWindow = new LaunchRemoteClientWindow();
-        SetDisplayActive(remoteWindow, "Launch Remote Client");
+        SetDisplayActive(remoteWindow, ResManager.GetString("LaunchRemoteClientWindowTitle") ?? "Launch Remote Client");
         MenuToggleButton.IsChecked = false;
         Keyboard.Focus(remoteWindow);
-        MenuToggleButton.IsChecked = false;
         remoteWindow.Focus();
     }
 
@@ -840,35 +819,20 @@ public partial class MainWindow : MetroWindow
         if (e.KeyboardDevice.IsKeyDown(Key.W) &&
             (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) || e.KeyboardDevice.IsKeyDown(Key.RightCtrl)))
         {
-            //before closing, attempt to save / interrupt if control supports
             var tabItem = DockManager.SelectedItem as TabItem;
-            if (!(tabItem.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose()))
+            if (!(tabItem?.Content is ITabCloseListener closeListener && !closeListener.HandleTabClose()))
             {
                 Dispatcher.InvokeAsync(() => { DockManager.Items.Remove(DockManager.SelectedItem); });
             }
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void XtmfWorkspacesListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        XtmfWorkspacesListBox.UnselectAll();
-    }
+    private void XtmfWorkspacesListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e) => XtmfWorkspacesListBox.UnselectAll();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void AboutMenuItem_OnSelected(object sender, RoutedEventArgs e)
     {
         MenuToggleButton.IsChecked = false;
-        new AboutXTMF
-        {
-            Owner = this
-        }.ShowDialog();
+        new AboutXTMF { Owner = this }.ShowDialog();
     }
 
     /// <summary>
@@ -920,10 +884,7 @@ public partial class MainWindow : MetroWindow
         Keyboard.Focus(this);
     }
 
-    private void NewProjectButton_Click(object sender, MouseButtonEventArgs e)
-    {
-        NewProject(RootDialogHost);
-    }
+    private void NewProjectButton_Click(object sender, MouseButtonEventArgs e) => NewProject(RootDialogHost);
 
     /// <summary>
     ///     Attempts to bring a display into view. Nothing occurs when the display is not already

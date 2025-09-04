@@ -19,6 +19,9 @@
 
 using System;
 using System.Linq;
+using System.Resources;
+using System.Globalization;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -35,6 +38,23 @@ public partial class ProjectsDisplay : UserControl
 {
     private XTMFRuntime Runtime;
 
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(ProjectsDisplay).Assembly);
+    public string SearchLabel => ResManager.GetString("SearchLabel");
+    public string RenameProjectLabel => ResManager.GetString("RenameProjectLabel");
+    public string ChangeDescriptionLabel => ResManager.GetString("ChangeDescriptionLabel");
+    public string NewProjectLabel => ResManager.GetString("NewProjectLabel");
+    public string CloneProjectLabel => ResManager.GetString("CloneProjectLabel");
+    public string DeleteProjectLabel => ResManager.GetString("DeleteProjectLabel");
+    public string CreateNewProjectLabel => ResManager.GetString("CreateNewProjectLabel");
+    public string RenameProjectDialogTitle => ResManager.GetString("RenameProjectDialogTitle");
+    public string UnableToRenameProject => ResManager.GetString("UnableToRenameProject");
+    public string ChangeDescriptionDialogTitle => ResManager.GetString("ChangeDescriptionDialogTitle");
+    public string UnableToDeleteProject => ResManager.GetString("UnableToDeleteProject");
+    public string CloneProjectDialogTitle => ResManager.GetString("CloneProjectDialogTitle");
+    public string UnableToCloneProject => ResManager.GetString("UnableToCloneProject");
+    public string DeleteProjectConfirm => ResManager.GetString("DeleteProjectConfirm");
+    public string DeleteProjectDialogTitle => ResManager.GetString("DeleteProjectDialogTitle");
+
     /// <summary>
     /// 
     /// </summary>
@@ -43,6 +63,7 @@ public partial class ProjectsDisplay : UserControl
     {
         InitializeComponent();
         Runtime = runtime;
+        DataContext = this;
         var projectRepository = ((ProjectRepository)runtime.Configuration.ProjectRepository);
         projectRepository.ReloadRepository();
         Loaded += ProjectsDisplay_Loaded;
@@ -179,7 +200,7 @@ public partial class ProjectsDisplay : UserControl
     {
         if (Display.SelectedItem is Project project)
         {
-            var dialog = new StringRequestDialog(RootDialogHost, "Rename Project", (value) => !String.IsNullOrWhiteSpace(value), project.Name);
+            var dialog = new StringRequestDialog(RootDialogHost, RenameProjectDialogTitle, (value) => !String.IsNullOrWhiteSpace(value), project.Name);
             await dialog.ShowAsync();
             if (dialog.DidComplete)
             {
@@ -187,7 +208,7 @@ public partial class ProjectsDisplay : UserControl
                 string error = null;
                 if (!Runtime.ProjectController.RenameProject(project, dialog.UserInput, ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, UnableToRenameProject, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 }
                 else
                 {
@@ -206,12 +227,12 @@ public partial class ProjectsDisplay : UserControl
             var selectedModuleControl = GetCurrentlySelectedControl();
             var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
             Renaming = true;
-            var adorn = new TextboxAdorner("Change Description", result =>
+            var adorn = new TextboxAdorner(ChangeDescriptionDialogTitle, result =>
             {
                 string error = null;
                 if (!Runtime.ProjectController.SetDescription(project, result, ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, UnableToRenameProject, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 }
                 else
                 {
@@ -241,14 +262,13 @@ public partial class ProjectsDisplay : UserControl
         if (Display.SelectedItem is Project project)
         {
             string error = null;
-            StringRequestDialog dialog = 
-                new(RootDialogHost, "Clone Project As?", newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
+            StringRequestDialog dialog = new(RootDialogHost, CloneProjectDialogTitle, newName => { return Runtime.ProjectController.ValidateProjectName(newName); }, null);
             var result = await dialog.ShowAsync();
             if (dialog.DidComplete)
             {
                 if (!Runtime.ProjectController.CloneProject(project, dialog.StringInputTextBox.Text, ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, UnableToCloneProject, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     return;
                 }
                 Runtime.Configuration.AddRecentProject(dialog.StringInputTextBox.Text);
@@ -263,12 +283,12 @@ public partial class ProjectsDisplay : UserControl
         if (Display.SelectedItem is Project project)
         {
             if (MessageBox.Show(GetWindow(),
-                "Are you sure you want to delete the project '" + project.Name + "'?  This action cannot be undone!", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                string.Format(DeleteProjectConfirm, project.Name), DeleteProjectDialogTitle, MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
                 string error = null;
                 if (!Runtime.ProjectController.DeleteProject(project, ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, UnableToDeleteProject, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     return;
                 }
             }

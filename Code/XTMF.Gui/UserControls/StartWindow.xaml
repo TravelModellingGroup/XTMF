@@ -42,8 +42,8 @@
                     <Label Content="XTMF" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,-45,0,0" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Bold" FontSize="24" FontFamily="Lucida Console"/>
                 </StackPanel>
                 <StackPanel HorizontalAlignment="Center"  VerticalAlignment="Center">
-                    <Label Content="eXtensible Travel Modelling Framework" FontSize="28" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{DynamicResource MaterialDesignBody}" />
+                    <Label Content="{Binding FrameworkTitle}" FontSize="28" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                    <Label Content="{Binding FrameworkSubtitle}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{DynamicResource MaterialDesignBody}" />
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1">
@@ -60,14 +60,14 @@
                     </Grid.ColumnDefinitions>
                     <materialDesign:Card Grid.Row="0" Grid.Column="0" Padding="15" Margin="5">
                         <StackPanel  Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
-                            <Label Content="Projects" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
-                            <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14" Click="ButtonBase_OnClick" />
-                            <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" Name="OpenProjectButton" Click="OpenProjectButton_OnClick" />
+                            <Label Content="{Binding ProjectsLabel}" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" />
+                            <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="{Binding CreateProjectLabel}" Margin="0.25cm,0,0,0" FontSize="14" Click="ButtonBase_OnClick" />
+                            <Button HorizontalAlignment="Left" Style="{DynamicResource MaterialDesignFlatButton}" Content="{Binding OpenProjectLabel}" Margin="0.25cm,0,0,0" FontSize="14" Name="OpenProjectButton" Click="OpenProjectButton_OnClick" />
                         </StackPanel>
                     </materialDesign:Card>
                     <materialDesign:Card Grid.Row="1" Grid.Column="0" Padding="15" Margin="5">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                            <Label Content="Recent Projects" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" Margin="1,15,0,0" />
+                            <Label Content="{Binding RecentProjectsLabel}" FontSize="18" Foreground="{DynamicResource MaterialDesignBody}" Margin="1,15,0,0" />
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Name="RecentProjectsStackPanel" />
                         </StackPanel>
                     </materialDesign:Card>

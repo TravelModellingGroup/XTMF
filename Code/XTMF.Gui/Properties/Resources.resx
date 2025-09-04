@@ -1,64 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
+  <!-- Original resource file with added usage comments for entries referenced in ModelSystemDisplay.xaml -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -117,11 +59,269 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MainWindow_ParseCommandLineArgs_Invalid_path_passed_with_configuration_argument_" xml:space="preserve">
-    <value>Invalid path passed with configuration argument.</value>
-  </data>
   <data name="Xtmf_Major_Version" xml:space="preserve">
     <value>1.6</value>
-    <comment>XTMF Major Version</comment>
+    <comment>AboutXTMF</comment>
   </data>
+  <data name="DirectorySettings" xml:space="preserve"><value>Directory Settings</value></data>
+  <data name="ProjectDirectory" xml:space="preserve"><value>Project Directory</value></data>
+  <data name="ModelSystemDirectory" xml:space="preserve"><value>Model System Directory</value></data>
+  <data name="NetworkSettings" xml:space="preserve"><value>Network Settings</value></data>
+  <data name="HostNetworkingPort" xml:space="preserve"><value>Host Networking Port</value></data>
+  <data name="Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="PrimaryColour" xml:space="preserve"><value>Primary Colour</value></data>
+  <data name="AccentColour" xml:space="preserve"><value>Accent Colour</value></data>
+  <data name="UseDarkTheme" xml:space="preserve"><value>Use Dark Theme</value></data>
+  <data name="DisableAnimationTransitions" xml:space="preserve"><value>Disable Animation Transitions</value></data>
+  <data name="Advanced" xml:space="preserve"><value>Advanced</value></data>
+  <data name="ConfigFileLoadedFrom" xml:space="preserve"><value>Configuration file loaded from: </value></data>
+  <data name="LocalHostButtonName_Create" xml:space="preserve"><value>Create Local XTMF Configuration</value></data>
+  <data name="LocalHostButtonName_Delete" xml:space="preserve"><value>Delete Local XTMF Configuration</value></data>
+  <data name="FrameworkTitle" xml:space="preserve"><value>eXtensible Travel Modelling Framework</value></data>
+  <data name="FrameworkSubtitle" xml:space="preserve"><value>&lt;Insert Your Model Here/&gt;</value></data>
+  <data name="ProjectsLabel" xml:space="preserve"><value>Projects</value></data>
+  <data name="CreateProjectLabel" xml:space="preserve"><value>Create a new project</value></data>
+  <data name="OpenProjectLabel" xml:space="preserve"><value>Open Project</value></data>
+  <data name="RecentProjectsLabel" xml:space="preserve"><value>Recent Projects</value></data>
+  <data name="NewProjectLabel" xml:space="preserve"><value>New Project (Ctrl+N)</value></data>
+  <data name="WorkspaceLabel" xml:space="preserve"><value>Workspace</value></data>
+  <data name="SchedulerLabel" xml:space="preserve"><value>Scheduler</value></data>
+  <data name="LaunchRemoteLabel" xml:space="preserve"><value>Launch Remote</value></data>
+  <data name="SettingsLabel" xml:space="preserve"><value>Settings</value></data>
+  <data name="UpdateXtmfLabel" xml:space="preserve"><value>Update XTMF</value></data>
+  <data name="HelpLabel" xml:space="preserve"><value>Help</value></data>
+  <data name="DocumentationLabel" xml:space="preserve"><value>Documentation</value></data>
+  <data name="AboutLabel" xml:space="preserve"><value>About XTMF</value></data>
+  <data name="RunModelLabel" xml:space="preserve"><value>Run Model (F5)</value></data>
+  <data name="RunModelTooltip" xml:space="preserve"><value>Press F5 to run the currently viewed model system.</value></data>
+  <data name="ClickHereLabel" xml:space="preserve"><value>Click here</value></data>
+  <data name="SearchLabel" xml:space="preserve"><value>Search... (Ctrl+E)</value></data>
+  <data name="RenameProjectLabel" xml:space="preserve"><value>Rename Project (F2)</value></data>
+  <data name="ChangeDescriptionLabel" xml:space="preserve"><value>Change Description (Shift+F2)</value></data>
+  <data name="CloneProjectLabel" xml:space="preserve"><value>Clone Project (Ctrl+C)</value></data>
+  <data name="DeleteProjectLabel" xml:space="preserve"><value>Delete Project (Del)</value></data>
+  <data name="CreateNewProjectLabel" xml:space="preserve"><value>Create New project</value></data>
+  <data name="RenameProjectDialogTitle" xml:space="preserve"><value>Rename Project</value></data>
+  <data name="UnableToRenameProject" xml:space="preserve"><value>Unable to Rename Project</value></data>
+  <data name="ChangeDescriptionDialogTitle" xml:space="preserve"><value>Change Description</value></data>
+  <data name="UnableToDeleteProject" xml:space="preserve"><value>Unable to Delete Project</value></data>
+  <data name="CloneProjectDialogTitle" xml:space="preserve"><value>Clone Project As?</value></data>
+  <data name="UnableToCloneProject" xml:space="preserve"><value>Unable to Clone Project</value></data>
+  <data name="DeleteProjectConfirm" xml:space="preserve"><value>Are you sure you want to delete the project '{0}'?  This action cannot be undone!</value></data>
+  <data name="DeleteProjectDialogTitle" xml:space="preserve"><value>Delete Project</value></data>
+  <data name="CreateNewModelSystemLabel" xml:space="preserve"><value>Create new model system</value></data>
+  <data name="OpenProjectDirectoryLabel" xml:space="preserve"><value>Open Project Directory</value></data>
+  <data name="ImportModelSystemLabel" xml:space="preserve"><value>Import Model System</value></data>
+  <data name="ImportModelSystemFromFileLabel" xml:space="preserve"><value>Import Model System From File</value></data>
+  <data name="RefreshPreviousRunsLabel" xml:space="preserve"><value>Refresh previous runs</value></data>
+  <data name="SearchModulesLabel" xml:space="preserve"><value>Search Modules... (Ctrl+E)</value></data>
+  <data name="ModelSystemsLabel" xml:space="preserve"><value>Model Systems</value></data>
+  <data name="ModelSystemColumnLabel" xml:space="preserve"><value>Model System</value></data>
+  <data name="LastModifiedColumnLabel" xml:space="preserve"><value>Last Modified</value></data>
+  <data name="RenameModelSystemLabel" xml:space="preserve"><value>Rename Model System (F2)</value></data>
+  <data name="DeleteModelSystemLabel" xml:space="preserve"><value>Delete Model System (Del)</value></data>
+  <data name="SaveModelSystemAsLabel" xml:space="preserve"><value>Save Model System As</value></data>
+  <data name="ExportModelSystemAsLabel" xml:space="preserve"><value>Export Model System As (Ctrl+S)</value></data>
+  <data name="CopyModelSystemLabel" xml:space="preserve"><value>Copy Model System (Ctrl+C)</value></data>
+  <data name="PasteAsNewModelSystemLabel" xml:space="preserve"><value>Paste As New Model System (Ctrl+V)</value></data>
+  <data name="PreviousRunsLabel" xml:space="preserve"><value>Previous Runs</value></data>
+  <data name="SearchPreviousRunsLabel" xml:space="preserve"><value>Search Previous Runs...</value></data>
+  <data name="OpenResultsLabel" xml:space="preserve"><value>Open Results</value></data>
+  <data name="DeletePreviousRunLabel" xml:space="preserve"><value>Delete</value></data>
+  <data name="RenameModelSystemDialogTitle" xml:space="preserve"><value>Rename</value></data>
+  <data name="CloneModelSystemDialogTitle" xml:space="preserve"><value>Clone Model System As?</value></data>
+  <data name="UnableToRenameModelSystem" xml:space="preserve"><value>Unable to Rename Model System</value></data>
+  <data name="UnableToCloneModelSystem" xml:space="preserve"><value>Unable to Clone Model System</value></data>
+  <data name="DeleteModelSystemConfirm" xml:space="preserve"><value>Are you sure you want to delete the model system '{0}'?  This action cannot be undone!</value></data>
+  <data name="DeleteModelSystemDialogTitle" xml:space="preserve"><value>Delete ModelSystem</value></data>
+  <data name="UnableToDeleteModelSystem" xml:space="preserve"><value>Unable to Delete ModelSystem</value></data>
+  <data name="UnableToExportModelSystem" xml:space="preserve"><value>Unable to Export Model System</value></data>
+  <data name="NewModelSystemButtonLabel" xml:space="preserve"><value>New Model System</value></data>
+  <data name="ImportModelSystemButtonLabel" xml:space="preserve"><value>Import Model System</value></data>
+  <data name="RenameModelSystemButtonLabel" xml:space="preserve"><value>Rename Model System</value></data>
+  <data name="CloneModelSystemButtonLabel" xml:space="preserve"><value>Clone Model System</value></data>
+  <data name="DeleteModelSystemButtonLabel" xml:space="preserve"><value>Delete Model System</value></data>
+  <data name="ExportModelSystemButtonLabel" xml:space="preserve"><value>Export Model System</value></data>
+  <data name="CancelRunMenuItem" xml:space="preserve"><value>Cancel run</value></data>
+  <data name="MoveUpInQueueMenuItem" xml:space="preserve"><value>Move up in queue</value></data>
+  <data name="MoveDownInQueueMenuItem" xml:space="preserve"><value>Move down in queue</value></data>
+  <data name="StartTimeLabel" xml:space="preserve"><value>Start Time</value></data>
+  <data name="ElapsedTimeLabel" xml:space="preserve"><value>Elapsed Time</value></data>
+  <data name="NoRunSelectedLabel" xml:space="preserve"><value>No run currently selected.</value></data>
+  <data name="CopyToClipboardLabel" xml:space="preserve"><value>Copy to Clipboard</value></data>
+  <data name="CloseLabel" xml:space="preserve"><value>Close</value></data>
+  <data name="ActiveRunsLabel" xml:space="preserve"><value>Active Runs</value></data>
+  <data name="FinishedRunsLabel" xml:space="preserve"><value>Finished Runs</value></data>
+  <data name="ClearRunsLabel" xml:space="preserve"><value>Clear Runs</value></data>
+  <data name="CopyLabel" xml:space="preserve"><value>Copy</value></data>
+  <data name="RunOutputLabel" xml:space="preserve"><value>Run output</value></data>
+  <data name="ClearRunLabel" xml:space="preserve"><value>Clear run</value></data>
+  <data name="ShowStacktraceLabel" xml:space="preserve"><value>Show Stacktrace</value></data>
+  <data name="RemoveRunFromListLabel" xml:space="preserve"><value>Remove run from list</value></data>
+  <data name="DirectoryDoesNotExistMessage" xml:space="preserve"><value>{0} does not exist!</value></data>
+  <data name="DelayedRunStatus" xml:space="preserve"><value>Delayed Run</value></data>
+  <data name="RuntimeExceptionStatus" xml:space="preserve"><value>Runtime exception occurred.</value></data>
+  <data name="ValidationErrorStatus" xml:space="preserve"><value>Validation error occurred</value></data>
+  <data name="RunFinishedSuccessfullyStatus" xml:space="preserve"><value>Run finished successfully.</value></data>
+  <data name="ModelSystemRunFinishedNotification" xml:space="preserve"><value>Model system run finished ({0})</value></data>
+  <data name="ModelSystemRunFinishedBalloon" xml:space="preserve"><value>{0} has finished executing.</value></data>
+  <data name="ModelSystemRunExceptionBalloon" xml:space="preserve"><value>{0} encountered a runtime exception.</value></data>
+  <data name="ModelSystemValidationExceptionBalloon" xml:space="preserve"><value>{0} encountered a validation exception.</value></data>
+  <data name="ErrorInformationCopiedMessage" xml:space="preserve"><value>Error information copied to clipboard</value></data>
+  <data name="ServerAddressHint" xml:space="preserve"><value>Server Address</value></data>
+  <data name="PortNumberHint" xml:space="preserve"><value>Port Number</value></data>
+  <data name="LaunchRemoteClientButton" xml:space="preserve"><value>Launch Remote Client</value></data>
+  <data name="LaunchRemoteClientWindowTitle" xml:space="preserve"><value>Launch Remote Client</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>Language</value></data>
+  <data name="AboutDialogTitle" xml:space="preserve"><value>About XTMF</value></data>
+  <data name="VersionLabel" xml:space="preserve"><value>Version: </value></data>
+  <data name="BuildDateLabel" xml:space="preserve"><value>Build Date: </value></data>
+  <data name="CreatedByLabel" xml:space="preserve"><value>Created by the Travel Modelling Group</value></data>
+  <data name="LicenseLabel" xml:space="preserve"><value>This software is Open-Source, copyrighted under the GPLv3 License.</value></data>
+  <data name="NumberOfModulesLabel" xml:space="preserve"><value>Number of installed modules:</value></data>
+  <!-- ModelSystemDisplay specific (toolbars/panels/status/context) -->
+  <data name="SaveModelSystemTooltip" xml:space="preserve"><value>Save Model System</value><comment>ModelSystemDisplay toolbar</comment></data>
+  <data name="LinkedParametersTooltip" xml:space="preserve"><value>Linked Parameters</value><comment>ModelSystemDisplay toolbar</comment></data>
+  <data name="RunModelSystemTooltip" xml:space="preserve"><value>Run Model System</value><comment>ModelSystemDisplay toolbar</comment></data>
+  <data name="OpenProjectFolderTooltip" xml:space="preserve"><value>Open Project Folder</value><comment>ModelSystemDisplay toolbar</comment></data>
+  <data name="ReloadModelSystemTooltip" xml:space="preserve"><value>Reload Model System</value><comment>ModelSystemDisplay toolbar</comment></data>
+  <data name="SearchModulesTooltip" xml:space="preserve"><value>Search Modules... (Ctrl+E)</value><comment>ModelSystemDisplay toolbar search box</comment></data>
+  <data name="ToggleQuickParametersTooltip" xml:space="preserve"><value>Toggle Quick Parameters Panel</value><comment>ModelSystemDisplay toolbar toggle</comment></data>
+  <data name="ToggleModuleParametersTooltip" xml:space="preserve"><value>Toggle Module Parameters Panel</value><comment>ModelSystemDisplay toolbar toggle</comment></data>
+  <data name="ModuleParametersLabel" xml:space="preserve"><value>Module Parameters</value><comment>ModelSystemDisplay right panel header</comment></data>
+  <data name="FilterParametersTooltip" xml:space="preserve"><value>Filter Parameters... (Ctrl+P)</value><comment>ModelSystemDisplay parameter filter box</comment></data>
+  <data name="QuickParametersLabel" xml:space="preserve"><value>Quick Parameters</value><comment>ModelSystemDisplay quick parameter header</comment></data>
+  <data name="FilterQuickParametersTooltip" xml:space="preserve"><value>Filter Parameters... (Ctrl+Q)</value><comment>ModelSystemDisplay quick filter box</comment></data>
+  <data name="ModuleDescriptionLabel" xml:space="preserve"><value>Module Description</value><comment>ModelSystemDisplay description expander</comment></data>
+  <data name="NoDescriptionAvailable" xml:space="preserve"><value>No description available.</value><comment>ModelSystemDisplay description placeholder</comment></data>
+  <data name="NoModuleSelected" xml:space="preserve"><value>No module selected.</value><comment>ModelSystemDisplay status bar</comment></data>
+  <data name="ModelSystemRequirements" xml:space="preserve"><value>Model System Requirements</value><comment>ModelSystemDisplay status bar popup</comment></data>
+  <data name="NoModuleCurrentlySelected" xml:space="preserve"><value>No module currently selected.</value><comment>ModelSystemDisplay parameter pane placeholder</comment></data>
+  <data name="EnableModule" xml:space="preserve"><value>Enable Module</value><comment>ModelSystemDisplay module list</comment></data>
+  <data name="DisableModule" xml:space="preserve"><value>Disable Module</value><comment>ModelSystemDisplay module list</comment></data>
+  <data name="RemoveModuleFromList" xml:space="preserve"><value>Remove module from list</value><comment>ModelSystemDisplay enabled module template</comment></data>
+  <data name="QuickParameterTooltip" xml:space="preserve"><value>Quick Parameter</value><comment>ModelSystemDisplay parameter list icon</comment></data>
+  <data name="SystemParameterTooltip" xml:space="preserve"><value>System Parameter</value><comment>ModelSystemDisplay parameter list icon</comment></data>
+  <data name="AssociatedModuleDisabledTooltip" xml:space="preserve"><value>Associated module is disabled</value><comment>ModelSystemDisplay parameter list icon</comment></data>
+  <data name="DisabledModulesTooltip" xml:space="preserve"><value>Disabled Modules</value><comment>ModelSystemDisplay status bar icon tooltip</comment></data>
+  <data name="CopyParameterMenuItem" xml:space="preserve"><value>Copy (Ctrl+N)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="RenameParameterMenuItem" xml:space="preserve"><value>Rename        (F2)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="ResetParameterNameMenuItem" xml:space="preserve"><value>Reset Name     </value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="HideParameterMenuItem" xml:space="preserve"><value>Hide Parameter(Ctrl+H)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="ShowParameterMenuItem" xml:space="preserve"><value>Show Parameter(Ctrl+Shift+H)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="CopyParametersToClipboardMenuItem" xml:space="preserve"><value>Copy Parameters To Clipboard</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="PasteFromSpreadsheetMenuItem" xml:space="preserve"><value>Paste From Spreadsheet</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="OpenFileMenuItem" xml:space="preserve"><value>Open File  (Ctrl+O)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="OpenFileWithMenuItem" xml:space="preserve"><value>Open File With</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="OpenFileLocationMenuItem" xml:space="preserve"><value>Open File Location</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="SelectFileMenuItem" xml:space="preserve"><value>Select File (Ctrl+F)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="SelectDirectoryMenuItem" xml:space="preserve"><value>Select Directory (Ctrl+D)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="AssignLinkedParameterMenuItem" xml:space="preserve"><value>Assign Linked Parameter (Ctrl+L)</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="RecentLinkedParametersMenuItem" xml:space="preserve"><value>Recent Linked Parameters</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="RemoveFromLinkedParameterMenuItem" xml:space="preserve"><value>Remove From Linked Parameter</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="ResetToDefaultMenuItem" xml:space="preserve"><value>Reset to Default</value><comment>ModelSystemDisplay parameter context menu</comment></data>
+  <data name="CopyParameterNameMenuItem" xml:space="preserve"><value>Copy Parameter Name (Ctrl+N)</value><comment>ModelSystemDisplay quick parameter context menu</comment></data>
+  <data name="GoToModuleMenuItem" xml:space="preserve"><value>Go To Module</value><comment>ModelSystemDisplay quick parameter context menu</comment></data>
+  <data name="ParameterMenuItem" xml:space="preserve"><value>Parameter</value><comment>ModelSystemDisplay parameter context menu root</comment></data>
+  <data name="OpenMenuItem" xml:space="preserve"><value>Open</value><comment>ModelSystemDisplay parameter context submenu</comment></data>
+  <data name="CopyModuleMenuItem" xml:space="preserve"><value>Copy (Ctrl+C)</value></data>
+  <data name="CloneModuleMenuItem" xml:space="preserve"><value>Clone (Ctrl+Shift+C)</value></data>
+  <data name="PasteModuleMenuItem" xml:space="preserve"><value>Paste (Ctrl+V)</value></data>
+  <data name="RenameModuleMenuItem" xml:space="preserve"><value>Rename (F2)</value></data>
+  <data name="EditDescriptionMenuItem" xml:space="preserve"><value>Edit Description (Shift + F2)</value></data>
+  <data name="MetaModuleMenuItem" xml:space="preserve"><value>Meta-Module</value></data>
+  <data name="ConvertToMetaModuleMenuItem" xml:space="preserve"><value>Convert To  (Ctrl+Shift+M)</value></data>
+  <data name="SplitMetaModuleMenuItem" xml:space="preserve"><value>Split(Ctrl+Shift+Alt+M)</value></data>
+  <data name="ModuleMenuItem" xml:space="preserve"><value>Module (Ctrl+M)</value></data>
+  <data name="DisableModuleMenuItem" xml:space="preserve"><value>Disable Module (Ctrl+D)</value></data>
+  <data name="RemoveModuleMenuItem" xml:space="preserve"><value>Remove (Del)</value></data>
+  <data name="HelpMenuItem" xml:space="preserve"><value>Help (F1)</value></data>
+  <data name="MoveMenuItem" xml:space="preserve"><value>Move</value></data>
+  <data name="MoveUpMenuItem" xml:space="preserve"><value>Up   (Ctrl+Shift+Up)</value></data>
+  <data name="MoveDownMenuItem" xml:space="preserve"><value>Down (Ctrl+Shift+Down)</value></data>
+  <data name="LinkedParametersMenuItem" xml:space="preserve"><value>Linked Parameters (Ctrl+L)</value></data>
+  <data name="ExpandAllModulesMenuItem" xml:space="preserve"><value>Expand all Modules</value></data>
+  <data name="CollapseAllModulesMenuItem" xml:space="preserve"><value>Collapse all Modules</value></data>
+  <data name="ProjectNameDialogTitle" xml:space="preserve"><value>Project Name</value><comment>Title/question for new project name input dialog</comment></data>
+  <data name="ModelSystemNameDialogTitle" xml:space="preserve"><value>Model System Name</value><comment>Title/question for new model system name input dialog</comment></data>
+  <data name="SetLinkedParameterNameDialogTitle" xml:space="preserve"><value>Set Linked Parameter Name</value><comment>Title for renaming a linked parameter</comment></data>
+  <data name="NewLinkedParameterNameDialogTitle" xml:space="preserve"><value>New Linked Parameter Name</value><comment>Title for creating a new linked parameter</comment></data>
+  <data name="StatusReady" xml:space="preserve"><value>Ready</value><comment>Status bar text when application is idle</comment></data>
+  <data name="StatusLoadingXTMF" xml:space="preserve"><value>Loading XTMF</value><comment>Status bar text while XTMF components are loading</comment></data>
+  <data name="StartLabel" xml:space="preserve"><value>Start</value><comment>MainWindow tab title</comment></data>
+  <data name="ProjectsDisplayLabel" xml:space="preserve"><value>Projects Display</value><comment>MainWindow tab title</comment></data>
+  <data name="ModelSystemRunsLabel" xml:space="preserve"><value>Model System Runs</value><comment>Scheduler runs tab</comment></data>
+  <data name="DocumentationTabTitleFormat" xml:space="preserve"><value>Documentation - {0}</value><comment>Format for documentation tab title</comment></data>
+  <data name="ModelSystemTabTitleFormat" xml:space="preserve"><value>Model System - {0}</value><comment>Format for model system tab title (standalone)</comment></data>
+  <data name="ProjectModelSystemTabTitleFormat" xml:space="preserve"><value>{0} - {1}</value><comment>Format for model system tab title when editing within a project</comment></data>
+  <data name="ProjectTabTitleFormat" xml:space="preserve"><value>Project - {0}</value><comment>Format for project tab title</comment></data>
+  <data name="FieldIsRequiredMessage" xml:space="preserve"><value>Field is required.</value><comment>Validation message for required field</comment></data>
+  <data name="InvalidValueMessage" xml:space="preserve"><value>Invalid Value</value><comment>Validation message for invalid input</comment></data>
+  <data name="OkButtonLabel" xml:space="preserve"><value>OK</value><comment>Label for generic OK/Confirm button</comment></data>
+  <!-- LinkedParameterDisplay -->
+  <data name="NewLinkedParameterLabel" xml:space="preserve"><value>New Linked Parameter</value></data>
+  <data name="RenameLinkedParameterMenuItem" xml:space="preserve"><value>Rename (F2)</value></data>
+  <data name="DeleteLinkedParameterMenuItem" xml:space="preserve"><value>Delete</value></data>
+  <data name="LinkedParametersHeaderLabel" xml:space="preserve"><value>Linked Parameters</value></data>
+  <data name="NameLabel" xml:space="preserve"><value>Name</value></data>
+  <data name="ValueLabel" xml:space="preserve"><value>Value</value></data>
+  <data name="ModuleNameLabel" xml:space="preserve"><value>Module Name</value></data>
+  <data name="ParameterNameLabel" xml:space="preserve"><value>Parameter Name</value></data>
+  <data name="UnlinkLabel" xml:space="preserve"><value>Unlink</value></data>
+  <data name="DeleteLinkedParameterConfirm" xml:space="preserve"><value>Are you sure you wish to delete the selected linked parameter?</value></data>
+  <data name="DeleteLinkedParameterDialogTitle" xml:space="preserve"><value>Delete Confirmation [{0}]</value></data>
+  <data name="ErrorRemovingLinkedParameterMessage" xml:space="preserve"><value>There was an error trying to remove a parameter from a linked parameter!&#xD;&#xA;{0}</value></data>
+  <data name="ErrorRemovingLinkedParameterTitle" xml:space="preserve"><value>Error removing parameter</value></data>
+  <data name="ErrorSettingLinkedParameterValueMessage" xml:space="preserve"><value>There was an error assigning the value '{0}' to the linked parameter!&#xD;&#xA;{1}</value></data>
+  <data name="ErrorSettingLinkedParameterValueTitle" xml:space="preserve"><value>Error setting value</value></data>
+  <data name="FailedToCreateLinkedParameterTitle" xml:space="preserve"><value>Failed to create new Linked Parameter</value></data>
+  <data name="FailedToRemoveLinkedParameterTitle" xml:space="preserve"><value>Failed to remove Linked Parameter</value></data>
+  <data name="ConfirmUnlinkParameterMessage" xml:space="preserve"><value>Are you sure you wish to unlink the selected parameter?</value></data>
+  <data name="ConfirmUnlinkParameterDialogTitle" xml:space="preserve"><value>Confirm Unlink [{0}]</value></data>
+  <data name="CancelLabel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="InvalidRunNameMessage" xml:space="preserve"><value>You have entered an invalid run name.</value></data>
+  <data name="InvalidRunNameTitle" xml:space="preserve"><value>Invalid run name entered</value></data>
+  <data name="RunNameExistsMessage" xml:space="preserve"><value>This run name has been previously used. Do you wish to delete the previous output?</value></data>
+  <data name="RunNameExistsTitle" xml:space="preserve"><value>Run Name Already Exists</value></data>
+  <data name="UnableToStartRunMessageFormat" xml:space="preserve"><value>Unable to start run.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToStartRunTitle" xml:space="preserve"><value>Unable to start run</value></data>
+  <data name="UnknownErrorMessage" xml:space="preserve"><value>UNKNOWN ERROR</value></data>
+  <data name="ReferencedModuleNotFoundMessage" xml:space="preserve"><value>Referenced module is unable to be found in the current state of the model system.</value></data>
+  <data name="ErrorDisplayingModuleTitle" xml:space="preserve"><value>Error Displaying Module</value></data>
+  <data name="UnsavedModelSystemWarning" xml:space="preserve"><value>The model system has not been saved, closing this window will discard the changes!</value></data>
+  <data name="AreYouSureTitle" xml:space="preserve"><value>Are you sure?</value></data>
+  <data name="FailedToCloseModelSystemTitle" xml:space="preserve"><value>Failed to close the model system.</value></data>
+  <data name="DisabledModulesCountFormat" xml:space="preserve"><value>{0} disabled modules</value></data>
+  <data name="FailedSetLinkedParameterTitle" xml:space="preserve"><value>Failed to set to Linked Parameter</value></data>
+  <data name="FailedRemoveLinkedParameterTitle" xml:space="preserve"><value>Failed to remove from Linked Parameter</value></data>
+  <data name="AllSelectedModulesSameTypeMessage" xml:space="preserve"><value>All selected modules must be for the same type.</value></data>
+  <data name="FailedAddModuleToCollectionTitle" xml:space="preserve"><value>Failed add module to collection</value></data>
+  <data name="SetModuleTypesCommandName" xml:space="preserve"><value>Set Module Types</value></data>
+  <data name="ModulesLabel" xml:space="preserve"><value>Modules</value></data>
+  <data name="NoModelLoadedLabel" xml:space="preserve"><value>No model loaded</value></data>
+  <data name="SaveModelSystemAsDialogTitle" xml:space="preserve"><value>Save Model System As?</value></data>
+  <data name="FailedToSaveMessageFormat" xml:space="preserve"><value>Failed to save.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToSaveTitle" xml:space="preserve"><value>Unable to Save</value></data>
+  <data name="SavingStatusText" xml:space="preserve"><value>Saving...</value></data>
+  <data name="FailedToSaveSnackBarFormat" xml:space="preserve"><value>Failed to Save &#xD;&#xA;{0}</value></data>
+  <data name="ModelSystemFinishedSavingMessage" xml:space="preserve"><value>Model system finished saving</value></data>
+  <data name="GenericErrorTitle" xml:space="preserve"><value>Error</value></data>
+  <data name="FailedToPasteMessageFormat" xml:space="preserve"><value>Failed to Paste.&#xD;&#xA;{0}</value></data>
+  <data name="UnableToPasteTitle" xml:space="preserve"><value>Unable to Paste</value></data>
+  <data name="ChangeDescriptionDialogTitleSingle" xml:space="preserve"><value>Change Description</value></data>
+  <data name="ChangeDescriptionDialogTitleMultiple" xml:space="preserve"><value>Change Descriptions</value></data>
+  <data name="RenameModuleDialogTitleSingle" xml:space="preserve"><value>Rename Module</value></data>
+  <data name="RenameModuleDialogTitleMultiple" xml:space="preserve"><value>Rename Modules</value></data>
+  <data name="RenameModelSystemCommandName" xml:space="preserve"><value>Rename ModelSystem</value></data>
+  <data name="RemoveSelectedModulesCommandName" xml:space="preserve"><value>Remove Selected Modules</value></data>
+  <data name="UnableToResetParameterTitle" xml:space="preserve"><value>Unable to reset parameter</value></data>
+  <data name="NotEnoughSpaceToPasteMessage" xml:space="preserve"><value>There is not enough space to paste all of the entries.</value></data>
+  <data name="NoClipboardTextMessage" xml:space="preserve"><value>There was no text data in the clipboard to copy.</value></data>
+  <data name="RenameParameterDialogTitle" xml:space="preserve"><value>Rename Parameter</value></data>
+  <data name="UnableToSetParameterNameTitle" xml:space="preserve"><value>Unable to Set Parameter Name</value></data>
+  <data name="UnableToLoadTitle" xml:space="preserve"><value>Unable to Load</value></data>
+  <data name="UnableToRevertTitle" xml:space="preserve"><value>Unable to revert</value></data>
+  <data name="UnableToSetParameterTitle" xml:space="preserve"><value>Unable to Set Parameter</value></data>
+  <data name="UnableToLoadFileMessageFormat" xml:space="preserve"><value>Unable to load the file at '{0}'!</value></data>
+  <data name="UnableToSetParameterMessageFormat" xml:space="preserve"><value>We were unable to set the parameter '{0}' with the value '{1}'.&#xD;&#xA;{2}</value></data>
 </root>

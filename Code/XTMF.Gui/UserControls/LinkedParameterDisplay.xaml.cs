@@ -27,6 +27,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Models;
+using System.Resources;
 
 namespace XTMF.Gui.UserControls;
 
@@ -47,9 +48,23 @@ public partial class LinkedParameterDisplay : UserControl
 
     public bool IsAssignMode = false;
 
+    private static readonly ResourceManager ResManager = new("XTMF.Gui.Properties.Resources", typeof(LinkedParameterDisplay).Assembly);
+
+    public string NewLinkedParameterLabel => ResManager.GetString("NewLinkedParameterLabel") ?? "New Linked Parameter";
+    public string RenameLinkedParameterMenuItem => ResManager.GetString("RenameLinkedParameterMenuItem") ?? "Rename (F2)";
+    public string DeleteLinkedParameterMenuItem => ResManager.GetString("DeleteLinkedParameterMenuItem") ?? "Delete";
+    public string LinkedParametersHeaderLabel => ResManager.GetString("LinkedParametersHeaderLabel") ?? "Linked Parameters";
+    public string NameLabel => ResManager.GetString("NameLabel") ?? "Name";
+    public string ValueLabel => ResManager.GetString("ValueLabel") ?? "Value";
+    public string ModuleNameLabel => ResManager.GetString("ModuleNameLabel") ?? "Module Name";
+    public string ParameterNameLabel => ResManager.GetString("ParameterNameLabel") ?? "Parameter Name";
+    public string UnlinkLabel => ResManager.GetString("UnlinkLabel") ?? "Unlink";
+    public string SearchLabel => ResManager.GetString("SearchLabel") ?? "Search...";
+
     public LinkedParameterDisplay(LinkedParametersModel linkedParameters)
     {
         InitializeComponent();
+        DataContext = this;
         ChangesMade = false;
         _linkedParametersModel = linkedParameters;
         SetupLinkedParameters(linkedParameters);
@@ -58,6 +73,7 @@ public partial class LinkedParameterDisplay : UserControl
     public LinkedParameterDisplay()
     {
         InitializeComponent();
+        DataContext = this;
         ChangesMade = false;
         LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
     }
@@ -105,8 +121,8 @@ public partial class LinkedParameterDisplay : UserControl
             {
                 var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
                 var messageBoxResult =
-                    MessageBox.Show("Are you sure you wish to delete the selected linked parameter?",
-                        "Delete Confirmation [" + selectedLinkedParameter?.Name + "]",
+                    MessageBox.Show(ResManager.GetString("DeleteLinkedParameterConfirm") ?? "Are you sure you wish to delete the selected linked parameter?",
+                        string.Format(ResManager.GetString("DeleteLinkedParameterDialogTitle") ?? "Delete Confirmation [{0}]", selectedLinkedParameter?.Name),
                         MessageBoxButton.YesNoCancel);
                 if (messageBoxResult == MessageBoxResult.Yes)
                 {
@@ -175,8 +191,8 @@ public partial class LinkedParameterDisplay : UserControl
                     if (!_currentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error))
                     {
                         MessageBox.Show(
-                            "There was an error trying to remove a parameter from a linked parameter!\r\n" + error,
-                            "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                            string.Format(ResManager.GetString("ErrorRemovingLinkedParameterMessage") ?? "There was an error trying to remove a parameter from a linked parameter!\r\n{0}", error),
+                            ResManager.GetString("ErrorRemovingLinkedParameterTitle") ?? "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
 
                     ChangesMade = true;
@@ -199,9 +215,8 @@ public partial class LinkedParameterDisplay : UserControl
                 if (!_currentlySelected.LinkedParameter.SetValue(text, ref error))
                 {
                     MessageBox.Show(
-                        "There was an error assigning the value '" + text + "' to the linked parameter!\r\n" +
-                        error,
-                        "Error setting value", MessageBoxButton.OK, MessageBoxImage.Error);
+                        string.Format(ResManager.GetString("ErrorSettingLinkedParameterValueMessage") ?? "There was an error assigning the value '{0}' to the linked parameter!\r\n{1}", text, error),
+                        ResManager.GetString("ErrorSettingLinkedParameterValueTitle") ?? "Error setting value", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 ChangesMade = true;
@@ -268,7 +283,8 @@ public partial class LinkedParameterDisplay : UserControl
         if (Display.SelectedItem is LinkedParameterDisplayModel selected)
         {
             var selectedModuleControl = GetCurrentlySelectedControl();
-            var dialog = new StringRequestDialog(RootDialogHost, "Set LinkedParameter Name", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
+            var dialogTitle = new System.Resources.ResourceManager("XTMF.Gui.Properties.Resources", typeof(LinkedParameterDisplay).Assembly).GetString("SetLinkedParameterNameDialogTitle") ?? "Set Linked Parameter Name";
+            var dialog = new StringRequestDialog(RootDialogHost, dialogTitle, (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
             await dialog.ShowAsync();
             if(dialog.DidComplete)
             {
@@ -293,7 +309,8 @@ public partial class LinkedParameterDisplay : UserControl
     /// <param name="obj"></param>
     private async void NewLinkedParameter_Clicked()
     {
-        var dialog = new StringRequestDialog(RootDialogHost, "New LinkedParameter Name", (value) => !String.IsNullOrWhiteSpace(value), String.Empty);
+        var dialogTitle = new System.Resources.ResourceManager("XTMF.Gui.Properties.Resources", typeof(LinkedParameterDisplay).Assembly).GetString("NewLinkedParameterNameDialogTitle") ?? "New Linked Parameter Name";
+        var dialog = new StringRequestDialog(RootDialogHost, dialogTitle, (value) => !String.IsNullOrWhiteSpace(value), String.Empty);
         await dialog.ShowAsync();
 
         if (dialog.DidComplete)
@@ -301,7 +318,7 @@ public partial class LinkedParameterDisplay : UserControl
             string error = null;
             if (!_linkedParametersModel.NewLinkedParameter(dialog.UserInput, ref error))
             {
-                MessageBox.Show(MainWindow.Us, error, "Failed to create new Linked Parameter", MessageBoxButton.OK,
+                MessageBox.Show(MainWindow.Us, error, ResManager.GetString("FailedToCreateLinkedParameterTitle") ?? "Failed to create new Linked Parameter", MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
@@ -322,7 +339,7 @@ public partial class LinkedParameterDisplay : UserControl
             string error = null;
             if (!_linkedParametersModel.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
             {
-                MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK,
+                MessageBox.Show(MainWindow.Us, error, ResManager.GetString("FailedToRemoveLinkedParameterTitle") ?? "Failed to remove Linked Parameter", MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
@@ -426,8 +443,8 @@ public partial class LinkedParameterDisplay : UserControl
 
     private static MessageBoxResult ConfirmUnlinkParameterMessageBox(ParameterDisplay parameterDisplay)
     {
-        return MessageBox.Show(MainWindow.Us, "Are you sure you wish to unlink the selected parameter?",
-            "Confirm Unlink [" + parameterDisplay.ParameterName + "]",
+        return MessageBox.Show(MainWindow.Us, ResManager.GetString("ConfirmUnlinkParameterMessage") ?? "Are you sure you wish to unlink the selected parameter?",
+            string.Format(ResManager.GetString("ConfirmUnlinkParameterDialogTitle") ?? "Confirm Unlink [{0}]", parameterDisplay.ParameterName),
             MessageBoxButton.OKCancel);
     }
 

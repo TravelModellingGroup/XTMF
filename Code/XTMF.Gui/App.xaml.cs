@@ -1,11 +1,15 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Helpers;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Resources;
 
 namespace XTMF.Gui;
 
@@ -17,6 +21,11 @@ public partial class App : Application
     private MainWindow xtmfMainWindow;
 
     public const String APP_ID = "TMG.Xtmf";
+    private static readonly ResourceManager ResManager = new("XTMF.Gui.Properties.Resources", typeof(App).Assembly);
+    private void SetupXTMF()
+    {
+        EditorController.SetupRuntime();
+    }
 
     /// <summary>
     /// 
@@ -28,20 +37,19 @@ public partial class App : Application
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-
                 var colourOptions = ThemeHelper.ColourOptions;
                 if (EditorController.Runtime.Configuration.PrimaryColour != null)
                 {
                     var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.PrimaryColour, StringComparison.InvariantCultureIgnoreCase));
-                    if(swatch != null )
+                    if (swatch != null)
                     {
                         ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
                     }
                     else
                     {
-                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), "Blue", EditorController.Runtime.Configuration.IsDarkTheme);;
+                        ThemeHelper.SetThemePrimaryColour(new PaletteHelper(), "Blue", EditorController.Runtime.Configuration.IsDarkTheme);
                     }
-                    
+
                 }
                 else
                 {
@@ -54,7 +62,7 @@ public partial class App : Application
                 if (EditorController.Runtime.Configuration.AccentColour != null)
                 {
                     var swatch = colourOptions.FirstOrDefault(s => s.Name.Equals(EditorController.Runtime.Configuration.AccentColour, StringComparison.InvariantCultureIgnoreCase));
-                    if(swatch != null)
+                    if (swatch != null)
                     {
                         ThemeHelper.SetThemeSecondaryColour(new PaletteHelper(), swatch.Name, EditorController.Runtime.Configuration.IsDarkTheme);
                     }
@@ -72,23 +80,24 @@ public partial class App : Application
 
                 }
 
-                
                 TransitionAssist.SetDisableTransitions(Gui.MainWindow.Us, EditorController.Runtime.Configuration.IsDisableTransitionAnimations);
                 xtmfMainWindow.UpdateRecentProjectsMenu();
                 xtmfMainWindow.Show();
+                var readyText = ResManager.GetString("StatusReady") ?? "Ready";
+                var loadingText = ResManager.GetString("StatusLoadingXTMF") ?? "Loading XTMF";
                 if (!EditorController.Runtime.Configuration.ModulesLoaded)
                 {
                     Task.Run(() =>
                     {
 
-                    EditorController.Runtime.Configuration.LoadModules(() =>
-                    {
-                        Dispatcher.BeginInvoke(new Action(() =>
+                        EditorController.Runtime.Configuration.LoadModules(() =>
                         {
-                            xtmfMainWindow.IsEnabled = true;
-                            xtmfMainWindow.StatusDisplay.Text = "Ready";
-                        }));
-                    });
+                            Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                xtmfMainWindow.IsEnabled = true;
+                                xtmfMainWindow.StatusDisplay.Text = readyText;
+                            }));
+                        });
                     });
                 }
                 else
@@ -96,7 +105,7 @@ public partial class App : Application
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         xtmfMainWindow.IsEnabled = true;
-                        xtmfMainWindow.StatusDisplay.Text = "Ready";
+                        xtmfMainWindow.StatusDisplay.Text = readyText;
                     }));
                 }
             }));
@@ -112,12 +121,16 @@ public partial class App : Application
     /// <param name="e"></param>
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
+        SetupXTMF();
         DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
-
-        xtmfMainWindow = new MainWindow();
         RegisterEditorController(e);
+        xtmfMainWindow = new MainWindow();
+        SetupXTMFErrorCallbacks(xtmfMainWindow);
+    }
 
-      
+    private void SetupXTMFErrorCallbacks(MainWindow xtmfMainWindow)
+    {
+        EditorController.SetupXTMFCallbacks(xtmfMainWindow);
     }
 
     /// <summary>

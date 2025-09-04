@@ -63,7 +63,7 @@
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Pencil" />
                             <StackPanel Orientation="Vertical">
-                                <TextBlock>New Linked Parameter</TextBlock>
+                                <TextBlock Text="{Binding NewLinkedParameterLabel}" />
                             </StackPanel>
                         </StackPanel>
                     </Button>
@@ -83,7 +83,8 @@
                         <materialDesign:ColorZone Width="300"  Mode="Standard" Padding="8 4 8 4" CornerRadius="2" Panel.ZIndex="1" Grid.Row="0"
                                               Margin="0 0 0 15"
                                               materialDesign:ShadowAssist.ShadowDepth="Depth4">
-                            <my:FilterBox Grid.Row="0" TabIndex="1" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="0" materialDesign:ShadowAssist.ShadowDepth="Depth4" />
+                            <my:FilterBox Grid.Row="0" TabIndex="1" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" Margin="0" materialDesign:ShadowAssist.ShadowDepth="Depth4"
+                                          FilterWatermark="{Binding SearchLabel}"/>
                         </materialDesign:ColorZone>
                         <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
                           Background="{DynamicResource MaterialDesignPaper}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0" MouseDoubleClick="Display_OnMouseDoubleClick">
@@ -99,12 +100,12 @@
                             </ListBox.ItemTemplate>
                             <ListView.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Rename (F2)" Click="Rename_Click">
+                                    <MenuItem Header="{Binding RenameLinkedParameterMenuItem}" Click="Rename_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource RefreshIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
+                                    <MenuItem Header="{Binding DeleteLinkedParameterMenuItem}" Click="RemoveLinkedParameter_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource CancelIcon}" />
                                         </MenuItem.Icon>
@@ -122,11 +123,11 @@
                         <materialDesign:Card Grid.Row="0" Margin="5">
                             <StackPanel>
                                 <DockPanel FlowDirection="LeftToRight" >
-                                    <Label Content="Name" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,5,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                    <Label Content="{Binding NameLabel}" Width="50" Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,5,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
                                     <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"  IsReadOnly="True"/>
                                 </DockPanel>
                                 <DockPanel FlowDirection="LeftToRight" >
-                                    <Label Content="Value" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,5,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
+                                    <Label Content="{Binding ValueLabel}" Width="50"  Foreground="{DynamicResource MaterialDesignBody}" Margin="5,5,5,5" Padding="0" DockPanel.Dock="Left" Style="{DynamicResource MaterialDesignLabel}"/>
                                     <TextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"  IsReadOnly="False"/>
                                 </DockPanel>
                             </StackPanel>
@@ -137,7 +138,7 @@
                                     <RowDefinition Height="38"></RowDefinition>
                                     <RowDefinition Height="257"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <Label Grid.Row="0"  Content="Linked Parameters" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignPaper}"/>
+                                <Label Grid.Row="0"  Content="{Binding LinkedParametersHeaderLabel}" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,0,0,10" Background="{DynamicResource MaterialDesignPaper}"/>
                                 <ListView Grid.Row="1" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"
                                       ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                       x:Name="ContainedParameterDisplay" Focusable="False" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}"
@@ -160,7 +161,7 @@
                                         </ItemsPanelTemplate>
                                     </ListView.ItemsPanel>
                                     <ListView.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type xtmfgui:LinkedParameterDisplay+ParameterDisplay}">
+                                        <DataTemplate>
                                             <Border BorderBrush="Transparent" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
                                                 <Grid HorizontalAlignment="Stretch">
                                                     <Grid.ColumnDefinitions>
@@ -176,11 +177,11 @@
                                                         <Label.Foreground>
                                                             <SolidColorBrush Color="#FF0078D7"/>
                                                         </Label.Foreground>
-                                                        <TextBlock TextDecorations="Underline">Unlink</TextBlock>
+                                                        <TextBlock TextDecorations="Underline" Text="{Binding DataContext.UnlinkLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                                                     </Label>
-                                                    <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="Module Name" Opacity="0.995" />
+                                                    <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="{Binding DataContext.ModuleNameLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" Opacity="0.995" />
                                                     <TextBlock Grid.Column="1" Margin="2" Grid.Row="1" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
-                                                    <TextBlock Grid.Column="2" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="Parameter Name" Opacity="0.995" />
+                                                    <TextBlock Grid.Column="2" Margin="2" Grid.Row="0" Foreground="{DynamicResource MaterialDesignBody}" FontSize="10" Text="{Binding DataContext.ParameterNameLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" Opacity="0.995" />
                                                     <TextBlock Grid.Column="2" Grid.Row="1" Margin="2" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
                                                 </Grid>
                                             </Border>
@@ -195,6 +196,3 @@
         </Grid>
     </materialDesign:DialogHost>
 </UserControl>
-
-
-

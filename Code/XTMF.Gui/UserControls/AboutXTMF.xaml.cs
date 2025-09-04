@@ -23,6 +23,8 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Resources;
+using System.Globalization;
 using XTMF.Gui.Controllers;
 using IOPath = System.IO.Path;
 
@@ -33,29 +35,24 @@ namespace XTMF.Gui.UserControls;
 /// </summary>
 public partial class AboutXTMF : Window
 {
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(AboutXTMF).Assembly);
+
+    // Localized strings for UI elements
+    public string AboutDialogTitle => ResManager.GetString("AboutDialogTitle");
+    public string VersionLabel => ResManager.GetString("VersionLabel");
+    public string BuildDateLabel => ResManager.GetString("BuildDateLabel");
+    public string CreatedByLabel => ResManager.GetString("CreatedByLabel");
+    public string LicenseLabel => ResManager.GetString("LicenseLabel");
+    public string NumberOfModulesLabel => ResManager.GetString("NumberOfModulesLabel");
+
     public AboutXTMF()
     {
         InitializeComponent();
+        DataContext = this; // Set DataContext for localized string bindings
         Owner = Application.Current.MainWindow;
         VersionBlock.Text = EditorController.Runtime.Configuration.XTMFVersion.ToString();
         BuildBlock.Text = EditorController.Runtime.Configuration.BuildDate;
         NumberOfModules.Text = EditorController.Runtime.Configuration.ModelRepository.Modules.Count.ToString();
-    }
-
-    private string GetVersionText()
-    {
-        var assemblyLocation = Assembly.GetEntryAssembly().Location;
-        var licenseFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "license.txt");
-        var versionFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "version.txt");
-        try
-        {
-            using StreamReader reader = new(versionFile);
-            return reader.ReadLine();
-        }
-        catch
-        {
-            return "Unknown Version";
-        }
     }
 
     private void TextBlock_MouseUp(object sender, MouseButtonEventArgs e)

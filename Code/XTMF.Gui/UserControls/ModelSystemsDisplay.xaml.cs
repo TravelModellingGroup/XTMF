@@ -25,6 +25,8 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Resources;
+using System.Globalization;
 using XTMF.Gui.Collections;
 
 namespace XTMF.Gui.UserControls;
@@ -32,10 +34,36 @@ namespace XTMF.Gui.UserControls;
 public partial class ModelSystemsDisplay : UserControl
 {
     private XTMFRuntime Runtime;
+    private static ResourceManager ResManager = new ResourceManager("XTMF.Gui.Properties.Resources", typeof(ModelSystemsDisplay).Assembly);
+
+    // Localized strings for UI elements
+    public string SearchLabel => ResManager.GetString("SearchLabel");
+    public string RenameModelSystemLabel => ResManager.GetString("RenameModelSystemLabel");
+    public string DeleteModelSystemLabel => ResManager.GetString("DeleteModelSystemLabel");
+    public string SaveModelSystemAsLabel => ResManager.GetString("SaveModelSystemAsLabel");
+    public string ExportModelSystemAsLabel => ResManager.GetString("ExportModelSystemAsLabel");
+    public string CopyModelSystemLabel => ResManager.GetString("CopyModelSystemLabel");
+    public string CreateNewModelSystemLabel => ResManager.GetString("CreateNewModelSystemLabel");
+    public string ImportModelSystemLabel => ResManager.GetString("ImportModelSystemLabel");
+    public string RenameModelSystemDialogTitle => ResManager.GetString("RenameModelSystemDialogTitle");
+    public string CloneModelSystemDialogTitle => ResManager.GetString("CloneModelSystemDialogTitle");
+    public string UnableToRenameModelSystem => ResManager.GetString("UnableToRenameModelSystem");
+    public string UnableToCloneModelSystem => ResManager.GetString("UnableToCloneModelSystem");
+    public string DeleteModelSystemConfirm => ResManager.GetString("DeleteModelSystemConfirm");
+    public string DeleteModelSystemDialogTitle => ResManager.GetString("DeleteModelSystemDialogTitle");
+    public string UnableToDeleteModelSystem => ResManager.GetString("UnableToDeleteModelSystem");
+    public string UnableToExportModelSystem => ResManager.GetString("UnableToExportModelSystem");
+    public string NewModelSystemButtonLabel => ResManager.GetString("NewModelSystemButtonLabel");
+    public string ImportModelSystemButtonLabel => ResManager.GetString("ImportModelSystemButtonLabel");
+    public string RenameModelSystemButtonLabel => ResManager.GetString("RenameModelSystemButtonLabel");
+    public string CloneModelSystemButtonLabel => ResManager.GetString("CloneModelSystemButtonLabel");
+    public string DeleteModelSystemButtonLabel => ResManager.GetString("DeleteModelSystemButtonLabel");
+    public string ExportModelSystemButtonLabel => ResManager.GetString("ExportModelSystemButtonLabel");
 
     public ModelSystemsDisplay(XTMFRuntime runtime)
     {
         InitializeComponent();
+        DataContext = this; // Set DataContext for localized string bindings
         Runtime = runtime;
         var modelSystemRepository = ((ModelSystemRepository)Runtime.Configuration.ModelSystemRepository);
         Display.ItemsSource = new ProxyList<IModelSystem>(modelSystemRepository.ModelSystems);
@@ -193,12 +221,12 @@ public partial class ModelSystemsDisplay : UserControl
             var selectedModuleControl = GetCurrentlySelectedControl();
             var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
             Renaming = true;
-            var adorn = new TextboxAdorner("Rename", result =>
+            var adorn = new TextboxAdorner(RenameModelSystemDialogTitle, result =>
             {
                 string error = null;
                 if (!Runtime.ModelSystemController.Rename(modelSystem, result, ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Rename Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, UnableToRenameModelSystem, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 }
                 else
                 {
@@ -224,7 +252,7 @@ public partial class ModelSystemsDisplay : UserControl
         if (Display.SelectedItem is ModelSystem modelSystem)
         {
             string error = null;
-            var dialog = new StringRequestDialog(RootDialogHost, "Clone Model System As?", (newName) =>
+            var dialog = new StringRequestDialog(RootDialogHost, CloneModelSystemDialogTitle, (newName) =>
             {
                 return Runtime.ModelSystemController.ValidateModelSystemName(newName, ref error);
             }, modelSystem.Name);
@@ -233,7 +261,7 @@ public partial class ModelSystemsDisplay : UserControl
             {
                 if (!Runtime.ModelSystemController.CloneModelSystem(modelSystem, dialog.UserInput, ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Clone Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, UnableToCloneModelSystem, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     return;
                 }
                 RefreshModelSystems();
@@ -246,12 +274,12 @@ public partial class ModelSystemsDisplay : UserControl
         if (Display.SelectedItem is ModelSystem modelSystem)
         {
             if (MessageBox.Show(GetWindow(),
-                "Are you sure you want to delete the model system '" + modelSystem.Name + "'?  This action cannot be undone!", "Delete ModelSystem", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                String.Format(DeleteModelSystemConfirm, modelSystem.Name), DeleteModelSystemDialogTitle, MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
                 string error = null;
                 if (!Runtime.ModelSystemController.Delete(modelSystem, ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Delete ModelSystem", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, UnableToDeleteModelSystem, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     return;
                 }
                 RefreshModelSystems();
@@ -269,7 +297,7 @@ public partial class ModelSystemsDisplay : UserControl
                 string error = null;
                 if (!Runtime.ModelSystemController.ExportModelSystem(modelSystem, fileName, ref error))
                 {
-                    MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(Window.GetWindow(this), error, UnableToExportModelSystem, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 }
             }
         }

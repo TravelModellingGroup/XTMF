@@ -41,6 +41,7 @@ using MaterialDesignThemes.Wpf;
 using XTMF.Gui.Interfaces;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls.Interfaces;
+using System.Resources;
 
 namespace XTMF.Gui.UserControls;
 
@@ -67,6 +68,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             new PropertyMetadata(360.0));
 
     private static int FilterNumber;
+    private static readonly ResourceManager ResMan = new("XTMF.Gui.Properties.Resources", typeof(ModelSystemDisplay).Assembly);
 
     internal readonly List<ModelSystemStructureDisplayModel> CurrentlySelected = [];
 
@@ -302,16 +304,12 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             }
             else
             {
-                MessageBox.Show("Referenced module is unable to be found in the current state of the model system.",
-                    "Error Displaying Module", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ResMan.GetString("ReferencedModuleNotFoundMessage") ?? "Referenced module is unable to be found in the current state of the model system.",
+                    ResMan.GetString("ErrorDisplayingModuleTitle") ?? "Error Displaying Module", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
 
-    /// <summary>
-    ///     Return
-    /// </summary>
-    /// <returns></returns>
     public bool HandleTabClose()
     {
         string error = null;
@@ -319,15 +317,14 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         if (value)
         {
             if (MessageBox.Show(
-                    "The model system has not been saved, closing this window will discard the changes!",
-                    "Are you sure?", MessageBoxButton.OKCancel,
+                    ResMan.GetString("UnsavedModelSystemWarning") ?? "The model system has not been saved, closing this window will discard the changes!",
+                    ResMan.GetString("AreYouSureTitle") ?? "Are you sure?", MessageBoxButton.OKCancel,
                     MessageBoxImage.Question,
                     MessageBoxResult.Cancel) == MessageBoxResult.OK)
             {
                 if (!Session.Close(ref error))
                 {
-                    MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                    MessageBox.Show(error, ResMan.GetString("FailedToCloseModelSystemTitle") ?? "Failed to close the model system.", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 return true;
             }
@@ -335,8 +332,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
         if (!Session.Close(ref error))
         {
-            MessageBox.Show(error, "Failed to close the model system.", MessageBoxButton.OK,
-                MessageBoxImage.Warning);
+            MessageBox.Show(error, ResMan.GetString("FailedToCloseModelSystemTitle") ?? "Failed to close the model system.", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         return true;
     }
@@ -348,26 +344,17 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     /// <param name="count"></param>
     public void UpdateDisableModuleCount(int count)
     {
-        StatusBarDisabledModulesText.Text = $"{count} disabled modules";
+        StatusBarDisabledModulesText.Text = string.Format(ResMan.GetString("DisabledModulesCountFormat") ?? "{0} disabled modules", count);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
     {
-        // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
         UpdateQuickParameters();
         ToggleModuleParameterDisplay(0);
         ToggleQuickParameterDisplay(0);
         DisabledModules.CollectionChanged += DisabledModulesOnCollectionChanged;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void DisabledModulesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (sender is ObservableCollection<ModelSystemStructureDisplayModel> disabledModules)
@@ -376,31 +363,11 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="eventArgs"></param>
-    private void SessionOnCommandExecuted(object sender, EventArgs eventArgs)
-    {
-        CanSaveModelSystem = _session.HasChanged;
-    }
+    private void SessionOnCommandExecuted(object sender, EventArgs eventArgs) => CanSaveModelSystem = _session.HasChanged;
+    private void Session_Saved(object sender, EventArgs e) => CanSaveModelSystem = false;
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void Session_Saved(object sender, EventArgs e)
-    {
-        CanSaveModelSystem = false;
-    }
-
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void ProjectWasExternalSaved(object sender, ProjectWasExternallySavedEventArgs e)
     {
-        // If the project was saved we need to reload in the new model system model
         Dispatcher.Invoke(() =>
         {
             CurrentlySelected.Clear();
@@ -411,29 +378,18 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         });
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="module"></param>
-    /// <param name="filterText"></param>
-    /// <param name="parentExpanded"></param>
-    /// <param name="parentVisible"></param>
-    /// <param name="parentPassed"></param>
-    /// <returns></returns>
-    private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText,
-        bool parentVisible = false, bool parentPassed = false)
+    private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, bool parentVisible = false, bool parentPassed = false)
     {
         var children = module.Children;
         var thisParentPassed = module.Name.Contains(filterText, StringComparison.CurrentCultureIgnoreCase)
-                                || (module.Type != null &&
-                                    module.Type.FullName.Contains(filterText, StringComparison.CurrentCultureIgnoreCase))
+                                || (module.Type != null && module.Type.FullName.Contains(filterText, StringComparison.CurrentCultureIgnoreCase))
                                 || (module.ParametersModel?.HasParameterContaining(filterText) ?? false);
         var childrenPassed = false;
         if (children != null)
         {
             foreach (var child in children)
             {
-                if (CheckFilterRec(child, filterText, thisParentPassed | parentVisible,
-                    thisParentPassed | parentPassed))
+                if (CheckFilterRec(child, filterText, thisParentPassed | parentVisible, thisParentPassed | parentPassed))
                 {
                     childrenPassed = true;
                 }
@@ -443,38 +399,17 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         {
             module.IsExpanded = childrenPassed;
         }
-        module.ModuleVisibility = thisParentPassed | childrenPassed | parentPassed
-            ? Visibility.Visible
-            : Visibility.Collapsed;
+        module.ModuleVisibility = thisParentPassed | childrenPassed | parentPassed ? Visibility.Visible : Visibility.Collapsed;
         return thisParentPassed | childrenPassed;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <returns></returns>
-    public UIElement GetCurrentlySelectedControl()
-    {
-        return GetCurrentlySelectedControl(DisplayRoot,
-            ActiveModelSystemView.SelectedModule);
-    }
+    public UIElement GetCurrentlySelectedControl() => GetCurrentlySelectedControl(DisplayRoot, ActiveModelSystemView.SelectedModule);
 
-    /// <summary>
-    /// </summary>
-    /// <param name="current"></param>
-    /// <param name="lookingFor"></param>
-    /// <param name="previous"></param>
-    /// <returns></returns>
-    private UIElement GetCurrentlySelectedControl(ModelSystemStructureDisplayModel current,
-        ModelSystemStructureDisplayModel lookingFor, TreeViewItem previous = null)
+    private UIElement GetCurrentlySelectedControl(ModelSystemStructureDisplayModel current, ModelSystemStructureDisplayModel lookingFor, TreeViewItem previous = null)
     {
         var children = current.Children;
-        var container = (previous == null
-            ? TreeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current)
-            : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
-        if (current == lookingFor && container != null)
-        {
-            return container;
-        }
+        var container = (previous == null ? TreeViewDisplay.ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current) : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
+        if (current == lookingFor && container != null) return container;
         if (children != null)
         {
             foreach (var child in children)
@@ -489,9 +424,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return null;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="model"></param>
     private void EnumerateModules(ModelSystemStructureDisplayModel model)
     {
         ModelSystemDisplayModelMap.Add(model.BaseModel.RealModelSystemStructure, model);
@@ -541,10 +473,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return (current as Window) ?? MainWindow.Us;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="duration"></param>
-    /// <param name="postToggleAction">An action to be performed after the display has been toggled.</param>
     public void ToggleQuickParameterDisplay(int duration = -1, Action postToggleAction = null)
     {
         var column = ContentDisplayGrid.ColumnDefinitions[2];
@@ -627,8 +555,8 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             string error = null;
             if (!displayParameter.AddToLinkedParameter(newLP, ref error))
             {
-                MessageBox.Show(GetWindow(), error, "Failed to set to Linked Parameter", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Show(GetWindow(), error, ResMan.GetString("FailedSetLinkedParameterTitle") 
+                    ?? "Failed to set to Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -651,13 +579,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <returns></returns>
-    private ParameterDisplayModel GetCurrentParameterDisplayModelContext()
-    {
-        return (GetCurrentParameterDisplay().SelectedItem) as ParameterDisplayModel;
-    }
+    private ParameterDisplayModel GetCurrentParameterDisplayModelContext() => (GetCurrentParameterDisplay().SelectedItem) as ParameterDisplayModel;
 
     /// <summary>
     /// </summary>
@@ -668,8 +590,8 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             string error = null;
             if (!currentParameter.RemoveLinkedParameter(ref error))
             {
-                MessageBox.Show(GetWindow(), error, "Failed to remove from Linked Parameter", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Show(GetWindow(), error, ResMan.GetString("FailedRemoveLinkedParameterTitle") 
+                        ?? "Failed to remove from Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             UpdateParameters();
             UpdateQuickParameterEquivalent(currentParameter);
@@ -681,18 +603,13 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     /// </summary>
     internal async void SelectReplacement()
     {
-        if (Session == null)
-        {
-            throw new InvalidOperationException("Session has not been set before operating.");
-        }
-
+        if (Session == null) throw new InvalidOperationException("Session has not been set before operating.");
         if (CurrentlySelected.Count > 0)
         {
-            if (CurrentlySelected.Any(c => c.BaseModel.ParentFieldType !=
-                                           CurrentlySelected[0].BaseModel.ParentFieldType))
+            if (CurrentlySelected.Any(c => c.BaseModel.ParentFieldType != CurrentlySelected[0].BaseModel.ParentFieldType))
             {
-                MessageBox.Show(GetWindow(), "All selected modules must be for the same type.",
-                    "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(GetWindow(), ResMan.GetString("AllSelectedModulesSameTypeMessage") ?? "All selected modules must be for the same type.",
+                    ResMan.GetString("FailedAddModuleToCollectionTitle") ?? "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             var findReplacement = new ModuleTypeSelect(RootDialogHost, Session, CurrentlySelected[0].BaseModel);
@@ -702,37 +619,32 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                 var selectedType = findReplacement.SelectedType;
                 if (selectedType != null)
                 {
-                    Session.ExecuteCombinedCommands(
-                        "Set Module Types",
-                        () =>
+                    Session.ExecuteCombinedCommands(ResMan.GetString("SetModuleTypesCommandName") ?? "Set Module Types", () =>
+                    {
+                        foreach (var selectedModule in CurrentlySelected.ToList())
                         {
-                            foreach (var selectedModule in CurrentlySelected.ToList())
+                            if (selectedModule.BaseModel.IsCollection)
                             {
-                                if (selectedModule.BaseModel.IsCollection)
+                                string error = null;
+                                if (!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
                                 {
-                                    string error = null;
-                                    if (!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
-                                    {
-                                        MessageBox.Show(GetWindow(), error, "Failed add module to collection",
-                                            MessageBoxButton.OK, MessageBoxImage.Error);
-                                    }
-                                    else
-                                    {
-                                        var newlyAdded = selectedModule.Children.Last();
-                                        newlyAdded.IsExpanded = true;
-                                        GoToModule(newlyAdded);
-                                    }
+                                    MessageBox.Show(GetWindow(), error, ResMan.GetString("FailedAddModuleToCollectionTitle") ?? "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
                                 }
                                 else
                                 {
-                                    selectedModule.Type = selectedType;
-                                    selectedModule.IsExpanded = true;
+                                    var newlyAdded = selectedModule.Children.Last();
+                                    newlyAdded.IsExpanded = true;
+                                    GoToModule(newlyAdded);
                                 }
-
-                                // selectedModule.BackingDisplayModel.PropertyChanged()
                             }
+                            else
+                            {
+                                selectedModule.Type = selectedType;
+                                selectedModule.IsExpanded = true;
+                            }
+                        }
 
-                        });
+                    });
                     CanSaveModelSystem = true;
                     Dispatcher.Invoke(() =>
                     {
@@ -742,10 +654,8 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                         }
                         else if (CurrentlySelected.Count > 1)
                         {
-                            StatusBarModuleNameTextBlock.Text =
-                                $"{CurrentlySelected.Count} modules selected.";
+                            StatusBarModuleNameTextBlock.Text = $"{CurrentlySelected.Count} modules selected.";
                         }
-
                     });
 
                     RefreshParameters();
@@ -755,23 +665,17 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     }
 
     /// <summary>
+    /// Refreshes the parameters displayed for the currently selected module.
     /// </summary>
-    public void RefreshParameters()
-    {
-        UpdateParameters();
-    }
+    public void RefreshParameters() => UpdateParameters();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="display"></param>
-    /// <param name="newModelSystem"></param>
     private static void OnModelSystemChanged(ModelSystemDisplay display, ModelSystemModel newModelSystem)
     {
         var us = display;
         us.RecentLinkedParameters.Clear();
-        newModelSystem.LinkedParameters.LinkedParameterRemoved += us.LinkedParameters_LinkedParameterRemoved;
         if (newModelSystem != null)
         {
+            newModelSystem.LinkedParameters.LinkedParameterRemoved += us.LinkedParameters_LinkedParameterRemoved;
             us.ModelSystemName = newModelSystem.Name;
             Task.Run(() =>
             {
@@ -793,9 +697,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
 
                     us.TreeViewDisplay.ModuleDisplay.Items.MoveCurrentToFirst();
                     us.FilterBox.Display = us.ActiveModelSystemView?.ViewItemsControl;
-
-                    us.StatusBarModuleCountTextBlock.Text = $"{us.ModelSystemDisplayModelMap.Count} Modules";
-
+                    us.StatusBarModuleCountTextBlock.Text = $"{us.ModelSystemDisplayModelMap.Count} {ResMan.GetString("ModulesLabel") ?? "Modules"}";
                     us.DisabledModules.Clear();
                     us.EnumerateDisabled(display.DisplayRoot);
                     us.UpdateDisableModuleCount(us.DisabledModules.Count);
@@ -808,25 +710,14 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
         else
         {
-            us.ModelSystemName = "No model loaded";
+            us.ModelSystemName = ResMan.GetString("NoModelLoadedLabel") ?? "No model loaded";
             us.FilterBox.Display = null;
             us.ParameterLinkedParameterMenuItem.ItemsSource = null;
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="e"></param>
-    private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-    {
-        OnModelSystemChanged(source as ModelSystemDisplay, e.NewValue as ModelSystemModel);
-    }
+    private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e) => OnModelSystemChanged(source as ModelSystemDisplay, e.NewValue as ModelSystemModel);
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void LinkedParameters_LinkedParameterRemoved(object sender, CollectionChangeEventArgs e)
     {
         if (e.Element != null)
@@ -848,12 +739,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="root"></param>
-    /// <returns></returns>
-    private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(
-        ModelSystemStructureModel root)
+    private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
     {
         var s = new ObservableCollection<ModelSystemStructureDisplayModel>
         {
@@ -896,25 +782,20 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
 
             if (!Session.IsValidRunName(runName))
             {
-                MessageBox.Show("You have entered an invalid run name.",
-                    "Invalid run name entered",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ResMan.GetString("InvalidRunNameMessage") ?? "You have entered an invalid run name.", ResMan.GetString("InvalidRunNameTitle") ?? "Invalid run name entered", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (Session.RunNameExists(runName))
             {
-                runQuestion = MessageBox.Show(
-                    "This run name has been previously used. Do you wish to delete the previous output?",
-                    "Run Name Already Exists", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning,
-                    MessageBoxResult.No);
-
+                runQuestion = MessageBox.Show(ResMan.GetString("RunNameExistsMessage") ?? "This run name has been previously used. Do you wish to delete the previous output?",
+                                             ResMan.GetString("RunNameExistsTitle") ?? "Run Name Already Exists",
+                                             MessageBoxButton.YesNoCancel, MessageBoxImage.Warning, MessageBoxResult.No);
             }
             if (runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
             {
                 var isDelayed = (dialog.DataContext as RunConfigurationDisplayModel).SelectScheduleEnabled;
-                var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes, !dialog.IsQueueRun,
-                    false);
+                var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes, !dialog.IsQueueRun, false);
                 if (run != null)
                 {
                     if (isDelayed)
@@ -932,9 +813,9 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                 }
                 else
                 {
-                    MessageBox.Show(
-                        "Unable to start run.\r\n" + error ?? "UNKNOWN ERROR",
-                        "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show((ResMan.GetString("UnableToStartRunMessageFormat") ?? "Unable to start run.\r\n{0}").Replace("{0}",
+                                 error ?? ResMan.GetString("UnknownErrorMessage") ?? "UNKNOWN ERROR"),
+                                 ResMan.GetString("UnableToStartRunTitle") ?? "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 }
             }
         }
@@ -963,8 +844,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
 
     public event Action<object> RequestClose;
 
-    /// <summary>
-    /// </summary>
     public void SaveCurrentlySelectedParameters()
     {
         if (ParameterDisplay.IsKeyboardFocusWithin)
@@ -977,9 +856,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="parameterDisplay"></param>
     public static void SaveCurrentlySelectedParameters(ListView parameterDisplay)
     {
         var index = parameterDisplay.SelectedIndex;
@@ -987,18 +863,13 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         {
             var container = parameterDisplay.ItemContainerGenerator.ContainerFromIndex(index);
             var textBox = GetChildOfType<TextBox>(container);
-            textBox?.GetBindingExpression(TextBox.TextProperty)
-                    ?.UpdateSource();
+            textBox?.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
         }
     }
 
-    public static T GetChildOfType<T>(DependencyObject depObj)
-        where T : DependencyObject
+    public static T GetChildOfType<T>(DependencyObject depObj) where T : DependencyObject
     {
-        if (depObj == null)
-        {
-            return null;
-        }
+        if (depObj == null) return null;
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
         {
             var child = VisualTreeHelper.GetChild(depObj, i);
@@ -1011,10 +882,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return null;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private async void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (!e.Handled)
@@ -1111,39 +978,27 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="up"></param>
     internal static void MoveFocusNext(bool up)
     {
         // Change keyboard focus.
         if (Keyboard.FocusedElement is UIElement elementWithFocus)
-        {
-            elementWithFocus.MoveFocus(
-                new TraversalRequest(up ? FocusNavigationDirection.Up : FocusNavigationDirection.Down));
-        }
+            elementWithFocus.MoveFocus(new TraversalRequest(up ? FocusNavigationDirection.Up : FocusNavigationDirection.Down));
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="saveAs"></param>
     public async void SaveRequested(bool saveAs)
     {
         string error = null;
         SaveCurrentlySelectedParameters();
         if (saveAs)
         {
-            var dialog = new StringRequestDialog(RootDialogHost, "Save Model System As?", (newName) =>
-            {
-                return Project.ValidateProjectName(newName);
-            }, Session.Name);
+            var dialog = new StringRequestDialog(RootDialogHost, ResMan.GetString("SaveModelSystemAsDialogTitle") ?? "Save Model System As?", (newName) => Project.ValidateProjectName(newName), Session.Name);
             await dialog.ShowAsync();
             if (dialog.DidComplete)
             {
                 if (!Session.SaveAs(dialog.UserInput, ref error))
                 {
-                    MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(MainWindow.Us, (ResMan.GetString("FailedToSaveMessageFormat") ?? "Failed to save.\r\n{0}").Replace("{0}", error),
+                            ResMan.GetString("UnableToSaveTitle") ?? "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1153,17 +1008,15 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             {
                 ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, true);
                 ButtonProgressAssist.SetIsIndeterminate(SaveModelSystemButton, true);
-                ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton,
-                    (Brush)FindResource("MaterialDesignPaper"));
-                ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton,
-                    (Brush)FindResource("SecondaryHueMidBrush"));
+                ButtonProgressAssist.SetIndicatorBackground(SaveModelSystemButton, (Brush)FindResource("MaterialDesignPaper"));
+                ButtonProgressAssist.SetIndicatorForeground(SaveModelSystemButton, (Brush)FindResource("SecondaryHueMidBrush"));
                 SaveModelSystemButton.Style = (Style)FindResource("MaterialDesignFloatingActionMiniDarkButton");
             });
             if (Session.IsSaving())
             {
                 return;
             }
-            MainWindow.SetStatusText("Saving...");
+            MainWindow.SetStatusText(ResMan.GetString("SavingStatusText") ?? "Saving...");
             await Task.Run(() =>
             {
                 if (Session.SaveWait())
@@ -1176,7 +1029,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                             Dispatcher.Invoke(() =>
                             {
                                 success = false;
-                                StatusSnackBar.MessageQueue.Enqueue($"Failed to Save \r\n{error}");
+                                StatusSnackBar.MessageQueue.Enqueue((ResMan.GetString("FailedToSaveSnackBarFormat") ?? "Failed to Save \r\n{0}").Replace("{0}", error));
                                 SaveModelSystemButton.Background = Brushes.Transparent;
                                 SaveModelSystemButton.BorderBrush = Brushes.Transparent;
                                 ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);
@@ -1188,11 +1041,9 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                     }
                     catch (Exception e)
                     {
-                        Dispatcher.Invoke(() =>
-                        {
-                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
-                        });
+                        Dispatcher.Invoke(() => MessageBox.Show(MainWindow.Us, (ResMan.GetString("FailedToSaveMessageFormat") ?? "Failed to save.\r\n{0}").Replace("{0}", e.Message),
+                                                     ResMan.GetString("UnableToSaveTitle") ?? "Unable to Save",
+                                                     MessageBoxButton.OK, MessageBoxImage.Error));
                     }
                     finally
                     {
@@ -1202,7 +1053,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                             CanSaveModelSystem = false;
                             Dispatcher.Invoke(() =>
                             {
-                                StatusSnackBar.MessageQueue.Enqueue("Model system finished saving");
+                                StatusSnackBar.MessageQueue.Enqueue(ResMan.GetString("ModelSystemFinishedSavingMessage") ?? "Model system finished saving");
                                 SaveModelSystemButton.Background = Brushes.Transparent;
                                 SaveModelSystemButton.BorderBrush = Brushes.Transparent;
                                 ButtonProgressAssist.SetIsIndicatorVisible(SaveModelSystemButton, false);
@@ -1234,17 +1085,10 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             }
             return false;
         }
-        ModelSystemStructureDisplayModel find(ModelSystemStructureDisplayModel current,
-            ModelSystemStructureModel toFind)
+        ModelSystemStructureDisplayModel find(ModelSystemStructureDisplayModel current, ModelSystemStructureModel toFind)
         {
-            if (current.BaseModel == toFind)
-            {
-                return current;
-            }
-            if (current.IsMetaModule)
-            {
-                return IsContainedWithin(current.BaseModel, toFind) ? current : null;
-            }
+            if (current.BaseModel == toFind) return current;
+            if (current.IsMetaModule) return IsContainedWithin(current.BaseModel, toFind) ? current : null;
             foreach (var c in current.Children)
             {
                 var ret = find(c, toFind);
@@ -1258,25 +1102,10 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return find(DisplayRoot, model);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="mss"></param>
-    private void GoToModule(ModelSystemStructure mss)
-    {
-        GoToModule(ModelSystem.GetModelFor(mss));
-    }
+    private void GoToModule(ModelSystemStructure mss) => GoToModule(ModelSystem.GetModelFor(mss));
 
-    /// <summary>
-    /// </summary>
-    /// <param name="mss"></param>
-    private void GoToModule(ModelSystemStructureModel mss)
-    {
-        GoToModule(GetModelFor(mss));
-    }
+    private void GoToModule(ModelSystemStructureModel mss) => GoToModule(GetModelFor(mss));
 
-    /// <summary>
-    /// </summary>
-    /// <param name="displayModel"></param>
     private void GoToModule(ModelSystemStructureDisplayModel displayModel)
     {
         Dispatcher.Invoke(() =>
@@ -1287,8 +1116,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         });
     }
 
-    /// <summary>
-    /// </summary>
     private void GotoSelectedParameterModule()
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
@@ -1314,8 +1141,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
     public void CopyCurrentModule()
     {
         var selected = ActiveModelSystemView.SelectedModule;
@@ -1329,19 +1154,15 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
     public void CloneCurrentModule()
     {
         string error = null;
         if (!ModelSystemStructureDisplayModel.CloneModules(Session, CurrentlySelected, ref error))
         {
-            MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(error, ResMan.GetString("GenericErrorTitle") ?? "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
-    /// <summary>
-    /// </summary>
     public void PasteCurrentModule()
     {
         var pasteText = Clipboard.GetText();
@@ -1353,8 +1174,9 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                 string error = null;
                 if (!selected.Paste(Session, pasteText, ref error))
                 {
-                    MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(MainWindow.Us, (ResMan.GetString("FailedToPasteMessageFormat") ?? "Failed to Paste.\r\n{0}").Replace("{0}", error),
+                                     ResMan.GetString("UnableToPasteTitle") ?? "Unable to Paste",
+                                     MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 any = true;
@@ -1367,13 +1189,8 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    public void ExternalUpdateParameters()
-    {
-        UpdateParameters();
-    }
+    public void ExternalUpdateParameters() => UpdateParameters();
 
-    /// <summary>
-    /// </summary>
     private void UpdateParameters()
     {
         var parameters = GetActiveParameters();
@@ -1387,7 +1204,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                         CurrentlySelected.Count > 1);
                 if (!MainWindow.Us.ShowMetaModuleHiddenParameters)
                 {
-                    if (CurrentlySelected.Count == 1)
+                    if (CurrentlySelected.Count == 1 && CurrentlySelected[0].BaseModel.IsMetaModule)
                     {
                         if (CurrentlySelected[0].BaseModel.IsMetaModule)
                         {
@@ -1406,10 +1223,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                     var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
                     if (type != null)
                     {
-                        var attr =
-                            (ModuleInformationAttribute)
-                            Attribute.GetCustomAttribute(type, typeof(ModuleInformationAttribute));
-
+                        var attr = (ModuleInformationAttribute)Attribute.GetCustomAttribute(type, typeof(ModuleInformationAttribute));
                         if (attr != null)
                         {
                             SelectedDescription.Text = attr.Description;
@@ -1420,15 +1234,13 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                         else
                         {
                             SelectedDescription.Visibility = Visibility.Collapsed;
-                            SelectedDescription.Text = "No description available.";
+                            SelectedDescription.Text = ResMan.GetString("NoDescriptionAvailable") ?? "No description available.";
                             DescriptionExpander.Visibility = Visibility.Collapsed;
                         }
                     }
                     else
                     {
-                        //SelectedName.Text = CurrentlySelected.Count > 1 ? "Multiple Selected" : "None Selected";
-                        //SelectedNamespace.Text = string.Empty;
-                        SelectedDescription.Text = "No description available.";
+                        SelectedDescription.Text = ResMan.GetString("NoDescriptionAvailable") ?? "No description available.";
                         SelectedDescription.Visibility = Visibility.Collapsed;
                         DescriptionExpander.Visibility = Visibility.Collapsed;
                     }
@@ -1439,46 +1251,28 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         else
         {
             ParameterDisplay.ItemsSource = null;
-            //SelectedName.Text = "None Selected";
-            //SelectedNamespace.Text = string.Empty;
-            SelectedDescription.Text = "No description available.";
+            SelectedDescription.Text = ResMan.GetString("NoDescriptionAvailable") ?? "No description available.";
             SelectedDescription.Visibility = Visibility.Collapsed;
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <returns></returns>
-    private List<ParameterModel> GetActiveParameters()
-    {
-        return CurrentlySelected.Count switch
-        {
-            0 => null,
-            1 => [.. CurrentlySelected[0].GetParameters()],
-            _ => GetParameterIntersection()
-        };
-    }
+    private List<ParameterModel> GetActiveParameters() => CurrentlySelected.Count switch { 0 => null, 1 => [.. CurrentlySelected[0].GetParameters()], _ => GetParameterIntersection() };
 
-    /// <summary>
-    /// </summary>
-    /// <returns></returns>
     private List<ParameterModel> GetParameterIntersection()
     {
         var allParameters = CurrentlySelected.Select(m => m.GetParameters());
-        return CurrentlySelected.SelectMany(m => m.GetParameters()
-                .Where(p => allParameters.All(list => list.Any(q => p.Name == q.Name && p.Type == q.Type))))
-            .ToList();
+        return [.. CurrentlySelected.SelectMany(m => m.GetParameters().Where(p => allParameters.All(list => list.Any(q => p.Name == q.Name && p.Type == q.Type))))];
     }
 
     /// <summary>
-    ///     Displays documentation for the currently selected module.
+    /// Displays documentation for the currently selected module.
     /// </summary>
     public void ShowDocumentation()
     {
         if (ActiveModelSystemView.SelectedModule is ModelSystemStructureDisplayModel selectedModule)
         {
             MainWindow.Us.LaunchHelpWindow(selectedModule.BaseModel);
-        }
+    }
     }
 
     /// <summary>
@@ -1494,24 +1288,22 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
         else if (CurrentlySelected.Count == 1)
         {
-            var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Rename Module" : "Rename Modules", (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
+            var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? (ResMan.GetString("RenameModuleDialogTitleSingle") ?? "Rename Module") : (ResMan.GetString("RenameModuleDialogTitleMultiple") ?? "Rename Modules"), (value) => !String.IsNullOrWhiteSpace(value), selected.Name);
             _ = await dialog.ShowAsync();
             if (dialog.DidComplete)
             {
                 string error = null;
-                Session.ExecuteCombinedCommands(
-                    "Rename ModelSystem",
-                    () =>
+                Session.ExecuteCombinedCommands(ResMan.GetString("RenameModelSystemCommandName") ?? "Rename ModelSystem", () =>
+                {
+                    if (selected.SetName(dialog.UserInput.Trim(), ref error))
                     {
-                        if (selected.SetName(dialog.UserInput.Trim(), ref error))
-                        {
-                            CanSaveModelSystem = true;
-                        }
-                        else
-                        {
-                            throw new Exception(error);
-                        }
-                    });
+                        CanSaveModelSystem = true;
+                    }
+                    else
+                    {
+                        throw new Exception(error);
+                    }
+                });
             }
         }
     }
@@ -1522,31 +1314,28 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     public async Task RenameDescription()
     {
         var selected = ActiveModelSystemView.SelectedModule?.BaseModel;
-        if (CurrentlySelected.Count == 0)
+        if (CurrentlySelected.Count == 0) return;
+        
+        var dialog = new StringRequestDialog(RootDialogHost,
+                                 CurrentlySelected.Count == 1 ?
+                                 (ResMan.GetString("ChangeDescriptionDialogTitleSingle") ?? "Change Description") :
+                                 (ResMan.GetString("ChangeDescriptionDialogTitleMultiple") ?? "Change Descriptions"),
+                         (value) => true, selected.Description);
+        _ = await dialog.ShowAsync();
+        if (dialog.DidComplete)
         {
-            return;
-        }
-        else if (CurrentlySelected.Count == 1)
-        {
-            var dialog = new StringRequestDialog(RootDialogHost, CurrentlySelected.Count == 1 ? "Change Description" : "Change Descriptions", (value) => true, selected.Description);
-            _ = await dialog.ShowAsync();
-            if (dialog.DidComplete)
+            string error = null;
+            Session.ExecuteCombinedCommands(ResMan.GetString("RenameModelSystemCommandName") ?? "Rename ModelSystem", () =>
             {
-                string error = null;
-                Session.ExecuteCombinedCommands(
-                    "Rename ModelSystem",
-                    () =>
-                    {
-                        if (selected.SetDescription(dialog.UserInput.Trim(), ref error))
-                        {
-                            CanSaveModelSystem = true;
-                        }
-                        else
-                        {
-                            throw new Exception(error);
-                        }
-                    });
-            }
+                if (selected.SetDescription(dialog.UserInput.Trim(), ref error))
+                {
+                    CanSaveModelSystem = true;
+                }
+                else
+                {
+                    throw new Exception(error);
+                }
+            });
         }
     }
 
@@ -1574,87 +1363,68 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
     internal void RemoveSelectedModules()
     {
-        ModelSystemStructureDisplayModel first = null;
-        ModelSystemStructureModel parent = null;
-        // we need to make a copy of the currently selected in
-        // order to not operate on the list as it is changing
-        Session.ExecuteCombinedCommands(
-            "Remove Selected Modules",
-            () =>
+        ModelSystemStructureDisplayModel first = null; ModelSystemStructureModel parent = null;
+        Session.ExecuteCombinedCommands(ResMan.GetString("RemoveSelectedModulesCommandName") ?? "Remove Selected Modules", () =>
+        {
+            foreach (var selected in CurrentlySelected.ToList())
             {
-                foreach (var selected in CurrentlySelected.ToList())
+                if (first == null)
                 {
-                    if (first == null)
+                    first = selected;
+                    parent = Session.GetParent(selected.BaseModel);
+                    Dispatcher.Invoke(() =>
                     {
-                        first = selected;
-                        parent = Session.GetParent(selected.BaseModel);
-                        Dispatcher.Invoke(() =>
-                        {
                             if (!first.IsCollection && parent.IsCollection)
                             {
                                 MoveFocusNext(parent.Children.IndexOf(first.BaseModel) >= parent.Children.Count - 1);
                             }
-                        });
-                        /* Re order the children from parent node */
-                        /* Remove the module from selected items */
-                        //CurrentlySelected.Remove(selected);
-                        UpdateParameters();
-                        Keyboard.Focus(ModelSystemDisplayContent);
-                    }
+                    });
 
-                    string error = null;
-                    if (!ModelSystem.Remove(selected.BaseModel, ref error))
+                    UpdateParameters();
+                    Keyboard.Focus(ModelSystemDisplayContent);
+                }
+
+                string error = null;
+                if (!ModelSystem.Remove(selected.BaseModel, ref error))
+                {
+                    SystemSounds.Asterisk.Play();
+                }
+                else
+                {
+                    if (selected.IsCollection)
                     {
-                        SystemSounds.Asterisk.Play();
+                        selected.Children.Clear();
                     }
-                    else
+                    else if (selected.Parent?.IsCollection == true)
                     {
-                        if (selected.IsCollection)
+                        var index = 0;
+                        for (var i = 0; i < selected.Parent.Children.Count; i++)
                         {
-                            selected.Children.Clear();
-                        }
-                        else if (selected.Parent?.IsCollection == true)
-                        {
-                            var index = 0;
-                            for (var i = 0; i < selected.Parent.Children.Count; i++)
+                            var sibling = selected.Parent.Children[i];
+                            if (sibling == selected)
                             {
-                                var sibling = selected.Parent.Children[i];
-                                if (sibling == selected)
-                                {
-                                    selected.Parent.Children.RemoveAt(i);
-                                    i--;
-                                }
-                                else
-                                {
-                                    sibling.Index = index;
-                                    index++;
-                                }
+                                selected.Parent.Children.RemoveAt(i);
+                                i--;
+                            }
+                            else
+                            {
+                                sibling.Index = index;
+                                index++;
                             }
                         }
-                        CanSaveModelSystem = true;
                     }
+                    CanSaveModelSystem = true;
                 }
-            });
+            }
+        });
     }
 
-    private void AssignLinkedParameters_Click(object sender, RoutedEventArgs e)
-    {
-        ShowLinkedParameterDialog(true);
-    }
+    private void AssignLinkedParameters_Click(object sender, RoutedEventArgs e) => ShowLinkedParameterDialog(true);
 
-    private void RemoveLinkedParameters_Click(object sender, RoutedEventArgs e)
-    {
-        RemoveFromLinkedParameter();
-    }
+    private void RemoveLinkedParameters_Click(object sender, RoutedEventArgs e) => RemoveFromLinkedParameter();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void ResetParameter_Click(object sender, RoutedEventArgs e)
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
@@ -1662,18 +1432,12 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             string error = null;
             if (!currentParameter.ResetToDefault(ref error))
             {
-                MessageBox.Show(GetWindow(), error, "Unable to reset parameter", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-            else
-            {
+                MessageBox.Show(GetWindow(), error, ResMan.GetString("UnableToResetParameterTitle") ?? "Unable to reset parameter", MessageBoxButton.OK, MessageBoxImage.Error); 
                 CanSaveModelSystem = true;
             }
         }
     }
 
-    /// <summary>
-    /// </summary>
     private void CopyParameterName()
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
@@ -1682,9 +1446,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="hidden"></param>
     private void SetCurrentParameterHidden(bool hidden)
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
@@ -1733,7 +1494,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
 
             if (startingIndex + text.Length > currentParameterDisplay.Items.Count)
             {
-                MessageBox.Show(GetWindow(), "There is not enough space to paste all of the entries.");
+                MessageBox.Show(GetWindow(), ResMan.GetString("NotEnoughSpaceToPasteMessage") ?? "There is not enough space to paste all of the entries.");
                 return;
             }
             // If we have enough spaces, store to all of the values
@@ -1751,28 +1512,25 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
         else
         {
-            MessageBox.Show(GetWindow(), "There was no text data in the clipboard to copy.");
+            MessageBox.Show(GetWindow(), ResMan.GetString("NoClipboardTextMessage") ?? "There was no text data in the clipboard to copy.");
         }
     }
 
-    /// <summary>
-    /// </summary>
     private async Task RenameParameter()
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
         {
-            var dialog = new StringRequestDialog(RootDialogHost, "Rename Parameter", (value) => !String.IsNullOrWhiteSpace(value), currentParameter.Name);
+            var dialog = new StringRequestDialog(RootDialogHost, ResMan.GetString("RenameParameterDialogTitle") ?? "Rename Parameter", (value) => !String.IsNullOrWhiteSpace(value), currentParameter.Name);
             await dialog.ShowAsync();
             if (dialog.DidComplete)
             {
                 string error = null;
                 if (!currentParameter.SetName(dialog.UserInput.Trim(), ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Set Parameter Name", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    MessageBox.Show(GetWindow(), error, ResMan.GetString("UnableToSetParameterNameTitle") ?? "Unable to Set Parameter Name", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                else
-                {
+                else 
+                { 
                     RefreshParameters();
                     UpdateQuickParameters();
                     CanSaveModelSystem = true;
@@ -1781,8 +1539,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
     private void ResetParameterName()
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
@@ -1794,11 +1550,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="currentRoot"></param>
-    /// <param name="directory"></param>
-    /// <returns></returns>
     private ParameterModel GetInputParameter(ModelSystemStructureModel currentRoot, out string directory)
     {
         directory = null;
@@ -1821,17 +1572,11 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return inputParameter;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="openWith"></param>
-    /// <param name="openDirectory"></param>
     private void OpenParameterFileLocation(bool openWith, bool openDirectory)
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
         {
-            var inputParameter =
-                GetInputParameter((ActiveModelSystemView.SelectedModule ?? DisplayRoot).BaseModel,
-                    out var inputDirectory);
+            var inputParameter = GetInputParameter((ActiveModelSystemView.SelectedModule ?? DisplayRoot).BaseModel, out var inputDirectory);
             if (inputParameter is not null)
             {
                 // Check to see if the parameter that contains the input directory IS this parameter
@@ -1858,22 +1603,18 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                 }
                 catch
                 {
-                    MessageBox.Show(GetWindow(), "Unable to load the file at '" + pathToFile + "'!",
-                        "Unable to Load", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(GetWindow(), (ResMan.GetString("UnableToLoadFileMessageFormat") ?? "Unable to load the file at '{0}'!").Replace("{0}", pathToFile), ResMan.GetString("UnableToLoadTitle") ?? "Unable to Load",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
     }
 
-    /// <summary>
-    /// </summary>
     private void SelectDirectoryForCurrentParameter()
     {
         if (GetCurrentParameterDisplayModelContext() is ParameterDisplayModel currentParameter)
         {
-            var _ = GetInputParameter(
-                Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
-                out var inputDirectory);
+            var _ = GetInputParameter(Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure), out var inputDirectory);
             if (inputDirectory is not null)
             {
                 var directoryName = MainWindow.OpenDirectory();
@@ -1888,17 +1629,13 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
     private void SelectFileForCurrentParameter()
     {
         var context = GetCurrentParameterDisplayModelContext() ?? SoftActiveParameterDisplay;
         if (context is not null)
         {
             var currentParameter = context;
-            var _ = GetInputParameter(
-                Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure),
-                out var inputDirectory);
+            var _ = GetInputParameter(Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure), out var inputDirectory);
             if (inputDirectory is not null)
             {
                 var fileName = MainWindow.OpenFile("Select File",
@@ -1913,27 +1650,15 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="inputDirectory"></param>
-    /// <param name="fileName"></param>
     private void TransformToRelativePath(string inputDirectory, ref string fileName)
     {
-        var runtimeInputDirectory =
-            Path.GetFullPath(
-                Path.Combine(Session.Configuration.ProjectDirectory, "AProject", "RunDirectory", inputDirectory)
-            ) + Path.DirectorySeparatorChar;
+        var runtimeInputDirectory = Path.GetFullPath(Path.Combine(Session.Configuration.ProjectDirectory, "AProject", "RunDirectory", inputDirectory)) + Path.DirectorySeparatorChar;
         if (fileName.StartsWith(runtimeInputDirectory))
         {
             fileName = fileName[runtimeInputDirectory.Length..];
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="root"></param>
-    /// <param name="parameter"></param>
-    /// <returns></returns>
     private static string GetInputDirectory(ModelSystemStructureModel root, out ParameterModel parameter)
     {
         var inputDir = root.Type.GetProperty("InputBaseDirectory");
@@ -1955,12 +1680,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return null;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="inputDirectory"></param>
-    /// <param name="parameterValue"></param>
-    /// <param name="isInputParameter"></param>
-    /// <returns></returns>
     private string GetRelativePath(string inputDirectory, string parameterValue, bool isInputParameter)
     {
         var parameterRooted = Path.IsPathRooted(parameterValue);
@@ -1978,10 +1697,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
     private static string RemoveRelativeDirectories(string path)
     {
         var parts = path.Split('\\', '/');
@@ -1995,11 +1710,11 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
                 if (currentlyOn.Count <= 0)
                 {
                     return null;
-                }
+            }
                 var previousString = currentlyOn.Pop();
                 var removeLength = previousString.Length + 1;
                 finalPath.Remove(finalPath.Length - removeLength, removeLength);
-            }
+        }
             else if (parts[i] == ".")
             {
                 // do nothing
@@ -2014,130 +1729,49 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         return finalPath.ToString(0, finalPath.Length - 1);
     }
 
-    private void CopyParameterName_Click(object sender, RoutedEventArgs e)
-    {
-        CopyParameterName();
-    }
+    private void CopyParameterName_Click(object sender, RoutedEventArgs e) => CopyParameterName();
 
-    private void OpenFile_Click(object sender, RoutedEventArgs e)
-    {
-        OpenParameterFileLocation(false, false);
-    }
+    private void OpenFile_Click(object sender, RoutedEventArgs e) => OpenParameterFileLocation(false, false);
 
-    private void OpenWith_Click(object sender, RoutedEventArgs e)
-    {
-        OpenParameterFileLocation(true, false);
-    }
+    private void OpenWith_Click(object sender, RoutedEventArgs e) => OpenParameterFileLocation(true, false);
 
-    private void OpenFolder_Click(object sender, RoutedEventArgs e)
-    {
-        OpenParameterFileLocation(false, true);
-    }
+    private void OpenFolder_Click(object sender, RoutedEventArgs e) => OpenParameterFileLocation(false, true);
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SelectFile_Click(object sender, RoutedEventArgs e)
-    {
-        SelectFileForCurrentParameter();
-    }
+    private void SelectFile_Click(object sender, RoutedEventArgs e) => SelectFileForCurrentParameter();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SelectDirectory_Click(object sender, RoutedEventArgs e)
-    {
-        SelectDirectoryForCurrentParameter();
-    }
+    private void SelectDirectory_Click(object sender, RoutedEventArgs e) => SelectDirectoryForCurrentParameter();
 
-    /// <summary>
-    /// </summary>
     public void UpdateQuickParameters()
     {
         if (QuickParameterDisplay2 != null)
         {
-            QuickParameterListView.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel
-                .GetQuickParameters()
-                .OrderBy(n => n.Name));
+            QuickParameterListView.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
             QuickParameterFilterBox.Display = QuickParameterListView;
             QuickParameterFilterBox.Filter = FilterParameters;
             QuickParameterFilterBox.RefreshFilter();
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private async void RenameParameter_Click(object sender, RoutedEventArgs e)
-    {
-        await RenameParameter();
-    }
+    private async void RenameParameter_Click(object sender, RoutedEventArgs e) => await RenameParameter();
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ResetParameterName_Click(object sender, RoutedEventArgs e)
-    {
-        ResetParameterName();
-    }
+    private void ResetParameterName_Click(object sender, RoutedEventArgs e) => ResetParameterName();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void HideParameter_Click(object sender, RoutedEventArgs e)
-    {
-        SetCurrentParameterHidden(true);
-    }
+    private void HideParameter_Click(object sender, RoutedEventArgs e) => SetCurrentParameterHidden(true);
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ShowParameter_Click(object sender, RoutedEventArgs e)
-    {
-        SetCurrentParameterHidden(false);
-    }
+    private void ShowParameter_Click(object sender, RoutedEventArgs e) => SetCurrentParameterHidden(false);
 
-    private void CopyParameters_Click(object sender, RoutedEventArgs e)
-    {
-        CopyExcelClipboard();
-    }
+    private void CopyParameters_Click(object sender, RoutedEventArgs e) => CopyExcelClipboard();
 
-    private void PasteSpreadsheet_Click(object sender, RoutedEventArgs e)
-    {
-        PasteExcelClipboard();
-    }
+    private void PasteSpreadsheet_Click(object sender, RoutedEventArgs e) => PasteExcelClipboard();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void LinkedParameter_Click(object sender, RoutedEventArgs e)
-    {
-        ShowLinkedParameterDialog();
-    }
+    private void LinkedParameter_Click(object sender, RoutedEventArgs e) => ShowLinkedParameterDialog();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void RunModelSystem_Click(object sender, RoutedEventArgs e)
-    {
+    private void RunModelSystem_Click(object sender, RoutedEventArgs e) 
+    { 
         SaveCurrentlySelectedParameters();
-        ExecuteRun();
+         ExecuteRun(); 
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void ComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Down)
@@ -2146,7 +1780,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             if (Keyboard.FocusedElement is UIElement keyboardFocus)
             {
                 keyboardFocus.MoveFocus(tRequest);
-            }
+        }
             e.Handled = true;
             return;
         }
@@ -2156,7 +1790,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
             if (Keyboard.FocusedElement is UIElement keyboardFocus)
             {
                 keyboardFocus.MoveFocus(tRequest);
-            }
+        }
             e.Handled = true;
             return;
         }
@@ -2167,10 +1801,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         OnPreviewKeyDown(e);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
     {
         if (((Label)sender).Tag is ModelSystemStructureDisplayModel module)
@@ -2181,10 +1811,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void Path_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (((Border)sender).Tag is ModelSystemStructureDisplayModel module)
@@ -2193,19 +1819,8 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void GoToModule_Click(object sender, RoutedEventArgs e)
-    {
-        GotoSelectedParameterModule();
-    }
+    private void GoToModule_Click(object sender, RoutedEventArgs e) => GotoSelectedParameterModule();
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="eventargs"></param>
     private void QuickParameterDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
     {
         Dispatcher.BeginInvoke(new Action(() =>
@@ -2216,7 +1831,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     }
 
     /// <summary>
-    ///     Click handler for save button / icon
+    /// Click handler for save button / icon
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -2225,10 +1840,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         SaveRequested(false);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="eventargs"></param>
     private void LinkedParametersDialogHost_OnDialogOpened(object sender, DialogOpenedEventArgs eventargs)
     {
         LinkedParameterDisplayOverlay.DialogOpenedEventArgs = eventargs;
@@ -2271,19 +1882,8 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    public void B_OnGotFocus(object sender, RoutedEventArgs e)
-    {
-        SelectParameterChildControl(sender as UIElement);
-    }
+    public void B_OnGotFocus(object sender, RoutedEventArgs e) => SelectParameterChildControl(sender as UIElement);
 
-    /// <summary>
-    /// </summary>
-    /// <param name="display"></param>
-    /// <param name="e"></param>
     private static void ProcessParameterDisplayKeyDown(ListView display, KeyEventArgs e)
     {
         var oldIndex = display.SelectedIndex;
@@ -2376,9 +1976,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <returns></returns>
     private ListView GetCurrentParameterDisplay()
     {
         if (QuickParameterListView.IsKeyboardFocusWithin)
@@ -2393,7 +1990,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     }
 
     /// <summary>
-    ///     When the module value textbox receives focus
+    /// When the module value textbox receives focus
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -2415,13 +2012,10 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     /// <summary>
-    ///     Called when module parameter text changes - makes session pseudo dirty
+    /// Called when module parameter text changes - makes session pseudo dirty
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -2431,7 +2025,7 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     }
 
     /// <summary>
-    ///     Called when an enumeration module parameter changes
+    /// Called when an enumeration module parameter changes
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -2448,44 +2042,24 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void OpenProjectFolderToolbarButton_Click(object sender, RoutedEventArgs e)
     {
         var path = Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Project.Name);
         Process.Start(new ProcessStartInfo() { FileName = path, UseShellExecute = true });
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ReloadModelSystemToolbarButton_Click(object sender, RoutedEventArgs e)
-    {
-        ReloadModelSystem();
-    }
+    private void ReloadModelSystemToolbarButton_Click(object sender, RoutedEventArgs e) => ReloadModelSystem();
 
-    /// <summary>
-    /// 
-    /// </summary>
     private void ReloadModelSystem()
     {
         string error = null;
         if (!Session.ReloadModelSystem(ref error))
         {
-            MessageBox.Show(GetWindow(), error, "Unable to revert", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(GetWindow(), error, ResMan.GetString("UnableToRevertTitle") ?? "Unable to revert", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         EnumerateDisabled(DisplayRoot);
     }
 
-
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void TextBox_OnLostFocus(object sender, RoutedEventArgs e)
     {
         if ((sender as TextBox).DataContext as ParameterDisplayModel != null)
@@ -2498,10 +2072,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void TextBox_OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
         if ((sender as TextBox).DataContext as ParameterDisplayModel != null)
@@ -2514,36 +2084,20 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="parameter"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
     private bool SetParameterValue(ParameterDisplayModel parameter, string value)
     {
         if (!parameter.SetValue(value, out var error))
         {
-            Dispatcher.BeginInvoke(new Action(() =>
-                MessageBox.Show(GetWindow(),
-                    "We were unable to set the parameter '" + parameter.Name ?? "" + "' with the value '" + value +
-                    "'.\r\n" + error, "Unable to Set Parameter",
-                    MessageBoxButton.OK, MessageBoxImage.Error)));
+            Dispatcher.BeginInvoke(new Action(() => MessageBox.Show(GetWindow(),
+                         (ResMan.GetString("UnableToSetParameterMessageFormat") ?? "We were unable to set the parameter '{0}' with the value '{1}'.\r\n{2}").Replace("{0}", parameter.Name ?? "").Replace("{1}", value ?? "").Replace("{2}", error ?? string.Empty),
+                         ResMan.GetString("UnableToSetParameterTitle") ?? "Unable to Set Parameter",
+                         MessageBoxButton.OK, MessageBoxImage.Error)));
             return false;
         }
         return true;
     }
 
-
-    /// <summary>
-    /// </summary>
-    /// <param name="column"></param>
-    /// <param name="display"></param>
-    /// <param name="fromWidth"></param>
-    /// <param name="toWidth"></param>
-    /// <param name="postAnimateAction"></param>
-    /// <param name="durationMs"></param>
-    private void AnimateGridColumnWidth(ColumnDefinition column, double fromWidth,
-        double toWidth, Action postAnimateAction = null, int durationMs = -1)
+    private void AnimateGridColumnWidth(ColumnDefinition column, double fromWidth, double toWidth, Action postAnimateAction = null, int durationMs = -1)
     {
         var duration = new Duration(TimeSpan.FromMilliseconds(durationMs >= 0 ? durationMs : 200));
         var animation = new DoubleAnimation
@@ -2567,12 +2121,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         storyboard.Begin(this);
     }
 
-
-    /// <summary>
-    /// </summary>
-    /// <param name="element"></param>
-    /// <param name="from"></param>
-    /// <param name="to"></param>
     private void AnimateOpacity(FrameworkElement element, double from, double to, UIElement focusAfter = null)
     {
         var duration = new Duration(TimeSpan.FromMilliseconds(200));
@@ -2608,61 +2156,22 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
         storyboard.Begin(this);
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
-    {
-        Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
-    }
+    private void ToggleButton_OnChecked(object sender, RoutedEventArgs e) => Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
-    {
-        Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
-    }
+    private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e) => Dispatcher.BeginInvoke(new Action(() => { UpdateQuickParameters(); }));
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void TextBox_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
-    {
-    }
+    private void TextBox_OnContextMenuOpening(object sender, ContextMenuEventArgs e) { }
 
+    private void MDisplay_MouseMove(object sender, MouseEventArgs e2) { }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void MDisplay_MouseMove(object sender, MouseEventArgs e2)
-    {
-    }
+    private void EventSetter_OnHandler(object sender, RequestBringIntoViewEventArgs e) => e.Handled = true;
 
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void EventSetter_OnHandler(object sender, RequestBringIntoViewEventArgs e)
-    {
-        e.Handled = true;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="model"></param>
-    /// <param name="modules"></param>
     private void EnumerateUnassignedRequiredModules(ModelSystemStructureDisplayModel model, List<ModelSystemStructureDisplayModel> modules)
     {
         if (model.BaseModel.Type == null && model.BaseModel.IsOptional == false && !model.IsCollection)
         {
             modules.Add(model);
-        }
+    }
         if (model.Children != null)
         {
             foreach (var c in model.Children)
@@ -2692,7 +2201,6 @@ public partial class ModelSystemDisplay : UserControl, ITabCloseListener, INotif
     }
 
 }
-
 
 /// <summary>
 /// </summary>
