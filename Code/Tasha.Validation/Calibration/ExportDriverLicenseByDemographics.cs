@@ -33,8 +33,8 @@ using static Tasha.Validation.Calibration.Utilities;
 
 namespace Tasha.Validation.Calibration;
 
-[ModuleInformation(Description = "Generates a CSV with the column ZoneNumber followed the number of people with the " +
-    "selected criteria that live within the zone who hold a license.")]
+[ModuleInformation(Description = "Generates a CSV with three columns.  First the ZoneNumber followed the number of people with the " +
+    "selected criteria that live within the zone who hold a license, those who do not, and the total people in the category living in that zone.")]
 public sealed class ExportDriverLicenseByDemographics : IPostHousehold
 {
     [RootModule]
