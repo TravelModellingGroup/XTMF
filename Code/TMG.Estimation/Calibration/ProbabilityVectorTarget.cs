@@ -177,9 +177,9 @@ public sealed class ProbabilityVectorTarget : CalibrationTarget
         return VectorHelper.Sum(flat, 0, flat.Length);
     }
 
-    private float GetMaskedSum(SparseArray<float> matrix)
+    private float GetMaskedSum(SparseArray<float> vector)
     {
-        var data = matrix.GetFlatData();
+        var data = vector.GetFlatData();
         if (_mask is null)
         {
             return VectorHelper.Sum(data, 0, data.Length);
@@ -197,7 +197,7 @@ public sealed class ProbabilityVectorTarget : CalibrationTarget
         var acc = VectorHelper.Sum(mask, 0, mask.Length);
         if (acc <= 0.0f)
         {
-            throw new XTMFRuntimeException(this, "The mask matrix is all zeros!");
+            throw new XTMFRuntimeException(this, "The mask vector is all zeros!");
         }
     }
 
