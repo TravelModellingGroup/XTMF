@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2024 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -19,6 +19,8 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
@@ -26,10 +28,10 @@ using XTMF;
 namespace TMG.Estimation.Calibration;
 
 /// <summary>
-/// This module is designed to represent a probability matrix target for calibration.
+/// This module is designed to represent a probability vector target for calibration.
 /// </summary>
 [ModuleInformation(Description = "This module is designed to update a constant")]
-public sealed class ProbabilityMatrixTarget : CalibrationTarget
+public sealed class ProbabilityVectorTarget : CalibrationTarget
 {
     /// <summary>
     /// The minimum value allowed for this parameter.
@@ -46,20 +48,20 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     [RunParameter("Change Weight", 1.0f, "A multiplier for the amount of change to apply.  Lower this if there are multiple targets targeting a similar system to set priorities.")]
     public float ChangeWeight;
 
-    [SubModelInformation(Required = true, Description = "The total matrix from the observed.")]
-    public IDataSource<SparseTwinIndex<float>> ObservedTotal;
+    [SubModelInformation(Required = true, Description = "The total vector from the observed.")]
+    public IDataSource<SparseArray<float>> ObservedTotal;
 
-    [SubModelInformation(Required = true, Description = "The selected matrix from the observed.")]
-    public IDataSource<SparseTwinIndex<float>> ObservedSelection;
+    [SubModelInformation(Required = true, Description = "The selected vector from the observed.")]
+    public IDataSource<SparseArray<float>> ObservedSelection;
 
-    [SubModelInformation(Required = true, Description = "The total matrix from the model.")]
-    public IDataSource<SparseTwinIndex<float>> ModelTotal;
+    [SubModelInformation(Required = true, Description = "The total vector from the model.")]
+    public IDataSource<SparseArray<float>> ModelTotal;
 
-    [SubModelInformation(Required = true, Description = "The selected matrix from the model.")]
-    public IDataSource<SparseTwinIndex<float>> ModelSelection;
+    [SubModelInformation(Required = true, Description = "The selected vector from the model.")]
+    public IDataSource<SparseArray<float>> ModelSelection;
 
-    [SubModelInformation(Required = false, Description = "A mask matrix to apply to the matrices.")]
-    public IDataSource<SparseTwinIndex<float>> Mask;
+    [SubModelInformation(Required = false, Description = "A mask vector to apply to the matrices.")]
+    public IDataSource<SparseArray<float>> Mask;
 
     [RunParameter("Paramter Is Ratio", false, "Set this to true if the parameter is a a ratio instead of linear.")]
     public bool ParameterIsRatio;
@@ -67,7 +69,7 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     [RunParameter("Only Mask Selection", false, "Set this to true if you want the ratio of masked/unmasked for both modelled and observed.")]
     public bool OnlyMaskSelection;
 
-    private float[][] _mask = null!;
+    private float[] _mask = null!;
     private float _targetProbability = float.NegativeInfinity;
     private float _baseRunProbability = float.NegativeInfinity;
 
@@ -75,7 +77,7 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
     /// Called by XTMF
     /// </summary>
     /// <param name="config">The configuration.</param>
-    public ProbabilityMatrixTarget(IConfiguration config) : base(config)
+    public ProbabilityVectorTarget(IConfiguration config) : base(config)
     {
     }
 
@@ -142,7 +144,7 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         }
     }
 
-    private static SparseTwinIndex<float> GetValue(IDataSource<SparseTwinIndex<float>> source)
+    private static SparseArray<float> GetValue(IDataSource<SparseArray<float>> source)
     {
         source.LoadData();
         var ret = source.GiveData();
@@ -150,10 +152,10 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         return ret;
     }
 
-    private float GetValue(IDataSource<SparseTwinIndex<float>> totalSource, IDataSource<SparseTwinIndex<float>> selectionSource)
+    private float GetValue(IDataSource<SparseArray<float>> totalSource, IDataSource<SparseArray<float>> selectionSource)
     {
-        SparseTwinIndex<float> total = null;
-        SparseTwinIndex<float> selection = null;
+        SparseArray<float> total = null;
+        SparseArray<float> selection = null;
         float sumTotal = float.NegativeInfinity;
         float sumSelection = float.NegativeInfinity;
         // Get the matrices
@@ -169,51 +171,33 @@ public sealed class ProbabilityMatrixTarget : CalibrationTarget
         return sumSelection / sumTotal;
     }
 
-    private static float GetSum(SparseTwinIndex<float> matrix)
+    private static float GetSum(SparseArray<float> vector)
     {
-        var flat = matrix.GetFlatData();
-        var acc = 0.0f;
-        for ( var i = 0; i < flat.Length; i++)
-        {
-            acc += VectorHelper.Sum(flat[i], 0, flat.Length);
-        }
-        return acc;
+        var flat = vector.GetFlatData();
+        return VectorHelper.Sum(flat, 0, flat.Length);
     }
 
-    private float GetMaskedSum(SparseTwinIndex<float> matrix)
+    private float GetMaskedSum(SparseArray<float> vector)
     {
-        float acc = 0.0f;
-        var data = matrix.GetFlatData();
+        var data = vector.GetFlatData();
         if (_mask is null)
         {
-            for (int i = 0; i < data.Length; i++)
-            {
-                acc += VectorHelper.Sum(data[i], 0, data.Length);
-            }
-            return acc;
+            return VectorHelper.Sum(data, 0, data.Length);
         }
         else
         {
             var mask = _mask;
             CheckMaskNonZero(mask);
-            for (int i = 0; i < data.Length; i++)
-            {
-                acc += VectorHelper.MultiplyAndSumNoStore(data[i], mask[i]);
-            }
-            return acc;
+            return VectorHelper.MultiplyAndSumNoStore(data, mask);
         }
     }
 
-    private void CheckMaskNonZero(float[][] mask)
+    private void CheckMaskNonZero(float[] mask)
     {
-        var acc = 0.0f;
-        for (int i = 0; i < mask.Length; i++)
-        {
-            acc += VectorHelper.Sum(mask[i], 0, mask.Length);
-        }
+        var acc = VectorHelper.Sum(mask, 0, mask.Length);
         if (acc <= 0.0f)
         {
-            throw new XTMFRuntimeException(this, "The mask matrix is all zeros!");
+            throw new XTMFRuntimeException(this, "The mask vector is all zeros!");
         }
     }
 
