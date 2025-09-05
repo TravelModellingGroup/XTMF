@@ -99,6 +99,7 @@ public class ProjectController
     /// <returns>True if the clone succeeded,</returns>
     public bool CloneProject(Project toClone, string name, ref string error)
     {
+        name = name?.Trim();
         if (!Project.ValidateProjectName(name))
         {
             error = "The project name was invalid!";
@@ -136,6 +137,7 @@ public class ProjectController
     /// <returns>True if the rename succeeded, false otherwise.</returns>
     public bool RenameProject(Project project, string newName, ref string error)
     {
+        newName = newName?.Trim();
         lock (EditingSessionLock)
         {
             if (!((ProjectRepository)Runtime.Configuration.ProjectRepository).RenameProject(project, newName, ref error))
@@ -203,6 +205,7 @@ public class ProjectController
     /// <returns>The loaded project</returns>
     public Project Load(string name, ref string error)
     {
+        name = name?.Trim();
         lock (EditingSessionLock)
         {
             var loadedProject = (from project in Runtime.Configuration.ProjectRepository.Projects
@@ -224,6 +227,7 @@ public class ProjectController
     /// <returns>The loaded project</returns>
     public Project LoadOrCreate(string name, ref string error)
     {
+        name = name?.Trim();
         lock (EditingSessionLock)
         {
             Project alreadyLoaded;
@@ -295,6 +299,7 @@ public class ProjectController
     {
         Project project;
         string ignore = null;
+        name = name?.Trim();
         if ((project = Load(name, ref ignore)) != null)
         {
             return DeleteProject(project, ref error);
