@@ -35,7 +35,7 @@ public abstract class FileLocation : IModule
 
     public abstract bool IsPathEmpty();
 
-    public bool RuntimeValidation(ref string error)
+    public virtual bool RuntimeValidation(ref string error)
     {
         return true;
     }
@@ -49,13 +49,16 @@ public abstract class FileLocation : IModule
 [ModuleInformation(
     Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the input directory unless a full path is given."
     )]
-public class DirectorySeperatedPathFromInputDirectory : FileLocation
+public sealed class DirectorySeperatedPathFromInputDirectory : FileLocation
 {
     [RunParameter("Directory Relative To Input Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the input directory.")]
     public FileFromInputDirectory DirectoryName;
 
     [RunParameter("File Name", "File.Type", "The file relative to the given directory path.")]
     public string FileName;
+
+    [RunParameter("Check File Exists on Startup", false, "Check that the file exists during the model system startup.")]
+    public bool CheckFileExistsAtRuntimeValidation;
 
     [RootModule]
     public IModelSystemTemplate Root;
@@ -85,15 +88,45 @@ public class DirectorySeperatedPathFromInputDirectory : FileLocation
     {
         return !DirectoryName.ContainsFileName() && String.IsNullOrWhiteSpace(FileName);
     }
+
+    public override bool RuntimeValidation(ref string error)
+    {
+        if (CheckFileExistsAtRuntimeValidation)
+        {
+            if (IsPathEmpty())
+            {
+                error = "The file path is empty and thus doesn't exist!";
+                return false;
+            }
+            try
+            {
+                var path = GetFilePath();
+                if (!File.Exists(path))
+                {
+                    error = "The file path '" + path + "' does not exist!";
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                error = "An error occurred while validating the file path: " + e.Message;
+                return false;
+            }
+        }
+        return base.RuntimeValidation(ref error);
+    }
 }
 
 [ModuleInformation(
 Description = "This module provides the ability to specify a file path relative to the input directory unless a full path is given."
 )]
-public class FilePathFromInputDirectory : FileLocation
+public sealed class FilePathFromInputDirectory : FileLocation
 {
     [RunParameter("File From Input Directory", "Filename.type", typeof(FileFromInputDirectory), "A file path to represent relative to the input directory.")]
     public FileFromInputDirectory FileName;
+
+    [RunParameter("Check File Exists on Startup", false, "Check that the file exists during the model system startup.")]
+    public bool CheckFileExistsAtRuntimeValidation;
 
     [RootModule]
     public IModelSystemTemplate Root;
@@ -107,12 +140,39 @@ public class FilePathFromInputDirectory : FileLocation
     {
         return !FileName.ContainsFileName();
     }
+
+    public override bool RuntimeValidation(ref string error)
+    {
+        if (CheckFileExistsAtRuntimeValidation)
+        {
+            if (IsPathEmpty())
+            {
+                error = "The file path is empty and thus doesn't exist!";
+                return false;
+            }
+            try
+            {
+                var path = GetFilePath();
+                if(!File.Exists(path))
+                {
+                    error = "The file path '" + path + "' does not exist!";
+                    return false;
+                }
+            }
+            catch(Exception e)
+            {
+                error = "An error occurred while validating the file path: " + e.Message;
+                return false;
+            }
+        }
+        return base.RuntimeValidation(ref error);
+    }
 }
 
 [ModuleInformation(
 Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the output directory unless a full path is given."
 )]
-public class DirectorySeperatedPathFromOutputDirectory : FileLocation
+public sealed class DirectorySeperatedPathFromOutputDirectory : FileLocation
 {
     [RunParameter("Directory Relative To Run Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the run directory.")]
     public FileFromOutputDirectory DirectoryName;
@@ -152,7 +212,7 @@ public class DirectorySeperatedPathFromOutputDirectory : FileLocation
 Description = "This module provides the ability to specify a file path relative to the output directory unless a full path is given."
 )]
 [RedirectModule("TMG.Input.FilePathFromOuputDirectory, TMGInterfaces, Version = 1.0.0.0, Culture = neutral, PublicKeyToken = null")]
-public class FilePathFromOutputDirectory : FileLocation
+public sealed class FilePathFromOutputDirectory : FileLocation
 {
     [RunParameter("File From Output Directory", "Filename.type", typeof(FileFromOutputDirectory), "A file path to represent relative to the run's directory.")]
     public FileFromOutputDirectory FileName;
@@ -172,7 +232,7 @@ public class FilePathFromOutputDirectory : FileLocation
 Description = "This module provides the ability to specify a file path relative to the directory that contains XTMF unless a full path is given."
 )]
 // ReSharper disable once InconsistentNaming
-public class FilePathFromXTMFDirectory : FileLocation
+public sealed class FilePathFromXTMFDirectory : FileLocation
 {
     [RunParameter("File From XTMF Installation", "Filename.type", typeof(FileFromOutputDirectory), "A path relative to the installation directory of XTMF.")]
     // ReSharper disable once InconsistentNaming
