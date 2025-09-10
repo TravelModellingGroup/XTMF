@@ -30,6 +30,7 @@ using TMG.Input;
 using XTMF;
 
 using static Tasha.Validation.Calibration.Utilities;
+using static Tasha.Validation.Report.Analyses.ModeGroup;
 
 namespace Tasha.Validation.Calibration;
 
@@ -86,16 +87,31 @@ public sealed class ExportDriverLicenseByDemographics : IPostHousehold
 
     public void IterationStarting(int iteration)
     {
+        if (iteration == _targetIteration)
+        {
+            _occupations = SelectOccupations?.Select(o => o.Occupation).ToArray() ?? [];
+            _employmentStatuses = SelectEmploymentStatuses?.Select(e => e.EmploymentStatus).ToArray() ?? [];
+            _studentStatuses = SelectStudentStatuses?.Select(s => s.StudentStatus).ToArray() ?? [];
+            _rejectOccupations = RejectOccupations?.Select(o => o.Occupation).ToArray() ?? [];
+            _rejectEmploymentStatuses = RejectEmploymentStatuses?.Select(e => e.EmploymentStatus).ToArray() ?? [];
+            _rejectStudentStatuses = RejectStudentStatuses?.Select(s => s.StudentStatus).ToArray() ?? [];
+
+            // Only do work on the last iteration
+            _zones = Root.ZoneSystem.ZoneArray;
+
+            if (_dlicCounts is null)
+            {
+                // [..(HasLicense,NoLicense)]
+                _dlicCounts = new float[_zones.Count * 2];
+            }
+            else
+            {
+                Array.Clear(_dlicCounts, 0, _dlicCounts.Length);
+            }
+        }
+
         _zones = Root.ZoneSystem.ZoneArray;
-        if (_dlicCounts is null)
-        {
-            // [..(HasLicense,NoLicense)]
-            _dlicCounts = new float[_zones.Count * 2];
-        }
-        else
-        {
-            Array.Clear(_dlicCounts, 0, _dlicCounts.Length);
-        }
+        
     }
 
     private Lock _writeLock = new();
