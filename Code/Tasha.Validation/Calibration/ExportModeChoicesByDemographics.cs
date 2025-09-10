@@ -116,10 +116,7 @@ public sealed class ExportModeChoicesByDemographics : IPostHouseholdIteration
             _rejectOccupations = RejectOccupations?.Select(o => o.Occupation).ToArray() ?? [];
             _rejectEmploymentStatuses = RejectEmploymentStatuses?.Select(e => e.EmploymentStatus).ToArray() ?? [];
             _rejectStudentStatuses = RejectStudentStatuses?.Select(s => s.StudentStatus).ToArray() ?? [];
-            if (_targetIteration != iteration)
-            {
-                return;
-            }
+            
             // Only do work on the last iteration
             _zones = Root.ZoneSystem.ZoneArray;
             if (_matrix is null)
