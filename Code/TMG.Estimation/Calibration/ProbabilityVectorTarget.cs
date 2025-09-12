@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TMG.Estimation.Calibration;
 
@@ -69,6 +70,9 @@ public sealed class ProbabilityVectorTarget : CalibrationTarget
     [RunParameter("Only Mask Selection", false, "Set this to true if you want the ratio of masked/unmasked for both modelled and observed.")]
     public bool OnlyMaskSelection;
 
+    [RunParameter("Minimum Error", 0.0f, "If the error is less than this value the parameter will not be changed.")]
+    public float MinimumErrorToStep = 0.0f;
+
     private float[] _mask = null!;
     private float _targetProbability = float.NegativeInfinity;
     private float _baseRunProbability = float.NegativeInfinity;
@@ -88,6 +92,14 @@ public sealed class ProbabilityVectorTarget : CalibrationTarget
     /// <returns>The updated value of the parameter.</returns>
     public override float UpdateParameter(float currentValue)
     {
+        var error = _baseRunProbability - _targetProbability;
+        // Allow the user to stop small oscillations
+        if (MathF.Abs(error) < MinimumErrorToStep)
+        {
+            Console.WriteLine($"{Name}: Target was not updated because it was within the minimum error threshold. TargetProbability {_targetProbability}, Current {_baseRunProbability}!");
+            return currentValue;
+        }
+
         // Update the base probability if it is 0 to a very low value
         // But not over the target probability
         var baseProbability = Math.Max(_baseRunProbability, Math.Min(_targetProbability, 0.00000001f));
