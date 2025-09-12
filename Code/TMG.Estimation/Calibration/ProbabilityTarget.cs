@@ -37,6 +37,9 @@ public sealed class ProbabilityTarget : CalibrationTarget
     [RunParameter("Change Weight", 1.0f, "A multiplier for the amount of change to apply.  Lower this if there are multiple targets targeting a similar system to set priorities.")]
     public float ChangeWeight;
 
+    [RunParameter("Minimum Error", 0.0f, "If the error is less than this value the parameter will not be changed.")]
+    public float MinimumErrorToStep = 0.0f;
+
     private float _targetProbability;
 
     private float _baseRunProbability;
@@ -52,6 +55,13 @@ public sealed class ProbabilityTarget : CalibrationTarget
 
     public override float UpdateParameter(float currentValue)
     {
+        var error = _baseRunProbability - _targetProbability;
+        // Allow the user to stop small oscillations
+        if (MathF.Abs(error) < MinimumErrorToStep)
+        {
+            Console.WriteLine($"{Name}: Target was not updated because it was within the minimum error threshold. TargetProbability {_targetProbability}, Current {_baseRunProbability}!");
+            return currentValue;
+        }
         var numerator = _targetProbability * _baseRunProbability - _targetProbability;
         var denominator = _baseRunProbability * _targetProbability - _baseRunProbability;
 
