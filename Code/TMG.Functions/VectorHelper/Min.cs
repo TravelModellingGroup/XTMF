@@ -90,7 +90,7 @@ public static partial class VectorHelper
 
     public static float Min(float[] vector)
     {
-        var ret = float.NegativeInfinity;
+        var ret = float.PositiveInfinity;
         int i = 0;
         if (Vector512.IsHardwareAccelerated)
         {
@@ -114,7 +114,7 @@ public static partial class VectorHelper
                 var firstV = new Vector<float>(vector, i);
                 retV = Vector.Min(retV, firstV);
             }
-            for (int j = 0; j <= Vector<float>.Count; j++)
+            for (int j = 0; j < Vector<float>.Count; j++)
             {
                 ret = MathF.Min(ret, retV[j]);
             }
