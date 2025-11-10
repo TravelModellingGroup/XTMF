@@ -1603,7 +1603,7 @@ public sealed partial class Project : IProject
             var index = param.Parameters.IndexOf(reference);
             if (index >= 0)
             {
-                return current.Parameters.Parameters[index].Name;
+                return current.Parameters.Parameters[index].Name.Replace(".", "\\.");
             }
         }
 
