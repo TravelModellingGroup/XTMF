@@ -37,6 +37,8 @@ using XTMF.Gui.UserControls.Interfaces;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
+using MenuItem = System.Windows.Controls.MenuItem;
+using ContextMenu = System.Windows.Controls.ContextMenu;
 
 namespace XTMF.Gui.UserControls;
 

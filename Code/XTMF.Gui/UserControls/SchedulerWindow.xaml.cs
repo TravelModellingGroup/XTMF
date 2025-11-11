@@ -37,6 +37,7 @@ using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using ListView = System.Windows.Controls.ListView;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
+using MenuItem = System.Windows.Controls.MenuItem;
 using System.Resources;
 using System.Globalization;
 
