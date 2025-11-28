@@ -130,13 +130,15 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
     [SubModelInformation(Required = false, Description = "A model to assign if a person is going to telecommute today.")]
     public ICalculation<ITashaPerson, bool> TelecommutingModel;
 
+    private Dictionary<string, ITashaMode> _modeMap = [];
+
     private IEnumerator<ITashaHousehold> LoadMicrosim()
     {
         var zoneSystem = SetupZoneSystem();
         HashSet<MicrosimHousehold> householdRecords = null;
         Dictionary<int, List<MicrosimPerson>> personsRecords = null;
         Dictionary<(int householdID, int personID), List<MicrosimTrip>> tripRecords = null;
-        Dictionary<(int householdID, int personID, int tripID), MicrosimTripMode> modeRecords = null;
+        Dictionary<(int householdID, int personID, int tripID), List<MicrosimTripMode>> modeRecords = null;
         // Load the microsim in parallel
         Parallel.Invoke(
         () => householdRecords = MicrosimHousehold.LoadHouseholds(this, HouseholdFile),
@@ -161,7 +163,12 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
         () => DriverLicenseModel?.Load(),
         () => TelecommutingModel?.Load()
         );
-
+        // Create the mode map
+        _modeMap.Clear();
+        foreach (var mode in Root.AllModes)
+        {
+            _modeMap[mode.ModeName] = mode;
+        }
         // Load in the households, in order, and send them off for processing
         foreach (var household in householdRecords.OrderBy(h => h.HouseholdID))
         {
@@ -239,14 +246,28 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
     [RunParameter("Mode Attribute", "", "An optional attribute name to give to the first observed mode.")]
     public string ModeAttribute;
 
-    private ITrip ConstructTrip(MicrosimTrip trip, TripChain tc, SparseArray<IZone> zoneSystem, MicrosimTripMode modeData)
+    private ITrip ConstructTrip(MicrosimTrip trip, TripChain tc, SparseArray<IZone> zoneSystem, List<MicrosimTripMode> modeData)
     {
         IZone origin = GetZone(zoneSystem, trip.OriginZone, "origin");
         IZone destination = GetZone(zoneSystem, trip.DestinationZone, "destination");
         Activity purpose = GetTripPurpose(trip.DestinationPurpose);
         if (IsHouseholdActivityPurpose(trip.DestinationPurpose))
         {
-            Time startTime = Time.FromMinutes(modeData.DepartureTime);
+            float average = 0f;
+            int totalWeight = 0;
+            int maxWeightIndex = 0;
+            for(int i = 0; i < modeData.Count; i++)
+            {
+                var mode = modeData[i];
+                average += mode.DepartureTime * mode.Weight;
+                totalWeight += mode.Weight;
+                if(mode.Weight > modeData[maxWeightIndex].Weight)
+                {
+                    maxWeightIndex = i;
+                }
+            }
+            average /= totalWeight;
+            Time startTime = Time.FromMinutes(average);
             var ret = HouseholdPurposeTrip.GetTrip(HouseholdIterations);
             ret.OriginalZone = origin;
             ret.DestinationZone = destination;
@@ -256,13 +277,36 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             ret.TripNumber = trip.TripID;
             if (!string.IsNullOrWhiteSpace(ModeAttribute))
             {
-                ret.Attach(ModeAttribute, modeData.Mode);
+                ret.Attach(ModeAttribute, modeData[maxWeightIndex].Mode);
             }
+            int pos = 0;
+            for (int i = 0; i < modeData.Count; i++)
+            {
+                for(int j = 0; j < modeData[i].Weight; j++)
+                {
+                    ret.ModesChosen[pos++] = _modeMap[modeData[i].Mode];
+                }
+            }
+            ret.Mode = _modeMap[modeData[maxWeightIndex].Mode];
             return ret;
         }
         else
         {
-            Time startTime = Time.FromMinutes(modeData.ArrivalTime);
+            float average = 0f;
+            int totalWeight = 0;
+            int maxWeightIndex = 0;
+            for (int i = 0; i < modeData.Count; i++)
+            {
+                var mode = modeData[i];
+                average += mode.ArrivalTime * mode.Weight;
+                totalWeight += mode.Weight;
+                if (mode.Weight > modeData[maxWeightIndex].Weight)
+                {
+                    maxWeightIndex = i;
+                }
+            }
+            average /= totalWeight;
+            Time startTime = Time.FromMinutes(average);
             var ret = ActivityPurposeTrip.GetTrip(HouseholdIterations);
             ret.OriginalZone = origin;
             ret.DestinationZone = destination;
@@ -272,8 +316,17 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             ret.TripNumber = trip.TripID;
             if (!string.IsNullOrWhiteSpace(ModeAttribute))
             {
-                ret.Attach(ModeAttribute, modeData.Mode);
+                ret.Attach(ModeAttribute, modeData[maxWeightIndex].Mode);
             }
+            int pos = 0;
+            for (int i = 0; i < modeData.Count; i++)
+            {
+                for (int j = 0; j < modeData[i].Weight; j++)
+                {
+                    ret.ModesChosen[pos++] = _modeMap[modeData[i].Mode];
+                }
+            }
+            ret.Mode = _modeMap[modeData[maxWeightIndex].Mode];
             return ret;
         }
     }
@@ -554,6 +607,7 @@ public class LoadHouseholdsFromMicrosim : IDataLoader<ITashaHousehold>, IDisposa
             error = $"In {Name} you must specify the attribute to store the telecommuter choice to when using the telecommuting model!";
             return false;
         }
+        
         return true;
     }
 }

@@ -21,6 +21,8 @@ using System.IO;
 using XTMF;
 using TMG.Input;
 using Datastructure;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace TMG.Tasha.MicrosimLoader;
 
@@ -46,15 +48,20 @@ internal sealed class MicrosimTripMode
     /// </summary>
     internal readonly string Mode;
     /// <summary>
-    /// The start time of the trip.
+    /// The start time of the trip in minutes from midnight.
     /// </summary>
     internal readonly float DepartureTime;
     /// <summary>
-    /// The end time of the trip.
+    /// The end time of the trip in minutes from midnight.
     /// </summary>
     internal readonly float ArrivalTime;
 
-    private MicrosimTripMode(int householdID, int personID, int tripID, string mode, float departureTime, float arrivalTime)
+    /// <summary>
+    /// The number of times that this mode choice was observed in the data.
+    /// </summary>
+    internal readonly int Weight;
+
+    private MicrosimTripMode(int householdID, int personID, int tripID, string mode, float departureTime, float arrivalTime, int weight)
     {
         HouseholdID = householdID;
         PersonID = personID;
@@ -62,6 +69,7 @@ internal sealed class MicrosimTripMode
         Mode = mode;
         DepartureTime = departureTime;
         ArrivalTime = arrivalTime;
+        Weight = weight;
     }
 
     /// <summary>
@@ -70,14 +78,14 @@ internal sealed class MicrosimTripMode
     /// <param name="callingModule">The module invoking the call</param>
     /// <param name="tripFile">The location of the trips file to load.</param>
     /// <returns>A dictionary of all of the loaded trips indexed by the combination of the household, person, trip, and mode ids.</returns>
-    internal static Dictionary<(int householdID, int personID, int tripID), MicrosimTripMode> LoadModes(IModule callingModule, FileLocation modesFile)
+    internal static Dictionary<(int householdID, int personID, int tripID), List<MicrosimTripMode>> LoadModes(IModule callingModule, FileLocation modesFile)
     {
         var fileInfo = new FileInfo(modesFile.GetFilePath());
         if (!fileInfo.Exists)
         {
             throw new XTMFRuntimeException(callingModule, $"The file \"{fileInfo.FullName}\" does not exist!");
         }
-        var ret = new Dictionary<(int householdID, int personID, int tripID), MicrosimTripMode>(10000000);
+        var ret = new Dictionary<(int householdID, int personID, int tripID), List<MicrosimTripMode>>(10000000);
         using (var reader = new CsvReader(fileInfo))
         {
             // burn the header
@@ -92,11 +100,15 @@ internal sealed class MicrosimTripMode
                     reader.Get(out string mode, 3);
                     reader.Get(out float departureTime, 4);
                     reader.Get(out float arrivalTime, 5);
-                    // We only need to get 1 of these records
-                    if (!ret.ContainsKey((householdID, personID, tripID)))
+                    reader.Get(out int weight, 6);
+
+                    // Use unsafe code to either get the record or add the default value if it doesn't exist
+                    ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(ret, (householdID, personID, tripID), out bool success);
+                    if(!success)
                     {
-                        ret[(householdID, personID, tripID)] = new MicrosimTripMode(householdID, personID, tripID, mode, departureTime, arrivalTime);
+                        list = new List<MicrosimTripMode>(4);
                     }
+                    list.Add(new(householdID, personID, tripID, mode, departureTime, arrivalTime, weight));
                 }
             }
         }
