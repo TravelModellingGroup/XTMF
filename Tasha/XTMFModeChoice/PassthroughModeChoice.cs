@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Threading.Tasks;
 using Tasha.Common;
 using XTMF;
 
@@ -42,9 +43,19 @@ public sealed class PassthroughModeChoice : ITashaModeChoice
 
     public void IterationStarted(int iteration, int totalIterations)
     {
-        foreach (var module in PostHouseholdIteration)
+        if (ParallelHouseholdIteration)
         {
-            module.IterationStarting(iteration, totalIterations);
+            Parallel.ForEach(PostHouseholdIteration, module =>
+            {
+                module.IterationStarting(iteration, totalIterations);
+            });
+        }
+        else
+        {
+            foreach (var module in PostHouseholdIteration)
+            {
+                module.IterationStarting(iteration, totalIterations);
+            }
         }
     }
 
@@ -88,9 +99,19 @@ public sealed class PassthroughModeChoice : ITashaModeChoice
 
     public void IterationFinished(int iteration, int totalIterations)
     {
-        foreach (var module in PostHouseholdIteration)
+        if (ParallelHouseholdIteration)
         {
-            module.IterationFinished(iteration, totalIterations);
+            Parallel.ForEach(PostHouseholdIteration, module =>
+            {
+                module.IterationFinished(iteration, totalIterations);
+            });
+        }
+        else
+        {
+            foreach (var module in PostHouseholdIteration)
+            {
+                module.IterationFinished(iteration, totalIterations);
+            }
         }
     }
 
