@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2025 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -73,13 +73,16 @@ public class ComputeStationCapacityFactor : IPostIteration
 
         [SubModelInformation(Required = true, Description = "The location of the demand matrix to process. (.mtx file format)")]
         public FileLocation DemandMatrix;
-
+        
         [SubModelInformation(Required = true, Description = "The location to save the new Capacity Factors for each station.")]
         public FileLocation CapacityFactorOutput;
 
+        [RunParameter("Peak Hour Factor", 1.0f, "A factor to counteract demand matrices that have previously been factored into peak-hour matrices.")]
+        public float PeakHourFactor;
+
         private float[] CapacityFactors;
 
-        internal void Execute(int iteration)
+        internal void Execute(int iteration, float[] previousIterationStationCounts)
         {
             BinaryHelpers.ExecuteReader(this, (reader) =>
             {
@@ -87,7 +90,7 @@ public class ComputeStationCapacityFactor : IPostIteration
                 switch (matrix.Type)
                 {
                     case EmmeMatrix.DataType.Float:
-                        ProcessData(matrix.FloatData, iteration);
+                        ProcessData(matrix.FloatData, iteration, previousIterationStationCounts);
                         break;
                     default:
                         throw new XTMFRuntimeException(this, "In '" + Name + "' the data type for the file '" + DemandMatrix + "' was not float!");
@@ -95,7 +98,7 @@ public class ComputeStationCapacityFactor : IPostIteration
             }, DemandMatrix);
         }
 
-        private void ProcessData(float[] autoTripMatrix, int iteration)
+        private void ProcessData(float[] autoTripMatrix, int iteration, float[] previousIterationStationCounts)
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             int[] zoneIndexForStation = Parent.AccessZoneIndexes;
@@ -106,9 +109,12 @@ public class ComputeStationCapacityFactor : IPostIteration
                 (i, state, threadLocalStationAccessCounts) =>
                 {
                     var iOffset = i * zones.Length;
+                    var invPHF = 1.0f / PeakHourFactor;
                     for (int j = 0; j < zoneIndexForStation.Length; j++)
                     {
-                        threadLocalStationAccessCounts[j] += autoTripMatrix[iOffset + zoneIndexForStation[j]];
+                        var inbound = autoTripMatrix[iOffset + zoneIndexForStation[j]];
+                        var outbound = Parent.CascadingDemand ? autoTripMatrix[zoneIndexForStation[j] * zones.Length + i] : 0.0f;
+                        threadLocalStationAccessCounts[j] += invPHF * (inbound - outbound);
                     }
                     return threadLocalStationAccessCounts;
                 },
@@ -118,10 +124,12 @@ public class ComputeStationCapacityFactor : IPostIteration
                     {
                         for (int i = 0; i < accessStationCounts.Length; i++)
                         {
-                            accessStationCounts[i] += threadLocalAccessStationCounts[i];
+                            accessStationCounts[i] += previousIterationStationCounts[i] + threadLocalAccessStationCounts[i];
                         }
                     }
                 });
+            // Copy the updated access counts.
+            Array.Copy(accessStationCounts, previousIterationStationCounts, accessStationCounts.Length);
             var capacity = Parent.Capacity.GetFlatData();
             if (CapacityFactors == null || iteration == 0)
             {
@@ -230,6 +238,9 @@ public class ComputeStationCapacityFactor : IPostIteration
     [SubModelInformation(Required = false, Description = "Used to process each time period.")]
     public TimePeriod[] TimePeriods;
 
+    [RunParameter("Enable cascading demand", false, "Allow the demand from one time period to influence the next time period. Leave false for model systems before XTMF 1.15.")]
+    public bool CascadingDemand;
+
     public void Execute(int iterationNumber, int totalIterations)
     {
         // if we are 
@@ -238,11 +249,16 @@ public class ComputeStationCapacityFactor : IPostIteration
             LoadStationCapacity();
             LoadAccessZones();
         }
-        // compute everything in parallel
-        Parallel.ForEach(TimePeriods, (period) =>
+        // Process each time period
+        float[] autoCount = new float[AccessZoneIndexes.Length];
+        foreach(var period in TimePeriods)
         {
-            period.Execute(iterationNumber);
-        });
+            period.Execute(iterationNumber, autoCount);
+            if(!CascadingDemand)
+            {
+                Array.Clear(autoCount, 0, autoCount.Length);
+            }
+        }
     }
 
     public void Load(IConfiguration config, int totalIterations)
