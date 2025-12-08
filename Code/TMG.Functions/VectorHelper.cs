@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -82,68 +83,54 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Sum(float[] array, int startIndex, int length)
     {
-        if (Vector512.IsHardwareAccelerated)
+        ref var rf = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(array), startIndex);
+        nuint i = 0;
+        float acc = 0.0f;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector512<float>.Zero;
-            var acc2 = Vector512<float>.Zero;
-            var acc3 = Vector512<float>.Zero;
-            int endIndex = (startIndex + length);
-            // copy everything we can do inside of a vector
-            int i = startIndex;
-            for (; i <= (endIndex - (Vector512<float>.Count * 3)); i += (Vector512<float>.Count * 3))
+            Vector512<float> acc1 = Vector512<float>.Zero;
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
             {
-                var f = Vector512.LoadUnsafe(ref array[i]);
-                var s = Vector512.LoadUnsafe(ref array[i + Vector512<float>.Count]);
-                var t = Vector512.LoadUnsafe(ref array[i + Vector512<float>.Count * 2]);
-                acc += f;
-                acc2 += s;
-                acc3 += t;
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                acc1 += f;
             }
-            // copy the remainder
-            for (; i < endIndex; i++)
+            acc += Vector512.Sum(acc1);
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                remainderSum += array[i];
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                acc += Vector256.Sum(f);
+                i += (nuint)Vector256<float>.Count;
             }
-            acc = acc + acc2 + acc3;
-            return remainderSum + Vector512.Sum(acc);
         }
-        else if (Vector.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector<float>.Zero;
-            var acc2 = Vector<float>.Zero;
-            var acc3 = Vector<float>.Zero;
-            int endIndex = startIndex + length;
-            // copy everything we can do inside of a vector
-            int i = startIndex;
-            for (; i <= endIndex - (Vector<float>.Count * 3); i += (Vector<float>.Count * 3))
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> acc1 = Vector256<float>.Zero;
+            Vector256<float> acc2 = Vector256<float>.Zero;
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
             {
-                var f = new Vector<float>(array, i);
-                var s = new Vector<float>(array, i + Vector<float>.Count);
-                var t = new Vector<float>(array, i + Vector<float>.Count * 2);
-                acc += f;
-                acc2 += s;
-                acc3 += t;
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);                
+                acc1 += f;
+                acc2 += f2;
             }
-            // copy the remainder
-            for (; i < endIndex; i++)
+            acc += Vector256.Sum(acc1 + acc2);
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                remainderSum += array[i];
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                acc += Vector256.Sum(f);
+                i += (nuint)Vector256<float>.Count;
             }
-            acc = acc + acc2 + acc3;
-            return remainderSum + Sum(ref acc);
         }
-        else
+        // Add the remainder
+        for (; i < (nuint)length; i++)
         {
-            var sum = 0.0f;
-            int end = startIndex + length;
-            for (int i = startIndex; i < end; i++)
-            {
-                sum += array[i];
-            }
-            return sum;
+            acc += Unsafe.Add(ref rf, i);
         }
+        return acc;
     }
 
     /// <summary>
@@ -158,89 +145,66 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float AbsDiffAverage(float[] first, int firstIndex, float[] second, int secondIndex, int length)
     {
-        if (Vector512.IsHardwareAccelerated)
+        ref var rf = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(first), firstIndex);
+        ref var rs = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(second), secondIndex);
+        nuint i = 0;
+        float acc = 0.0f;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector512<float>.Zero;
-            var acc2 = Vector512<float>.Zero;
-            int i = firstIndex;
-            if ((firstIndex | secondIndex) == 0)
+            Vector512<float> acc1 = Vector512<float>.Zero;
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
             {
-                int highestForVector = length - (Vector512<float>.Count * 2);
-                for (; i <= highestForVector; i += Vector512<float>.Count * 2)
-                {
-                    var f1 = Vector512.LoadUnsafe(ref first[i]);
-                    var s1 = Vector512.LoadUnsafe(ref second[i]);
-                    var f2 = Vector512.LoadUnsafe(ref first[i + Vector512<float>.Count]);
-                    var s2 = Vector512.LoadUnsafe(ref second[i + Vector512<float>.Count]);
-                    acc += Vector512.Abs(f1 - s1);
-                    acc2 += Vector512.Abs(f2 - s2);
-                }
-                acc += acc2;
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                var s = Vector512.LoadUnsafe(ref rs, i);
+                var result = Vector512.Abs(f - s);
+                acc1 += result;
             }
-            else
+            acc += Vector512.Sum(acc1);
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                int highestForVector = length - Vector512<float>.Count + firstIndex;
-                int s = secondIndex;
-                for (; i <= highestForVector; i += Vector512<float>.Count)
-                {
-                    acc += Vector512.Abs(Vector512.LoadUnsafe(ref first[i]) - Vector512.LoadUnsafe(ref second[s]));
-                    s += Vector512<float>.Count;
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var result = Vector256.Abs(f - s);
+                acc += Vector256.Sum(result);
+                i += (nuint)Vector256<float>.Count;
             }
-            // copy the remainder
-            for (; i < length; i++)
-            {
-                remainderSum += Math.Abs(first[i + firstIndex] - second[i + secondIndex]);
-            }
-            return (remainderSum + Vector512.Sum(acc)) / length;
         }
-        else if (Vector.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector<float>.Zero;
-            var acc2 = Vector<float>.Zero;
-            int i = firstIndex;
-            if ((firstIndex | secondIndex) == 0)
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> acc1 = Vector256<float>.Zero;
+            Vector256<float> acc2 = Vector256<float>.Zero;
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
             {
-                int highestForVector = length - (Vector<float>.Count * 2);
-                for (; i <= highestForVector; i += Vector<float>.Count * 2)
-                {
-                    var f1 = new Vector<float>(first, i);
-                    var s1 = new Vector<float>(second, i);
-                    var f2 = new Vector<float>(first, i + Vector<float>.Count);
-                    var s2 = new Vector<float>(second, i + Vector<float>.Count);
-                    acc += Vector.Abs(f1 - s1);
-                    acc2 += Vector.Abs(f2 - s2);
-                }
-                acc += acc2;
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
+                var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
+                var result1 = Vector256.Abs(f - s);
+                var result2 = Vector256.Abs(f2 - s2);
+                acc1 += result1;
+                acc2 += result2;
             }
-            else
+            acc += Vector256.Sum(acc1 + acc2);
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                int highestForVector = length - Vector<float>.Count + firstIndex;
-                int s = secondIndex;
-                for (; i <= highestForVector; i += Vector<float>.Count)
-                {
-                    acc += Vector.Abs(new Vector<float>(first, i) - new Vector<float>(second, s));
-                    s += Vector<float>.Count;
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var result = Vector256.Abs(f - s);
+                acc += Vector256.Sum(result);
+                i += (nuint)Vector256<float>.Count;
             }
-            // copy the remainder
-            for (; i < length; i++)
-            {
-                remainderSum += Math.Abs(first[i + firstIndex] - second[i + secondIndex]);
-            }
-            return (remainderSum + Sum(ref acc)) / length;
         }
-        else
+        // Add the remainder
+        for (; i < (nuint)length; i++)
         {
-            float diff = 0.0f;
-            for (int i = 0; i < length; i++)
-            {
-                diff += Math.Abs(first[firstIndex + i] - second[secondIndex + i]);
-            }
-            return diff / length;
+            var result = MathF.Abs(Unsafe.Add(ref rf, i) - Unsafe.Add(ref rs, i));
+            acc += result;
         }
+        return acc / length;
     }
 
     /// <summary>
@@ -274,7 +238,7 @@ public static partial class VectorHelper
                 for (int f = 0; f <= highestForVector; f += Vector512<float>.Count)
                 {
                     vectorMax = Vector512.Max(Vector512.Abs(Vector512.LoadUnsafe(ref first[f]) - Vector512.LoadUnsafe(ref second[s])), vectorMax);
-                    s += Vector<float>.Count;
+                    s += Vector512<float>.Count;
                 }
             }
             // copy the remainder
@@ -540,99 +504,73 @@ public static partial class VectorHelper
     public static float MultiplyAndSum(float[] destination, int destIndex, float[] first, int firstIndex,
         float[] second, int secondIndex, int length)
     {
-        if (Vector512.IsHardwareAccelerated)
+        ref var rd = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(destination), destIndex);
+        ref var rf = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(first), firstIndex);
+        ref var rs = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(second), secondIndex);
+        nuint i = 0;
+        float acc = 0.0f;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector512<float>.Zero;
-            if ((destIndex | firstIndex | secondIndex) == 0)
+            Vector512<float> acc1 = Vector512<float>.Zero;
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var f = Vector512.LoadUnsafe(ref first[i]);
-                    var s = Vector512.LoadUnsafe(ref second[i]);
-                    var local = (f * s);
-                    acc += local;
-                    Vector512.StoreUnsafe(local, ref destination[i]);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += destination[i] = first[i] * second[i];
-                }
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                var s = Vector512.LoadUnsafe(ref rs, i);
+                var result = (f * s);
+                Vector512.StoreUnsafe(result, ref rd, i);
+                acc1 += result;
             }
-            else
+            acc += Vector512.Sum(acc1);
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
-                    var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
-                    var local = (f * s);
-                    acc += local;
-                    Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var result = f * s;
+                Vector256.StoreUnsafe(result, ref rd, i);
+                acc += Vector256.Sum(result);
+                i += (nuint)Vector256<float>.Count;
             }
-            return remainderSum + Vector512.Sum(acc);
         }
-        else if (Vector.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector<float>.Zero;
-            if ((destIndex | firstIndex | secondIndex) == 0)
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> acc1 = Vector256<float>.Zero;
+            Vector256<float> acc2 = Vector256<float>.Zero;
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var f = new Vector<float>(first, i);
-                    var s = new Vector<float>(second, i);
-                    var local = (f * s);
-                    acc += local;
-                    local.CopyTo(destination, i);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += destination[i] = first[i] * second[i];
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
+                var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
+                var result1 = f * s;
+                var result2 = f2 * s2;
+                acc1 += result1;
+                acc2 += result2;
+                Vector256.StoreUnsafe(result1, ref rd, i);
+                Vector256.StoreUnsafe(result2, ref rd, i + (nuint)Vector256<float>.Count);
             }
-            else
+            acc += Vector256.Sum(acc1 + acc2);
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var f = new Vector<float>(first, i + firstIndex);
-                    var s = new Vector<float>(second, i + secondIndex);
-                    var local = (f * s);
-                    acc += local;
-                    local.CopyTo(destination, i + destIndex);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var result = f * s;
+                acc += Vector256.Sum(result);
+                Vector256.StoreUnsafe(result, ref rd, i);
+                i += (nuint)Vector256<float>.Count;
             }
-            return remainderSum + Sum(ref acc);
         }
-        else
+        // Add the remainder
+        for (; i < (nuint)length; i++)
         {
-            float remainderSum = 0.0f;
-            for (int i = 0; i < length; i++)
-            {
-                remainderSum += destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
-            }
-            return remainderSum;
+            var result = Unsafe.Add(ref rf, i) * Unsafe.Add(ref rs, i);
+            Unsafe.Add(ref rd, i) = result;
+            acc += result;
         }
+        return acc;
     }
 
     /// <summary>
@@ -647,98 +585,61 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float MultiplyAndSum(float[] first, int firstIndex, float[] second, int secondIndex, int length)
     {
-        if (Vector512.IsHardwareAccelerated)
+        ref var rf = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(first), firstIndex);
+        ref var rs = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(second), secondIndex);
+        nuint i = 0;
+        float acc = 0.0f;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector512<float>.Zero;
-            var acc2 = Vector512<float>.Zero;
-            if ((firstIndex | secondIndex) == 0)
-            {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - (Vector512<float>.Count * 2); i += (Vector512<float>.Count * 2))
-                {
-                    var f = Vector512.LoadUnsafe(ref first[i]);
-                    var s = Vector512.LoadUnsafe(ref second[i]);
-                    var f2 = Vector512.LoadUnsafe(ref first[i + Vector<float>.Count]);
-                    var s2 = Vector512.LoadUnsafe(ref second[i + Vector<float>.Count]);
 
-                    acc += (f * s);
-                    acc2 += (f2 * s2);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += first[i] * second[i];
-                }
-                acc += acc2;
-            }
-            else
+            Vector512<float> acc1 = Vector512<float>.Zero;
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    acc += (Vector512.LoadUnsafe(ref first[i + firstIndex]) * Vector512.LoadUnsafe(ref second[i + secondIndex]));
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += first[i + firstIndex] * second[i + secondIndex];
-                }
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                var s = Vector512.LoadUnsafe(ref rs, i);
+                acc1 += (f * s);
             }
-            return remainderSum + Vector512.Sum(acc);
+            acc += Vector512.Sum(acc1);
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
+            {
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                acc += Vector256.Sum(f * s);
+                i += (nuint)Vector256<float>.Count;
+            }
         }
-        else if (Vector.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector<float>.Zero;
-            var acc2 = Vector<float>.Zero;
-            if ((firstIndex | secondIndex) == 0)
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> acc1 = Vector256<float>.Zero;
+            Vector256<float> acc2 = Vector256<float>.Zero;
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - (Vector<float>.Count * 2); i += (Vector<float>.Count * 2))
-                {
-                    var f = new Vector<float>(first, i);
-                    var s = new Vector<float>(second, i);
-                    var f2 = new Vector<float>(first, i + Vector<float>.Count);
-                    var s2 = new Vector<float>(second, i + Vector<float>.Count);
-                    acc += (f * s);
-                    acc2 += (f2 * s2);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += first[i] * second[i];
-                }
-                acc += acc2;
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
+                var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
+                acc1 += (f * s);
+                acc2 += (f2 * s2);
             }
-            else
+            acc += Vector256.Sum(acc1 + acc2);
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    acc += (new Vector<float>(first, i + firstIndex) * new Vector<float>(second, i + secondIndex));
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += first[i + firstIndex] * second[i + secondIndex];
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                acc += Vector256.Sum(f * s);
+                i += (nuint)Vector256<float>.Count;
             }
-            return remainderSum + Sum(ref acc);
         }
-        else
+        // Add the remainder
+        for (; i < (nuint)length; i++)
         {
-            var remainderSum = 0.0f;
-            for (int i = 0; i < length; i++)
-            {
-                remainderSum += first[i + firstIndex] * second[i + secondIndex];
-            }
-            return remainderSum;
+            acc += Unsafe.Add(ref rf, i) * Unsafe.Add(ref rs, i);
         }
+        return acc;
     }
 
     /// <summary>
@@ -749,23 +650,13 @@ public static partial class VectorHelper
     /// <returns>The sum of the products of the two arrays.</returns>
     public static float MultiplyAndSum(float[][] first, float[][] second)
     {
-        object lockObject = new();
-        float ret = 0.0f;
+        float[] rowResult = new float [first.Length];
         Parallel.For(0, first.Length,
-            () => 0f,
-            (i, _, local) =>
+            (i) =>
             {
-                local += MultiplyAndSum(first[i], 0, second[i], 0, first.Length);
-                return local;
-            },
-            (local) =>
-            {
-                lock (lockObject)
-                {
-                    ret += local;
-                }
+                rowResult[i] = MultiplyAndSum(first[i], 0, second[i], 0, first.Length);
             });
-        return ret;
+        return Sum(rowResult, 0, rowResult.Length);
     }
 
     /// <summary>
@@ -783,104 +674,66 @@ public static partial class VectorHelper
     public static float Multiply3AndSum(float[] first, int firstIndex, float[] second, int secondIndex,
         float[] third, int thirdIndex, int length)
     {
-        if (Vector512.IsHardwareAccelerated)
+        ref var rf = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(first), firstIndex);
+        ref var rs = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(second), secondIndex);
+        ref var rt = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(third), thirdIndex);
+        nuint i = 0;
+        float acc = 0.0f;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector512<float>.Zero;
-            var acc2 = Vector512<float>.Zero;
-            if ((firstIndex | secondIndex | thirdIndex) == 0)
+            Vector512<float> acc1 = Vector512<float>.Zero;
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
             {
-                int i = 0;
-                // copy everything we can do inside of a vector
-                for (; i <= length - (Vector512<float>.Count * 2); i += (Vector512<float>.Count * 2))
-                {
-                    var f = Vector512.LoadUnsafe(ref first[i]);
-                    var s = Vector512.LoadUnsafe(ref second[i]);
-                    var t = Vector512.LoadUnsafe(ref third[i]);
-                    var f2 = Vector512.LoadUnsafe(ref first[i + Vector512<float>.Count]);
-                    var s2 = Vector512.LoadUnsafe(ref second[i + Vector512<float>.Count]);
-                    var t2 = Vector512.LoadUnsafe(ref third[i + Vector512<float>.Count]);
-                    acc += (f * s * t);
-                    acc2 += (f2 * s2 * t2);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += first[i] * second[i] * third[i];
-                }
-                acc += acc2;
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                var s = Vector512.LoadUnsafe(ref rs, i);
+                var t = Vector512.LoadUnsafe(ref rt, i);
+                acc1 += (f * s * t);
             }
-            else
+            acc += Vector512.Sum(acc1);
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
-                    var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
-                    var t = Vector512.LoadUnsafe(ref third[i + thirdIndex]);
-                    var local = (f * s * t);
-                    acc += local;
-                }
-                // copy the remainder
-                for (int i = length - (length % Vector512<float>.Count); i < length; i++)
-                {
-                    remainderSum += first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex];
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var t = Vector256.LoadUnsafe(ref rt, i);
+                acc += Vector256.Sum(f * s * t);
+                i += (nuint)Vector256<float>.Count;
             }
-            return remainderSum + Vector512.Sum(acc);
         }
-        else if (Vector.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            var remainderSum = 0.0f;
-            var acc = Vector<float>.Zero;
-            var acc2 = Vector<float>.Zero;
-            if ((firstIndex | secondIndex | thirdIndex) == 0)
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> acc1 = Vector256<float>.Zero;
+            Vector256<float> acc2 = Vector256<float>.Zero;
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
             {
-                int i = 0;
-                // copy everything we can do inside of a vector
-                for (; i <= length - (Vector<float>.Count * 2); i += (Vector<float>.Count * 2))
-                {
-                    var f = new Vector<float>(first, i);
-                    var s = new Vector<float>(second, i);
-                    var t = new Vector<float>(third, i);
-                    var f2 = new Vector<float>(first, i + Vector<float>.Count);
-                    var s2 = new Vector<float>(second, i + Vector<float>.Count);
-                    var t2 = new Vector<float>(third, i + Vector<float>.Count);
-                    acc += (f * s * t);
-                    acc2 += (f2 * s2 * t2);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    remainderSum += first[i] * second[i] * third[i];
-                }
-                acc += acc2;
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var t = Vector256.LoadUnsafe(ref rt, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
+                var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
+                var t2 = Vector256.LoadUnsafe(ref rt, i + (nuint)Vector256<float>.Count);
+                acc1 += (f * s * t);
+                acc2 += (f2 * s2 * t2);
             }
-            else
+            acc += Vector256.Sum(acc1 + acc2);
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var local = (new Vector<float>(first, i + firstIndex) * new Vector<float>(second, i + secondIndex) * new Vector<float>(third, i + thirdIndex));
-                    acc += local;
-                }
-                // copy the remainder
-                for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                {
-                    remainderSum += first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex];
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var t = Vector256.LoadUnsafe(ref rt, i);
+                acc += Vector256.Sum(f * s * t);
+                i += (nuint)Vector256<float>.Count;
             }
-            return remainderSum + Sum(ref acc);
         }
-        else
+        // Add the remainder
+        for (; i < (nuint)length; i++)
         {
-            var remainderSum = 0.0f;
-            for (int i = 0; i < length; i++)
-            {
-                remainderSum += first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex];
-            }
-            return remainderSum;
+            acc += Unsafe.Add(ref rf, i) * Unsafe.Add(ref rs, i) * Unsafe.Add(ref rt, i);
         }
+        return acc;
     }
 
     /// <summary>
@@ -901,82 +754,73 @@ public static partial class VectorHelper
     public static void Multiply2Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
         float[] second, int secondIndex, float scalar, float[] columnSum, int columnIndex, int length)
     {
-        if (Vector512.IsHardwareAccelerated)
+        ref var rd = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(destination), destIndex);
+        ref var rf = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(first), firstIndex);
+        ref var rs = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(second), secondIndex);
+        ref var rc = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(columnSum), columnIndex);
+        nuint i = 0;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
-            var scalarV = Vector512.Create(scalar);
-            if ((destIndex | firstIndex | secondIndex | columnIndex) == 0)
+            Vector512<float> t = Vector512.Create(scalar);
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var local = Vector512.LoadUnsafe(ref first[i]) * Vector512.LoadUnsafe(ref second[i]) * scalarV;
-                    Vector512.StoreUnsafe((Vector512.LoadUnsafe(ref columnSum[i]) + local), ref columnSum[i]);
-                    Vector512.StoreUnsafe(local, ref destination[i]);
-                }
-                // copy the remainder
-                for (int i = length - (length % Vector512<float>.Count); i < length; i++)
-                {
-                    columnSum[i] += (destination[i] = first[i] * second[i] * scalar);
-                }
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                var s = Vector512.LoadUnsafe(ref rs, i);
+                var c = Vector512.LoadUnsafe(ref rc, i);
+                Vector512<float> result = (f * s * t);
+                Vector512.StoreUnsafe(result, ref rd, i);
+                Vector512.StoreUnsafe(c + result, ref rc, i);
             }
-            else
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var local = Vector512.LoadUnsafe(ref first[i + firstIndex]) * Vector512.LoadUnsafe(ref second[i + secondIndex]) * scalarV;
-                    Vector512.StoreUnsafe(Vector512.LoadUnsafe(ref columnSum[i + columnIndex]) + local, ref columnSum[i + columnIndex]);
-                    Vector512.StoreUnsafe(local, ref destination[i + destIndex]);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    columnSum[i + columnIndex] += (destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * scalar);
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var c = Vector256.LoadUnsafe(ref rc, i);
+                var result = f * s * t.GetLower();
+                Vector256.StoreUnsafe(result, ref rd, i);
+                Vector256.StoreUnsafe(c + result, ref rc, i);
+                i += (nuint)Vector256<float>.Count;
             }
         }
-        else if (Vector.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            Vector<float> scalarV = new(scalar);
-            if ((destIndex | firstIndex | secondIndex | columnIndex) == 0)
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> t = Vector256.Create(scalar);
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
             {
-                // copy everything we can do inside of a vector
-                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var local = new Vector<float>(first, i) * new Vector<float>(second, i) * scalarV;
-                    (new Vector<float>(columnSum, i) + local).CopyTo(columnSum, i);
-                    local.CopyTo(destination, i);
-                }
-                // copy the remainder
-                for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                {
-                    columnSum[i] += (destination[i] = first[i] * second[i] * scalar);
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
+                var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
+                var c = Vector256.LoadUnsafe(ref rc, i);
+                var c2 = Vector256.LoadUnsafe(ref rc, i + (nuint)Vector256<float>.Count);
+                var result1 = f * s * t;
+                var result2 = f2 * s2 * t;
+                Vector256.StoreUnsafe(result1, ref rd, i);
+                Vector256.StoreUnsafe(result2, ref rd, i + (nuint)Vector256<float>.Count);
+                Vector256.StoreUnsafe(c + result1, ref rc, i);
+                Vector256.StoreUnsafe(c2 + result2, ref rc, i + (nuint)Vector256<float>.Count);
             }
-            else
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                // copy everything we can do inside of a vector
-                int i = 0;
-                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var local = new Vector<float>(first, i + firstIndex) * new Vector<float>(second, i + secondIndex) * scalarV;
-                    (new Vector<float>(columnSum, i + columnIndex) + local).CopyTo(columnSum, i + columnIndex);
-                    local.CopyTo(destination, i + destIndex);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    columnSum[i + columnIndex] += (destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * scalar);
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var c = Vector256.LoadUnsafe(ref rc, i);
+                var result = f * s * t;
+                Vector256.StoreUnsafe(result, ref rd, i);
+                Vector256.StoreUnsafe(c + result, ref rc, i);
+                i += (nuint)Vector256<float>.Count;
             }
         }
-        else
+        // Add the remainder
+        for (; i < (nuint)length; i++)
         {
-            for (int i = 0; i < length; i++)
-            {
-                columnSum[i + columnIndex] += (destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * scalar);
-            }
+            var result = Unsafe.Add(ref rf, i) * Unsafe.Add(ref rs, i) * scalar;
+            Unsafe.Add(ref rd, i) = result;
+            Unsafe.Add(ref rc, i) += result;
         }
     }
 

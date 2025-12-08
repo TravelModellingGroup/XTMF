@@ -20,6 +20,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
@@ -607,24 +608,156 @@ public static partial class VectorHelper
         }       
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="destination"></param>
+    /// <param name="destIndex"></param>
+    /// <param name="first"></param>
+    /// <param name="firstIndex"></param>
+    /// <param name="second"></param>
+    /// <param name="secondIndex"></param>
+    /// <param name="third"></param>
+    /// <param name="thirdIndex"></param>
+    /// <param name="fourth"></param>
+    /// <param name="fourthIndex"></param>
+    /// <param name="length"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex,
+        float[] third, int thirdIndex, float fourth, int length)
+    {
+        int i = 0;
+        if ((destIndex | firstIndex | secondIndex | thirdIndex) == 0)
+        {
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var f4 = Vector512.Create(fourth);
+                // copy everything we can do inside of a vector
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var f = Vector512.LoadUnsafe(ref first[i]);
+                    var s = Vector512.LoadUnsafe(ref second[i]);
+                    var t = Vector512.LoadUnsafe(ref third[i]);
+                    Vector512.StoreUnsafe((f * s) * (t * f4), ref destination[i]);
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                var f4 = Vector.Create(fourth);
+                // copy everything we can do inside of a vector
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = new Vector<float>(first, i);
+                    var s = new Vector<float>(second, i);
+                    var t = new Vector<float>(third, i);
+                    ((f * s) * (t * f4)).CopyTo(destination, i);
+                }
+            }
+            // copy the remainder
+            for (; i < length; i++)
+            {
+                destination[i] = (first[i] * second[i]) * (third[i] * fourth);
+            }
+        }
+        else
+        {
+            if (Vector512.IsHardwareAccelerated)
+            {
+                var f4 = Vector512.Create(fourth);
+                // copy everything we can do inside of a vector
+                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
+                {
+                    var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
+                    var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
+                    var t = Vector512.LoadUnsafe(ref third[i + thirdIndex]);
+                    Vector512.StoreUnsafe((f * s) * (t * f4), ref destination[i + destIndex]);
+                }
+            }
+            else if (Vector.IsHardwareAccelerated)
+            {
+                var f4 = Vector.Create(fourth);
+                // copy everything we can do inside of a vector
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = new Vector<float>(first, i + firstIndex);
+                    var s = new Vector<float>(second, i + secondIndex);
+                    var t = new Vector<float>(third, i + thirdIndex);
+                    ((f * s) * (t * f4)).CopyTo(destination, i + destIndex);
+                }
+            }
+            // copy the remainder
+            for (; i < length; i++)
+            {
+                destination[i + destIndex] = (first[i + firstIndex] * second[i + secondIndex]) * (third[i + thirdIndex] * fourth);
+            }
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static float MultiplyAndSumNoStore(Span<float> first, Span<float> second)
     {
-        // Make sure our data is of the right size
-        if (first.Length != second.Length) ThrowVectorsMustBeSameSize();
-        var remainder = first.Length % Vector<float>.Count;
-        var accV = Vector<float>.Zero;
-        var acc = 0.0f;
-        var firstV = first[..^remainder].ReinterpretSpan<float, Vector<float>>();
-        var secondV = second[..^remainder].ReinterpretSpan<float, Vector<float>>();
-        for (int i = 0; i < firstV.Length; i++)
+        if(first.Length != second.Length) ThrowVectorsMustBeSameSize();
+
+        var length = first.Length;
+        ref var rf = ref MemoryMarshal.GetReference(first);
+        ref var rs = ref MemoryMarshal.GetReference(second);
+        nuint i = 0;
+        float acc = 0.0f;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
-            accV += firstV[i] * secondV[i];
+            Vector512<float> acc1 = Vector512<float>.Zero;
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
+            {
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                var s = Vector512.LoadUnsafe(ref rs, i);
+                var result = (f * s);
+                acc1 += result;
+            }
+            acc += Vector512.Sum(acc1);
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
+            {
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var result = f * s;
+                acc += Vector256.Sum(result);
+                i += (nuint)Vector256<float>.Count;
+            }
         }
-        for (int i = first.Length - remainder; i < first.Length; i++)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            acc += first[i] * second[i];
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> acc1 = Vector256<float>.Zero;
+            Vector256<float> acc2 = Vector256<float>.Zero;
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
+            {
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
+                var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
+                var result1 = f * s;
+                var result2 = f2 * s2;
+                acc1 += result1;
+                acc2 += result2;
+            }
+            acc += Vector256.Sum(acc1 + acc2);
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
+            {
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var result = f * s;
+                acc += Vector256.Sum(result);
+                i += (nuint)Vector256<float>.Count;
+            }
         }
-        return Vector.Sum(accV) + acc;
+        // Add the remainder
+        for (; i < (nuint)length; i++)
+        {
+            var result = Unsafe.Add(ref rf, i) * Unsafe.Add(ref rs, i);
+            acc += result;
+        }
+        return acc;
     }
 }
