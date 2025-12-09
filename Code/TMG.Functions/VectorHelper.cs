@@ -1013,80 +1013,62 @@ public static partial class VectorHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Average(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
     {
-        if (Vector512.IsHardwareAccelerated)
+        ref var rd = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(destination), destIndex);
+        ref var rf = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(first), firstIndex);
+        ref var rs = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(second), secondIndex);
+        nuint i = 0;
+        // 16 floats per Vector512, we hard code this here just in case Vector512 is not supported
+        var end = (nuint)(length - 16);
+        if (Vector512.IsHardwareAccelerated && length >= 16)
         {
             Vector512<float> half = Vector512.Create(0.5f);
-            if ((destIndex | firstIndex | secondIndex) == 0)
+            for (; i <= end; i += (nuint)Vector512<float>.Count)
             {
-                int i = 0;
-                for (; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var f = Vector512.LoadUnsafe(ref first[i]);
-                    var s = Vector512.LoadUnsafe(ref second[i]);
-                    Vector512.StoreUnsafe((f + s) * half,
-                        ref destination[i]);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    destination[i] = (first[i] + second[i]) * 0.5f;
-                }
+                var f = Vector512.LoadUnsafe(ref rf, i);
+                var s = Vector512.LoadUnsafe(ref rs, i);
+                Vector512<float> result = (f * half) + (s * half);
+                Vector512.StoreUnsafe(result, ref rd, i);
             }
-            else
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                for (int i = 0; i <= length - Vector512<float>.Count; i += Vector512<float>.Count)
-                {
-                    var f = Vector512.LoadUnsafe(ref first[i + firstIndex]);
-                    var s = Vector512.LoadUnsafe(ref second[i + secondIndex]);
-                    Vector512.StoreUnsafe((f + s) * half,
-                        ref destination[i + destIndex]);
-                }
-                // copy the remainder
-                for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                {
-                    destination[i + destIndex] = (first[i + firstIndex] + second[i + secondIndex]) * 0.5f;
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var half256 = Vector256.Create(0.5f);
+                var result = (f * half256) + (s * half256);
+                Vector256.StoreUnsafe(result, ref rd, i);
+                i += (nuint)Vector256<float>.Count;
             }
         }
-        else if (Vector.IsHardwareAccelerated)
+        else if (Vector256.IsHardwareAccelerated && length >= 16)
         {
-            Vector<float> half = new(0.5f);
-            if ((destIndex | firstIndex | secondIndex) == 0)
+            // Vector256 needs to be doubled to match the same results as Vector512
+            Vector256<float> half = Vector256.Create(0.5f);
+            for (; i <= end; i += (nuint)(Vector256<float>.Count * 2))
             {
-                int i = 0;
-                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var f = new Vector<float>(first, i);
-                    var s = new Vector<float>(second, i);
-                    ((f + s) * half).CopyTo(destination, i);
-                }
-                // copy the remainder
-                for (; i < length; i++)
-                {
-                    destination[i] = (first[i] + second[i]) * 0.5f;
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
+                var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
+                var result1 = (f * half) + (s + half);
+                var result2 = (f2 * half) + (s2 * half);
+                Vector256.StoreUnsafe(result1, ref rd, i);
+                Vector256.StoreUnsafe(result2, ref rd, i + (nuint)Vector256<float>.Count);
             }
-            else
+            // If there is one more Vector256 left, add it in
+            if ((nuint)length - i >= (nuint)Vector256<float>.Count)
             {
-                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                {
-                    var f = new Vector<float>(first, i + firstIndex);
-                    var s = new Vector<float>(second, i + secondIndex);
-                    ((f + s) * half).CopyTo(destination, i + destIndex);
-                }
-                // copy the remainder
-                for (int i = length - (length % Vector<float>.Count); i < length; i++)
-                {
-                    destination[i + destIndex] = (first[i + firstIndex] + second[i + secondIndex]) * 0.5f;
-                }
+                var f = Vector256.LoadUnsafe(ref rf, i);
+                var s = Vector256.LoadUnsafe(ref rs, i);
+                var result = (f * half) + (s * half);
+                Vector256.StoreUnsafe(result, ref rd, i);
+                i += (nuint)Vector256<float>.Count;
             }
         }
-        else
+        // Add the remainder
+        for (; i < (nuint)length; i++)
         {
-            for (int i = 0; i < length; i++)
-            {
-                destination[i + destIndex] = (first[i + firstIndex] + second[i + secondIndex]) * 0.5f;
-            }
+            var result = (Unsafe.Add(ref rf, i) * 0.5f) + (Unsafe.Add(ref rs, i) * 0.5f);
+            Unsafe.Add(ref rd, i) = result;
         }
     }
 
