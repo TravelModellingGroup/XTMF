@@ -98,57 +98,50 @@ public class ComputeStationCapacityFactor : IPostIteration
             }, DemandMatrix);
         }
 
-        private void ProcessData(float[] autoTripMatrix, int iteration, float[] currentStationCount)
+        private void ProcessData(float[] autoTripMatrix, int iteration, float[] currentStationCounts)
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             int[] zoneIndexForStation = Parent.AccessZoneIndexes;
-            // Make a local copy of the station counts for this time period to reduce the number of adds going forward.
-            float[] tempStationCounts = new float[zoneIndexForStation.Length];
             // a fast way of tallying the station counts
-            Parallel.For(0, zones.Length,
-                () => { return new float[zoneIndexForStation.Length]; },
-                (i, state, threadLocalStationAccessCounts) =>
+            Parallel.For(0, zoneIndexForStation.Length,
+                (j) =>
                 {
-                    var iOffset = i * zones.Length;
+                    var jOffset = zoneIndexForStation[j];
                     var invPHF = 1.0f / PeakHourFactor;
-                    for (int j = 0; j < zoneIndexForStation.Length; j++)
+                    var acc = 0.0f;
+                    for (int i = 0; i < zones.Length; i++)
                     {
-                        var inbound = autoTripMatrix[iOffset + zoneIndexForStation[j]];
-                        var outbound = Parent.CascadingDemand ? autoTripMatrix[zoneIndexForStation[j] * zones.Length + i] : 0.0f;
-                        threadLocalStationAccessCounts[j] += invPHF * (inbound - outbound);
+                        var inbound = autoTripMatrix[i * zones.Length + jOffset];
+                        var outbound = Parent.CascadingDemand ? autoTripMatrix[jOffset * zones.Length + i] : 0.0f;
+                        acc += invPHF * (inbound - outbound);
                     }
-                    return threadLocalStationAccessCounts;
-                },
-                threadLocalAccessStationCounts =>
-                {
-                    lock (tempStationCounts)
-                    {
-                        VectorHelper.Add(tempStationCounts, threadLocalAccessStationCounts, tempStationCounts.Length);
-                    }
+                    currentStationCounts[j] += acc;
                 });
-            // Update the station time period counts to include this time period's
-            VectorHelper.Add(currentStationCount, tempStationCounts, currentStationCount.Length);
             var capacity = Parent.Capacity.GetFlatData();
             if (CapacityFactors == null || iteration == 0)
             {
-                CapacityFactors = new float[currentStationCount.Length];
+                CapacityFactors = new float[currentStationCounts.Length];
+                for (int i = 0; i < CapacityFactors.Length; i++)
+                {
+                    CapacityFactors[i] = 0.0f;
+                }
             }
             var previousFraction = iteration > 0 ? 1.0f / (iteration + 1.0f) : 0.0f;
             var currentFraction = iteration > 0 ? iteration / (1.0f + iteration) : 1.0f;
             using var writer = new StreamWriter(CapacityFactorOutput);
             writer.WriteLine("Zone,Factor,Demand,Capacity");
             Span<char> buffer = stackalloc char[32];
-            for (int i = 0; i < currentStationCount.Length; i++)
+            for (int i = 0; i < currentStationCounts.Length; i++)
             {
                 float stationCapacity = capacity[zoneIndexForStation[i]];
-                if (ComputeStationCapacityFactor(previousFraction, currentFraction, currentStationCount[i], stationCapacity, CapacityFactors[i], out float capacityFactor))
+                if (ComputeStationCapacityFactor(previousFraction, currentFraction, currentStationCounts[i], stationCapacity, CapacityFactors[i], out float capacityFactor))
                 {
                     CapacityFactors[i] = capacityFactor;
                     TMG.Functions.Utilities.Write(writer, zones[zoneIndexForStation[i]].ZoneNumber, buffer);
                     writer.Write(',');
                     TMG.Functions.Utilities.Write(writer, capacityFactor, buffer);
                     writer.Write(',');
-                    TMG.Functions.Utilities.Write(writer, currentStationCount[i], buffer);
+                    TMG.Functions.Utilities.Write(writer, currentStationCounts[i], buffer);
                     writer.Write(',');
                     TMG.Functions.Utilities.WriteLine(writer, CapacityMultiplier * stationCapacity, buffer);
                 }
@@ -243,14 +236,14 @@ public class ComputeStationCapacityFactor : IPostIteration
             LoadStationCapacity();
             LoadAccessZones();
         }
-        // The number of vehicles parked at the station after each time period.
-        float[] currentStationCount = new float[AccessZoneIndexes.Length];
+        // Process each time period
+        float[] autoCount = new float[AccessZoneIndexes.Length];
         foreach (var period in TimePeriods)
         {
-            period.Execute(iterationNumber, currentStationCount);
+            period.Execute(iterationNumber, autoCount);
             if (!CascadingDemand)
             {
-                Array.Clear(currentStationCount, 0, currentStationCount.Length);
+                Array.Clear(autoCount, 0, autoCount.Length);
             }
         }
     }

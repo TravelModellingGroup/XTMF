@@ -430,27 +430,33 @@ public sealed class EstimationHost : IEstimationHost, IDisposable
                 toWrite.Append(CultureInfo.InvariantCulture, $"{currentJob.Parameters[i].Current}");
             }
         }
+        int attempts = 0;
         while ( true )
         {
             try
             {
                 if ( HoldOnToResultFile )
                 {
-                    ResultFileWriter ??= new StreamWriter( ResultFile.GetFilePath() );
-                    Write( currentJob, toWrite, ResultFileWriter );
+                    ResultFileWriter ??= new StreamWriter(ResultFile.GetFilePath(), FirstLineToWrite);
+                    Write(currentJob, toWrite, ResultFileWriter);
                 }
                 else
                 {
                     using var writer = new StreamWriter(ResultFile.GetFilePath(), true);
                     Write(currentJob, toWrite, writer);
                 }
+                break;
             }
-            catch
+            catch(IOException e)
             {
                 // let them close the file
-                System.Threading.Thread.Sleep( 10 );
+                System.Threading.Thread.Sleep(10);
+                // allow it to try for 10 seconds
+                if(attempts++ > 1000)
+                {
+                    throw new XTMFRuntimeException(this, e, $"Unable to write to result file after multiple attempts: {e.Message}");
+                }
             }
-            break;
         }
     }
 

@@ -121,8 +121,7 @@ public sealed class GravityModel
     private void VectorProcessFlow(float[] columnTotals, float[][] flatFlows)
     {
         Parallel.For(0, Productions.GetFlatData().Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-            () => new float[columnTotals.Length],
-            (flatOrigin, state, localTotals) =>
+            (flatOrigin) =>
         {
             var flatProductions = Productions.GetFlatData();
             // check to see if there is no production, if not skip this
@@ -139,16 +138,20 @@ public sealed class GravityModel
                     // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
                     sumAf = 0f;
                 }
-                VectorHelper.Multiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAf, localTotals, 0, flatFriction.Length);
+                VectorHelper.Multiply(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAf, flatFriction.Length);
             }
-            return localTotals;
-        },
-        localTotals =>
+        });
+
+        // Now that everything has been computed, sum the columns
+        Parallel.For(0, columnTotals.Length,
+            (flatDest) =>
         {
-            lock (columnTotals)
+            float sum = 0f;
+            for (int i = 0; i < flatFlows.Length; i++)
             {
-                VectorHelper.Add(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
+                sum += flatFlows[i][flatDest];
             }
+            columnTotals[flatDest] = sum;
         });
     }
 }

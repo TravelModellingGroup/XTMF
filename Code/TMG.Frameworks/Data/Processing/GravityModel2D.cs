@@ -132,7 +132,7 @@ public sealed class GravityModel2D : IDataSource<SparseTwinIndex<float>>
             case BalanceToSpatial.Global:
                 var productionTotal = VectorHelper.Sum(flatProduction, 0, flatProduction.Length);
                 var attractionTotal = VectorHelper.Sum(flatAttraction, 0, flatAttraction.Length);
-                var totalAverage = productionTotal + attractionTotal / 2.0f;
+                var totalAverage = productionTotal * 0.5f + attractionTotal * 0.5f;
                 var ratio = totalAverage / attractionTotal;
                 if (float.IsNaN(ratio) || float.IsInfinity(ratio))
                 {
