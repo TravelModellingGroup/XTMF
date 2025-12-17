@@ -102,11 +102,11 @@ public class IntegrateIntoEstimationFramework : IPostHousehold
                     Array.Clear(trip.ModesChosen, 0, trip.ModesChosen.Length);
                     fitness += value;
                 }
-                // chain.Release();
+                chain.Release();
             }
-            // p.Release();
+            p.Release();
         }
-        // household.Release();
+        household.Release();
         return fitness;
     }
 
