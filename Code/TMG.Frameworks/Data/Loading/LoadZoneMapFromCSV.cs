@@ -28,7 +28,7 @@ namespace TMG.Frameworks.Data;
 // ReSharper disable once InconsistentNaming
 public sealed class LoadZoneMapFromCSV : IDataSource<ZoneMap>
 {
-    public bool Loaded => Data == null;
+    public bool Loaded => Data != null;
 
     [SubModelInformation(Required = true, Description = "The location to load the map file from. (Zone#,Mapping#)")]
     public FileLocation MapFileLocation;
