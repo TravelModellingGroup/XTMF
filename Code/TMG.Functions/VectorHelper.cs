@@ -1049,7 +1049,7 @@ public static partial class VectorHelper
                 var s = Vector256.LoadUnsafe(ref rs, i);
                 var f2 = Vector256.LoadUnsafe(ref rf, i + (nuint)Vector256<float>.Count);
                 var s2 = Vector256.LoadUnsafe(ref rs, i + (nuint)Vector256<float>.Count);
-                var result1 = (f * half) + (s + half);
+                var result1 = (f * half) + (s * half);
                 var result2 = (f2 * half) + (s2 * half);
                 Vector256.StoreUnsafe(result1, ref rd, i);
                 Vector256.StoreUnsafe(result2, ref rd, i + (nuint)Vector256<float>.Count);
