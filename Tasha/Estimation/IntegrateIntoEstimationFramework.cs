@@ -21,6 +21,9 @@ using XTMF;
 using Tasha.Common;
 using TMG.Estimation;
 using System.Threading;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Tasha.Estimation;
 
@@ -54,18 +57,20 @@ public class IntegrateIntoEstimationFramework : IPostHousehold
 
     private Lock _writeLock = new();
 
+    ConcurrentBag<double> _fitnessResults = [];
+
     public void Execute(ITashaHousehold household, int iteration)
     {
         var householdFitness = (float)EvaluateHousehold(household);
-        lock (_writeLock)
-        {
-            Fitness += householdFitness;
-        }
+        _fitnessResults.Add(householdFitness);
     }
 
     public void IterationFinished(int iteration)
     {
-
+        Fitness = (float)(from x in _fitnessResults
+                   orderby x ascending
+                   select x).Sum();
+        _fitnessResults.Clear();
     }
 
     public void Load(int maxIterations)
