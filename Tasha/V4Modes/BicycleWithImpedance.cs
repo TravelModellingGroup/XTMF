@@ -36,9 +36,6 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
     [RootModule]
     public ITashaRuntime Root;
 
-    [RunParameter("Constant", 0f, "The constant factor applied for the bicycle mode")]
-    public float Constant;
-
     [RunParameter("MarketFlag", 0f, "Added to the utility if the trip's purpose is market.")]
     public float MarketFlag;
 
@@ -57,23 +54,23 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
     [RunParameter("Max Travel Distance", 12000f, "The largest distance a person is allowed to bike (meters)")]
     public float MaxTravelDistance;
 
-    [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-    public float ProfessionalTimeFactor;
+    [RunParameter("ImpedanceScaleProfessional", 0f, "The TimeFactor applied to the person type.")]
+    public float ImpedanceScaleProfessional;
 
-    [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-    public float GeneralTimeFactor;
+    [RunParameter("ImpedanceScaleGeneral", 0f, "The TimeFactor applied to the person type.")]
+    public float ImpedanceScaleGeneral;
 
-    [RunParameter("SalesTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-    public float SalesTimeFactor;
+    [RunParameter("ImpedanceScaleSales", 0f, "The TimeFactor applied to the person type.")]
+    public float ImpedanceScaleSales;
 
-    [RunParameter("ManufacturingTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-    public float ManufacturingTimeFactor;
+    [RunParameter("ImpedanceScaleManufacturing", 0f, "The TimeFactor applied to the person type.")]
+    public float ImpedanceScaleManufacturing;
 
-    [RunParameter("StudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-    public float StudentTimeFactor;
+    [RunParameter("ImpedanceScaleStudent", 0f, "The TimeFactor applied to the person type.")]
+    public float ImpedanceScaleStudent;
 
-    [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-    public float NonWorkerStudentTimeFactor;
+    [RunParameter("ImpedanceScaleNonWorkerStudent", 0f, "The TimeFactor applied to the person type.")]
+    public float ImpedanceScaleNonWorkerStudent;
 
     [DoNotAutomate]
     public IVehicleType VehicleType = null;
@@ -249,20 +246,10 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
         var periodData = GetData(startTime);
         v += timeFactor * periodData._impedance.GetFlatData()[o][d];
         v += _customUtility?[o][d] ?? 0;
-        if (o == d)
-        {
-            v += IntrazonalConstant;
-        }
-        v += timeFactor * TravelTime(o, d, startTime).ToMinutes();
+        v += o == d ? IntrazonalConstant : 0;
         v += _zonalDestinationUtility[d];
-        if (person.Youth)
-        {
-            v += YouthFlag;
-        }
-        if (person.YoungAdult)
-        {
-            v += YoungAdultFlag;
-        }
+        v += person.Youth ? YouthFlag : 0;
+        v += person.YoungAdult ? YoungAdultFlag : 0;
         v += trip.Purpose switch
         {
             Activity.Market or Activity.JointMarket => MarketFlag,
@@ -296,19 +283,19 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
             {
                 case Occupation.Professional:
                     constant = ProfessionalConstant;
-                    time = ProfessionalTimeFactor;
+                    time = ImpedanceScaleProfessional;
                     return;
                 case Occupation.Office:
                     constant = GeneralConstant;
-                    time = GeneralTimeFactor;
+                    time = ImpedanceScaleGeneral;
                     return;
                 case Occupation.Retail:
                     constant = SalesConstant;
-                    time = SalesTimeFactor;
+                    time = ImpedanceScaleSales;
                     return;
                 case Occupation.Manufacturing:
                     constant = ManufacturingConstant;
-                    time = ManufacturingTimeFactor;
+                    time = ImpedanceScaleManufacturing;
                     return;
             }
         }
@@ -317,7 +304,7 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
             case StudentStatus.FullTime:
             case StudentStatus.PartTime:
                 constant = StudentConstant;
-                time = StudentTimeFactor;
+                time = ImpedanceScaleStudent;
                 return;
         }
         if (person.EmploymentStatus == TTSEmploymentStatus.PartTime)
@@ -326,24 +313,24 @@ public sealed class BicycleWithImpedance : ITashaMode, IIterationSensitive
             {
                 case Occupation.Professional:
                     constant = ProfessionalConstant;
-                    time = ProfessionalTimeFactor;
+                    time = ImpedanceScaleProfessional;
                     return;
                 case Occupation.Office:
                     constant = GeneralConstant;
-                    time = GeneralTimeFactor;
+                    time = ImpedanceScaleGeneral;
                     return;
                 case Occupation.Retail:
                     constant = SalesConstant;
-                    time = SalesTimeFactor;
+                    time = ImpedanceScaleSales;
                     return;
                 case Occupation.Manufacturing:
                     constant = ManufacturingConstant;
-                    time = ManufacturingTimeFactor;
+                    time = ImpedanceScaleManufacturing;
                     return;
             }
         }
         constant = NonWorkerStudentConstant;
-        time = NonWorkerStudentTimeFactor;
+        time = ImpedanceScaleNonWorkerStudent;
     }
 
     /// <summary>
