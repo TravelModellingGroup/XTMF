@@ -27,7 +27,7 @@ using XTMF;
 
 namespace TMG.Estimation;
 
-[ModuleInformation(Description = "This AI computes t-statistics from log likelihood using the Hessian matrix and iteratively refines parameters.")]
+[ModuleInformation(Description = "EXPERIMENTAL: This AI computes t-statistics from log likelihood using the Hessian matrix and iteratively refines parameters.")]
 public sealed class PolishAI : IEstimationAI
 {
     [RootModule]

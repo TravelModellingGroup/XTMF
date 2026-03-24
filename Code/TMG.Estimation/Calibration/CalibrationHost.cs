@@ -97,14 +97,16 @@ public sealed class CalibrationHost : IModelSystemTemplate, IResourceSource
             MaxIterations = 1;
         }
         // Get the initial position from the model system.
-        LoadTargets();
-        _status = () => "Initializing the calibration run.";
-        ParameterSetting[] position = LoadPosition();
+        
+        _status = () => "Initializing the calibration run";
         for (int i = 0; i < PreRun.Length && !_exit; i++)
         {
             PreRun[i].Start();
             Thread.MemoryBarrier();
         }
+        _status = () => "Loading Targets";
+        LoadTargets();
+        ParameterSetting[] position = LoadPosition();
         int iteration = 0;
         _status = () => $"Running calibration iteration {iteration + 1} of {MaxIterations}: {Client?.ToString() ?? String.Empty}" ;
         for (; iteration < MaxIterations && !_exit; iteration++)
