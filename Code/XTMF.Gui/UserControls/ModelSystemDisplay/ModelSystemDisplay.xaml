@@ -691,7 +691,7 @@
 
                         <StackPanel Margin="5 0 5 0" HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Top">
                             <materialDesign:PackIcon Kind="InfoOutline" />
-                            <TextBlock FontSize="11" VerticalAlignment="Stretch" Margin="4 0 0 0"  FontWeight="Normal" >{x:Static this:ModelSystemDisplayLocalization.ModelSystemRequirements}</TextBlock>
+                            <TextBlock FontSize="11" VerticalAlignment="Stretch" Margin="4 0 0 0"  FontWeight="Normal" Text="{x:Static this:ModelSystemDisplayLocalization.ModelSystemRequirements}" />
                         </StackPanel>
 
 
