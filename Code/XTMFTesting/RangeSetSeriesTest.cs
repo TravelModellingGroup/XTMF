@@ -69,7 +69,7 @@ public class RangeSetSeriesTest
     {
         List<RangeSet> tempRange = GenerateTempRange();
         RangeSetSeries target = new( tempRange );
-        Assert.AreEqual( target.Count, 2 );
+        Assert.AreEqual(2, target.Count);
     }
 
     /// <summary>

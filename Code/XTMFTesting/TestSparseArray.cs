@@ -88,7 +88,7 @@ public class TestSparseArray
 
             if ( !sparseData.GetFlatIndex( ref i, ref j, ref k ) )
             {
-                Assert.Fail( "Valid position, {0}:{1}:{2} was deemed invalid", position[0][dataPoint], position[1][dataPoint], position[2][dataPoint] );
+                Assert.Fail( $"Valid position, {position[0][dataPoint]}:{position[1][dataPoint]}:{position[2][dataPoint]} was deemed invalid" );
             }
         }
     }

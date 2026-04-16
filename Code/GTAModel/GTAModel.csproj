@@ -64,7 +64,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.CodeDom" Version="7.0.0" />
+    <PackageReference Include="System.CodeDom" Version="10.0.6" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
 </Project>
