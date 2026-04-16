@@ -28,8 +28,9 @@ public abstract class XTMFTestBase
     protected XTMFRuntime XTMF;
 
     [TestInitialize]
-    public void InitializeXTMF(string configurationFileName = "")
+    public void InitializeXTMF()
     {
+        string configurationFileName = "";
         Configuration = new Configuration(configurationFileName);
         XTMF = new XTMFRuntime((Configuration)Configuration);
     }
