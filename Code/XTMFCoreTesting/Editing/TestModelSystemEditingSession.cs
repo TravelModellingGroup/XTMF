@@ -297,17 +297,17 @@ public class TestModelSystemEditingSession
         var oldName = root.Name;
         const string? newName = "New Name";
         Assert.IsTrue(root.SetName(newName, ref error), "Failed to set the module's name!");
-        Assert.AreEqual(root.Name, newName, "The new name was not assigned!");
+        Assert.AreEqual(newName, root.Name, "The new name was not assigned!");
         if (!session.Undo(ref error))
         {
             Assert.Fail("We were unable to undo! " + error);
         }
-        Assert.AreEqual(root.Name, oldName, "The old name was not restored!");
+        Assert.AreEqual(oldName, root.Name, "The old name was not restored!");
         if (!session.Redo(ref error))
         {
             Assert.Fail("We were unable to redo! " + error);
         }
-        Assert.AreEqual(root.Name, newName, "The new name was not restored after redo!");
+        Assert.AreEqual(newName, root.Name, "The new name was not restored after redo!");
     }
 
     [TestMethod]

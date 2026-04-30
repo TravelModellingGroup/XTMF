@@ -641,6 +641,11 @@ public class HybridPSOGD : IEstimationAI
             error = "In '" + Name + "' the swarm size must be greater than 1!";
             return false;
         }
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         return true;
     }
 }

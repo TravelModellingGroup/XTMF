@@ -242,6 +242,11 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
 
     public bool RuntimeValidation(ref string error)
     {
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         Random = new Random( RandomSeed );
         return true;
     }

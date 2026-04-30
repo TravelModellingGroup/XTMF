@@ -218,6 +218,11 @@ public class NetworkAi : INetworkEstimationAI
             error = "The momentum residule can not be less than 0!";
             return false;
         }
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         return true;
     }
 

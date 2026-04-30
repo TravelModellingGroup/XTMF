@@ -199,6 +199,11 @@ public sealed class IntegerizeMatrix : IDataSource<SparseTwinIndex<float>>
 
     public bool RuntimeValidation(ref string error)
     {
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         return true;
     }
 
