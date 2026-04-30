@@ -108,6 +108,11 @@ public class PORPOW : ISelfContainedModule
                 return false;
             }
         }
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         return true;
     }
 

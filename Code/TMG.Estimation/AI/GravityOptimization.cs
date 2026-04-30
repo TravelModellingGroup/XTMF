@@ -620,6 +620,11 @@ public class GravityOptimization : IEstimationAI
             error = "In '" + Name + "' there must be more particles than stars!";
             return false;
         }
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         return true;
     }
 

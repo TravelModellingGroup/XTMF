@@ -219,6 +219,11 @@ public class Aggregation : IModule
 
         public bool RuntimeValidation(ref string error)
         {
+            if (RandomSeed == 0)
+            {
+                error = "Random Seed cannot be 0";
+                return false;
+            }
             if ((_SecondaryPool = Root.Pools.FirstOrDefault(p => p.Name == SecondaryPool.Data)) == null)
             {
                 error = $"In '{Name}' we were unable to find a pool with the name '{SecondaryPool.Data}'.";

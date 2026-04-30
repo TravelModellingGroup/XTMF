@@ -73,6 +73,11 @@ public class ExecuteModelSystemWithRandomSeeds : IModelSystemTemplate
             error = "Unable to start at negative indexed line! Please select non-negative value for 'Row to Start From'!";
             return false;
         }
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         return true;
     }
 

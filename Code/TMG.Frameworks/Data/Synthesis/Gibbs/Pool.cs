@@ -194,6 +194,11 @@ public class Pool : IModule
             }
         }
         // ZoneSystem can still be null at the end of this
+        if (RandomSeed == 0)
+        {
+            error = "Random Seed cannot be 0";
+            return false;
+        }
         return true;
     }
 }
