@@ -663,7 +663,12 @@ public sealed class V4LocationChoice : ILocationChoiceModel
             for (int i = 0; i < TimePeriod.Length; i++)
             {
                 jSum[i] = new float[zones.Length];
+                
                 var customUtilities = GetData(TimePeriod[i].CustomUtility)?.GetFlatData();
+                if(customUtilities is not null && customUtilities.Length != zones.Length)
+                {
+                    throw new XTMFRuntimeException(this, "The custom utility data for time period '" + TimePeriod[i].Name + "' is not of the same size as the number of zones!");
+                }
                 expCustomUtilities[i] = customUtilities;
                 Parallel.For(0, jSum[i].Length, j =>
                 {
@@ -671,6 +676,10 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                     // if there are any for this time period
                     if (customUtilities is not null)
                     {
+                        if (customUtilities[j].Length != zones.Length)
+                        {
+                            throw new XTMFRuntimeException(this, "The custom utility data for time period '" + TimePeriod[i].Name + "' is not of the same size as the number of zones!");
+                        }
                         VectorHelper.Exp(customUtilities[j], customUtilities[j]);
                     }
                     var jPD = zones[j].PlanningDistrict;
