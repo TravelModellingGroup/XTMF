@@ -698,6 +698,15 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                         if (UseEmploymentRatios)
                         {
                             var totalEmp = ((pf[i] + pp[i]) + (gf[i] + gp[i])) + ((sf[i] + sp[i]) + (mf[i] + mp[i]));
+                            if (totalEmp < 0)
+                            {
+                                throw new XTMFRuntimeException(this, $"The employment for time period '{TimePeriod[i].Name}' and zone '{zones[j].ZoneNumber}' is negative!");
+                            }
+                            var population = zones[j].Population;
+                            if (population < 0)
+                            {
+                                throw new XTMFRuntimeException(this, $"The population for time period '{TimePeriod[i].Name}' and zone '{zones[j].ZoneNumber}' is negative!");
+                            }
                             var logOfEmp = Math.Log(totalEmp + 1);
                             empTerm = Math.Exp(
                                 (ProfessionalFullTime * pf[i] +
@@ -708,23 +717,44 @@ public sealed class V4LocationChoice : ILocationChoiceModel
                                 RetailPartTime * sp[i] +
                                 ManufacturingPartTime * mf[i] +
                                 ProfessionalFullTime * mp[i]) * logOfEmp / Math.Max(totalEmp, 1) +
-                                Math.Log(1 + zones[j].Population) * Population
+                                Math.Log(1 + population) * Population
                                 );
 
                         }
                         else
                         {
-                            empTerm = Math.Exp((Math.Log(1 + pf[j]) * ProfessionalFullTime
-                                          + Math.Log(1 + pp[j]) * ProfessionalPartTime
-                                          + Math.Log(1 + gf[j]) * GeneralFullTime
-                                          + Math.Log(1 + gp[j]) * GeneralPartTime
-                                          + Math.Log(1 + sf[j]) * RetailFullTime
-                                          + Math.Log(1 + sp[j]) * RetailPartTime
-                                          + Math.Log(1 + mf[j]) * ManufacturingFullTime
-                                          + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                                          + Math.Log(1 + zones[j].Population) * Population));
+                            var population = zones[j].Population;
+                            if (population < 0)
+                            {
+                                throw new XTMFRuntimeException(this, $"The population for time period '{TimePeriod[i].Name}' and zone '{zones[j].ZoneNumber}' is negative!");
+                            }
+                            var pfj = pf[j];
+                            var ppj = pp[j];
+                            var gfj = gf[j];
+                            var gpj = gp[j];
+                            var sfj = sf[j];
+                            var spj = sp[j];
+                            var mfj = mf[j];
+                            var mpj = mp[j];
+                            if (pfj < 0 || ppj < 0 || gfj < 0 || gpj < 0 || sfj < 0 || spj < 0 || mfj < 0 || mpj < 0)
+                            {
+                                throw new XTMFRuntimeException(this, $"The employment for time period '{TimePeriod[i].Name}' and zone '{zones[j].ZoneNumber}' is negative!");
+                            }
+                            empTerm = Math.Exp((Math.Log(1 + pfj) * ProfessionalFullTime
+                                          + Math.Log(1 + ppj) * ProfessionalPartTime
+                                          + Math.Log(1 + gfj) * GeneralFullTime
+                                          + Math.Log(1 + gpj) * GeneralPartTime
+                                          + Math.Log(1 + sfj) * RetailFullTime
+                                          + Math.Log(1 + spj) * RetailPartTime
+                                          + Math.Log(1 + mfj) * ManufacturingFullTime
+                                          + Math.Log(1 + mpj) * ManufacturingPartTime
+                                          + Math.Log(1 + population) * Population));
                         }
                         jSum[i][j] = (float)(empTerm * Math.Exp(nonExpPDConstant));
+                        if (float.IsRealNumber(jSum[i][j]) == false)
+                        {
+                            throw new XTMFRuntimeException(this, $"The computed jSum value for time period '{TimePeriod[i].Name}' and zone '{zones[j].ZoneNumber}' is not a real number!");
+                        }
                     }
                     else
                     {
