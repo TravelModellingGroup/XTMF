@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "University of Toronto" )]
 [assembly: AssemblyProduct( "XTMFInterfaces" )]
-[assembly: AssemblyCopyright("Copyright © University of Toronto 2011-2025")]
+[assembly: AssemblyCopyright("Copyright © University of Toronto 2011-2026")]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
