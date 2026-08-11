@@ -45,13 +45,13 @@ public class BuildFbtnFromSchema : IEmmeTool
     [RunParameter("Transfer Mode", 't', "The mode ID to assign to new virtual connector links.")]
     public char TransferModeId;
 
-    [Parameter("Segment Fare Attribute", "@sfare", "A TRANSIT SEGMENT extra attribute in which to store the in-line fares.")]
+    [RunParameter("Segment Fare Attribute", "@sfare", "A TRANSIT SEGMENT extra attribute in which to store the in-line fares.")]
     public string SegmentFareAttribute;
 
-    [Parameter("Link Fare Attribute", "@lfare", "A LINK extra attribute in which to store the transfer and boarding fares.")]
+    [RunParameter("Link Fare Attribute", "@lfare", "A LINK extra attribute in which to store the transfer and boarding fares.")]
     public string LinkFareAttribute;
 
-    [Parameter("Virtual Node Domain", 100000, "All created virtual nodes will have IDs higher than this number. This tool will never override and existing node.")]
+    [RunParameter("Virtual Node Domain", 100000, "All created virtual nodes will have IDs higher than this number. This tool will never override and existing node.")]
     public int VirtualNodeDomain;
 
     [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
