@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<OutputType>Exe</OutputType>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
 		<GCCpuGroup>true</GCCpuGroup>
@@ -44,8 +44,5 @@
 		<ProjectReference Include="..\..\Datastructure\Datastructure.csproj" />
 		<ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj" />
 		<ProjectReference Include="..\XTMF\XTMF.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 	</ItemGroup>
 </Project>
