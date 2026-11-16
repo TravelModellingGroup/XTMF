@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -11,9 +11,6 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="RTree2D.cs" />
 	</ItemGroup>
